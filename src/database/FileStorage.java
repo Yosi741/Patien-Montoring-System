@@ -31,13 +31,29 @@ public class FileStorage {
                 }
 
                 writer.println(
-                        patient.getPatientId() + "," +
-                                patient.getFirstName() + "," +
-                                patient.getLastName() + "," +
-                                patient.getBirthDate() + "," +
-                                patient.getGender() + "," +
-                                patient.getRoom() + "," +
-                                vitalsData
+                        clean(patient.getPatientId()) + "," +
+                                clean(patient.getFirstName()) + "," +
+                                clean(patient.getLastName()) + "," +
+                                clean(patient.getBirthDate()) + "," +
+                                clean(patient.getGender()) + "," +
+                                clean(patient.getRoom()) + "," +
+                                vitalsData + "," +
+                                clean(patient.getSection()) + "," +
+                                clean(patient.getStatus()) + "," +
+                                clean(patient.getDiagnosis()) + "," +
+                                clean(patient.getMedicalHistory()) + "," +
+                                clean(patient.getCurrentMedications()) + "," +
+                                clean(patient.getPastMedications()) + "," +
+                                clean(patient.getAllergies()) + "," +
+                                clean(patient.getFamilyHistory()) + "," +
+                                clean(patient.getDeathDateTime()) + "," +
+                                clean(patient.getDeathCause()) + "," +
+                                clean(patient.getDeathClinicalSummary()) + "," +
+                                clean(patient.getDeathNotes()) + "," +
+                                clean(patient.getPronouncingDoctorName()) + "," +
+                                clean(patient.getPronouncingDoctorId()) + "," +
+                                clean(patient.getDeathCertificatePath()) + "," +
+                                clean(patient.getDeathCertificateNumber())
                 );
             }
 
@@ -62,7 +78,7 @@ public class FileStorage {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
+                String[] data = line.split(",", -1);
 
                 if (data.length >= 6) {
                     Patient patient = new Patient(
@@ -74,7 +90,7 @@ public class FileStorage {
                             data[5]
                     );
 
-                    if (data.length == 11 && !data[6].equals("null")) {
+                    if (data.length >= 11 && !data[6].equals("null")) {
                         VitalSign vitalSign = new VitalSign(
                                 Double.parseDouble(data[6]),
                                 Integer.parseInt(data[7]),
@@ -85,6 +101,23 @@ public class FileStorage {
 
                         patient.setVitalSign(vitalSign);
                     }
+
+                    if (data.length >= 12) patient.setSection(data[11]);
+                    if (data.length >= 13) patient.setStatus(data[12]);
+                    if (data.length >= 14) patient.setDiagnosis(data[13]);
+                    if (data.length >= 15) patient.setMedicalHistory(data[14]);
+                    if (data.length >= 16) patient.setCurrentMedications(data[15]);
+                    if (data.length >= 17) patient.setPastMedications(data[16]);
+                    if (data.length >= 18) patient.setAllergies(data[17]);
+                    if (data.length >= 19) patient.setFamilyHistory(data[18]);
+                    if (data.length >= 20) patient.setDeathDateTime(data[19]);
+                    if (data.length >= 21) patient.setDeathCause(data[20]);
+                    if (data.length >= 22) patient.setDeathClinicalSummary(data[21]);
+                    if (data.length >= 23) patient.setDeathNotes(data[22]);
+                    if (data.length >= 24) patient.setPronouncingDoctorName(data[23]);
+                    if (data.length >= 25) patient.setPronouncingDoctorId(data[24]);
+                    if (data.length >= 26) patient.setDeathCertificatePath(data[25]);
+                    if (data.length >= 27) patient.setDeathCertificateNumber(data[26]);
 
                     patients.add(patient);
                 }
@@ -97,5 +130,12 @@ public class FileStorage {
         }
 
         return patients;
+    }
+
+    private static String clean(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace(",", " ").replace("\n", " / ");
     }
 }

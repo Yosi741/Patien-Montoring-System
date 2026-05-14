@@ -2,8 +2,10 @@ package gui;
 
 import models.Patient;
 import models.VitalSign;
+import services.VitalService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class AddVitalSignGUI extends JFrame {
@@ -13,9 +15,16 @@ public class AddVitalSignGUI extends JFrame {
         setTitle("Add Vital Signs - " + patient.getName());
         setSize(450, 420);
         setLocationRelativeTo(null);
+        NavigationManager.configureChildWindow(this);
 
-        JPanel panel = new JPanel(new GridLayout(7, 2, 12, 12));
-        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        if (patient.isDeceased()) {
+            JOptionPane.showMessageDialog(this, "Cannot add new vital signs for a deceased patient.");
+            dispose();
+            return;
+        }
+
+        JPanel panel = UITheme.appPanel(new GridLayout(7, 2, 12, 12));
+        panel.setBorder(new EmptyBorder(25, 25, 25, 25));
 
         JTextField tempField = new JTextField();
         JTextField heartField = new JTextField();
@@ -41,7 +50,12 @@ public class AddVitalSignGUI extends JFrame {
         panel.add(new JLabel("Example:"));
         panel.add(new JLabel("37.0 | 80 | 120 | 80 | 98"));
 
-        JButton saveButton = new JButton("Save Vitals");
+        JButton saveButton = UITheme.button("Save Vitals", UITheme.SUCCESS);
+        UITheme.styleTextField(tempField);
+        UITheme.styleTextField(heartField);
+        UITheme.styleTextField(systolicField);
+        UITheme.styleTextField(diastolicField);
+        UITheme.styleTextField(oxygenField);
 
         panel.add(new JLabel());
         panel.add(saveButton);
@@ -56,6 +70,12 @@ public class AddVitalSignGUI extends JFrame {
                 int diastolic = Integer.parseInt(diastolicField.getText().trim());
                 int oxygen = Integer.parseInt(oxygenField.getText().trim());
 
+                String validationError = VitalService.validateVitals(temperature, heartRate, systolic, diastolic, oxygen);
+                if (validationError != null) {
+                    JOptionPane.showMessageDialog(this, validationError);
+                    return;
+                }
+
                 VitalSign vitalSign = new VitalSign(
                         temperature,
                         heartRate,
@@ -64,13 +84,7 @@ public class AddVitalSignGUI extends JFrame {
                         oxygen
                 );
 
-                patient.setVitalSign(vitalSign);
-                alerts.CriticalAlertManager.checkPatient(patient);
-                logs.AuditLog.addLog(
-                        users.Session.getUsername(),
-                        "Added vital signs for: " + patient.getName()
-                );
-                database.FileStorage.savePatients(database.HospitalData.patientManager.getPatients());
+                VitalService.recordManualVitals(patient, vitalSign);
 
                 JOptionPane.showMessageDialog(this, "Vital Signs Added Successfully");
                 dispose();

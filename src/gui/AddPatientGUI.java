@@ -2,36 +2,49 @@ package gui;
 
 import database.HospitalData;
 import models.Patient;
+import services.RoomService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class AddPatientGUI extends JFrame {
 
-    private JTextField idField;
-    private JTextField firstNameField;
-    private JTextField lastNameField;
-    private JTextField birthDateField;
-    private JComboBox<String> genderBox;
-    private JTextField roomField;
+    private final JTextField idField;
+    private final JTextField firstNameField;
+    private final JTextField lastNameField;
+    private final JTextField birthDateField;
+    private final JComboBox<String> genderBox;
+    private final JComboBox<String> sectionBox;
+    private final JComboBox<String> roomBox;
 
     public AddPatientGUI() {
 
         setTitle("Add Patient");
-        setSize(450, 420);
+        setSize(520, 480);
         setLocationRelativeTo(null);
+        NavigationManager.configureChildWindow(this);
 
-        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel panel = UITheme.appPanel(new GridLayout(8, 2, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
 
         idField = new JTextField();
         firstNameField = new JTextField();
         lastNameField = new JTextField();
         birthDateField = new JTextField();
-        genderBox = new JComboBox<>(new String[]{"Male", "Female"});
-        roomField = new JTextField();
+        genderBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        sectionBox = new JComboBox<String>(RoomService.getSections());
+        roomBox = new JComboBox<String>();
 
-        JButton saveButton = new JButton("Save Patient");
+        JButton saveButton = UITheme.button("Save Patient", UITheme.PRIMARY);
+        UITheme.styleTextField(idField);
+        UITheme.styleTextField(firstNameField);
+        UITheme.styleTextField(lastNameField);
+        UITheme.styleTextField(birthDateField);
+
+        sectionBox.addActionListener(e -> loadRooms());
+        loadRooms();
 
         panel.add(new JLabel("Patient ID (9 digits):"));
         panel.add(idField);
@@ -48,8 +61,11 @@ public class AddPatientGUI extends JFrame {
         panel.add(new JLabel("Gender:"));
         panel.add(genderBox);
 
+        panel.add(new JLabel("Hospital Section:"));
+        panel.add(sectionBox);
+
         panel.add(new JLabel("Room:"));
-        panel.add(roomField);
+        panel.add(roomBox);
 
         panel.add(new JLabel());
         panel.add(saveButton);
@@ -77,14 +93,39 @@ public class AddPatientGUI extends JFrame {
                 return;
             }
 
+            for (Patient existingPatient : HospitalData.patientManager.getPatients()) {
+                if (existingPatient.getPatientId().equals(id)) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "This Patient ID is already used.\nPlease enter a unique ID."
+                    );
+                    return;
+                }
+            }
+
+            String selectedGender = selectedValue(genderBox);
+            String selectedSection = selectedValue(sectionBox);
+            String selectedRoom = selectedValue(roomBox);
+
+            if (selectedSection.isEmpty() || selectedRoom.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please choose a valid section and room.");
+                return;
+            }
+
             Patient patient = new Patient(
                     id,
                     firstNameField.getText().trim(),
                     lastNameField.getText().trim(),
                     birthDate,
-                    genderBox.getSelectedItem().toString(),
-                    roomField.getText().trim()
+                    selectedGender,
+                    selectedRoom
             );
+            patient.setSection(selectedSection);
+
+            if (RoomService.isRoomFull(patient.getSection(), patient.getRoom(), null)) {
+                JOptionPane.showMessageDialog(this, "Room is full, please choose another room.");
+                return;
+            }
 
             HospitalData.patientManager.addPatient(patient);
             logs.AuditLog.addLog(
@@ -98,5 +139,21 @@ public class AddPatientGUI extends JFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Invalid Input. Birth date must be YYYY-MM-DD");
         }
+    }
+
+    private void loadRooms() {
+        roomBox.removeAllItems();
+        ArrayList<String> rooms = RoomService.getRoomsForSection(selectedValue(sectionBox));
+        for (String room : rooms) {
+            roomBox.addItem(room);
+        }
+    }
+
+    private String selectedValue(JComboBox<String> comboBox) {
+        Object value = comboBox.getSelectedItem();
+        if (value == null) {
+            return "";
+        }
+        return value.toString();
     }
 }

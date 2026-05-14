@@ -1,0 +1,167 @@
+ER|001|3
+ER|002|3
+ER|003|3
+ER|004|3
+ER|005|3
+ER|006|3
+ER|007|3
+ER|008|3
+ER|009|3
+ER|010|3
+ER|011|3
+ER|012|3
+ER|013|3
+ER|014|3
+ER|015|3
+ER|016|3
+ER|017|3
+ER|018|3
+ER|019|3
+ER|020|3
+ER|021|3
+ER|022|3
+ER|023|3
+ER|024|3
+ER|025|3
+ER|026|3
+ER|027|3
+ER|028|3
+ER|029|3
+ER|030|3
+Cardiology|110|2
+Cardiology|111|2
+Cardiology|112|2
+Cardiology|113|2
+Cardiology|114|2
+Cardiology|115|2
+Cardiology|116|2
+Cardiology|117|2
+Cardiology|118|2
+Cardiology|119|2
+Cardiology|120|2
+Cardiology|121|2
+Cardiology|122|2
+Cardiology|123|2
+Cardiology|124|2
+Cardiology|125|2
+Cardiology|126|2
+Cardiology|127|2
+Cardiology|128|2
+Cardiology|129|2
+Cardiology|130|2
+Surgery|140|2
+Surgery|141|2
+Surgery|142|2
+Surgery|143|2
+Surgery|144|2
+Surgery|145|2
+Surgery|146|2
+Surgery|147|2
+Surgery|148|2
+Surgery|149|2
+Surgery|150|2
+Surgery|151|2
+Surgery|152|2
+Surgery|153|2
+Surgery|154|2
+Surgery|155|2
+Surgery|156|2
+Surgery|157|2
+Surgery|158|2
+Surgery|159|2
+Surgery|160|2
+Surgery|161|2
+Surgery|162|2
+Surgery|163|2
+Surgery|164|2
+Surgery|165|2
+Surgery|166|2
+Surgery|167|2
+Surgery|168|2
+Surgery|169|2
+Surgery|170|2
+ICU|200|1
+ICU|201|1
+ICU|202|1
+ICU|203|1
+ICU|204|1
+ICU|205|1
+ICU|206|1
+ICU|207|1
+ICU|208|1
+ICU|209|1
+ICU|210|1
+ICU|211|1
+ICU|212|1
+ICU|213|1
+ICU|214|1
+ICU|215|1
+ICU|216|1
+ICU|217|1
+ICU|218|1
+ICU|219|1
+ICU|220|1
+Pediatrics|300|2
+Pediatrics|301|2
+Pediatrics|302|2
+Pediatrics|303|2
+Pediatrics|304|2
+Pediatrics|305|2
+Pediatrics|306|2
+Pediatrics|307|2
+Pediatrics|308|2
+Pediatrics|309|2
+Pediatrics|310|2
+Pediatrics|311|2
+Pediatrics|312|2
+Pediatrics|313|2
+Pediatrics|314|2
+Pediatrics|315|2
+Pediatrics|316|2
+Pediatrics|317|2
+Pediatrics|318|2
+Pediatrics|319|2
+Pediatrics|320|2
+Pediatrics|321|2
+Pediatrics|322|2
+Pediatrics|323|2
+Pediatrics|324|2
+Pediatrics|325|2
+Pediatrics|326|2
+Pediatrics|327|2
+Pediatrics|328|2
+Pediatrics|329|2
+Pediatrics|330|2
+Internal Medicine|400|2
+Internal Medicine|401|2
+Internal Medicine|402|2
+Internal Medicine|403|2
+Internal Medicine|404|2
+Internal Medicine|405|2
+Internal Medicine|406|2
+Internal Medicine|407|2
+Internal Medicine|408|2
+Internal Medicine|409|2
+Internal Medicine|410|2
+Internal Medicine|411|2
+Internal Medicine|412|2
+Internal Medicine|413|2
+Internal Medicine|414|2
+Internal Medicine|415|2
+Internal Medicine|416|2
+Internal Medicine|417|2
+Internal Medicine|418|2
+Internal Medicine|419|2
+Internal Medicine|420|2
+Internal Medicine|421|2
+Internal Medicine|422|2
+Internal Medicine|423|2
+Internal Medicine|424|2
+Internal Medicine|425|2
+Internal Medicine|426|2
+Internal Medicine|427|2
+Internal Medicine|428|2
+Internal Medicine|429|2
+Internal Medicine|430|2
+Birth|Room-1|1
+Birth|113|1

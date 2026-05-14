@@ -1,0 +1,3 @@
+8f7625db-b595-4dab-9424-afd8727a9a14|ALL|INFO|Announcement from Yasen: new app|14-05-2026 19:10:49|true
+63eb7bb8-f77c-481b-8c36-efdcdaede551|ALL|CRITICAL|Critical alert active for patient Yasen Salhab in Surgery room 140|14-05-2026 19:18:29|false
+c5314ac1-dc0d-419c-a40d-15846c1f3171|ALL|WARNING|Device disconnected for patient Yasen Salhab: Simulated Bluetooth ICU Monitor|14-05-2026 19:19:03|false

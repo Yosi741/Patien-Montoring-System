@@ -1,0 +1,1 @@
+BABY-1778774175269|215070632|yasen|215070632|yasen|215070632|215070632|14-05-2026 18:52:37|Male|1.2|Natural|Newborn||Admitted|true|Birth weight: 1.2 kg|215070632|data\certificates\birth\BC-215070632-1778774175255.pdf

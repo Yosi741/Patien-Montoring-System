@@ -16,6 +16,7 @@ public class AuditLogGUI extends JFrame {
         setTitle("Audit Logs");
         setSize(900, 600);
         setLocationRelativeTo(null);
+        NavigationManager.configureChildWindow(this);
 
         JPanel main = new JPanel(new BorderLayout());
         main.setBackground(new Color(243, 247, 251));
@@ -31,12 +32,17 @@ public class AuditLogGUI extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(logArea);
 
-        JButton refreshButton = new JButton("Refresh");
+        JButton refreshButton = UITheme.secondaryButton("Refresh");
         refreshButton.addActionListener(e -> loadLogs());
+        JButton homeButton = NavigationManager.homeButton(this);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttons.setOpaque(false);
+        buttons.add(refreshButton);
+        buttons.add(homeButton);
 
         main.add(title, BorderLayout.NORTH);
         main.add(scrollPane, BorderLayout.CENTER);
-        main.add(refreshButton, BorderLayout.SOUTH);
+        main.add(buttons, BorderLayout.SOUTH);
 
         add(main);
 

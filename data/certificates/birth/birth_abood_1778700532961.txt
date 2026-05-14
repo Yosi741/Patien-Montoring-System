@@ -1,0 +1,14 @@
+BIRTH CERTIFICATE
+=================
+Baby Name: abood
+Mother ID: shwiki
+Father/Parent Info: 22:50
+Date/Time of Birth: 13-05-2026 22:26:13
+Gender: Male
+Birth Weight: 800
+Delivery Type: Natural
+Doctor/Nurse Name: Q3
+Doctor/Nurse ID: 147258
+Notes: lll
+Signature: 444
+Generated At: 13-05-2026 22:28:52

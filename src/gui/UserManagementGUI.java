@@ -1,6 +1,8 @@
 package gui;
 
 import database.UserStorage;
+import logs.AuditLog;
+import services.RoomService;
 import users.User;
 
 import javax.swing.*;
@@ -19,16 +21,17 @@ public class UserManagementGUI extends JFrame {
         setTitle("User Management");
         setSize(950, 600);
         setLocationRelativeTo(null);
+        NavigationManager.configureChildWindow(this);
 
         JPanel main = new JPanel(new BorderLayout());
-        main.setBackground(new Color(243, 247, 251));
+        main.setBackground(UITheme.BACKGROUND);
         main.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JLabel title = new JLabel("User Management", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        title.setForeground(new Color(20, 45, 80));
+        title.setFont(UITheme.font(Font.BOLD, 30));
+        title.setForeground(UITheme.TEXT);
 
-        String[] columns = {"Username", "Password", "Role"};
+        String[] columns = {"Username", "Password", "Role", "Section"};
 
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -38,20 +41,22 @@ public class UserManagementGUI extends JFrame {
         };
 
         usersTable = new JTable(tableModel);
-        usersTable.setRowHeight(35);
+        UITheme.styleTable(usersTable);
 
         JScrollPane scrollPane = new JScrollPane(usersTable);
 
-        JButton addButton = new JButton("Add User");
-        JButton editButton = new JButton("Edit User");
-        JButton deleteButton = new JButton("Delete User");
-        JButton refreshButton = new JButton("Refresh");
+        JButton addButton = UITheme.button("Add User", UITheme.PRIMARY);
+        JButton editButton = UITheme.button("Edit User", UITheme.WARNING);
+        JButton deleteButton = UITheme.button("Delete User", UITheme.DANGER);
+        JButton refreshButton = UITheme.secondaryButton("Refresh");
+        JButton homeButton = NavigationManager.homeButton(this);
 
         JPanel buttons = new JPanel();
         buttons.add(addButton);
         buttons.add(editButton);
         buttons.add(deleteButton);
         buttons.add(refreshButton);
+        buttons.add(homeButton);
 
         main.add(title, BorderLayout.NORTH);
         main.add(scrollPane, BorderLayout.CENTER);
@@ -76,7 +81,8 @@ public class UserManagementGUI extends JFrame {
             tableModel.addRow(new Object[]{
                     user.getUsername(),
                     user.getPassword(),
-                    user.getRole()
+                    user.getRole(),
+                    user.getSection()
             });
         }
     }
@@ -85,13 +91,14 @@ public class UserManagementGUI extends JFrame {
         JTextField usernameField = new JTextField();
         JTextField passwordField = new JTextField();
 
-        JComboBox<String> roleBox =
-                new JComboBox<>(new String[]{"Admin", "Doctor", "Nurse"});
+        JComboBox<String> roleBox = roleBox();
+        JComboBox<String> sectionBox = sectionBox();
 
         Object[] fields = {
                 "Username:", usernameField,
                 "Password:", passwordField,
-                "Role:", roleBox
+                "Role:", roleBox,
+                "Section:", sectionBox
         };
 
         int result = JOptionPane.showConfirmDialog(
@@ -117,9 +124,11 @@ public class UserManagementGUI extends JFrame {
             UserStorage.addUser(
                     usernameField.getText().trim(),
                     passwordField.getText().trim(),
-                    roleBox.getSelectedItem().toString()
+                    roleBox.getSelectedItem().toString(),
+                    sectionBox.getSelectedItem().toString()
             );
 
+            AuditLog.addLog(users.Session.getUsername(), "Added user: " + usernameField.getText().trim());
             loadUsers();
         }
     }
@@ -141,17 +150,22 @@ public class UserManagementGUI extends JFrame {
         JTextField passwordField =
                 new JTextField(tableModel.getValueAt(selectedRow, 1).toString());
 
-        JComboBox<String> roleBox =
-                new JComboBox<>(new String[]{"Admin", "Doctor", "Nurse"});
+        JComboBox<String> roleBox = roleBox();
 
         roleBox.setSelectedItem(
                 tableModel.getValueAt(selectedRow, 2).toString()
         );
 
+        JComboBox<String> sectionBox = sectionBox();
+        sectionBox.setSelectedItem(
+                tableModel.getValueAt(selectedRow, 3).toString()
+        );
+
         Object[] fields = {
                 "Username:", usernameField,
                 "Password:", passwordField,
-                "Role:", roleBox
+                "Role:", roleBox,
+                "Section:", sectionBox
         };
 
         int result = JOptionPane.showConfirmDialog(
@@ -178,9 +192,11 @@ public class UserManagementGUI extends JFrame {
                     oldUsername,
                     usernameField.getText().trim(),
                     passwordField.getText().trim(),
-                    roleBox.getSelectedItem().toString()
+                    roleBox.getSelectedItem().toString(),
+                    sectionBox.getSelectedItem().toString()
             );
 
+            AuditLog.addLog(users.Session.getUsername(), "Edited user: " + oldUsername + " -> " + usernameField.getText().trim());
             loadUsers();
         }
     }
@@ -205,7 +221,32 @@ public class UserManagementGUI extends JFrame {
 
         if (confirm == JOptionPane.YES_OPTION) {
             UserStorage.deleteUser(username);
+            AuditLog.addLog(users.Session.getUsername(), "Deleted user: " + username);
             loadUsers();
         }
+    }
+
+    private JComboBox<String> roleBox() {
+        return new JComboBox<>(new String[]{
+                "System Admin",
+                "Hospital Director",
+                "Chief Medical Officer",
+                "Chief of Surgery",
+                "Chief Nursing Officer",
+                "Department Head",
+                "Doctor",
+                "Nurse",
+                "Technician",
+                "Receptionist",
+                "Admin"
+        });
+    }
+
+    private JComboBox<String> sectionBox() {
+        String[] sections = RoomService.getSections();
+        String[] values = new String[sections.length + 1];
+        values[0] = "All";
+        System.arraycopy(sections, 0, values, 1, sections.length);
+        return new JComboBox<>(values);
     }
 }

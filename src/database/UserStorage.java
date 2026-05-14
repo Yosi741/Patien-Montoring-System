@@ -26,8 +26,9 @@ public class UserStorage {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
 
-                if (data.length == 3) {
-                    users.add(new User(data[0], data[1], data[2]));
+                if (data.length >= 3) {
+                    String section = data.length >= 4 ? data[3] : new User(data[0], data[1], data[2]).getSection();
+                    users.add(new User(data[0], data[1], data[2], section));
                 }
             }
 
@@ -46,11 +47,11 @@ public class UserStorage {
 
             PrintWriter writer = new PrintWriter(new FileWriter(FILE_PATH));
 
-            writer.println("admin,1234,Admin");
-            writer.println("doctor,1234,Doctor");
-            writer.println("nurse,1234,Nurse");
-            writer.println("dr_ahmad,1234,Doctor");
-            writer.println("nurse_lina,1234,Nurse");
+            writer.println("admin,1234,System Admin,All");
+            writer.println("doctor,1234,Doctor,Cardiology");
+            writer.println("nurse,1234,Nurse,ER");
+            writer.println("dr_ahmad,1234,Doctor,Cardiology");
+            writer.println("nurse_lina,1234,Nurse,ER");
 
             writer.close();
 
@@ -59,13 +60,17 @@ public class UserStorage {
         }
     }
     public static void addUser(String username, String password, String role) {
+        addUser(username, password, role, "All");
+    }
+
+    public static void addUser(String username, String password, String role, String section) {
         try {
             new File("data").mkdirs();
 
             PrintWriter writer =
                     new PrintWriter(new FileWriter(FILE_PATH, true));
 
-            writer.println(username + "," + password + "," + role);
+            writer.println(username + "," + password + "," + role + "," + section);
 
             writer.close();
 
@@ -95,7 +100,8 @@ public class UserStorage {
                 writer.println(
                         user.getUsername() + "," +
                                 user.getPassword() + "," +
-                                user.getRole()
+                                user.getRole() + "," +
+                                user.getSection()
                 );
             }
 
@@ -111,6 +117,16 @@ public class UserStorage {
             String newPassword,
             String newRole
     ) {
+        updateUser(oldUsername, newUsername, newPassword, newRole, "All");
+    }
+
+    public static void updateUser(
+            String oldUsername,
+            String newUsername,
+            String newPassword,
+            String newRole,
+            String newSection
+    ) {
         ArrayList<User> users = loadUsers();
 
         for (int i = 0; i < users.size(); i++) {
@@ -119,7 +135,7 @@ public class UserStorage {
             if (user.getUsername().equals(oldUsername)) {
                 users.set(
                         i,
-                        new User(newUsername, newPassword, newRole)
+                        new User(newUsername, newPassword, newRole, newSection)
                 );
                 break;
             }
