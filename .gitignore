@@ -28,3 +28,15 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+# Runtime/generated data
+data/certificates/
+data/files/
+data/ai_notes.txt
+data/messages.txt
+data/notifications.txt
+data/vitals_history.txt
+data/devices.txt
+data/medical_files.txt
+data/newborns.txt
+data/mothers.txt
+data/rooms.txt
