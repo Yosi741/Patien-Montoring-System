@@ -82,6 +82,12 @@
                             <Label fx:id="activeAlertsLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
 
+                        <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Deceased Patients" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="deceasedPatientsLabel" text="0" style="-fx-text-fill: #455A64; -fx-font-size: 32px; -fx-font-weight: bold;" />
+                        </VBox>
+
                         <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
                               style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                             <Label text="Acknowledged Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />

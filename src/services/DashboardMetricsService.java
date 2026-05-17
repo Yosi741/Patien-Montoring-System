@@ -33,6 +33,7 @@ public class DashboardMetricsService {
             DashboardMetrics metrics = new DashboardMetrics();
             metrics.totalPatients = count(connection, "SELECT COUNT(*) FROM patients");
             metrics.activePatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE')");
+            metrics.deceasedPatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) = 'DECEASED'");
             metrics.criticalEmergencyPatients = count(connection,
                     "SELECT COUNT(*) FROM patients WHERE UPPER(priority) IN ('CRITICAL', 'EMERGENCY')");
             metrics.activeAlerts = count(connection, "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'ACTIVE'");
@@ -147,6 +148,7 @@ public class DashboardMetricsService {
     public static class DashboardMetrics {
         private int totalPatients;
         private int activePatients;
+        private int deceasedPatients;
         private int criticalEmergencyPatients;
         private int activeAlerts;
         private int acknowledgedAlertsToday;
@@ -166,6 +168,7 @@ public class DashboardMetricsService {
 
         public int getTotalPatients() { return totalPatients; }
         public int getActivePatients() { return activePatients; }
+        public int getDeceasedPatients() { return deceasedPatients; }
         public int getCriticalEmergencyPatients() { return criticalEmergencyPatients; }
         public int getActiveAlerts() { return activeAlerts; }
         public int getAcknowledgedAlertsToday() { return acknowledgedAlertsToday; }

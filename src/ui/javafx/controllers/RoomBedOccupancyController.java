@@ -1,9 +1,11 @@
 package ui.javafx.controllers;
 
+import dao.SqliteRoomDao;
 import dao.SqliteAuditLogDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -15,10 +17,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import services.RoomWriteService;
 import services.RoomBedOccupancyService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
+import ui.javafx.helpers.DialogHelper;
+import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 
 import java.time.LocalDateTime;
@@ -29,6 +35,8 @@ import java.util.Map;
 public class RoomBedOccupancyController implements FxController {
 
     private final RoomBedOccupancyService occupancyService = new RoomBedOccupancyService();
+    private final RoomWriteService roomWriteService = new RoomWriteService();
+    private final SqliteRoomDao roomDao = new SqliteRoomDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final ObservableList<RoomBedOccupancyService.RoomRow> rows = FXCollections.observableArrayList();
     private AppShell appShell;
@@ -49,11 +57,18 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private TableView<RoomBedOccupancyService.RoomRow> roomTable;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> sectionColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> roomColumn;
+    @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> roomStatusColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Integer> capacityColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Integer> occupiedColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Integer> availableColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> patientsColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> priorityColumn;
+    @FXML private Button addRoomButton;
+    @FXML private Button editRoomButton;
+    @FXML private Button deactivateRoomButton;
+    @FXML private Button assignPatientButton;
+    @FXML private Button movePatientButton;
+    @FXML private Button removePatientRoomButton;
     @FXML private Label statusLabel;
 
     @Override
@@ -115,12 +130,114 @@ public class RoomBedOccupancyController implements FxController {
         openPatient(selected);
     }
 
+    @FXML
+    private void addRoom() {
+        try {
+            boolean saved = RoomFormController.showCreateDialog(roomTable.getScene().getWindow(), Session.getCurrentUser());
+            if (saved) {
+                refreshAfterWrite("Room created in SQLite.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void editRoom() {
+        RoomBedOccupancyService.RoomRow selected = selectedRealRoom();
+        if (selected == null) {
+            return;
+        }
+        try {
+            SqliteRoomDao.RoomDetail room = roomDao.findById(selected.getRoomId())
+                    .orElseThrow(() -> new IllegalArgumentException("Room not found in SQLite."));
+            boolean saved = RoomFormController.showEditDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), room);
+            if (saved) {
+                refreshAfterWrite("Room updated in SQLite.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void deactivateRoom() {
+        RoomBedOccupancyService.RoomRow selected = selectedRealRoom();
+        if (selected == null) {
+            return;
+        }
+        if (!DialogHelper.confirm("Deactivate room",
+                "Deactivate " + selected.getSection() + " / Room " + selected.getRoomNumber() + "?")) {
+            return;
+        }
+        try {
+            roomWriteService.deactivateRoom(Session.getCurrentUser(), selected.getRoomId());
+            refreshAfterWrite("Room deactivated in SQLite.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void assignPatientToRoom() {
+        RoomBedOccupancyService.RoomRow selected = selectedRealRoom();
+        if (selected == null) {
+            return;
+        }
+        try {
+            boolean saved = RoomAssignmentController.showAssignDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
+            if (saved) {
+                refreshAfterWrite("Patient assigned to room in SQLite.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void movePatientToRoom() {
+        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
+        try {
+            boolean saved = RoomAssignmentController.showMoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
+            if (saved) {
+                refreshAfterWrite("Patient moved to room in SQLite.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void removePatientFromRoom() {
+        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getSelectedPatientId().isBlank()) {
+            NotificationHelper.showInfo(statusLabel, "Select an occupied room row first.");
+            return;
+        }
+        try {
+            boolean saved = RoomAssignmentController.showRemoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
+            if (saved) {
+                refreshAfterWrite("Patient removed from room in SQLite.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
     private void configureAccess() {
         boolean authorized = isAuthorized();
         accessDeniedPane.setVisible(!authorized);
         accessDeniedPane.setManaged(!authorized);
         occupancyContentPane.setVisible(authorized);
         occupancyContentPane.setManaged(authorized);
+        boolean canManageRooms = PermissionHelper.canManageRooms(Session.getCurrentUser());
+        setButtonVisible(addRoomButton, canManageRooms);
+        setButtonVisible(editRoomButton, canManageRooms);
+        setButtonVisible(deactivateRoomButton, canManageRooms);
+        boolean canAssign = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
+        setButtonVisible(assignPatientButton, canAssign);
+        setButtonVisible(movePatientButton, canAssign);
+        setButtonVisible(removePatientRoomButton, canAssign);
     }
 
     private void configureFilters() {
@@ -147,6 +264,7 @@ public class RoomBedOccupancyController implements FxController {
     private void configureTable() {
         sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
         roomColumn.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
+        roomStatusColumn.setCellValueFactory(new PropertyValueFactory<>("roomStatus"));
         capacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
         occupiedColumn.setCellValueFactory(new PropertyValueFactory<>("occupiedCount"));
         availableColumn.setCellValueFactory(new PropertyValueFactory<>("availableCount"));
@@ -225,6 +343,31 @@ public class RoomBedOccupancyController implements FxController {
         }
         logAudit("JavaFX ROOM_OCCUPANCY opened patient detail for " + row.getSelectedPatientId());
         appShell.showPatientDetail(row.getSelectedPatientId());
+    }
+
+    private RoomBedOccupancyService.RoomRow selectedRealRoom() {
+        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            NotificationHelper.showInfo(statusLabel, "Select a room row first.");
+            return null;
+        }
+        if (selected.getRoomId() <= 0) {
+            NotificationHelper.showInfo(statusLabel, "This is a fallback row from patient location fields. Add a SQLite room before editing or assigning.");
+            return null;
+        }
+        return selected;
+    }
+
+    private void refreshAfterWrite(String message) {
+        loadOccupancy();
+        NotificationHelper.showSuccess(statusLabel, message + " Legacy text files were not changed.");
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        if (button != null) {
+            button.setVisible(visible);
+            button.setManaged(visible);
+        }
     }
 
     private void logAudit(String action) {

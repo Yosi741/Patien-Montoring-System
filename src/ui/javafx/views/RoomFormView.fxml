@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="680.0"
+        style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 22; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.RoomFormController">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Room"
+               style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label text="Create and maintain SQLite room capacity records for the JavaFX room/bed board."
+               wrapText="true"
+               style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Section / Department"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="sectionField" promptText="ICU"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Room Number"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="roomNumberField" promptText="101"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Capacity"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="capacityField" promptText="1"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Status"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity"
+                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label text="Notes"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional room notes"
+                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 8; -fx-font-size: 14px;" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" wrapText="true"
+           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+</VBox>

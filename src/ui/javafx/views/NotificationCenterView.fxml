@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.NotificationCenterController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Notification Center" styleClass="screen-title" />
+                <Label text="SQLite notifications for alerts, reminders, AI risk, and local app events" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="16.0">
+            <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
+            <VBox fx:id="accessDeniedPane" spacing="10" styleClass="panel-card" managed="false" visible="false">
+                <Label text="Access denied" styleClass="section-title" />
+                <Label text="Login is required to view notifications." wrapText="true" styleClass="body-text" />
+            </VBox>
+            <VBox fx:id="contentPane" spacing="14">
+                <VBox spacing="10" styleClass="panel-card patient-filter-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Severity" styleClass="field-label" />
+                        <ComboBox fx:id="severityFilter" prefWidth="135" />
+                        <Label text="Status" styleClass="field-label" />
+                        <ComboBox fx:id="statusFilter" prefWidth="140" />
+                        <Label text="Date" styleClass="field-label" />
+                        <ComboBox fx:id="dateRangeFilter" prefWidth="140" />
+                        <Label text="Patient" styleClass="field-label" />
+                        <TextField fx:id="patientSearchField" promptText="Patient ID" HBox.hgrow="ALWAYS" />
+                        <Button text="Refresh" onAction="#loadNotifications" styleClass="secondary-button" />
+                    </HBox>
+                </VBox>
+                <SplitPane dividerPositions="0.66" prefHeight="600">
+                    <TableView fx:id="notificationTable">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="70" />
+                            <TableColumn fx:id="severityColumn" text="Severity" prefWidth="110" />
+                            <TableColumn fx:id="titleColumn" text="Title" prefWidth="260" />
+                            <TableColumn fx:id="statusColumn" text="Status" prefWidth="110" />
+                            <TableColumn fx:id="patientColumn" text="Patient" prefWidth="120" />
+                            <TableColumn fx:id="sourceColumn" text="Source" prefWidth="125" />
+                            <TableColumn fx:id="createdColumn" text="Created" prefWidth="180" />
+                        </columns>
+                    </TableView>
+                    <VBox spacing="12" styleClass="panel-card">
+                        <Label fx:id="detailTitleLabel" text="Select a notification" styleClass="section-title" wrapText="true" />
+                        <Label fx:id="detailMetaLabel" text="-" styleClass="muted-text" wrapText="true" />
+                        <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
+                        <HBox spacing="10">
+                            <Button text="Mark Read" onAction="#markRead" styleClass="secondary-button" />
+                            <Button text="Dismiss" onAction="#dismissNotification" styleClass="danger-button" />
+                            <Button text="Open Linked Item" onAction="#openLinkedItem" styleClass="secondary-button" />
+                        </HBox>
+                    </VBox>
+                </SplitPane>
+                <Label fx:id="statusLabel" text="Notifications not loaded yet." wrapText="true" styleClass="status-pill" />
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

@@ -32,6 +32,7 @@ public class DashboardController implements FxController {
     @FXML private Label refreshStatusLabel;
     @FXML private Label totalPatientsLabel;
     @FXML private Label activePatientsLabel;
+    @FXML private Label deceasedPatientsLabel;
     @FXML private Label criticalPatientsLabel;
     @FXML private Label activeAlertsLabel;
     @FXML private Label acknowledgedTodayLabel;
@@ -109,6 +110,7 @@ public class DashboardController implements FxController {
     private void renderMetrics(DashboardMetricsService.DashboardMetrics metrics) {
         totalPatientsLabel.setText(String.valueOf(metrics.getTotalPatients()));
         activePatientsLabel.setText(String.valueOf(metrics.getActivePatients()));
+        deceasedPatientsLabel.setText(String.valueOf(metrics.getDeceasedPatients()));
         criticalPatientsLabel.setText(String.valueOf(metrics.getCriticalEmergencyPatients()));
         activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
         acknowledgedTodayLabel.setText(String.valueOf(metrics.getAcknowledgedAlertsToday()));

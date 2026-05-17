@@ -69,7 +69,8 @@ public class RoomBedOccupancyService {
 
     private List<RoomSeed> queryRooms(Connection connection) throws SQLException {
         ArrayList<RoomSeed> rows = new ArrayList<>();
-        String sql = "SELECT id, section, room_number, capacity FROM rooms ORDER BY section, room_number";
+        String sql = "SELECT id, section, room_number, capacity, COALESCE(status, 'ACTIVE') AS status, "
+                + "COALESCE(notes, '') AS notes FROM rooms ORDER BY section, room_number";
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
@@ -77,7 +78,9 @@ public class RoomBedOccupancyService {
                         resultSet.getLong("id"),
                         value(resultSet.getString("section")),
                         value(resultSet.getString("room_number")),
-                        Math.max(1, resultSet.getInt("capacity"))
+                        Math.max(1, resultSet.getInt("capacity")),
+                        fallback(resultSet.getString("status"), "ACTIVE"),
+                        value(resultSet.getString("notes"))
                 ));
             }
         }
@@ -108,7 +111,8 @@ public class RoomBedOccupancyService {
         ArrayList<RoomRow> rows = new ArrayList<>();
         for (RoomSeed room : rooms) {
             List<PatientAssignment> assigned = assignedPatients(room.getSection(), room.getRoomNumber(), patients);
-            rows.add(toRoomRow(room.getSection(), room.getRoomNumber(), room.getCapacity(), assigned));
+            rows.add(toRoomRow(room.getId(), room.getSection(), room.getRoomNumber(), room.getCapacity(),
+                    room.getStatus(), room.getNotes(), assigned));
         }
         return rows;
     }
@@ -125,24 +129,29 @@ public class RoomBedOccupancyService {
                 continue;
             }
             PatientAssignment first = assigned.get(0);
-            rows.add(toRoomRow(first.getSection(), first.getRoom(), Math.max(assigned.size(), 1), assigned));
+            rows.add(toRoomRow(0, first.getSection(), first.getRoom(), Math.max(assigned.size(), 1),
+                    "FALLBACK", "", assigned));
         }
         return rows;
     }
 
-    private RoomRow toRoomRow(String section, String roomNumber, int capacity, List<PatientAssignment> assigned) {
+    private RoomRow toRoomRow(long roomId, String section, String roomNumber, int capacity, String roomStatus,
+                              String roomNotes, List<PatientAssignment> assigned) {
         int occupied = assigned.size();
         String highestPriority = highestPriority(assigned);
         String selectedPatientId = selectedPatientId(assigned);
         return new RoomRow(
+                roomId,
                 section,
                 roomNumber,
                 capacity,
+                roomStatus,
                 occupied,
                 Math.max(0, capacity - occupied),
                 patientSummary(assigned),
                 highestPriority,
                 selectedPatientId,
+                roomNotes,
                 statuses(assigned),
                 priorities(assigned)
         );
@@ -333,18 +342,24 @@ public class RoomBedOccupancyService {
         private final String section;
         private final String roomNumber;
         private final int capacity;
+        private final String status;
+        private final String notes;
 
-        private RoomSeed(long id, String section, String roomNumber, int capacity) {
+        private RoomSeed(long id, String section, String roomNumber, int capacity, String status, String notes) {
             this.id = id;
             this.section = section;
             this.roomNumber = roomNumber;
             this.capacity = capacity;
+            this.status = status;
+            this.notes = notes;
         }
 
         public long getId() { return id; }
         public String getSection() { return section; }
         public String getRoomNumber() { return roomNumber; }
         public int getCapacity() { return capacity; }
+        public String getStatus() { return status; }
+        public String getNotes() { return notes; }
     }
 
     private static class PatientAssignment {
@@ -426,40 +441,50 @@ public class RoomBedOccupancyService {
     }
 
     public static class RoomRow {
+        private final long roomId;
         private final String section;
         private final String roomNumber;
         private final int capacity;
+        private final String roomStatus;
         private final int occupiedCount;
         private final int availableCount;
         private final String patientsInRoom;
         private final String highestPatientPriority;
         private final String selectedPatientId;
+        private final String roomNotes;
         private final Set<String> statuses;
         private final Set<String> priorities;
 
-        public RoomRow(String section, String roomNumber, int capacity, int occupiedCount, int availableCount,
-                       String patientsInRoom, String highestPatientPriority, String selectedPatientId,
+        public RoomRow(long roomId, String section, String roomNumber, int capacity, String roomStatus,
+                       int occupiedCount, int availableCount, String patientsInRoom,
+                       String highestPatientPriority, String selectedPatientId, String roomNotes,
                        Set<String> statuses, Set<String> priorities) {
+            this.roomId = roomId;
             this.section = section;
             this.roomNumber = roomNumber;
             this.capacity = capacity;
+            this.roomStatus = roomStatus;
             this.occupiedCount = occupiedCount;
             this.availableCount = availableCount;
             this.patientsInRoom = patientsInRoom;
             this.highestPatientPriority = highestPatientPriority;
             this.selectedPatientId = selectedPatientId;
+            this.roomNotes = roomNotes;
             this.statuses = statuses;
             this.priorities = priorities;
         }
 
+        public long getRoomId() { return roomId; }
         public String getSection() { return section; }
         public String getRoomNumber() { return roomNumber; }
         public int getCapacity() { return capacity; }
+        public String getRoomStatus() { return roomStatus; }
         public int getOccupiedCount() { return occupiedCount; }
         public int getAvailableCount() { return availableCount; }
         public String getPatientsInRoom() { return patientsInRoom; }
         public String getHighestPatientPriority() { return highestPatientPriority; }
         public String getSelectedPatientId() { return selectedPatientId; }
+        public String getRoomNotes() { return roomNotes; }
         public Set<String> getStatuses() { return statuses; }
         public Set<String> getPriorities() { return priorities; }
     }

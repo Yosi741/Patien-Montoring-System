@@ -86,6 +86,8 @@ public class PatientDetailController implements FxController {
     @FXML private Button createAppointmentButton;
     @FXML private Button createReminderButton;
     @FXML private Button uploadMedicalFileButton;
+    @FXML private Button movePatientButton;
+    @FXML private Button markDeceasedButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -115,6 +117,7 @@ public class PatientDetailController implements FxController {
             priorityLabel.getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
+            updateDeceasedButton(detail.getStatus());
             loadVitals();
             loadTrendChart();
             loadAlertSummary();
@@ -255,6 +258,48 @@ public class PatientDetailController implements FxController {
             return;
         }
         appShell.showMedicalDevicesForPatient(patientId);
+    }
+
+    @FXML
+    private void movePatientRoom() {
+        if (!PermissionHelper.canAssignPatientRoom(Session.getCurrentUser())) {
+            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        if (patientId == null || patientId.isBlank()) {
+            timelineStatusLabel.setText("No patient selected for room move.");
+            return;
+        }
+        try {
+            boolean saved = RoomAssignmentController.showMovePatientDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
+            if (saved) {
+                loadPatient(patientId);
+                NotificationHelper.showSuccess(timelineStatusLabel, "Patient room updated in SQLite. Legacy text files were not changed.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void markPatientDeceased() {
+        if (!PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser())) {
+            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        if (patientId == null || patientId.isBlank()) {
+            timelineStatusLabel.setText("No patient selected for deceased workflow.");
+            return;
+        }
+        try {
+            boolean saved = DeathRecordFormController.showMarkDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
+            if (saved) {
+                loadPatient(patientId);
+                NotificationHelper.showSuccess(timelineStatusLabel, "Patient marked DECEASED in SQLite and death record created.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
+        }
     }
 
     @FXML
@@ -485,26 +530,35 @@ public class PatientDetailController implements FxController {
 
     private void configureWritePermissions() {
         boolean canEdit = PermissionHelper.canUpdatePatient(Session.getCurrentUser());
-        editPatientButton.setVisible(canEdit);
-        editPatientButton.setManaged(canEdit);
+        setButtonVisible(editPatientButton, canEdit);
         boolean canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
-        enterVitalsButton.setVisible(canEnterVitals);
-        enterVitalsButton.setManaged(canEnterVitals);
+        setButtonVisible(enterVitalsButton, canEnterVitals);
         boolean canAddMedication = PermissionHelper.canAddMedication(Session.getCurrentUser());
-        addMedicationButton.setVisible(canAddMedication);
-        addMedicationButton.setManaged(canAddMedication);
+        setButtonVisible(addMedicationButton, canAddMedication);
         boolean canGiveMedication = PermissionHelper.canGiveMedication(Session.getCurrentUser());
-        recordMedicationButton.setVisible(canGiveMedication);
-        recordMedicationButton.setManaged(canGiveMedication);
+        setButtonVisible(recordMedicationButton, canGiveMedication);
         boolean canAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
-        createAppointmentButton.setVisible(canAppointments);
-        createAppointmentButton.setManaged(canAppointments);
+        setButtonVisible(createAppointmentButton, canAppointments);
         boolean canReminders = PermissionHelper.canManageReminder(Session.getCurrentUser());
-        createReminderButton.setVisible(canReminders);
-        createReminderButton.setManaged(canReminders);
+        setButtonVisible(createReminderButton, canReminders);
         boolean canUploadFiles = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
-        uploadMedicalFileButton.setVisible(canUploadFiles);
-        uploadMedicalFileButton.setManaged(canUploadFiles);
+        setButtonVisible(uploadMedicalFileButton, canUploadFiles);
+        boolean canMoveRoom = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
+        setButtonVisible(movePatientButton, canMoveRoom);
+        setButtonVisible(markDeceasedButton, PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser()));
+    }
+
+    private void updateDeceasedButton(String status) {
+        boolean visible = PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser())
+                && !"DECEASED".equalsIgnoreCase(status);
+        setButtonVisible(markDeceasedButton, visible);
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        if (button != null) {
+            button.setVisible(visible);
+            button.setManaged(visible);
+        }
     }
 
     private void renderTrend(VitalsTrendService.TrendResult result) {

@@ -172,6 +172,71 @@ public class SqliteUserDao implements UserDao {
         return sections;
     }
 
+    public Optional<UserDirectoryRow> findDirectoryRowByUsername(String username) throws SQLException {
+        String sql = "SELECT id, username, role, section, active, created_at FROM users WHERE username = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(new UserDirectoryRow(
+                            resultSet.getLong("id"),
+                            resultSet.getString("username"),
+                            resultSet.getString("role"),
+                            resultSet.getString("section"),
+                            resultSet.getInt("active") == 1,
+                            resultSet.getString("created_at")
+                    ));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public void insertUser(UserWriteRecord record, String passwordHash) throws SQLException {
+        String sql = "INSERT INTO users(username, password_hash, role, section, active) VALUES(?, ?, ?, ?, ?)";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, record.getUsername());
+            statement.setString(2, passwordHash);
+            statement.setString(3, record.getRole());
+            statement.setString(4, blankToAll(record.getSection()));
+            statement.setInt(5, record.isActive() ? 1 : 0);
+            statement.executeUpdate();
+        }
+    }
+
+    public void updateUser(UserWriteRecord record) throws SQLException {
+        String sql = "UPDATE users SET role = ?, section = ?, active = ? WHERE username = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, record.getRole());
+            statement.setString(2, blankToAll(record.getSection()));
+            statement.setInt(3, record.isActive() ? 1 : 0);
+            statement.setString(4, record.getUsername());
+            statement.executeUpdate();
+        }
+    }
+
+    public void deactivateUser(String username) throws SQLException {
+        String sql = "UPDATE users SET active = 0 WHERE username = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.executeUpdate();
+        }
+    }
+
+    public void resetPasswordHash(String username, String passwordHash) throws SQLException {
+        String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, passwordHash);
+            statement.setString(2, username);
+            statement.executeUpdate();
+        }
+    }
+
     private User mapUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getString("username"),
@@ -179,6 +244,10 @@ public class SqliteUserDao implements UserDao {
                 resultSet.getString("role"),
                 resultSet.getString("section")
         );
+    }
+
+    private String blankToAll(String section) {
+        return section == null || section.isBlank() ? "All" : section.trim();
     }
 
     private void appendRoleGroupFilter(StringBuilder sql, ArrayList<String> params, String roleGroup) {
@@ -261,5 +330,24 @@ public class SqliteUserDao implements UserDao {
         public boolean isActive() { return active; }
         public String getActiveStatus() { return active ? "Active" : "Inactive"; }
         public String getCreatedAt() { return createdAt; }
+    }
+
+    public static class UserWriteRecord {
+        private final String username;
+        private final String role;
+        private final String section;
+        private final boolean active;
+
+        public UserWriteRecord(String username, String role, String section, boolean active) {
+            this.username = username == null ? "" : username.trim();
+            this.role = role == null ? "" : role.trim();
+            this.section = section == null ? "" : section.trim();
+            this.active = active;
+        }
+
+        public String getUsername() { return username; }
+        public String getRole() { return role; }
+        public String getSection() { return section; }
+        public boolean isActive() { return active; }
     }
 }

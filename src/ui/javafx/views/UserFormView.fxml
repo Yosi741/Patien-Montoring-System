@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="620.0"
+        style="-fx-background-color: white;
+               -fx-background-radius: 20;
+               -fx-padding: 22;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.UserFormController">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="User"
+               style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label fx:id="helpLabel" text="SQLite-only staff account write" wrapText="true"
+               style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Username" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="usernameField" promptText="username"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Role" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <ComboBox fx:id="roleBox" maxWidth="Infinity"
+                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Section / Department" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="sectionField" promptText="All, ICU, ER, Pediatrics..."
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Active Status" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <CheckBox fx:id="activeCheckBox" text="Active account"
+                      style="-fx-text-fill: #263238; -fx-font-size: 14px; -fx-font-weight: bold;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Password / New Password" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <PasswordField fx:id="passwordField" promptText="Minimum 8 characters"
+                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Confirm Password" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <PasswordField fx:id="confirmPasswordField" promptText="Repeat password"
+                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="passwordHelpLabel" text="Passwords are hashed before storage and are never displayed." wrapText="true"
+           style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
+    <Label fx:id="statusLabel" text="-" wrapText="true"
+           style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+</VBox>

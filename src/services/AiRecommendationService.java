@@ -34,6 +34,9 @@ public class AiRecommendationService {
     public RecommendationResult generateAndSave(String patientId) throws SQLException {
         RecommendationResult result = analyzePatient(patientId);
         saveRecommendation(result);
+        if (result.getRiskScore() >= 80) {
+            new NotificationCenterService().notifyHighAiRisk(result.getPatientId(), result.getRiskScore(), "");
+        }
         return result;
     }
 

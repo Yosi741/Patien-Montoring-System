@@ -56,7 +56,7 @@ If `data/users.txt` does not exist, the app creates these default users:
 
 ## How To Run
 
-Open the project in IntelliJ IDEA and run `src/Main.java` for the current Swing application.
+Open the project in IntelliJ IDEA and run `src/Main.java` for the default JavaFX application.
 
 From a terminal inside the project folder:
 
@@ -76,11 +76,23 @@ javac -cp "lib/*" -d out/production/untitledSmartPatientMonitoringSystem $source
 java -cp "out/production/untitledSmartPatientMonitoringSystem;lib/*" Main
 ```
 
+`Main` now launches the modern JavaFX app by default. The old Swing app is still available as a legacy fallback:
+
+```powershell
+java -cp "out/production/untitledSmartPatientMonitoringSystem;lib/*" LegacySwingMain
+```
+
 ## JavaFX Preview App
 
-Phase 1 adds a JavaFX foundation beside the existing Swing app. The Swing app is still the main working application. The JavaFX app currently contains a login placeholder, dashboard placeholder, dark mode styling, and SQLite startup/schema initialization.
+Phase 1 added a JavaFX foundation beside the existing Swing app. As of Phase 32, JavaFX is the default launcher through `Main`. `JavaFxMain` remains available as an explicit JavaFX launcher, and `LegacySwingMain` keeps the old Swing startup path runnable.
 
-Run the JavaFX preview entry point:
+Swing is still retained while JavaFX feature parity is being verified. Do not delete Swing screens yet. The current audit and removal plan is documented in:
+
+```text
+docs/swing-to-javafx-parity-report.md
+```
+
+Run the explicit JavaFX entry point:
 
 ```bash
 java -cp "out/production/untitledSmartPatientMonitoringSystem:lib/*" JavaFxMain
@@ -219,9 +231,12 @@ During the transition:
 - Admin, Doctor, and Nurse users can open a read-only `Medications` overview backed by SQLite `medications` and `medication_events`.
 - Medication Overview shows active medication counts, medication events today, patients with active medications, latest administration event time, a missed/overdue placeholder, medication rows, and administration event rows.
 - Patient Detail includes `View Medications`, which opens Medication Overview filtered to that patient with a visible patient filter chip.
-- Admin, Doctor, and Nurse users can open a read-only `Rooms / Beds` overview backed by SQLite `rooms` and `patients`.
+- Admin, Doctor, and Nurse users can open the `Rooms / Beds` overview backed by SQLite `rooms` and `patients`; Admin can create/edit/deactivate rooms, and Admin/Doctor/Nurse can assign or move patients.
 - Room/Bed Occupancy shows total rooms, occupied rooms/beds, available capacity, active patients by section, critical/emergency patients by section, and assigned patients per room.
 - If the SQLite `rooms` table is empty, Room/Bed Occupancy automatically falls back to patient section/room fields so the presentation screen still works with legacy migrated patient data.
+- Admin and Doctor users can mark a patient deceased from JavaFX Patient Detail, which writes a SQLite death record and updates the SQLite patient status to `DECEASED`.
+- Admin, Doctor, and Nurse users can open `Deceased Records` to view death records, certificate status, patient details, and generated certificate paths.
+- Death certificate output is currently a safe local HTML file under `data/generated/death-certificates/`; legacy text files are not updated by this JavaFX workflow.
 - Admin, Doctor, and Nurse users can open a read-only `AI Recommendations` board backed by SQLite patients and `ai_notes`.
 - Patient Detail includes `Generate Recommendation`, which analyzes SQLite vitals, active/recent alerts, and recent clinical activity, then saves a rule-based recommendation into `ai_notes`.
 - Generated AI recommendations appear in Clinical Timeline as AI Notes because they use the existing SQLite `ai_notes` table.
@@ -277,7 +292,7 @@ Current JavaFX patient management limitations:
 - Staff/User Directory visibility follows the same safe rule: Admin users see it in navigation, and non-admin direct access shows access denied.
 - Staff Activity visibility is available to Admin, Doctor, and Nurse roles. Non-authorized users who reach the screen see access denied.
 - Medication Overview visibility is available to Admin, Doctor, and Nurse roles. It is read-only and does not create, edit, discontinue, or administer medications.
-- Room/Bed Occupancy visibility is available to Admin, Doctor, and Nurse roles. It is read-only and does not create, edit, or delete rooms/beds.
+- Room/Bed Occupancy visibility is available to Admin, Doctor, and Nurse roles. Admin users can create, edit, and deactivate SQLite room records. Admin, Doctor, and Nurse users can assign, move, or remove active patients from SQLite rooms.
 - AI Recommendations are rule-based decision support only. They are not medical diagnosis, do not replace clinicians, and do not change the existing alert engine.
 - JavaFX settings is still a placeholder.
 - Swing remains the fallback production UI for all write operations.
@@ -459,7 +474,7 @@ To test Audit Log Viewer:
 5. Acknowledge a SQLite alert in Alert Center and confirm an alert audit row appears.
 6. Login as a non-admin user and confirm Audit Logs is hidden; direct access shows access denied.
 
-Currently audited JavaFX actions include login, logout, SQLite alert acknowledgement, sync from legacy storage, opening patient detail, creating/updating/discharging SQLite patients, entering SQLite manual vitals, adding/updating/discontinuing SQLite medications, recording SQLite medication administration events, registering/updating/deactivating/assigning/unassigning SQLite devices, creating/updating/completing/cancelling SQLite appointments and reminders, opening Nurse Work Queue, marking reminders done/missed, detecting overdue reminders, uploading/viewing/opening SQLite medical files, copying file summaries, generating file AI summary notes, opening Staff/User Directory, opening Staff Activity, opening Medication Overview, opening Room/Bed Occupancy, opening patient detail from Room/Bed Occupancy, opening AI Recommendations, and generating AI recommendations. Legacy Swing audit logs remain in `data/audit_logs.txt` and are not fully migrated yet.
+Currently audited JavaFX actions include login, logout, SQLite alert acknowledgement, sync from legacy storage, opening patient detail, creating/updating/discharging SQLite patients, marking patients deceased, updating death records, generating/opening death certificates, entering SQLite manual vitals, adding/updating/discontinuing SQLite medications, recording SQLite medication administration events, registering/updating/deactivating/assigning/unassigning SQLite devices, creating/updating/completing/cancelling SQLite appointments and reminders, opening Nurse Work Queue, marking reminders done/missed, detecting overdue reminders, uploading/viewing/opening SQLite medical files, copying file summaries, generating file AI summary notes, opening Staff/User Directory, opening Staff Activity, opening Medication Overview, opening Room/Bed Occupancy, creating/updating/deactivating SQLite rooms, assigning/moving/removing patients from SQLite rooms, opening patient detail from Room/Bed Occupancy, opening AI Recommendations, and generating AI recommendations. Legacy Swing audit logs remain in `data/audit_logs.txt` and are not fully migrated yet.
 
 To test Staff/User Directory:
 
@@ -467,8 +482,31 @@ To test Staff/User Directory:
 2. Open `Staff / Users` from the sidebar.
 3. Search by username and filter by role, section/department, and active status.
 4. Select a user and confirm the read-only detail panel, role badge, auth source, and permission preview.
-5. Open `Audit Logs` and confirm directory open/detail-view rows were recorded.
-6. Login as a non-admin user and confirm `Staff / Users` is hidden; direct screen access shows access denied.
+5. Press `Add User`, enter username, role, section/department, active status, and password, then save.
+6. Select the test user and press `Edit Selected User`; update role, section, or active status.
+7. Press `Reset Password` and set a new password. Password hashes are never displayed.
+8. Press `Deactivate User` to mark the SQLite account inactive.
+9. Open `Audit Logs` and confirm directory open/detail-view rows plus `CREATE_USER`, `UPDATE_USER`, `RESET_USER_PASSWORD`, and `DEACTIVATE_USER` rows.
+10. Login as a non-admin user and confirm `Staff / Users` is hidden; direct screen access shows access denied.
+
+Important: JavaFX admin user management writes to SQLite only. It does not update legacy `data/users.txt`, and legacy fallback login remains unchanged. New and reset passwords are stored with PBKDF2 hashes through `PasswordHasher`; raw passwords are not logged or displayed.
+
+To test JavaFX Messaging and Notification Center:
+
+1. Run `Main` and login as an Admin, Doctor, or Nurse.
+2. Open `Messages` from the sidebar.
+3. Compose a message to a specific user, role, or section/department.
+4. Add an optional patient ID, subject, body, and priority, then send.
+5. Confirm the message appears in Sent for the sender and Inbox for matching recipients.
+6. Select a message and test `Mark Read`, `Archive`, and `Open Patient` when a patient ID is linked.
+7. Open `Notifications` from the sidebar or top-bar Notifications button.
+8. Test severity/status/date/patient filters.
+9. Select a notification and test `Mark Read`, `Dismiss`, and `Open Linked Item`.
+10. Confirm the top-bar unread count updates after read/dismiss actions.
+11. Trigger a JavaFX warning/critical vital, overdue reminder, or high AI risk score and confirm a SQLite notification is created.
+12. Open `Audit Logs` and confirm `SEND_MESSAGE`, `READ_MESSAGE`, `ARCHIVE_MESSAGE`, `MARK_NOTIFICATION_READ`, and `DISMISS_NOTIFICATION` rows when those actions occur.
+
+Important: JavaFX messaging and notifications are SQLite-only. They do not update legacy `data/messages.txt` or `data/notifications.txt`, and they do not send external email, SMS, push notifications, or hospital paging messages.
 
 To test Staff Activity / Shift Overview:
 
@@ -491,15 +529,36 @@ To test Medication Overview:
 7. Open Patient Detail > Clinical Timeline for a patient with medication events and select a medication event to verify source-specific details.
 8. Login as a non-authorized staff role and confirm `Medications` is hidden; direct screen access shows access denied.
 
-To test Room/Bed Occupancy:
+To test Room/Bed Occupancy and room assignment writes:
 
-1. Run `JavaFxMain` and login as an Admin, Doctor, or Nurse.
+1. Run `Main` and login as an Admin.
 2. Open `Rooms / Beds` from the sidebar.
 3. Confirm total rooms, occupied rooms/beds, available capacity, active patients by section, and critical/emergency by section.
 4. Filter by section, room search, patient status, and priority.
-5. Double-click an occupied room row, or select it and press `Open Selected Patient`, to open Patient Detail for the highest-priority assigned patient.
-6. If SQLite `rooms` has no rows, confirm the screen shows fallback mode and builds room rows from patient section/room assignments.
-7. Login as a non-authorized staff role and confirm `Rooms / Beds` is hidden; direct screen access shows access denied.
+5. Press `Add Room`, enter section, room number, capacity, status, and optional notes, then save.
+6. Select the new room and press `Edit Room`; confirm duplicate section + room number is blocked and capacity cannot be reduced below current occupancy.
+7. Press `Assign Patient` or `Move Patient`, choose an active patient and destination room, then confirm Patient Detail and the Room/Bed board show the updated location.
+8. Try assigning beyond capacity or assigning to a maintenance/inactive room; the write service should block it.
+9. Select an occupied row and press `Remove Patient From Room`; the patient section/room is cleared in SQLite only.
+10. Deactivate an empty room as Admin and confirm occupied rooms cannot be deactivated.
+11. If SQLite `rooms` has no rows, confirm the screen shows fallback mode and builds room rows from patient section/room assignments.
+12. Login as Doctor or Nurse and confirm assignment/move/remove controls are available while Add/Edit/Deactivate room controls are hidden.
+13. Login as a non-authorized staff role and confirm `Rooms / Beds` is hidden; direct screen access shows access denied.
+14. Run `LegacySwingMain` and confirm the old Swing app still opens; JavaFX room writes do not update legacy `data/rooms.txt`.
+
+To test Deceased Records and death certificates:
+
+1. Run `Main` and login as an Admin or Doctor.
+2. Open `Patients`, choose a safe test patient, and open Patient Detail.
+3. Press `Mark Deceased`, enter death time, pronounced-by, cause of death, and notes, then save.
+4. Confirm Patient Detail shows status `DECEASED`; Active patient filters exclude the patient, while the Patient List `DECEASED` status filter can show them.
+5. Open `Deceased Records` from the sidebar and confirm the patient appears.
+6. Select the record and press `Generate Certificate`; confirm an HTML certificate is created under `data/generated/death-certificates/`.
+7. Press `Open Certificate` to open the generated local certificate if desktop file opening is supported.
+8. Open `Audit Logs` and confirm `MARK_PATIENT_DECEASED`, `GENERATE_DEATH_CERTIFICATE`, and `OPEN_DEATH_CERTIFICATE` rows.
+9. Login as Nurse and confirm Deceased Records is view-only.
+10. Login as Staff and confirm Deceased Records is hidden or shows access denied.
+11. Run `LegacySwingMain` and confirm the old Swing app still opens; JavaFX deceased records do not update legacy text files.
 
 To test AI Recommendations:
 
@@ -603,6 +662,8 @@ The app now separates device readings from manual readings:
 
 Patients belong to a hospital section such as ER, Cardiology, Surgery, ICU, Pediatrics, or Internal Medicine. Rooms are limited by section range and capacity. If a room is full, the app blocks the assignment.
 
+In JavaFX, room and section management now writes to SQLite only. The `rooms` table stores section, room number, capacity, status, notes, and last update time. Moving or assigning a patient updates that patient's SQLite `section` and `room` fields, which immediately affects Patient Detail, Dashboard metrics, and Room/Bed Occupancy. Legacy Swing room text storage is retained as fallback and is not updated by JavaFX in this phase.
+
 ## Certificates
 
 Generated reports are stored under:
@@ -611,6 +672,14 @@ Generated reports are stored under:
 data/certificates/death/
 data/certificates/birth/
 ```
+
+JavaFX Phase 36 death certificates are currently generated as local HTML files under:
+
+```text
+data/generated/death-certificates/
+```
+
+Those HTML certificates are created from SQLite `deceased_records` data and are a safe foundation for later JavaFX PDF/template output. They do not write back to legacy text files.
 
 Certificate generation uses Apache PDFBox when a blank template PDF is available. The project is still a plain Java project, so the PDFBox dependency is stored as a jar file:
 

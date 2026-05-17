@@ -70,6 +70,13 @@ public class VitalsWriteService {
                             + " = " + displayValue(request) + " " + unit,
                     10
             );
+            new NotificationCenterService().notifyCriticalAlert(
+                    request.patientId,
+                    severity,
+                    "JavaFX manual vitals " + severity.toLowerCase(Locale.ROOT) + ": " + normalizedType
+                            + " = " + displayValue(request) + " " + unit,
+                    ""
+            );
         }
 
         AuditWriteHelper.write(

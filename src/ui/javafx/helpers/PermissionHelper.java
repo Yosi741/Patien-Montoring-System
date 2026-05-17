@@ -39,6 +39,14 @@ public final class PermissionHelper {
         return isAdmin(user);
     }
 
+    public static boolean canDeactivateUser(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canResetUserPassword(User user) {
+        return isAdmin(user);
+    }
+
     public static boolean canRegisterDevice(User user) {
         return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
@@ -89,6 +97,38 @@ public final class PermissionHelper {
 
     public static boolean canViewBackupTools(User user) {
         return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canManageRooms(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canAssignPatientRoom(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewDeceasedRecords(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canMarkPatientDeceased(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canGenerateDeathCertificate(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canViewMessages(User user) {
+        return user != null;
+    }
+
+    public static boolean canComposeMessage(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewNotifications(User user) {
+        return user != null;
     }
 
     public static boolean canCreateBackup(User user) {

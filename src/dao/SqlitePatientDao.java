@@ -268,6 +268,30 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
+    public void updatePatientRoom(String patientId, String section, String room) throws SQLException {
+        String sql = "UPDATE patients SET section = ?, room = ?, updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(section));
+            statement.setString(2, value(room));
+            statement.setString(3, patientId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void updatePatientsRoom(String oldSection, String oldRoom, String newSection, String newRoom) throws SQLException {
+        String sql = "UPDATE patients SET section = ?, room = ?, updated_at = CURRENT_TIMESTAMP "
+                + "WHERE UPPER(COALESCE(section, '')) = ? AND UPPER(COALESCE(room, '')) = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(newSection));
+            statement.setString(2, value(newRoom));
+            statement.setString(3, value(oldSection).toUpperCase());
+            statement.setString(4, value(oldRoom).toUpperCase());
+            statement.executeUpdate();
+        }
+    }
+
     public boolean existsByPatientId(String patientId) throws SQLException {
         String sql = "SELECT 1 FROM patients WHERE patient_id = ? LIMIT 1";
         try (Connection connection = DatabaseManager.getConnection();
@@ -366,6 +390,10 @@ public class SqlitePatientDao implements PatientDao {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private String value(String value) {
+        return value == null ? "" : value.trim();
     }
 
     private Patient mapPatient(ResultSet resultSet) throws SQLException {

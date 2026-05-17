@@ -27,11 +27,15 @@ public class SchemaInitializer {
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
             createRooms(statement);
+            migrateRooms(statement);
+            createDeceasedRecords(statement);
             createShiftHandoverNotes(statement);
             createAuditLogs(statement);
             createDevices(statement);
             migrateDevices(statement);
+            createMessages(statement);
             createNotifications(statement);
+            migrateNotifications(statement);
         }
     }
 
@@ -233,6 +237,30 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    private static void migrateRooms(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "rooms", "status", "TEXT NOT NULL DEFAULT 'ACTIVE'");
+        addColumnIfMissing(statement, "rooms", "notes", "TEXT");
+        addColumnIfMissing(statement, "rooms", "updated_at", "TEXT");
+        statement.execute("UPDATE rooms SET status = 'ACTIVE' WHERE status IS NULL OR TRIM(status) = ''");
+        statement.execute("UPDATE rooms SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL OR TRIM(updated_at) = ''");
+    }
+
+    private static void createDeceasedRecords(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS deceased_records ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL UNIQUE,"
+                + "death_time TEXT NOT NULL,"
+                + "pronounced_by TEXT NOT NULL,"
+                + "cause_of_death TEXT NOT NULL,"
+                + "notes TEXT,"
+                + "certificate_path TEXT,"
+                + "created_by TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
     private static void createShiftHandoverNotes(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS shift_handover_notes ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -279,5 +307,36 @@ public class SchemaInitializer {
                 + "read INTEGER NOT NULL DEFAULT 0,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
                 + ")");
+    }
+
+    private static void createMessages(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS messages ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "sender_username TEXT NOT NULL,"
+                + "recipient_username TEXT,"
+                + "recipient_role TEXT,"
+                + "recipient_section TEXT,"
+                + "patient_id TEXT,"
+                + "subject TEXT NOT NULL,"
+                + "body TEXT NOT NULL,"
+                + "priority TEXT NOT NULL DEFAULT 'NORMAL',"
+                + "status TEXT NOT NULL DEFAULT 'SENT',"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "read_at TEXT"
+                + ")");
+    }
+
+    private static void migrateNotifications(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "notifications", "role", "TEXT");
+        addColumnIfMissing(statement, "notifications", "section", "TEXT");
+        addColumnIfMissing(statement, "notifications", "patient_id", "TEXT");
+        addColumnIfMissing(statement, "notifications", "title", "TEXT");
+        addColumnIfMissing(statement, "notifications", "status", "TEXT NOT NULL DEFAULT 'UNREAD'");
+        addColumnIfMissing(statement, "notifications", "source_type", "TEXT");
+        addColumnIfMissing(statement, "notifications", "source_id", "TEXT");
+        addColumnIfMissing(statement, "notifications", "read_at", "TEXT");
+        statement.execute("UPDATE notifications SET title = severity || ' notification' WHERE title IS NULL OR TRIM(title) = ''");
+        statement.execute("UPDATE notifications SET status = CASE WHEN read = 1 THEN 'READ' ELSE 'UNREAD' END "
+                + "WHERE status IS NULL OR TRIM(status) = ''");
     }
 }

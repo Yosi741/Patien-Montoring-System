@@ -68,6 +68,14 @@ public class AppShell extends Application {
         setShellContent("/ui/javafx/views/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
     }
 
+    public void showMessaging() {
+        setShellContent("/ui/javafx/views/MessagingView.fxml", "Smart Patient Monitoring System - Messaging");
+    }
+
+    public void showNotificationCenter() {
+        setShellContent("/ui/javafx/views/NotificationCenterView.fxml", "Smart Patient Monitoring System - Notification Center");
+    }
+
     public void showAlertCenter() {
         setShellContent("/ui/javafx/views/AlertCenterView.fxml", "Smart Patient Monitoring System - Alert Center");
     }
@@ -132,7 +140,7 @@ public class AppShell extends Application {
     }
 
     public void showUserDirectory() {
-        setShellContent("/ui/javafx/views/UserDirectoryView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
+        setShellContent("/ui/javafx/views/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
     }
 
     public void showStaffActivity() {
@@ -155,6 +163,10 @@ public class AppShell extends Application {
 
     public void showRoomBedOccupancy() {
         setShellContent("/ui/javafx/views/RoomBedOccupancyView.fxml", "Smart Patient Monitoring System - Room/Bed Occupancy");
+    }
+
+    public void showDeceasedRecords() {
+        setShellContent("/ui/javafx/views/DeceasedRecordsView.fxml", "Smart Patient Monitoring System - Deceased Records");
     }
 
     public void showAiRecommendations() {
@@ -219,6 +231,12 @@ public class AppShell extends Application {
         }
         layoutController.setContent(files.getParent());
         primaryStage.setTitle("Smart Patient Monitoring System - Medical File Details");
+    }
+
+    public void refreshNotificationCount() {
+        if (layoutController != null) {
+            layoutController.refreshNotificationCount();
+        }
     }
 
     public void logout() {

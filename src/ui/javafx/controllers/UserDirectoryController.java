@@ -5,6 +5,7 @@ import dao.SqliteUserDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -13,9 +14,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import services.RolePermissionService;
+import services.UserWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
+import ui.javafx.helpers.DialogHelper;
+import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import users.User;
 
@@ -25,6 +30,7 @@ public class UserDirectoryController implements FxController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
+    private final UserWriteService userWriteService = new UserWriteService();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
     private AppShell appShell;
 
@@ -34,6 +40,10 @@ public class UserDirectoryController implements FxController {
     @FXML private ComboBox<String> roleFilter;
     @FXML private ComboBox<String> sectionFilter;
     @FXML private ComboBox<String> activeFilter;
+    @FXML private Button addUserButton;
+    @FXML private Button editUserButton;
+    @FXML private Button deactivateUserButton;
+    @FXML private Button resetPasswordButton;
     @FXML private TableView<SqliteUserDao.UserDirectoryRow> userTable;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Long> idColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> usernameColumn;
@@ -109,6 +119,14 @@ public class UserDirectoryController implements FxController {
         accessDeniedPane.setManaged(!admin);
         directoryContentPane.setVisible(admin);
         directoryContentPane.setManaged(admin);
+        addUserButton.setVisible(admin);
+        addUserButton.setManaged(admin);
+        editUserButton.setVisible(admin);
+        editUserButton.setManaged(admin);
+        deactivateUserButton.setVisible(admin);
+        deactivateUserButton.setManaged(admin);
+        resetPasswordButton.setVisible(admin);
+        resetPasswordButton.setManaged(admin);
     }
 
     private void configureTable() {
@@ -140,6 +158,81 @@ public class UserDirectoryController implements FxController {
         roleFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
         sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
         activeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
+    }
+
+    @FXML
+    private void addUser() {
+        if (!PermissionHelper.canCreateUser(Session.getCurrentUser())) {
+            showDenied();
+            return;
+        }
+        if (UserFormController.showCreateDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser())) {
+            reloadSections();
+            loadUsers();
+            NotificationHelper.showSuccess(statusLabel, "User created in SQLite. Legacy users.txt was not changed.");
+        }
+    }
+
+    @FXML
+    private void editSelectedUser() {
+        SqliteUserDao.UserDirectoryRow selected = selectedUser();
+        if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canUpdateUser(Session.getCurrentUser())) {
+            showDenied();
+            return;
+        }
+        if (UserFormController.showEditDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
+            reloadSections();
+            loadUsers();
+            selectUser(selected.getUsername());
+            NotificationHelper.showSuccess(statusLabel, "User updated in SQLite.");
+        }
+    }
+
+    @FXML
+    private void deactivateSelectedUser() {
+        SqliteUserDao.UserDirectoryRow selected = selectedUser();
+        if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canDeactivateUser(Session.getCurrentUser())) {
+            showDenied();
+            return;
+        }
+        boolean self = selected.getUsername().equalsIgnoreCase(SessionContext.username());
+        String message = self
+                ? "You are deactivating your own active account. Continue only if you have another admin account available."
+                : "Deactivate user " + selected.getUsername() + "?";
+        if (!DialogHelper.confirm("Deactivate User", message)) {
+            return;
+        }
+        try {
+            userWriteService.deactivateUser(Session.getCurrentUser(), selected.getUsername(), self);
+            loadUsers();
+            selectUser(selected.getUsername());
+            NotificationHelper.showSuccess(statusLabel, "User deactivated in SQLite.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void resetSelectedPassword() {
+        SqliteUserDao.UserDirectoryRow selected = selectedUser();
+        if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canResetUserPassword(Session.getCurrentUser())) {
+            showDenied();
+            return;
+        }
+        if (UserFormController.showResetPasswordDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
+            loadUsers();
+            selectUser(selected.getUsername());
+            NotificationHelper.showSuccess(statusLabel, "Password reset in SQLite. Raw password was not logged.");
+        }
     }
 
     private void configureSelection() {
@@ -176,7 +269,7 @@ public class UserDirectoryController implements FxController {
         addPermission("View alerts", true, "Read-only JavaFX Alert Center");
         addPermission("Acknowledge SQLite alerts", true, "SQLite-only; does not stop Swing sounds/dialogs");
         addPermission("View clinical timeline", true, "Read-only patient history preview");
-        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Read-only directory in this phase");
+        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Admin-only SQLite create/edit/deactivate/reset workflow");
         addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user), "Admin audit viewer");
         addPermission("Edit patients", false, "Future JavaFX feature; Swing remains production write path");
         addPermission("Enter vitals", false, "Future JavaFX feature; Swing remains production write path");
@@ -213,6 +306,44 @@ public class UserDirectoryController implements FxController {
         } catch (Exception e) {
             System.out.println("SQLite staff directory audit skipped: " + e.getMessage());
         }
+    }
+
+    private SqliteUserDao.UserDirectoryRow selectedUser() {
+        SqliteUserDao.UserDirectoryRow selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            NotificationHelper.showError(statusLabel, "Select a user first.");
+        }
+        return selected;
+    }
+
+    private void selectUser(String username) {
+        if (username == null) {
+            return;
+        }
+        for (SqliteUserDao.UserDirectoryRow row : rows) {
+            if (username.equalsIgnoreCase(row.getUsername())) {
+                userTable.getSelectionModel().select(row);
+                userTable.scrollTo(row);
+                return;
+            }
+        }
+    }
+
+    private void reloadSections() {
+        String current = sectionFilter.getValue();
+        ArrayList<String> sections = new ArrayList<>();
+        sections.add("All");
+        try {
+            sections.addAll(userDao.findDistinctSections());
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Section filters unavailable: " + e.getMessage());
+        }
+        sectionFilter.setItems(FXCollections.observableArrayList(sections));
+        sectionFilter.getSelectionModel().select(sections.contains(current) ? current : "All");
+    }
+
+    private void showDenied() {
+        NotificationHelper.showError(statusLabel, "Access denied. Admin role is required.");
     }
 
     private boolean isAdmin() {

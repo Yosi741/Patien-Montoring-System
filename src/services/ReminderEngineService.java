@@ -48,6 +48,11 @@ public class ReminderEngineService {
                     AuditWriteHelper.write(usernameOrSystem(username), AuditAction.REMINDER_OVERDUE_DETECTED,
                             "reminder_id=" + reminder.getId() + ", patient_id=" + reminder.getPatientId()
                                     + ", type=" + reminder.getReminderType());
+                    new NotificationCenterService().notifyOverdueReminder(
+                            reminder.getPatientId(),
+                            reminder.getTitle(),
+                            reminder.getId()
+                    );
                 }
             }
         }
