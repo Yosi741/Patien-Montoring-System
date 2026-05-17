@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.AuditLogController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Audit Logs" styleClass="screen-title" />
+                <Label text="Read-only SQLite admin audit viewer" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="16.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                <Label text="Access denied" styleClass="section-title" />
+                <Label text="Audit logs are visible only for Admin users in this JavaFX preview." wrapText="true" styleClass="body-text" />
+            </VBox>
+            <VBox fx:id="auditContentPane" spacing="14.0">
+                <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <Label text="Search" styleClass="field-label" />
+                        <TextField fx:id="searchField" promptText="Username or action" HBox.hgrow="ALWAYS" />
+                        <Label text="Date Range" styleClass="field-label" />
+                        <ComboBox fx:id="dateRangeFilter" prefWidth="150.0" />
+                        <Label text="Action Type" styleClass="field-label" />
+                        <ComboBox fx:id="actionTypeFilter" prefWidth="140.0" />
+                        <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                        <Button text="Refresh" onAction="#loadLogs" styleClass="secondary-button" />
+                    </HBox>
+                </VBox>
+                <TableView fx:id="auditTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="90.0" />
+                        <TableColumn fx:id="usernameColumn" text="Username" prefWidth="190.0" />
+                        <TableColumn fx:id="actionColumn" text="Action" prefWidth="520.0" />
+                        <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="210.0" />
+                    </columns>
+                </TableView>
+                <Label fx:id="statusLabel" text="SQLite audit logs loaded: 0" styleClass="status-pill" />
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

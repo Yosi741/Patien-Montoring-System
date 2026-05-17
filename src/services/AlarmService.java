@@ -4,6 +4,7 @@ import ai.AIAnalysis;
 import database.NotificationStorage;
 import logs.AuditLog;
 import models.Patient;
+import users.Session;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -45,6 +46,7 @@ public class AlarmService {
             startAlarm();
             AuditLog.addLog("System", "Alarm ACTIVE for patient: " + patient.getName());
             NotificationStorage.addNotification("ALL", "CRITICAL", "Critical alert active for patient " + patient.getName() + " in " + patient.getSection() + " room " + patient.getRoom());
+            AlertPersistenceService.persistCriticalPatientAlert(patient);
         }
 
         if (!alertDialogOpen && !alertShownForActiveAlarm) {
@@ -53,6 +55,7 @@ public class AlarmService {
     }
 
     public static synchronized void acknowledgeAlarm() {
+        AlertPersistenceService.markAcknowledged(activePatientId, Session.getUsername());
         stopSoundOnly();
         state = AlarmState.ACKNOWLEDGED;
         alertShownForActiveAlarm = true;
@@ -60,6 +63,7 @@ public class AlarmService {
     }
 
     public static synchronized void stopAlarm() {
+        AlertPersistenceService.markStopped(activePatientId, Session.getUsername());
         stopSoundOnly();
         state = AlarmState.STOPPED;
         alertShownForActiveAlarm = false;
@@ -67,6 +71,7 @@ public class AlarmService {
     }
 
     public static synchronized void resolveAlarm() {
+        AlertPersistenceService.markResolved(activePatientId, Session.getUsername());
         stopSoundOnly();
         state = AlarmState.RESOLVED;
         activePatientId = "";

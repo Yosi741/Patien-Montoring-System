@@ -33,20 +33,14 @@ public class PatientGUI extends JFrame {
         NavigationManager.configureDashboardReturnOnClose(this);
 
         setTitle("Hospital Patient Management");
-        setSize(1400, 850);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 1400, 850, 1050, 650);
 
         Color bg = UITheme.BACKGROUND;
 
-        JPanel main = UITheme.appPanel(new BorderLayout());
+        JPanel main = UITheme.appPanel(new BorderLayout(14, 14));
+        main.setBorder(new EmptyBorder(20, 22, 22, 22));
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(UITheme.SURFACE);
-        header.setBorder(new EmptyBorder(20, 25, 20, 25));
-
-        JLabel title = new JLabel("Hospital Patient Management", SwingConstants.CENTER);
-        title.setFont(UITheme.font(Font.BOLD, 34));
-        title.setForeground(UITheme.TEXT);
+        JPanel filters = CardPanel.create(new GridBagLayout());
 
         searchField = new JTextField();
         searchField.setPreferredSize(new Dimension(250, 40));
@@ -58,40 +52,48 @@ public class PatientGUI extends JFrame {
         riskFilter.setPreferredSize(new Dimension(150, 40));
         riskFilter.setFont(UITheme.font(Font.PLAIN, 15));
 
-        JPanel rightHeader = new JPanel();
-        rightHeader.setOpaque(false);
-        rightHeader.add(new JLabel("Search: "));
-        rightHeader.add(searchField);
-        rightHeader.add(Box.createHorizontalStrut(15));
-        rightHeader.add(new JLabel("Risk: "));
-        rightHeader.add(riskFilter);
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.insets = new Insets(0, 0, 0, 8);
+        labelConstraints.anchor = GridBagConstraints.WEST;
+        filters.add(new JLabel("Search:"), labelConstraints);
 
-        JPanel topRightWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        topRightWrapper.setOpaque(false);
-        topRightWrapper.add(rightHeader);
+        GridBagConstraints searchConstraints = new GridBagConstraints();
+        searchConstraints.gridx = 1;
+        searchConstraints.weightx = 1;
+        searchConstraints.fill = GridBagConstraints.HORIZONTAL;
+        searchConstraints.insets = new Insets(0, 0, 0, 18);
+        filters.add(searchField, searchConstraints);
 
-        header.add(title, BorderLayout.CENTER);
-        header.add(topRightWrapper, BorderLayout.EAST);
+        GridBagConstraints riskLabelConstraints = new GridBagConstraints();
+        riskLabelConstraints.gridx = 2;
+        riskLabelConstraints.insets = new Insets(0, 0, 0, 8);
+        filters.add(new JLabel("Risk:"), riskLabelConstraints);
+
+        GridBagConstraints riskConstraints = new GridBagConstraints();
+        riskConstraints.gridx = 3;
+        riskConstraints.fill = GridBagConstraints.HORIZONTAL;
+        filters.add(riskFilter, riskConstraints);
+
         JPanel northStack = new JPanel(new BorderLayout());
         northStack.setOpaque(false);
-        northStack.add(new HospitalHeaderPanel("Hospital Patient Management"), BorderLayout.NORTH);
-        northStack.add(header, BorderLayout.SOUTH);
+        northStack.add(new AppHeader("Hospital Patient Management"), BorderLayout.NORTH);
+        northStack.add(filters, BorderLayout.SOUTH);
         main.add(northStack, BorderLayout.NORTH);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 15));
         toolbar.setBackground(bg);
 
-        JButton addPatientButton = UITheme.button("Add Patient", UITheme.PRIMARY);
-        JButton editPatientButton = UITheme.button("Edit Patient", UITheme.WARNING);
-        JButton deletePatientButton = UITheme.button("Delete Patient", UITheme.DANGER);
-        JButton vitalsButton = UITheme.button("Add Vitals", UITheme.SUCCESS);
-        JButton monitorButton = UITheme.button("Monitor Patient", new Color(103, 83, 170));
-        JButton uploadButton = UITheme.button("Upload Medical File", new Color(32, 132, 122));
-        JButton historyButton = UITheme.button("Medical History", new Color(72, 111, 146));
-        JButton vitalsHistoryButton = UITheme.button("Vitals History", new Color(72, 126, 112));
-        JButton deathButton = UITheme.button("Pronounce Death", UITheme.DANGER);
-        JButton refreshButton = UITheme.secondaryButton("Refresh");
-        JButton homeButton = UITheme.button("Back to Dashboard", UITheme.PRIMARY_DARK);
+        JButton addPatientButton = StyledButton.primary("Add Patient");
+        JButton editPatientButton = StyledButton.warning("Edit Patient");
+        JButton deletePatientButton = StyledButton.danger("Delete Patient");
+        JButton vitalsButton = StyledButton.success("Add Vitals");
+        JButton monitorButton = StyledButton.accent("Monitor Patient", new Color(103, 83, 170));
+        JButton uploadButton = StyledButton.accent("Upload Medical File", new Color(32, 132, 122));
+        JButton historyButton = StyledButton.accent("Medical History", new Color(72, 111, 146));
+        JButton vitalsHistoryButton = StyledButton.accent("Vitals History", new Color(72, 126, 112));
+        JButton deathButton = StyledButton.danger("Pronounce Death");
+        JButton refreshButton = StyledButton.secondary("Refresh");
+        JButton homeButton = StyledButton.accent("Back to Dashboard", UITheme.PRIMARY_DARK);
 
         applyPermissions(addPatientButton, editPatientButton, deletePatientButton, vitalsButton, monitorButton, uploadButton, historyButton, deathButton);
 
@@ -123,14 +125,19 @@ public class PatientGUI extends JFrame {
         patientTable.setRowSorter(sorter);
         patientTable.setDefaultRenderer(Object.class, new RiskRowRenderer());
 
-        UITheme.styleTable(patientTable);
+        JScrollPane scrollPane = StyledTable.scrollPane(patientTable);
+        StyledTable.setPreferredWidths(patientTable, 120, 190, 110, 70, 90, 130, 90, 120, 110);
 
-        JScrollPane scrollPane = new JScrollPane(patientTable);
-        scrollPane.setBorder(new EmptyBorder(0, 20, 20, 20));
+        JScrollPane toolbarScroll = new JScrollPane(toolbar);
+        toolbarScroll.setBorder(BorderFactory.createEmptyBorder());
+        toolbarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        toolbarScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        toolbarScroll.getViewport().setBackground(bg);
+        toolbarScroll.setPreferredSize(new Dimension(0, 76));
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBackground(bg);
-        centerPanel.add(toolbar, BorderLayout.NORTH);
+        centerPanel.add(toolbarScroll, BorderLayout.NORTH);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
 
         main.add(centerPanel, BorderLayout.CENTER);

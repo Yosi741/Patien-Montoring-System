@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.NurseWorkQueueController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Nurse Work Queue" styleClass="screen-title" />
+                <Label text="Prioritized SQLite tasks from reminders, alerts, and missing vitals" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="Nurse Work Queue is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="contentPane" spacing="16.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Local reminder engine. SQLite-only actions. No external calendar integration." styleClass="status-pill" />
+                            <Label fx:id="notificationLabel" text="No reminder notifications yet." wrapText="true" styleClass="status-info" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <GridPane hgap="14.0" vgap="14.0">
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Overdue Reminders" styleClass="metric-label" />
+                                <Label fx:id="overdueRemindersLabel" text="0" styleClass="metric-value compact-metric-value critical-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Upcoming Reminders" styleClass="metric-label" />
+                                <Label fx:id="upcomingRemindersLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Queue Tasks" styleClass="metric-label" />
+                                <Label fx:id="totalTasksLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Critical Alerts" styleClass="metric-label" />
+                                <Label fx:id="criticalAlertsLabel" text="0" styleClass="metric-value compact-metric-value critical-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Missing Vitals" styleClass="metric-label" />
+                                <Label fx:id="missingVitalsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                        </GridPane>
+
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Prioritized Task Board" styleClass="section-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="doneButton" text="Mark Reminder Done" onAction="#markSelectedDone" styleClass="primary-button" />
+                                <Button fx:id="missedButton" text="Mark Reminder Missed" onAction="#markSelectedMissed" styleClass="danger-button" />
+                                <Button fx:id="patientButton" text="Open Patient" onAction="#openPatientDetail" styleClass="secondary-button" />
+                                <Button fx:id="scheduleButton" text="Open Schedule" onAction="#openScheduling" styleClass="secondary-button" />
+                                <Button fx:id="alertButton" text="Open Alert Center" onAction="#openAlertCenter" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#refreshQueue" styleClass="secondary-button" />
+                            </HBox>
+                            <TableView fx:id="queueTable" prefHeight="520.0">
+                                <columns>
+                                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="115.0" />
+                                    <TableColumn fx:id="typeColumn" text="Task Type" prefWidth="140.0" />
+                                    <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="115.0" />
+                                    <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
+                                    <TableColumn fx:id="sectionColumn" text="Section" prefWidth="120.0" />
+                                    <TableColumn fx:id="roomColumn" text="Room" prefWidth="90.0" />
+                                    <TableColumn fx:id="dueColumn" text="Due / Time" prefWidth="170.0" />
+                                    <TableColumn fx:id="severityColumn" text="Severity" prefWidth="130.0" />
+                                    <TableColumn fx:id="titleColumn" text="Task" prefWidth="320.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        <Label fx:id="statusLabel" text="Work Queue not loaded yet." wrapText="true" styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

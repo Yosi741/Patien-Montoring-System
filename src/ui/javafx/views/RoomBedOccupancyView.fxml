@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.RoomBedOccupancyController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Room / Bed Occupancy" styleClass="screen-title" />
+                <Label text="Read-only SQLite section, room, bed, and patient assignment overview" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="Room/Bed Occupancy is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="occupancyContentPane" spacing="16.0">
+                        <GridPane hgap="14.0" vgap="14.0">
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Total Rooms" styleClass="metric-label" />
+                                <Label fx:id="totalRoomsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Occupied Rooms" styleClass="metric-label" />
+                                <Label fx:id="occupiedRoomsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Occupied Beds" styleClass="metric-label" />
+                                <Label fx:id="occupiedBedsLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Available Capacity" styleClass="metric-label" />
+                                <Label fx:id="availableCapacityLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                        </GridPane>
+
+                        <HBox spacing="18.0">
+                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                                <Label text="Active Patients By Section" styleClass="section-title" />
+                                <VBox fx:id="activePatientsBySectionBox" spacing="8.0" />
+                            </VBox>
+                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                                <Label text="Critical / Emergency By Section" styleClass="section-title" />
+                                <VBox fx:id="criticalPatientsBySectionBox" spacing="8.0" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Section" styleClass="field-label" />
+                                <ComboBox fx:id="sectionFilter" prefWidth="165.0" />
+                                <Label text="Room" styleClass="field-label" />
+                                <TextField fx:id="roomSearchField" promptText="Room number" HBox.hgrow="ALWAYS" />
+                                <Label text="Status" styleClass="field-label" />
+                                <ComboBox fx:id="statusFilter" prefWidth="140.0" />
+                                <Label text="Priority" styleClass="field-label" />
+                                <ComboBox fx:id="priorityFilter" prefWidth="140.0" />
+                            </HBox>
+                            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                <Button text="Open Selected Patient" onAction="#openSelectedPatient" styleClass="primary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadOccupancy" styleClass="secondary-button" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Rooms / Beds" styleClass="section-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="Double-click an occupied row to open the highest-priority assigned patient" styleClass="muted-text" />
+                            </HBox>
+                            <TableView fx:id="roomTable" prefHeight="430.0">
+                                <columns>
+                                    <TableColumn fx:id="sectionColumn" text="Section" prefWidth="150.0" />
+                                    <TableColumn fx:id="roomColumn" text="Room Number" prefWidth="130.0" />
+                                    <TableColumn fx:id="capacityColumn" text="Capacity" prefWidth="90.0" />
+                                    <TableColumn fx:id="occupiedColumn" text="Occupied" prefWidth="90.0" />
+                                    <TableColumn fx:id="availableColumn" text="Available" prefWidth="90.0" />
+                                    <TableColumn fx:id="patientsColumn" text="Patients In Room" prefWidth="500.0" />
+                                    <TableColumn fx:id="priorityColumn" text="Highest Priority" prefWidth="140.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <Label fx:id="fallbackStatusLabel" text="Room occupancy source not loaded yet." wrapText="true" styleClass="status-pill" />
+                        <Label fx:id="statusLabel" text="Room/bed occupancy not loaded yet." styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.PatientListController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="top-bar">
+            <VBox spacing="4.0">
+                <Label text="Patients" styleClass="screen-title" />
+                <Label text="SQLite patient board with controlled JavaFX write preview" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Sync From Legacy Storage" onAction="#syncFromLegacyStorage" styleClass="primary-button" />
+            <Button text="Back to Dashboard" onAction="#backToDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="14.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <HBox spacing="12.0">
+                <Button text="All Patients" onAction="#showAllPatients" styleClass="quick-filter-card" />
+                <Button text="Active Patients" onAction="#showActivePatients" styleClass="quick-filter-card" />
+                <Button text="Critical/Emergency" onAction="#showCriticalEmergency" styleClass="quick-filter-card quick-filter-danger" />
+                <Button text="High Priority" onAction="#showHighPriority" styleClass="quick-filter-card quick-filter-warning" />
+                <Button text="Recently Updated" onAction="#showRecentlyUpdated" styleClass="quick-filter-card" />
+            </HBox>
+            <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label text="Search" styleClass="field-label" />
+                    <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS" />
+                    <Label text="Section" styleClass="field-label" />
+                    <ComboBox fx:id="sectionFilter" prefWidth="150.0" />
+                    <Label text="Room" styleClass="field-label" />
+                    <ComboBox fx:id="roomFilter" prefWidth="120.0" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label text="Status" styleClass="field-label" />
+                    <ComboBox fx:id="statusFilter" prefWidth="140.0" />
+                    <Label text="Priority" styleClass="field-label" />
+                    <ComboBox fx:id="priorityFilter" prefWidth="150.0" />
+                    <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                    <Button text="Refresh" onAction="#loadPatients" styleClass="secondary-button" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="addPatientButton" text="Add Patient" onAction="#addPatient" styleClass="primary-button" />
+                    <Button fx:id="editSelectedPatientButton" text="Edit Selected" onAction="#editSelectedPatient" styleClass="secondary-button" />
+                    <Button fx:id="dischargePatientButton" text="Discharge" onAction="#dischargeSelectedPatient" styleClass="danger-button" />
+                    <Button text="View Details" onAction="#viewDetails" styleClass="primary-button" />
+                </HBox>
+                <FlowPane fx:id="filterChipsBox" hgap="8.0" vgap="8.0" />
+            </VBox>
+            <TableView fx:id="patientTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="Patient ID" prefWidth="120.0" />
+                    <TableColumn fx:id="nameColumn" text="Name" prefWidth="190.0" />
+                    <TableColumn fx:id="birthDateColumn" text="Birth Date" prefWidth="110.0" />
+                    <TableColumn fx:id="genderColumn" text="Gender" prefWidth="90.0" />
+                    <TableColumn fx:id="sectionColumn" text="Section" prefWidth="150.0" />
+                    <TableColumn fx:id="roomColumn" text="Room" prefWidth="90.0" />
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="120.0" />
+                    <TableColumn fx:id="priorityColumn" text="Priority" prefWidth="120.0" />
+                </columns>
+            </TableView>
+            <Label fx:id="statusLabel" text="Patients loaded from SQLite: 0" styleClass="status-pill" />
+        </VBox>
+    </center>
+</BorderPane>

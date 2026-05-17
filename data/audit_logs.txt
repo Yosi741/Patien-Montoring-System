@@ -202,3 +202,59 @@
 14-05-2026 19:19:03 | Yasen | Disconnected device DEV-AE4FB372 for patient: Yasen Salhab
 14-05-2026 19:19:03 | System | Alarm ACKNOWLEDGED
 14-05-2026 19:19:03 | Yasen | Disconnected smart monitor for: Yasen Salhab
+14-05-2026 21:26:17 | Yasen | Updated sensitive medical history for: Iyad Salhab
+14-05-2026 21:27:32 | Yasen | Connected device DEV-1FE4E7CA for patient: Iyad Salhab
+14-05-2026 21:27:32 | System | Alarm ACTIVE for patient: Iyad Salhab
+14-05-2026 21:27:32 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:27:37 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:27:42 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:27:47 | System | Alarm RESOLVED
+14-05-2026 21:27:47 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:27:51 | System | Alarm ACKNOWLEDGED
+14-05-2026 21:27:51 | Yasen | Disconnected smart monitor for: Iyad Salhab
+14-05-2026 21:27:52 | System | Alarm ACTIVE for patient: Iyad Salhab
+14-05-2026 21:27:52 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:27:56 | System | Alarm ACKNOWLEDGED
+14-05-2026 21:27:56 | Yasen | Disconnected smart monitor for: Iyad Salhab
+14-05-2026 21:27:57 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:28:00 | System | Alarm ACKNOWLEDGED
+14-05-2026 21:28:02 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:28:05 | System | Alarm ACKNOWLEDGED
+14-05-2026 21:28:05 | Yasen | Disconnected smart monitor for: Iyad Salhab
+14-05-2026 21:28:07 | Device:DEV-1FE4E7CA | Added device vital signs for: Iyad Salhab
+14-05-2026 21:28:10 | Yasen | Disconnected device DEV-1FE4E7CA for patient: Iyad Salhab
+14-05-2026 21:28:10 | System | Alarm ACKNOWLEDGED
+14-05-2026 21:29:48 | Yasen | Updated user profile
+14-05-2026 21:30:29 | Yasen | Updated user profile
+14-05-2026 21:30:34 | Yasen | Updated user profile
+14-05-2026 22:22:18 | Yasen | Generated/regenerated death certificate PDF for: Yousef Salhab
+15-05-2026 18:57:12 | Yasen | Added patient: Mohamad Amerih
+15-05-2026 18:57:24 | Yasen | Connected device DEV-18E33C80 for patient: Mohamad Amerih
+15-05-2026 18:57:24 | Yasen | Connected smart monitor for: Mohamad Amerih
+15-05-2026 18:57:24 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:29 | System | Alarm ACTIVE for patient: Mohamad Amerih
+15-05-2026 18:57:29 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:34 | System | Alarm RESOLVED
+15-05-2026 18:57:34 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:39 | System | Alarm ACTIVE for patient: Mohamad Amerih
+15-05-2026 18:57:39 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:44 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:49 | System | Alarm RESOLVED
+15-05-2026 18:57:49 | Device:DEV-18E33C80 | Added device vital signs for: Mohamad Amerih
+15-05-2026 18:57:51 | System | Alarm ACKNOWLEDGED
+15-05-2026 18:57:52 | Yasen | Disconnected device DEV-18E33C80 for patient: Mohamad Amerih
+15-05-2026 18:57:52 | System | Alarm ACKNOWLEDGED
+15-05-2026 18:57:52 | Yasen | Disconnected smart monitor for: Mohamad Amerih
+15-05-2026 18:58:22 | System | Alarm ACTIVE for patient: Mohamad Amerih
+15-05-2026 18:58:22 | Yasen | Added manual vital signs for: Mohamad Amerih
+15-05-2026 18:58:47 | System | Alarm ACKNOWLEDGED
+15-05-2026 22:12:05 | System | Alarm ACTIVE for patient: Alarm Preview
+15-05-2026 22:12:05 | System | Alarm STOPPED
+15-05-2026 22:16:31 | System | Alarm ACTIVE for patient: Life Ack
+15-05-2026 22:16:32 | System | Alarm ACKNOWLEDGED
+15-05-2026 22:16:32 | System | Alarm ACTIVE for patient: Life Res
+15-05-2026 22:16:32 | System | Alarm RESOLVED
+15-05-2026 22:17:06 | System | Alarm ACTIVE for patient: Life Ack
+15-05-2026 22:17:06 | System | Alarm ACKNOWLEDGED
+15-05-2026 22:17:06 | System | Alarm ACTIVE for patient: Life Res
+15-05-2026 22:17:07 | System | Alarm RESOLVED

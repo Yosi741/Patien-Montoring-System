@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" styleClass="panel-card" prefWidth="620.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.VitalsEntryController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>
+    <Label text="Enter Vitals" styleClass="section-title" />
+    <Label text="Manual JavaFX vitals entry writes to SQLite only. Abnormal readings create SQLite alerts without starting Swing sounds." wrapText="true" styleClass="muted-text" />
+    <GridPane hgap="12.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <Label fx:id="patientIdLabel" text="-" styleClass="detail-value" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Vital Type" styleClass="field-label" />
+            <ComboBox fx:id="vitalTypeBox" maxWidth="Infinity" />
+        </VBox>
+
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Value" styleClass="field-label" />
+            <TextField fx:id="valueField" promptText="Value" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label fx:id="secondValueLabel" text="Diastolic" styleClass="field-label" />
+            <TextField fx:id="secondValueField" promptText="Diastolic" />
+        </VBox>
+
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Unit" styleClass="field-label" />
+            <TextField fx:id="unitField" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Recorded Time" styleClass="field-label" />
+            <TextField fx:id="recordedAtField" promptText="dd-MM-yyyy HH:mm:ss" />
+        </VBox>
+
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Source Type" styleClass="field-label" />
+            <TextField fx:id="sourceTypeField" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Staff User" styleClass="field-label" />
+            <TextField fx:id="staffUserField" />
+        </VBox>
+    </GridPane>
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+</VBox>

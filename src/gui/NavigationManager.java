@@ -53,6 +53,12 @@ public class NavigationManager {
         return button;
     }
 
+    public static JButton homeButton(Component currentComponent) {
+        JButton button = UITheme.secondaryButton("Home");
+        button.addActionListener(e -> returnHome(SwingUtilities.getWindowAncestor(currentComponent)));
+        return button;
+    }
+
     public static void returnHome(Window currentWindow) {
         for (Window window : new HashSet<>(childWindows)) {
             if (window != dashboard && window.isDisplayable()) {
@@ -68,7 +74,7 @@ public class NavigationManager {
     }
 
     public static void showDashboard() {
-        if (dashboard != null) {
+        if (dashboard != null && dashboard.isDisplayable()) {
             dashboard.setVisible(true);
             dashboard.toFront();
             dashboard.requestFocus();

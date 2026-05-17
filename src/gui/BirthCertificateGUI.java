@@ -25,8 +25,7 @@ public class BirthCertificateGUI extends JFrame {
 
     public BirthCertificateGUI() {
         setTitle("Newborn Birth Certificate");
-        setSize(760, 680);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 980, 760, 880, 640);
         NavigationManager.configureChildWindow(this);
 
         if (!RolePermissionService.canCreateBirthCertificate(Session.getCurrentUser())) {
@@ -38,9 +37,8 @@ public class BirthCertificateGUI extends JFrame {
         JPanel main = UITheme.appPanel(new BorderLayout(14, 14));
         main.setBorder(new EmptyBorder(22, 22, 22, 22));
 
-        JLabel title = UITheme.title("Newborn Registration / Birth Certificate", 26);
-        JPanel form = UITheme.cardPanel();
-        form.setLayout(new GridLayout(11, 2, 12, 12));
+        JPanel card = CardPanel.create(new BorderLayout());
+        FormPanel form = new FormPanel();
 
         JTextField babyName = field("");
         JTextField motherId = field("");
@@ -56,16 +54,15 @@ public class BirthCertificateGUI extends JFrame {
         JTextField staffName = field(Session.getUsername());
         JTextField staffId = field("");
         JTextArea notes = new JTextArea();
+        notes.setFont(UITheme.font(Font.PLAIN, 15));
+        notes.setLineWrap(true);
+        notes.setWrapStyleWord(true);
         JTextField signature = field("");
         signatureImagePath = field("");
         JTextField pdfPath = field("");
         pdfPath.setEditable(false);
         signatureImagePath.setEditable(false);
 
-        form.setLayout(new GridLayout(17, 2, 12, 12));
-
-        form.add(new JLabel("Baby Name:")); form.add(babyName);
-        form.add(new JLabel("Mother ID:")); form.add(motherId);
         JButton lookupMother = UITheme.secondaryButton("Lookup Mother ID");
         lookupMother.addActionListener(e -> {
             MotherInfo mother = MotherStorage.findById(motherId.getText().trim());
@@ -77,22 +74,30 @@ public class BirthCertificateGUI extends JFrame {
             motherLastName.setText(mother.getLastName());
             parentInfo.setText(mother.getContactInfo());
         });
-        form.add(new JLabel("Mother Lookup:")); form.add(lookupMother);
-        form.add(new JLabel("Mother First Name:")); form.add(motherFirstName);
-        form.add(new JLabel("Mother Last Name:")); form.add(motherLastName);
-        form.add(new JLabel("Father First Name:")); form.add(fatherFirstName);
-        form.add(new JLabel("Father Last Name:")); form.add(fatherLastName);
-        form.add(new JLabel("Parent Contact Info:")); form.add(parentInfo);
-        form.add(new JLabel("Date/Time of Birth:")); form.add(birthTime);
-        form.add(new JLabel("Gender:")); form.add(gender);
-        form.add(new JLabel("Birth Weight:")); form.add(weight);
-        form.add(new JLabel("Delivery Type:")); form.add(deliveryType);
-        form.add(new JLabel("Doctor/Nurse Name:")); form.add(staffName);
-        form.add(new JLabel("Doctor/Nurse ID:")); form.add(staffId);
-        form.add(new JLabel("Notes:")); form.add(new JScrollPane(notes));
-        form.add(new JLabel("Signature:")); form.add(signature);
-        form.add(new JLabel("Signature Image:")); form.add(signatureImagePath);
-        form.add(new JLabel("PDF Path:")); form.add(pdfPath);
+
+        JPanel motherLookupRow = new JPanel(new BorderLayout(10, 0));
+        motherLookupRow.setOpaque(false);
+        motherLookupRow.add(motherId, BorderLayout.CENTER);
+        motherLookupRow.add(lookupMother, BorderLayout.EAST);
+
+        form.addRow("Baby Name:", babyName);
+        form.addRow("Mother ID:", motherLookupRow);
+        form.addRow("Mother First Name:", motherFirstName);
+        form.addRow("Mother Last Name:", motherLastName);
+        form.addRow("Father First Name:", fatherFirstName);
+        form.addRow("Father Last Name:", fatherLastName);
+        form.addRow("Parent Contact Info:", parentInfo);
+        form.addRow("Date/Time of Birth:", birthTime);
+        form.addRow("Gender:", gender);
+        form.addRow("Birth Weight:", weight);
+        form.addRow("Delivery Type:", deliveryType);
+        form.addRow("Doctor/Nurse Name:", staffName);
+        form.addRow("Doctor/Nurse ID:", staffId);
+        form.addWideRow("Notes:", new JScrollPane(notes), 90);
+        form.addRow("Signature:", signature);
+        form.addRow("Signature Image:", signatureImagePath);
+        form.addRow("PDF Path:", pdfPath);
+        card.add(form, BorderLayout.NORTH);
 
         JButton generateButton = UITheme.button("Generate PDF", UITheme.SUCCESS);
         JButton openButton = UITheme.secondaryButton("Open PDF");
@@ -195,8 +200,8 @@ public class BirthCertificateGUI extends JFrame {
         buttons.add(generateButton);
         buttons.add(homeButton);
 
-        main.add(title, BorderLayout.NORTH);
-        main.add(form, BorderLayout.CENTER);
+        main.add(new AppHeader("Newborn Registration / Birth Certificate"), BorderLayout.NORTH);
+        main.add(new JScrollPane(card), BorderLayout.CENTER);
         main.add(buttons, BorderLayout.SOUTH);
 
         add(main);

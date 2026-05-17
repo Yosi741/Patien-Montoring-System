@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.ClinicalTimelineController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Clinical Timeline" styleClass="screen-title" />
+                <Label fx:id="patientLabel" text="Patient ID: -" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Back to Patient Detail" onAction="#backToPatientDetail" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="16.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <VBox spacing="12.0" styleClass="panel-card">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label text="Event Type" styleClass="field-label" />
+                    <ComboBox fx:id="eventTypeFilter" prefWidth="170.0" />
+                    <TextField fx:id="searchField" promptText="Search title, description, severity, or source" HBox.hgrow="ALWAYS" />
+                    <Button text="Refresh" onAction="#loadTimeline" styleClass="secondary-button" />
+                </HBox>
+                <Label text="Read-only SQLite timeline combining vitals, alerts, AI notes, files, medical history, medication events, and handover notes." styleClass="muted-text" />
+            </VBox>
+            <SplitPane dividerPositions="0.60" VBox.vgrow="ALWAYS">
+                <items>
+                    <ListView fx:id="timelineList" styleClass="timeline-list" />
+                    <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+                        <content>
+                            <VBox spacing="14.0" styleClass="panel-card timeline-detail-panel">
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                        <Label fx:id="detailTitleLabel" text="Select an event" wrapText="true" styleClass="section-title" />
+                                        <Label fx:id="detailSubtitleLabel" text="Full read-only event details will appear here." wrapText="true" styleClass="muted-text" />
+                                    </VBox>
+                                    <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary" styleClass="secondary-button" disable="true" />
+                                    <Button fx:id="openAlertButton" text="Open Alert" onAction="#openSelectedAlert" styleClass="primary-button" disable="true" />
+                                    <Button fx:id="openFileButton" text="Open File Details" onAction="#openSelectedFileDetails" styleClass="secondary-button" disable="true" />
+                                </HBox>
+                                <VBox spacing="6.0">
+                                    <Label text="Full Description" styleClass="field-label" />
+                                    <Label fx:id="detailDescriptionLabel" text="No event selected." wrapText="true" styleClass="body-text" />
+                                </VBox>
+                                <VBox spacing="6.0">
+                                    <Label text="Recommended Action" styleClass="field-label" />
+                                    <Label fx:id="recommendedActionLabel" text="No recommended action selected." wrapText="true" styleClass="body-text" />
+                                </VBox>
+                                <VBox fx:id="detailFieldsBox" spacing="8.0" />
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+                </items>
+            </SplitPane>
+            <Label fx:id="statusLabel" text="Clinical events loaded from SQLite: 0" styleClass="status-pill" />
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,256 @@
+package ui.javafx.controllers;
+
+import dao.SqliteAuditLogDao;
+import dao.SqliteUserDao;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import services.RolePermissionService;
+import ui.javafx.AppShell;
+import ui.javafx.FxController;
+import ui.javafx.SessionContext;
+import users.Session;
+import users.User;
+
+import java.util.ArrayList;
+
+public class UserDirectoryController implements FxController {
+
+    private final SqliteUserDao userDao = new SqliteUserDao();
+    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
+    private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
+    private AppShell appShell;
+
+    @FXML private VBox accessDeniedPane;
+    @FXML private VBox directoryContentPane;
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> roleFilter;
+    @FXML private ComboBox<String> sectionFilter;
+    @FXML private ComboBox<String> activeFilter;
+    @FXML private TableView<SqliteUserDao.UserDirectoryRow> userTable;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Long> idColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> usernameColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> roleColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> sectionColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> activeColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> createdAtColumn;
+    @FXML private Label detailTitleLabel;
+    @FXML private Label detailUsernameLabel;
+    @FXML private Label detailRoleLabel;
+    @FXML private Label detailRoleBadgeLabel;
+    @FXML private Label detailSectionLabel;
+    @FXML private Label detailStatusLabel;
+    @FXML private Label detailAuthSourceLabel;
+    @FXML private Label detailCreatedAtLabel;
+    @FXML private VBox permissionListBox;
+    @FXML private Label statusLabel;
+
+    @Override
+    public void setAppShell(AppShell appShell) {
+        this.appShell = appShell;
+        configureAccess();
+        configureTable();
+        configureFilters();
+        configureSelection();
+        clearDetail();
+        if (isAdmin()) {
+            logAudit("JavaFX USER_DIRECTORY opened staff/user directory");
+            loadUsers();
+        }
+    }
+
+    @FXML
+    private void loadUsers() {
+        if (!isAdmin()) {
+            statusLabel.setText("Access denied.");
+            return;
+        }
+        try {
+            SqliteUserDao.UserDirectoryFilter filter = new SqliteUserDao.UserDirectoryFilter(
+                    searchField.getText(),
+                    roleFilter.getValue(),
+                    sectionFilter.getValue(),
+                    activeFilter.getValue()
+            );
+            rows.setAll(userDao.findDirectoryRows(filter));
+            userTable.setItems(rows);
+            statusLabel.setText(rows.isEmpty()
+                    ? "No users match the selected filters."
+                    : "SQLite users loaded: " + rows.size() + " | Sorted by role, section, username");
+        } catch (Exception e) {
+            statusLabel.setText("Could not load users: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void clearFilters() {
+        searchField.clear();
+        roleFilter.getSelectionModel().select("All");
+        sectionFilter.getSelectionModel().select("All");
+        activeFilter.getSelectionModel().select("All");
+        loadUsers();
+    }
+
+    @FXML
+    private void showDashboard() {
+        appShell.showDashboard(Session.getCurrentUser());
+    }
+
+    private void configureAccess() {
+        boolean admin = isAdmin();
+        accessDeniedPane.setVisible(!admin);
+        accessDeniedPane.setManaged(!admin);
+        directoryContentPane.setVisible(admin);
+        directoryContentPane.setManaged(admin);
+    }
+
+    private void configureTable() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+        sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        activeColumn.setCellValueFactory(new PropertyValueFactory<>("activeStatus"));
+        createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+    }
+
+    private void configureFilters() {
+        roleFilter.setItems(FXCollections.observableArrayList("All", "ADMIN", "DOCTOR", "NURSE", "STAFF"));
+        activeFilter.setItems(FXCollections.observableArrayList("All", "Active", "Inactive"));
+        roleFilter.getSelectionModel().select("All");
+        activeFilter.getSelectionModel().select("All");
+
+        ArrayList<String> sections = new ArrayList<>();
+        sections.add("All");
+        try {
+            sections.addAll(userDao.findDistinctSections());
+        } catch (Exception e) {
+            statusLabel.setText("Section filters unavailable: " + e.getMessage());
+        }
+        sectionFilter.setItems(FXCollections.observableArrayList(sections));
+        sectionFilter.getSelectionModel().select("All");
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> loadUsers());
+        roleFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
+        sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
+        activeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
+    }
+
+    private void configureSelection() {
+        userTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                clearDetail();
+            } else {
+                renderDetail(newValue);
+                logAudit("JavaFX USER_DIRECTORY viewed user detail for " + newValue.getUsername());
+            }
+        });
+    }
+
+    private void renderDetail(SqliteUserDao.UserDirectoryRow row) {
+        detailTitleLabel.setText(row.getUsername());
+        detailUsernameLabel.setText(row.getUsername());
+        detailRoleLabel.setText(row.getRole());
+        detailSectionLabel.setText(row.getSection());
+        detailStatusLabel.setText(row.getActiveStatus());
+        detailAuthSourceLabel.setText(row.getUsername().equalsIgnoreCase(SessionContext.username())
+                ? SessionContext.authSource()
+                : "SQLite user table");
+        detailCreatedAtLabel.setText(row.getCreatedAt() == null ? "Unknown" : row.getCreatedAt());
+
+        String group = roleGroup(row.getRole());
+        detailRoleBadgeLabel.setText(group);
+        detailRoleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
+        detailRoleBadgeLabel.getStyleClass().add(roleStyle(group));
+
+        permissionListBox.getChildren().clear();
+        User user = new User(row.getUsername(), "", row.getRole(), row.getSection());
+        boolean adminRole = "ADMIN".equals(group);
+        addPermission("View patients", true, "Read-only JavaFX patient board");
+        addPermission("View alerts", true, "Read-only JavaFX Alert Center");
+        addPermission("Acknowledge SQLite alerts", true, "SQLite-only; does not stop Swing sounds/dialogs");
+        addPermission("View clinical timeline", true, "Read-only patient history preview");
+        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Read-only directory in this phase");
+        addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user), "Admin audit viewer");
+        addPermission("Edit patients", false, "Future JavaFX feature; Swing remains production write path");
+        addPermission("Enter vitals", false, "Future JavaFX feature; Swing remains production write path");
+    }
+
+    private void clearDetail() {
+        detailTitleLabel.setText("Select a staff user");
+        detailUsernameLabel.setText("-");
+        detailRoleLabel.setText("-");
+        detailSectionLabel.setText("-");
+        detailStatusLabel.setText("-");
+        detailAuthSourceLabel.setText("-");
+        detailCreatedAtLabel.setText("-");
+        detailRoleBadgeLabel.setText("UNKNOWN");
+        detailRoleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
+        detailRoleBadgeLabel.getStyleClass().add("role-unknown");
+        permissionListBox.getChildren().clear();
+        Label empty = new Label("Select a user to preview role-based access.");
+        empty.getStyleClass().add("muted-text");
+        empty.setWrapText(true);
+        permissionListBox.getChildren().add(empty);
+    }
+
+    private void addPermission(String label, boolean allowed, String note) {
+        Label row = new Label((allowed ? "Allowed: " : "Preview/Future: ") + label + " - " + note);
+        row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
+        row.setWrapText(true);
+        permissionListBox.getChildren().add(row);
+    }
+
+    private void logAudit(String action) {
+        try {
+            auditLogDao.log(SessionContext.username(), action);
+        } catch (Exception e) {
+            System.out.println("SQLite staff directory audit skipped: " + e.getMessage());
+        }
+    }
+
+    private boolean isAdmin() {
+        return "ADMIN".equals(roleGroup(SessionContext.role()));
+    }
+
+    private String roleGroup(String role) {
+        if (role == null) {
+            return "UNKNOWN";
+        }
+        String upper = role.toUpperCase();
+        if (upper.contains("ADMIN")) {
+            return "ADMIN";
+        }
+        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
+            return "DOCTOR";
+        }
+        if (upper.contains("NURSE") || upper.contains("NURSING")) {
+            return "NURSE";
+        }
+        if (upper.isBlank() || upper.equals("UNKNOWN")) {
+            return "UNKNOWN";
+        }
+        return "STAFF";
+    }
+
+    private String roleStyle(String group) {
+        switch (group) {
+            case "ADMIN":
+                return "role-admin";
+            case "DOCTOR":
+                return "role-doctor";
+            case "NURSE":
+                return "role-nurse";
+            case "STAFF":
+                return "role-staff";
+            default:
+                return "role-unknown";
+        }
+    }
+}

@@ -1,0 +1,153 @@
+package ui.javafx.helpers;
+
+import users.User;
+
+public final class PermissionHelper {
+
+    private PermissionHelper() {
+    }
+
+    public static boolean canCreatePatient(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canUpdatePatient(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canDeactivatePatient(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canEnterVitals(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canAddMedication(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canGiveMedication(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canCreateUser(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canUpdateUser(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canRegisterDevice(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canManageDevice(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canAssignDevice(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canCreateAppointment(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canManageAppointment(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canCreateReminder(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canManageReminder(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canCompleteReminder(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewScheduling(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewWorkQueue(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canUploadMedicalFile(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewMedicalFiles(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewBackupTools(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canCreateBackup(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canPreviewRestore(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canExportClinicalData(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canExportAuditLogs(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canCreateTestAuditEvent(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean isReadOnly(User user) {
+        return !isAdmin(user) && !isDoctor(user) && !isNurse(user);
+    }
+
+    public static String roleGroup(User user) {
+        return roleGroup(user == null ? null : user.getRole());
+    }
+
+    public static String roleGroup(String role) {
+        if (role == null) {
+            return "UNKNOWN";
+        }
+        String upper = role.toUpperCase();
+        if (upper.contains("ADMIN")) {
+            return "ADMIN";
+        }
+        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
+            return "DOCTOR";
+        }
+        if (upper.contains("NURSE") || upper.contains("NURSING")) {
+            return "NURSE";
+        }
+        if (upper.isBlank() || upper.equals("UNKNOWN")) {
+            return "UNKNOWN";
+        }
+        return "STAFF";
+    }
+
+    private static boolean isAdmin(User user) {
+        return "ADMIN".equals(roleGroup(user));
+    }
+
+    private static boolean isDoctor(User user) {
+        return "DOCTOR".equals(roleGroup(user));
+    }
+
+    private static boolean isNurse(User user) {
+        return "NURSE".equals(roleGroup(user));
+    }
+}

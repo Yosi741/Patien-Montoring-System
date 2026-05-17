@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.PlaceholderController">
+    <padding>
+        <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+    </padding>
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Placeholder" styleClass="screen-title" />
+        <Label fx:id="subtitleLabel" text="Preview" styleClass="muted-text" />
+    </VBox>
+    <VBox spacing="12.0" styleClass="panel-card">
+        <Label text="Coming Soon" styleClass="section-title" />
+        <Label fx:id="bodyLabel" text="This screen will be migrated in a later safe slice." wrapText="true" styleClass="body-text" />
+    </VBox>
+</VBox>

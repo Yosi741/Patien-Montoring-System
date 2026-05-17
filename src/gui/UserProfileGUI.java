@@ -15,8 +15,7 @@ public class UserProfileGUI extends JFrame {
 
     public UserProfileGUI() {
         setTitle("User Profile");
-        setSize(620, 460);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 900, 620, 820, 560);
         NavigationManager.configureChildWindow(this);
 
         User user = Session.getCurrentUser();
@@ -24,25 +23,32 @@ public class UserProfileGUI extends JFrame {
 
         JPanel main = UITheme.appPanel(new BorderLayout(14, 14));
         main.setBorder(new EmptyBorder(22, 22, 22, 22));
-        main.add(new HospitalHeaderPanel("User Profile"), BorderLayout.NORTH);
+        main.add(new AppHeader("User Profile"), BorderLayout.NORTH);
 
-        JPanel form = UITheme.cardPanel();
-        form.setLayout(new GridLayout(7, 2, 12, 12));
+        JPanel card = CardPanel.create(new BorderLayout());
+        FormPanel form = new FormPanel();
         JTextField name = field(profile.getDisplayName());
         JTextField phone = field(profile.getPhone());
         JTextField email = field(profile.getEmail());
         photoPath = field(profile.getPhotoPath());
         photoPath.setEditable(false);
 
-        form.add(new JLabel("Username:")); form.add(new JLabel(user.getUsername()));
-        form.add(new JLabel("Role:")); form.add(new JLabel(user.getRole()));
-        form.add(new JLabel("Section:")); form.add(new JLabel(user.getSection()));
-        form.add(new JLabel("Name:")); form.add(name);
-        form.add(new JLabel("Phone:")); form.add(phone);
-        form.add(new JLabel("Email:")); form.add(email);
         JButton photo = UITheme.secondaryButton("Choose Photo");
         photo.addActionListener(e -> choosePhoto());
-        form.add(photo); form.add(photoPath);
+
+        JPanel photoRow = new JPanel(new BorderLayout(10, 0));
+        photoRow.setOpaque(false);
+        photoRow.add(photoPath, BorderLayout.CENTER);
+        photoRow.add(photo, BorderLayout.EAST);
+
+        form.addReadOnlyRow("Username:", user.getUsername());
+        form.addReadOnlyRow("Role:", user.getRole());
+        form.addReadOnlyRow("Section:", user.getSection());
+        form.addRow("Name:", name);
+        form.addRow("Phone:", phone);
+        form.addRow("Email:", email);
+        form.addRow("Photo:", photoRow);
+        card.add(form, BorderLayout.NORTH);
 
         JButton save = UITheme.button("Save Profile", UITheme.PRIMARY);
         JButton support = UITheme.secondaryButton("Contact Support / Feedback");
@@ -57,7 +63,7 @@ public class UserProfileGUI extends JFrame {
         bottom.setOpaque(false);
         bottom.add(support);
         bottom.add(save);
-        main.add(form, BorderLayout.CENTER);
+        main.add(new JScrollPane(card), BorderLayout.CENTER);
         main.add(bottom, BorderLayout.SOUTH);
         add(main);
     }

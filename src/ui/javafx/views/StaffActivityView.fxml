@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.StaffActivityController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Staff Activity / Shift Overview" styleClass="screen-title" />
+                <Label text="Read-only SQLite staff, alert, and handover activity for shift awareness" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="Staff Activity is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="activityContentPane" spacing="16.0">
+                        <Label fx:id="scopeLabel" text="Staff activity scope" wrapText="true" styleClass="status-pill" />
+
+                        <GridPane hgap="14.0" vgap="14.0">
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Logins Today" styleClass="metric-label" />
+                                <Label fx:id="loginsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Alert Acknowledgements" styleClass="metric-label" />
+                                <Label fx:id="alertAckTodayLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Patient Detail Views" styleClass="metric-label" />
+                                <Label fx:id="patientViewsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Sync Operations" styleClass="metric-label" />
+                                <Label fx:id="syncTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Recent Actions Today" styleClass="metric-label" />
+                                <Label fx:id="recentActionsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                        </GridPane>
+
+                        <HBox spacing="18.0">
+                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                                <Label text="Active Alerts By Section" styleClass="section-title" />
+                                <VBox fx:id="activeAlertsBySectionBox" spacing="8.0" />
+                            </VBox>
+                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                                <Label text="Latest Shift Handover Notes" styleClass="section-title" />
+                                <VBox fx:id="handoverBox" spacing="8.0" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Search" styleClass="field-label" />
+                                <TextField fx:id="searchField" promptText="Username, action, or patient ID" HBox.hgrow="ALWAYS" />
+                                <Label text="Role" styleClass="field-label" />
+                                <ComboBox fx:id="roleFilter" prefWidth="130.0" />
+                                <Label text="Action" styleClass="field-label" />
+                                <ComboBox fx:id="actionTypeFilter" prefWidth="135.0" />
+                                <Label text="Date" styleClass="field-label" />
+                                <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
+                            </HBox>
+                            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadActivity" styleClass="secondary-button" />
+                            </HBox>
+                        </VBox>
+
+                        <TableView fx:id="activityTable" prefHeight="420.0">
+                            <columns>
+                                <TableColumn fx:id="timeColumn" text="Time" prefWidth="160.0" />
+                                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="140.0" />
+                                <TableColumn fx:id="roleColumn" text="Role" prefWidth="100.0" />
+                                <TableColumn fx:id="actionTypeColumn" text="Action Type" prefWidth="115.0" />
+                                <TableColumn fx:id="descriptionColumn" text="Description / Action" prefWidth="520.0" />
+                                <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="120.0" />
+                            </columns>
+                        </TableView>
+
+                        <Label fx:id="statusLabel" text="Staff activity not loaded yet." styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

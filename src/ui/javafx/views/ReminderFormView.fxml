@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" styleClass="panel-card" prefWidth="720.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.ReminderFormController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>
+    <Label fx:id="titleLabel" text="Reminder" styleClass="section-title" />
+    <Label text="SQLite-only reminder scheduling. Medication reminders can reference an active SQLite medication ID." wrapText="true" styleClass="muted-text" />
+    <GridPane hgap="12.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="PAT-001" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Medication ID (optional)" styleClass="field-label" />
+            <TextField fx:id="medicationIdField" promptText="SQLite medication ID" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Reminder Type" styleClass="field-label" />
+            <ComboBox fx:id="reminderTypeBox" maxWidth="Infinity" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label text="Title" styleClass="field-label" />
+            <TextField fx:id="reminderTitleField" promptText="Medication review reminder" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Due Time" styleClass="field-label" />
+            <TextField fx:id="dueTimeField" promptText="dd-MM-yyyy HH:mm:ss" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Repeat Rule" styleClass="field-label" />
+            <TextField fx:id="repeatRuleField" promptText="None / Daily / Weekly" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+            <Label text="Assigned Staff" styleClass="field-label" />
+            <TextField fx:id="assignedToField" promptText="Doctor or nurse username" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional reminder notes" />
+        </VBox>
+    </GridPane>
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+</VBox>

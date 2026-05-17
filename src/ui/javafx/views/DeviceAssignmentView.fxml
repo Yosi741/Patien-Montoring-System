@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" styleClass="panel-card" prefWidth="520.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.DeviceAssignmentController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>
+    <Label text="Assign Device" styleClass="section-title" />
+    <Label fx:id="deviceLabel" text="Device" styleClass="detail-value" wrapText="true" />
+    <VBox spacing="5.0">
+        <Label text="Patient ID" styleClass="field-label" />
+        <TextField fx:id="patientIdField" promptText="Patient ID" />
+    </VBox>
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+</VBox>

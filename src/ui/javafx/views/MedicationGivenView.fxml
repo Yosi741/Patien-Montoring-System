@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" styleClass="panel-card" prefWidth="660.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicationGivenController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>
+    <Label text="Record Medication Given" styleClass="section-title" />
+    <Label text="Records a SQLite medication administration event only. Swing and legacy text files are unchanged." wrapText="true" styleClass="muted-text" />
+    <GridPane hgap="12.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <Label fx:id="patientIdLabel" text="-" styleClass="detail-value" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Medication" styleClass="field-label" />
+            <ComboBox fx:id="medicationBox" maxWidth="Infinity" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Given By" styleClass="field-label" />
+            <TextField fx:id="givenByField" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Given At" styleClass="field-label" />
+            <TextField fx:id="givenAtField" promptText="dd-MM-yyyy HH:mm:ss" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional administration note" />
+        </VBox>
+    </GridPane>
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+</VBox>

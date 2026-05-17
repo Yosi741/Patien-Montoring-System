@@ -19,17 +19,12 @@ public class UserManagementGUI extends JFrame {
     public UserManagementGUI() {
 
         setTitle("User Management");
-        setSize(950, 600);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 1050, 650, 900, 560);
         NavigationManager.configureChildWindow(this);
 
-        JPanel main = new JPanel(new BorderLayout());
-        main.setBackground(UITheme.BACKGROUND);
-        main.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        JLabel title = new JLabel("User Management", SwingConstants.CENTER);
-        title.setFont(UITheme.font(Font.BOLD, 30));
-        title.setForeground(UITheme.TEXT);
+        JPanel main = UITheme.appPanel(new BorderLayout(14, 14));
+        main.setBorder(new EmptyBorder(22, 22, 22, 22));
+        main.add(new AppHeader("User Management"), BorderLayout.NORTH);
 
         String[] columns = {"Username", "Password", "Role", "Section"};
 
@@ -41,24 +36,23 @@ public class UserManagementGUI extends JFrame {
         };
 
         usersTable = new JTable(tableModel);
-        UITheme.styleTable(usersTable);
+        StyledTable.apply(usersTable);
+        StyledTable.setPreferredWidths(usersTable, 180, 180, 220, 180);
 
-        JScrollPane scrollPane = new JScrollPane(usersTable);
+        JScrollPane scrollPane = StyledTable.scrollPane(usersTable);
 
-        JButton addButton = UITheme.button("Add User", UITheme.PRIMARY);
-        JButton editButton = UITheme.button("Edit User", UITheme.WARNING);
-        JButton deleteButton = UITheme.button("Delete User", UITheme.DANGER);
-        JButton refreshButton = UITheme.secondaryButton("Refresh");
-        JButton homeButton = NavigationManager.homeButton(this);
+        JButton addButton = StyledButton.primary("Add User");
+        JButton editButton = StyledButton.warning("Edit User");
+        JButton deleteButton = StyledButton.danger("Delete User");
+        JButton refreshButton = StyledButton.secondary("Refresh");
 
-        JPanel buttons = new JPanel();
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttons.setOpaque(false);
         buttons.add(addButton);
         buttons.add(editButton);
         buttons.add(deleteButton);
         buttons.add(refreshButton);
-        buttons.add(homeButton);
 
-        main.add(title, BorderLayout.NORTH);
         main.add(scrollPane, BorderLayout.CENTER);
         main.add(buttons, BorderLayout.SOUTH);
 

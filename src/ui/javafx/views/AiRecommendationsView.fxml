@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.AiRecommendationsController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="AI Recommendations" styleClass="screen-title" />
+                <Label text="Rule-based decision support only. Not a medical diagnosis." styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="AI Recommendations are available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="aiContentPane" spacing="16.0">
+                        <VBox spacing="8.0" styleClass="panel-card">
+                            <Label text="Clinical Decision Support Notice" styleClass="section-title" />
+                            <Label text="Rule-based decision support only. Not a medical diagnosis. Clinical staff must verify patient condition and follow hospital policy." wrapText="true" styleClass="body-text" />
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Section" styleClass="field-label" />
+                                <ComboBox fx:id="sectionFilter" prefWidth="180.0" />
+                                <Label text="Risk Level" styleClass="field-label" />
+                                <ComboBox fx:id="riskLevelFilter" prefWidth="150.0" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button text="Open Selected Patient" onAction="#openSelectedPatient" styleClass="primary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadRecommendations" styleClass="secondary-button" />
+                            </HBox>
+                        </VBox>
+                        <TableView fx:id="recommendationTable" prefHeight="520.0">
+                            <columns>
+                                <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
+                                <TableColumn fx:id="sectionColumn" text="Section" prefWidth="130.0" />
+                                <TableColumn fx:id="riskScoreColumn" text="Risk Score" prefWidth="110.0" />
+                                <TableColumn fx:id="riskLevelColumn" text="Risk Level" prefWidth="110.0" />
+                                <TableColumn fx:id="recommendationColumn" text="Latest Recommendation" prefWidth="430.0" />
+                                <TableColumn fx:id="reasonsColumn" text="Reason Indicators" prefWidth="360.0" />
+                                <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="170.0" />
+                            </columns>
+                        </TableView>
+                        <Label fx:id="statusLabel" text="AI recommendations not loaded yet." styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

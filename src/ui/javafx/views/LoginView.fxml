@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.LoginController">
+    <center>
+        <StackPane>
+            <VBox maxWidth="440.0" spacing="18.0" styleClass="login-card">
+                <padding>
+                    <Insets bottom="34.0" left="34.0" right="34.0" top="34.0" />
+                </padding>
+                <VBox spacing="6.0">
+                    <Label text="Smart Patient Monitoring" styleClass="screen-title" />
+                    <Label text="JavaFX foundation preview" styleClass="muted-text" />
+                </VBox>
+                <VBox spacing="10.0">
+                    <Label text="Username" styleClass="field-label" />
+                    <TextField fx:id="usernameField" promptText="doctor, nurse, admin..." />
+                    <Label text="Password" styleClass="field-label" />
+                    <PasswordField fx:id="passwordField" promptText="Password" onAction="#handleLogin" />
+                </VBox>
+                <HBox spacing="10.0">
+                    <Button text="Login" onAction="#handleLogin" styleClass="primary-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                    <Button text="Clear" onAction="#handleClear" styleClass="secondary-button" />
+                </HBox>
+                <Label fx:id="statusLabel" styleClass="error-text" />
+                <Region prefHeight="8.0" />
+                <Label fx:id="databaseStatusLabel" styleClass="status-pill" wrapText="true" />
+                <Label text="Existing Swing application remains available through Main." styleClass="muted-text" wrapText="true" />
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

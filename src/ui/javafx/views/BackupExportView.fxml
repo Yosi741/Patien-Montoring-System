@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.BackupExportController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Backup / Export" styleClass="screen-title" />
+                <Label text="Local SQLite backup, CSV exports, and restore validation tools" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="Backup and export tools are available only to authorized hospital roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="contentPane" spacing="16.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Local only" styleClass="status-pill" />
+                            <Label text="No cloud backup" styleClass="status-pill" />
+                            <Label text="Restore is preview-only" styleClass="status-pill" />
+                        </HBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card">
+                            <Label text="Backup Safety" styleClass="section-title" />
+                            <Label text="Create a ZIP backup containing the SQLite database, local uploads, and a backup information file. Existing backups are never overwritten." wrapText="true" styleClass="body-text" />
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Button fx:id="createBackupButton" text="Create Backup" onAction="#createBackup" styleClass="primary-button" />
+                                <Button fx:id="previewRestoreButton" text="Preview Restore Backup" onAction="#previewRestoreBackup" styleClass="secondary-button" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card">
+                            <Label text="CSV Export Tools" styleClass="section-title" />
+                            <Label text="Export read-only operational summaries for local review or presentation. CSV files are written with safe escaping." wrapText="true" styleClass="body-text" />
+                            <GridPane hgap="12.0" vgap="12.0">
+                                <Button fx:id="exportPatientsButton" text="Export Patients CSV" onAction="#exportPatientsCsv" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Button fx:id="exportAlertsButton" text="Export Alerts CSV" onAction="#exportAlertsCsv" styleClass="secondary-button" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Button fx:id="exportAuditLogsButton" text="Export Audit Logs CSV" onAction="#exportAuditLogsCsv" styleClass="secondary-button" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <Button fx:id="exportMedicationButton" text="Export Medication Events CSV" onAction="#exportMedicationCsv" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Button fx:id="exportSchedulingButton" text="Export Scheduling CSV" onAction="#exportSchedulingCsv" styleClass="secondary-button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            </GridPane>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <Label text="Result" styleClass="section-title" />
+                            <TextArea fx:id="resultArea" editable="false" wrapText="true" prefRowCount="18" />
+                        </VBox>
+                        <Label fx:id="statusLabel" text="Backup/export tools not loaded yet." wrapText="true" styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

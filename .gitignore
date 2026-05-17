@@ -28,9 +28,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+sources.txt
 # Runtime/generated data
 data/certificates/
 data/files/
+data/smart_patient_monitoring.db*
 data/ai_notes.txt
 data/messages.txt
 data/notifications.txt

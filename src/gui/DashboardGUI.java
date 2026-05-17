@@ -16,29 +16,11 @@ public class DashboardGUI extends JFrame {
         NavigationManager.registerDashboard(this);
 
         setTitle("Hospital Dashboard - " + currentUser.getRole());
-        setSize(1100, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 1180, 760, 980, 640);
 
         JPanel main = UITheme.appPanel(new BorderLayout(20, 20));
-        main.setBorder(new EmptyBorder(28, 32, 32, 32));
-
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-
-        JLabel title = UITheme.title("Smart Patient Monitoring System", 32);
-        JLabel subtitle = new JLabel("Logged in as " + currentUser.getUsername() + " | " + currentUser.getRole() + " | Section: " + currentUser.getSection());
-        subtitle.setFont(UITheme.font(Font.PLAIN, 16));
-        subtitle.setForeground(UITheme.MUTED);
-
-        JPanel titleBox = new JPanel();
-        titleBox.setOpaque(false);
-        titleBox.setLayout(new BoxLayout(titleBox, BoxLayout.Y_AXIS));
-        titleBox.add(title);
-        titleBox.add(Box.createVerticalStrut(8));
-        titleBox.add(subtitle);
-
-        header.add(titleBox, BorderLayout.WEST);
+        main.setBorder(new EmptyBorder(22, 24, 24, 24));
 
         JPanel grid = UITheme.appPanel(new GridLayout(4, 3, 18, 18));
 
@@ -85,7 +67,7 @@ public class DashboardGUI extends JFrame {
         grid.add(logsButton);
         grid.add(usersButton);
 
-        main.add(new HospitalHeaderPanel("Smart Patient Monitoring System"), BorderLayout.NORTH);
+        main.add(new AppHeader("Smart Patient Monitoring System"), BorderLayout.NORTH);
         main.add(grid, BorderLayout.CENTER);
 
         add(main);

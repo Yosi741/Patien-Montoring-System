@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.AppLayoutController">
+    <left>
+        <VBox prefWidth="250.0" spacing="14.0" styleClass="side-nav">
+            <padding>
+                <Insets bottom="22.0" left="18.0" right="18.0" top="22.0" />
+            </padding>
+            <VBox spacing="4.0" styleClass="brand-block">
+                <Label text="SPMS" styleClass="brand-title" />
+                <Label text="JavaFX Hospital Preview" styleClass="muted-text" wrapText="true" />
+            </VBox>
+            <VBox spacing="4.0" styleClass="user-block">
+                <Label fx:id="userLabel" text="User" styleClass="field-label" />
+                <Label fx:id="roleLabel" text="Role | Section" styleClass="muted-text" wrapText="true" />
+            </VBox>
+            <VBox spacing="8.0">
+                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity" styleClass="nav-button" />
+                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity" styleClass="nav-button" />
+                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity" styleClass="nav-button" />
+                <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="medicalDevicesButton" text="Medical Devices" onAction="#showMedicalDevices" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="roomOccupancyButton" text="Rooms / Beds" onAction="#showRoomBedOccupancy" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="backupExportButton" text="Backup / Export" onAction="#showBackupExport" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
+                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity" styleClass="nav-button" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <Button text="Dark Mode" onAction="#toggleTheme" maxWidth="Infinity" styleClass="secondary-button" />
+            <Button text="Logout" onAction="#logout" maxWidth="Infinity" styleClass="danger-button" />
+        </VBox>
+    </left>
+    <center>
+        <BorderPane>
+            <top>
+                <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="shell-top-user-bar">
+                    <Label fx:id="topUserLabel" text="User | Section" styleClass="muted-text" />
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
+                    <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+                </HBox>
+            </top>
+            <center>
+                <BorderPane fx:id="contentPane" />
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

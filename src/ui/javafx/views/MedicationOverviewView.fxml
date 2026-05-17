@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicationOverviewController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Medication Administration Overview" styleClass="screen-title" />
+                <Label text="SQLite medication overview with controlled administration write workflow" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="section-title" />
+                        <Label text="Medication Overview is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                    </VBox>
+                    <VBox fx:id="medicationContentPane" spacing="16.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label fx:id="scopeLabel" text="Medication overview scope" wrapText="true" styleClass="status-pill" />
+                            <Label fx:id="patientFilterChip" text="" styleClass="filter-chip" managed="false" visible="false" />
+                            <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter" styleClass="secondary-button" managed="false" visible="false" />
+                        </HBox>
+
+                        <GridPane hgap="14.0" vgap="14.0">
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Active Medications" styleClass="metric-label" />
+                                <Label fx:id="activeMedicationsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Events Today" styleClass="metric-label" />
+                                <Label fx:id="eventsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Missed / Overdue" styleClass="metric-label" />
+                                <Label fx:id="missedOverdueLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                                <Label text="placeholder" styleClass="muted-text" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Patients With Active Meds" styleClass="metric-label" />
+                                <Label fx:id="patientsWithMedicationsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                                <Label text="Latest Event Time" styleClass="metric-label" />
+                                <Label fx:id="latestEventTimeLabel" text="-" wrapText="true" styleClass="detail-value" />
+                            </VBox>
+                        </GridPane>
+
+                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Search" styleClass="field-label" />
+                                <TextField fx:id="searchField" promptText="Patient ID, patient name, or medication" HBox.hgrow="ALWAYS" />
+                                <Label text="Active" styleClass="field-label" />
+                                <ComboBox fx:id="activeFilter" prefWidth="125.0" />
+                                <Label text="Route" styleClass="field-label" />
+                                <ComboBox fx:id="routeFilter" prefWidth="140.0" />
+                                <Label text="Events" styleClass="field-label" />
+                                <ComboBox fx:id="eventDateRangeFilter" prefWidth="145.0" />
+                            </HBox>
+                            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                <Button fx:id="addMedicationButton" text="Add Medication" onAction="#addMedication" styleClass="primary-button" />
+                                <Button fx:id="editMedicationButton" text="Edit Selected" onAction="#editSelectedMedication" styleClass="secondary-button" />
+                                <Button fx:id="discontinueMedicationButton" text="Discontinue Selected" onAction="#discontinueSelectedMedication" styleClass="danger-button" />
+                                <Button fx:id="recordGivenButton" text="Record Given" onAction="#recordMedicationGiven" styleClass="primary-button" />
+                                <Button fx:id="createReminderButton" text="Create Reminder" onAction="#createMedicationReminder" styleClass="secondary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadOverview" styleClass="secondary-button" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <Label text="Active Medication Orders" styleClass="section-title" />
+                            <TableView fx:id="medicationTable" prefHeight="300.0">
+                                <columns>
+                                    <TableColumn fx:id="medPatientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                    <TableColumn fx:id="medPatientNameColumn" text="Patient Name" prefWidth="190.0" />
+                                    <TableColumn fx:id="medNameColumn" text="Medication Name" prefWidth="220.0" />
+                                    <TableColumn fx:id="doseColumn" text="Dose" prefWidth="120.0" />
+                                    <TableColumn fx:id="routeColumn" text="Route" prefWidth="120.0" />
+                                    <TableColumn fx:id="frequencyColumn" text="Frequency" prefWidth="150.0" />
+                                    <TableColumn fx:id="activeColumn" text="Active Status" prefWidth="120.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <Label text="Medication Administration Events" styleClass="section-title" />
+                            <TableView fx:id="eventTable" prefHeight="320.0">
+                                <columns>
+                                    <TableColumn fx:id="eventPatientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                    <TableColumn fx:id="eventMedicationColumn" text="Medication Name" prefWidth="230.0" />
+                                    <TableColumn fx:id="givenByColumn" text="Given By" prefWidth="160.0" />
+                                    <TableColumn fx:id="givenAtColumn" text="Given At" prefWidth="180.0" />
+                                    <TableColumn fx:id="notesColumn" text="Notes" prefWidth="420.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <Label fx:id="statusLabel" text="Medication overview not loaded yet." styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

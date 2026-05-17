@@ -17,20 +17,20 @@ public class NotificationCenterGUI extends JFrame {
     public NotificationCenterGUI(Runnable onChange) {
         this.onChange = onChange;
         setTitle("Notification Center");
-        setSize(900, 560);
-        setLocationRelativeTo(null);
+        WindowSizing.apply(this, 1000, 640, 860, 560);
         NavigationManager.configureChildWindow(this);
 
         JPanel main = UITheme.appPanel(new BorderLayout(14, 14));
         main.setBorder(new EmptyBorder(22, 22, 22, 22));
-        main.add(new HospitalHeaderPanel("Notification Center"), BorderLayout.NORTH);
+        main.add(new AppHeader("Notification Center"), BorderLayout.NORTH);
 
         model = new DefaultTableModel(new String[]{"Severity", "Message", "Time", "Read"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         JTable table = new JTable(model);
-        UITheme.styleTable(table);
+        StyledTable.apply(table);
         table.setDefaultRenderer(Object.class, new NotificationRenderer());
+        StyledTable.setPreferredWidths(table, 110, 520, 170, 80);
 
         JButton markRead = UITheme.button("Mark All Read", UITheme.SUCCESS);
         JButton clear = UITheme.button("Clear Notifications", UITheme.DANGER);
@@ -47,13 +47,13 @@ public class NotificationCenterGUI extends JFrame {
         });
         refresh.addActionListener(e -> load());
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttons.setOpaque(false);
         buttons.add(refresh);
         buttons.add(markRead);
         buttons.add(clear);
 
-        main.add(new JScrollPane(table), BorderLayout.CENTER);
+        main.add(StyledTable.scrollPane(table), BorderLayout.CENTER);
         main.add(buttons, BorderLayout.SOUTH);
         add(main);
         load();

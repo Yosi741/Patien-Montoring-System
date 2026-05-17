@@ -6,6 +6,22 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/pdfbox-app-2.0.36.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-base-17.0.15-win.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-controls-17.0.15-win.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-fxml-17.0.15-win.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-graphics-17.0.15-win.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/slf4j-api-2.0.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/slf4j-simple-2.0.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/sqlite-jdbc-3.53.1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

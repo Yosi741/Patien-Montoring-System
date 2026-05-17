@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.UserProfileController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+            <VBox spacing="4.0">
+                <Label text="Staff Profile" styleClass="screen-title" />
+                <Label text="Read-only JavaFX session and permission preview" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dashboard" onAction="#goDashboard" styleClass="secondary-button" />
+            <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="18.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <GridPane hgap="16.0" vgap="16.0">
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
+                    <Label text="Username" styleClass="metric-label" />
+                    <Label fx:id="usernameLabel" text="-" styleClass="detail-value" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
+                    <Label text="Role" styleClass="metric-label" />
+                    <Label fx:id="roleLabel" text="-" styleClass="detail-value" />
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
+                </VBox>
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
+                    <Label text="Section / Department" styleClass="metric-label" />
+                    <Label fx:id="sectionLabel" text="-" styleClass="detail-value" />
+                </VBox>
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
+                    <Label text="Account Status" styleClass="metric-label" />
+                    <Label fx:id="accountStatusLabel" text="-" styleClass="detail-value" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
+                    <Label text="Login Source" styleClass="metric-label" />
+                    <Label fx:id="authSourceLabel" text="-" styleClass="detail-value" />
+                </VBox>
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
+                    <Label text="Login Time" styleClass="metric-label" />
+                    <Label fx:id="loginTimeLabel" text="-" styleClass="detail-value" />
+                </VBox>
+            </GridPane>
+            <VBox spacing="12.0" styleClass="panel-card">
+                <Label text="Permission Preview" styleClass="section-title" />
+                <Label text="This panel previews intended JavaFX permissions. Full enforcement will be added in a later safe phase." wrapText="true" styleClass="muted-text" />
+                <VBox fx:id="permissionListBox" spacing="8.0" />
+            </VBox>
+            <VBox fx:id="writeFoundationBox" managed="false" visible="false" spacing="12.0" styleClass="panel-card">
+                <Label text="Write Workflow Foundation" styleClass="section-title" />
+                <Label text="Admin-only safe test write. This creates an SQLite audit log row only; no patient, vitals, medication, or user data is changed." wrapText="true" styleClass="muted-text" />
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Button fx:id="createTestAuditButton" text="Create Test Audit Event" onAction="#createTestAuditEvent" styleClass="primary-button" />
+                    <Label fx:id="writeFoundationStatusLabel" text="-" wrapText="true" styleClass="status-info" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

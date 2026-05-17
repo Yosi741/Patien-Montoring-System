@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.DashboardController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="top-bar">
+            <VBox spacing="4.0">
+                <Label fx:id="welcomeLabel" text="Welcome" styleClass="screen-title" />
+                <Label fx:id="roleLabel" text="Role | Section" styleClass="muted-text" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Dark Mode" onAction="#toggleTheme" styleClass="secondary-button" />
+            <Button text="Refresh" onAction="#refresh" styleClass="secondary-button" />
+            <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+            <content>
+                <VBox spacing="20.0">
+                    <padding>
+                        <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
+                    </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <VBox spacing="4.0">
+                            <Label text="Hospital Operations Dashboard" styleClass="section-title" />
+                            <Label text="Read-only SQLite metrics for committee demo and clinical situational awareness." styleClass="muted-text" />
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Open Patients" onAction="#openPatientList" styleClass="primary-button" />
+                        <Button text="Open Alert Center" onAction="#openAlertCenter" styleClass="secondary-button" />
+                        <Button text="Open Work Queue" onAction="#openWorkQueue" styleClass="secondary-button" />
+                    </HBox>
+
+                    <GridPane hgap="14.0" vgap="14.0">
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Total Patients" styleClass="metric-label" />
+                            <Label fx:id="totalPatientsLabel" text="0" styleClass="metric-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Active Patients" styleClass="metric-label" />
+                            <Label fx:id="activePatientsLabel" text="0" styleClass="metric-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Critical / Emergency" styleClass="metric-label" />
+                            <Label fx:id="criticalPatientsLabel" text="0" styleClass="metric-value critical-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Active Alerts" styleClass="metric-label" />
+                            <Label fx:id="activeAlertsLabel" text="0" styleClass="metric-value warning-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Acknowledged Today" styleClass="metric-label" />
+                            <Label fx:id="acknowledgedTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Resolved Today" styleClass="metric-label" />
+                            <Label fx:id="resolvedTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="Imported Files" styleClass="metric-label" />
+                            <Label fx:id="medicalFilesLabel" text="0" styleClass="metric-value compact-metric-value" />
+                        </VBox>
+                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
+                            <Label text="AI Notes" styleClass="metric-label" />
+                            <Label fx:id="aiNotesLabel" text="0" styleClass="metric-value compact-metric-value" />
+                        </VBox>
+                    </GridPane>
+
+                    <HBox spacing="18.0">
+                        <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Patient Priority Summary" styleClass="section-title" />
+                            <VBox fx:id="prioritySummaryBox" spacing="8.0" />
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Active Alerts By Severity" styleClass="section-title" />
+                            <VBox fx:id="activeAlertSeverityBox" spacing="8.0" />
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Vitals Today" styleClass="section-title" />
+                            <Label fx:id="recentVitalsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <Label text="recent SQLite vital readings recorded today" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Scheduling Today" styleClass="section-title" />
+                            <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <Label text="appointments scheduled today" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Pending Reminders" styleClass="section-title" />
+                            <Label fx:id="pendingRemindersLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            <Label text="open medical reminders in SQLite" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="18.0">
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Overdue Reminders" styleClass="section-title" />
+                            <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value critical-value" />
+                            <Label text="local engine status from SQLite" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Upcoming Reminders" styleClass="section-title" />
+                            <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            <Label text="due within the next work queue window" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Nurse Queue Tasks" styleClass="section-title" />
+                            <Label fx:id="nurseQueueTasksLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <Label text="reminders, critical alerts, and missing vitals" wrapText="true" styleClass="muted-text" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+                        <VBox spacing="12.0" styleClass="panel-card dashboard-wide-panel" HBox.hgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Recent Alerts" styleClass="section-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="Click a row to open Alert Center" styleClass="muted-text" />
+                            </HBox>
+                            <VBox fx:id="recentAlertsBox" spacing="8.0" />
+                        </VBox>
+                        <VBox spacing="12.0" styleClass="panel-card dashboard-wide-panel" HBox.hgrow="ALWAYS">
+                            <Label text="Latest Vitals" styleClass="section-title" />
+                            <VBox fx:id="latestVitalsBox" spacing="8.0" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="8.0" styleClass="panel-card">
+                        <Label text="System Status" styleClass="section-title" />
+                        <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true" styleClass="status-pill" />
+                        <Label fx:id="databaseStatusLabel" text="SQLite status" wrapText="true" styleClass="status-pill" />
+                        <Label fx:id="migrationStatusLabel" text="Migration status" wrapText="true" styleClass="status-pill" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

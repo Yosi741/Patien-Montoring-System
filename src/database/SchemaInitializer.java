@@ -1,0 +1,283 @@
+package database;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class SchemaInitializer {
+
+    private SchemaInitializer() {
+    }
+
+    public static void initialize() throws SQLException {
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement()) {
+            createUsers(statement);
+            createPatients(statement);
+            createVitalReadings(statement);
+            createAlerts(statement);
+            migrateAlerts(statement);
+            createMedications(statement);
+            createMedicationEvents(statement);
+            createAppointments(statement);
+            createReminders(statement);
+            createMedicalHistory(statement);
+            createAiNotes(statement);
+            migrateAiNotes(statement);
+            createMedicalFiles(statement);
+            migrateMedicalFiles(statement);
+            createRooms(statement);
+            createShiftHandoverNotes(statement);
+            createAuditLogs(statement);
+            createDevices(statement);
+            migrateDevices(statement);
+            createNotifications(statement);
+        }
+    }
+
+    private static void createUsers(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS users ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "username TEXT NOT NULL UNIQUE,"
+                + "password_hash TEXT NOT NULL,"
+                + "role TEXT NOT NULL,"
+                + "section TEXT NOT NULL DEFAULT 'All',"
+                + "active INTEGER NOT NULL DEFAULT 1,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void createPatients(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS patients ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL UNIQUE,"
+                + "first_name TEXT NOT NULL,"
+                + "last_name TEXT NOT NULL,"
+                + "birth_date TEXT,"
+                + "gender TEXT,"
+                + "section TEXT,"
+                + "room TEXT,"
+                + "status TEXT NOT NULL DEFAULT 'Active',"
+                + "priority TEXT NOT NULL DEFAULT 'NORMAL',"
+                + "diagnosis TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void createVitalReadings(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS vital_readings ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "vital_type TEXT NOT NULL,"
+                + "value TEXT NOT NULL,"
+                + "unit TEXT,"
+                + "recorded_at TEXT NOT NULL,"
+                + "source_type TEXT,"
+                + "staff_user TEXT,"
+                + "device_id TEXT,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createAlerts(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS alerts ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT,"
+                + "severity TEXT NOT NULL,"
+                + "message TEXT NOT NULL,"
+                + "status TEXT NOT NULL DEFAULT 'ACTIVE',"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT,"
+                + "acknowledged_by TEXT,"
+                + "acknowledged_at TEXT,"
+                + "cooldown_until TEXT"
+                + ")");
+    }
+
+    private static void migrateAlerts(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "alerts", "updated_at", "TEXT");
+    }
+
+    private static void addColumnIfMissing(Statement statement, String table, String column, String definition) throws SQLException {
+        try {
+            statement.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
+        } catch (SQLException e) {
+            String message = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (!message.contains("duplicate column")) {
+                throw e;
+            }
+        }
+    }
+
+    private static void createMedications(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medications ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "name TEXT NOT NULL,"
+                + "dose TEXT,"
+                + "route TEXT,"
+                + "frequency TEXT,"
+                + "active INTEGER NOT NULL DEFAULT 1,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createMedicationEvents(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medication_events ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "medication_id INTEGER,"
+                + "patient_id TEXT NOT NULL,"
+                + "given_by TEXT NOT NULL,"
+                + "given_at TEXT NOT NULL,"
+                + "notes TEXT,"
+                + "FOREIGN KEY(medication_id) REFERENCES medications(id),"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createAppointments(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS appointments ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "title TEXT NOT NULL,"
+                + "appointment_type TEXT NOT NULL,"
+                + "start_time TEXT NOT NULL,"
+                + "end_time TEXT NOT NULL,"
+                + "location TEXT,"
+                + "assigned_staff TEXT,"
+                + "status TEXT NOT NULL DEFAULT 'SCHEDULED',"
+                + "notes TEXT,"
+                + "created_by TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createReminders(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS reminders ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "medication_id INTEGER,"
+                + "reminder_type TEXT NOT NULL,"
+                + "title TEXT NOT NULL,"
+                + "due_time TEXT NOT NULL,"
+                + "repeat_rule TEXT,"
+                + "status TEXT NOT NULL DEFAULT 'PENDING',"
+                + "assigned_to TEXT,"
+                + "created_by TEXT,"
+                + "notes TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,"
+                + "FOREIGN KEY(medication_id) REFERENCES medications(id)"
+                + ")");
+    }
+
+    private static void createMedicalHistory(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medical_history ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "category TEXT NOT NULL,"
+                + "details TEXT NOT NULL,"
+                + "created_by TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createAiNotes(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS ai_notes ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "risk_score INTEGER NOT NULL DEFAULT 0,"
+                + "note TEXT NOT NULL,"
+                + "source_title TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void migrateAiNotes(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "ai_notes", "source_title", "TEXT");
+    }
+
+    private static void createMedicalFiles(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medical_files ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "file_id TEXT NOT NULL UNIQUE,"
+                + "patient_id TEXT NOT NULL,"
+                + "original_name TEXT NOT NULL,"
+                + "stored_path TEXT NOT NULL,"
+                + "file_type TEXT,"
+                + "uploaded_by TEXT,"
+                + "uploaded_at TEXT NOT NULL,"
+                + "extracted_summary TEXT,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void migrateMedicalFiles(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "medical_files", "file_size", "INTEGER NOT NULL DEFAULT 0");
+        addColumnIfMissing(statement, "medical_files", "notes", "TEXT");
+    }
+
+    private static void createRooms(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS rooms ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "section TEXT NOT NULL,"
+                + "room_number TEXT NOT NULL,"
+                + "capacity INTEGER NOT NULL DEFAULT 1,"
+                + "UNIQUE(section, room_number)"
+                + ")");
+    }
+
+    private static void createShiftHandoverNotes(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS shift_handover_notes ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT,"
+                + "from_user TEXT NOT NULL,"
+                + "to_section TEXT NOT NULL,"
+                + "note TEXT NOT NULL,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void createAuditLogs(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS audit_logs ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "username TEXT NOT NULL,"
+                + "action TEXT NOT NULL,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void createDevices(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS devices ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "device_id TEXT NOT NULL UNIQUE,"
+                + "name TEXT NOT NULL,"
+                + "type TEXT NOT NULL,"
+                + "serial TEXT,"
+                + "status TEXT NOT NULL,"
+                + "patient_id TEXT"
+                + ")");
+    }
+
+    private static void migrateDevices(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "devices", "notes", "TEXT");
+        addColumnIfMissing(statement, "devices", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
+    }
+
+    private static void createNotifications(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS notifications ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "username TEXT NOT NULL,"
+                + "severity TEXT NOT NULL,"
+                + "message TEXT NOT NULL,"
+                + "read INTEGER NOT NULL DEFAULT 0,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+}

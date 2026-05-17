@@ -1,0 +1,319 @@
+package ui.javafx;
+
+import database.DatabaseManager;
+import database.SchemaInitializer;
+import database.SqliteMigrationService;
+import dao.SqliteAuditLogDao;
+import javafx.application.Application;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import ui.javafx.controllers.AlertCenterController;
+import ui.javafx.controllers.AppLayoutController;
+import ui.javafx.controllers.ClinicalTimelineController;
+import ui.javafx.controllers.MedicationOverviewController;
+import ui.javafx.controllers.MedicalDevicesController;
+import ui.javafx.controllers.MedicalFilesController;
+import ui.javafx.controllers.NurseWorkQueueController;
+import ui.javafx.controllers.PatientDetailController;
+import ui.javafx.controllers.PlaceholderController;
+import ui.javafx.controllers.SchedulingController;
+import users.Session;
+import users.User;
+
+public class AppShell extends Application {
+
+    private static final String LIGHT_THEME = "/ui/javafx/styles/light-theme.css";
+    private static final String DARK_THEME = "/ui/javafx/styles/dark-theme.css";
+
+    private Stage primaryStage;
+    private AppNavigator navigator;
+    private AppLayoutController layoutController;
+    private boolean darkMode;
+    private String databaseStatus = "SQLite not initialized";
+    private String migrationStatus = "Migration not checked";
+
+    public static void launchApp(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) {
+        this.primaryStage = stage;
+        this.navigator = new AppNavigator(this);
+        initializeDatabase();
+
+        primaryStage.setTitle("Smart Patient Monitoring System - JavaFX Preview");
+        showLogin();
+        primaryStage.show();
+    }
+
+    public void showLogin() {
+        setView("/ui/javafx/views/LoginView.fxml", "Smart Patient Monitoring System - Login");
+    }
+
+    public void showDashboard(User user) {
+        showDashboard(user, SessionContext.authSource());
+    }
+
+    public void showDashboard(User user, String authSource) {
+        Session.setCurrentUser(user);
+        if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
+            SessionContext.start(user, authSource);
+        }
+        setShellContent("/ui/javafx/views/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
+    }
+
+    public void showPatientList() {
+        setShellContent("/ui/javafx/views/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
+    }
+
+    public void showAlertCenter() {
+        setShellContent("/ui/javafx/views/AlertCenterView.fxml", "Smart Patient Monitoring System - Alert Center");
+    }
+
+    public void showAlertCenterForAlert(long alertId) {
+        ensureShell("Smart Patient Monitoring System - Alert Center");
+        AppNavigator.LoadedView alertCenter = navigator.loadView("/ui/javafx/views/AlertCenterView.fxml");
+        if (alertCenter.getController() instanceof AlertCenterController) {
+            ((AlertCenterController) alertCenter.getController()).openWithAlert(alertId);
+        }
+        layoutController.setContent(alertCenter.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Alert Center");
+    }
+
+    public void showAlertCenterForPatient(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Alerts");
+        AppNavigator.LoadedView alertCenter = navigator.loadView("/ui/javafx/views/AlertCenterView.fxml");
+        if (alertCenter.getController() instanceof AlertCenterController) {
+            ((AlertCenterController) alertCenter.getController()).openForPatient(patientId);
+        }
+        layoutController.setContent(alertCenter.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Alerts");
+    }
+
+    public void showPatientDetail(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Detail");
+        AppNavigator.LoadedView detail = navigator.loadView("/ui/javafx/views/PatientDetailView.fxml");
+        if (detail.getController() instanceof PatientDetailController) {
+            ((PatientDetailController) detail.getController()).loadPatient(patientId);
+        }
+        logAudit("JavaFX PATIENT opened detail for " + patientId);
+        layoutController.setContent(detail.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Detail");
+    }
+
+    public void showClinicalTimeline(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Clinical Timeline");
+        AppNavigator.LoadedView timeline = navigator.loadView("/ui/javafx/views/ClinicalTimelineView.fxml");
+        if (timeline.getController() instanceof ClinicalTimelineController) {
+            ((ClinicalTimelineController) timeline.getController()).loadPatient(patientId);
+        }
+        layoutController.setContent(timeline.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Clinical Timeline");
+    }
+
+    public void showPlaceholder(String title, String subtitle, String body) {
+        ensureShell("Smart Patient Monitoring System - " + title);
+        AppNavigator.LoadedView placeholder = navigator.loadView("/ui/javafx/views/PlaceholderView.fxml");
+        if (placeholder.getController() instanceof PlaceholderController) {
+            ((PlaceholderController) placeholder.getController()).setContent(title, subtitle, body);
+        }
+        layoutController.setContent(placeholder.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - " + title);
+    }
+
+    public void showUserProfile() {
+        setShellContent("/ui/javafx/views/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
+    }
+
+    public void showAuditLogs() {
+        setShellContent("/ui/javafx/views/AuditLogView.fxml", "Smart Patient Monitoring System - Audit Logs");
+    }
+
+    public void showUserDirectory() {
+        setShellContent("/ui/javafx/views/UserDirectoryView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
+    }
+
+    public void showStaffActivity() {
+        setShellContent("/ui/javafx/views/StaffActivityView.fxml", "Smart Patient Monitoring System - Staff Activity");
+    }
+
+    public void showMedicationOverview() {
+        setShellContent("/ui/javafx/views/MedicationOverviewView.fxml", "Smart Patient Monitoring System - Medication Overview");
+    }
+
+    public void showMedicationOverviewForPatient(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Medications");
+        AppNavigator.LoadedView medicationOverview = navigator.loadView("/ui/javafx/views/MedicationOverviewView.fxml");
+        if (medicationOverview.getController() instanceof MedicationOverviewController) {
+            ((MedicationOverviewController) medicationOverview.getController()).openForPatient(patientId);
+        }
+        layoutController.setContent(medicationOverview.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Medications");
+    }
+
+    public void showRoomBedOccupancy() {
+        setShellContent("/ui/javafx/views/RoomBedOccupancyView.fxml", "Smart Patient Monitoring System - Room/Bed Occupancy");
+    }
+
+    public void showAiRecommendations() {
+        setShellContent("/ui/javafx/views/AiRecommendationsView.fxml", "Smart Patient Monitoring System - AI Recommendations");
+    }
+
+    public void showMedicalDevices() {
+        setShellContent("/ui/javafx/views/MedicalDevicesView.fxml", "Smart Patient Monitoring System - Medical Devices");
+    }
+
+    public void showMedicalDevicesForPatient(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Devices");
+        AppNavigator.LoadedView devices = navigator.loadView("/ui/javafx/views/MedicalDevicesView.fxml");
+        if (devices.getController() instanceof MedicalDevicesController) {
+            ((MedicalDevicesController) devices.getController()).openForPatient(patientId);
+        }
+        layoutController.setContent(devices.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Devices");
+    }
+
+    public void showScheduling() {
+        setShellContent("/ui/javafx/views/SchedulingView.fxml", "Smart Patient Monitoring System - Appointments & Reminders");
+    }
+
+    public void showSchedulingForPatient(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Scheduling");
+        AppNavigator.LoadedView scheduling = navigator.loadView("/ui/javafx/views/SchedulingView.fxml");
+        if (scheduling.getController() instanceof SchedulingController) {
+            ((SchedulingController) scheduling.getController()).openForPatient(patientId);
+        }
+        layoutController.setContent(scheduling.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Scheduling");
+    }
+
+    public void showNurseWorkQueue() {
+        setShellContent("/ui/javafx/views/NurseWorkQueueView.fxml", "Smart Patient Monitoring System - Nurse Work Queue");
+    }
+
+    public void showMedicalFiles() {
+        setShellContent("/ui/javafx/views/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
+    }
+
+    public void showBackupExport() {
+        setShellContent("/ui/javafx/views/BackupExportView.fxml", "Smart Patient Monitoring System - Backup / Export");
+    }
+
+    public void showMedicalFilesForPatient(String patientId) {
+        ensureShell("Smart Patient Monitoring System - Patient Medical Files");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/views/MedicalFilesView.fxml");
+        if (files.getController() instanceof MedicalFilesController) {
+            ((MedicalFilesController) files.getController()).openForPatient(patientId);
+        }
+        layoutController.setContent(files.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Patient Medical Files");
+    }
+
+    public void showMedicalFileDetails(String patientId, String fileId) {
+        ensureShell("Smart Patient Monitoring System - Medical File Details");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/views/MedicalFilesView.fxml");
+        if (files.getController() instanceof MedicalFilesController) {
+            ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
+        }
+        layoutController.setContent(files.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Medical File Details");
+    }
+
+    public void logout() {
+        String username = SessionContext.username();
+        try {
+            new SqliteAuditLogDao().log(username, "JavaFX logout");
+        } catch (Exception e) {
+            System.out.println("SQLite logout audit skipped: " + e.getMessage());
+        }
+        SessionContext.clear();
+        Session.setCurrentUser(null);
+        showLogin();
+    }
+
+    public String syncFromLegacyStorage() {
+        SqliteMigrationService.MigrationResult result = new SqliteMigrationService().migrateFromTextFiles();
+        migrationStatus = result.getSummary().trim();
+        databaseStatus = DatabaseManager.testConnection()
+                ? "SQLite ready: " + DatabaseManager.getDatabasePath()
+                : "SQLite connection check failed after sync";
+        logAudit("JavaFX SYSTEM sync from legacy storage");
+        return migrationStatus;
+    }
+
+    public void toggleTheme() {
+        darkMode = !darkMode;
+        applyTheme(primaryStage.getScene());
+    }
+
+    public String getDatabaseStatus() {
+        return databaseStatus;
+    }
+
+    public String getMigrationStatus() {
+        return migrationStatus;
+    }
+
+    private void initializeDatabase() {
+        try {
+            SchemaInitializer.initialize();
+            SqliteMigrationService.MigrationResult migrationResult = new SqliteMigrationService().migrateIfNeeded();
+            migrationStatus = migrationResult.getSummary().trim();
+            databaseStatus = DatabaseManager.testConnection()
+                    ? "SQLite ready: " + DatabaseManager.getDatabasePath()
+                    : "SQLite schema created, connection check failed";
+        } catch (Exception e) {
+            databaseStatus = "SQLite initialization failed: " + e.getMessage();
+            System.out.println(databaseStatus);
+        }
+    }
+
+    private void setView(String fxmlPath, String title) {
+        Parent root = navigator.load(fxmlPath);
+        Scene scene = new Scene(root, 1180, 760);
+        applyTheme(scene);
+        primaryStage.setTitle(title);
+        primaryStage.setMinWidth(980);
+        primaryStage.setMinHeight(640);
+        primaryStage.setScene(scene);
+    }
+
+    private void setShellContent(String fxmlPath, String title) {
+        ensureShell(title);
+        layoutController.setContent(navigator.load(fxmlPath));
+        primaryStage.setTitle(title);
+    }
+
+    private void ensureShell(String title) {
+        if (layoutController != null && primaryStage.getScene() != null) {
+            return;
+        }
+
+        AppNavigator.LoadedView layout = navigator.loadView("/ui/javafx/views/AppLayout.fxml");
+        layoutController = (AppLayoutController) layout.getController();
+        Scene scene = new Scene(layout.getParent(), 1240, 780);
+        applyTheme(scene);
+        primaryStage.setTitle(title);
+        primaryStage.setMinWidth(1040);
+        primaryStage.setMinHeight(680);
+        primaryStage.setScene(scene);
+    }
+
+    private void applyTheme(Scene scene) {
+        if (scene == null) {
+            return;
+        }
+        scene.getStylesheets().clear();
+        scene.getStylesheets().add(AppNavigator.resolve(darkMode ? DARK_THEME : LIGHT_THEME).toExternalForm());
+    }
+
+    private void logAudit(String action) {
+        try {
+            new SqliteAuditLogDao().log(SessionContext.username(), action);
+        } catch (Exception e) {
+            System.out.println("SQLite JavaFX audit skipped: " + e.getMessage());
+        }
+    }
+}

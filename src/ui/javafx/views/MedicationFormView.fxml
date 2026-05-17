@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="14.0" styleClass="panel-card" prefWidth="620.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicationFormController">
+    <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>
+    <Label fx:id="titleLabel" text="Medication" styleClass="section-title" />
+    <Label text="SQLite-only medication order. Swing and legacy text files are unchanged." wrapText="true" styleClass="muted-text" />
+    <GridPane hgap="12.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <Label fx:id="patientIdLabel" text="-" styleClass="detail-value" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Medication Name" styleClass="field-label" />
+            <TextField fx:id="nameField" promptText="Medication name" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Dose" styleClass="field-label" />
+            <TextField fx:id="doseField" promptText="e.g. 500 mg" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Route" styleClass="field-label" />
+            <TextField fx:id="routeField" promptText="Oral, IV, IM..." />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Frequency" styleClass="field-label" />
+            <TextField fx:id="frequencyField" promptText="e.g. Twice daily" />
+        </VBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Active Status" styleClass="field-label" />
+            <CheckBox fx:id="activeCheckBox" text="Active medication" />
+        </VBox>
+    </GridPane>
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+</VBox>
