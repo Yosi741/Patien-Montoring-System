@@ -2,18 +2,87 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="18.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.PlaceholderController">
+<VBox
+        spacing="20.0"
+        prefWidth="900.0"
+        prefHeight="600.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.PlaceholderController">
+
     <padding>
-        <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
     </padding>
-    <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="Placeholder" styleClass="screen-title" />
-        <Label fx:id="subtitleLabel" text="Preview" styleClass="muted-text" />
+
+    <VBox spacing="5.0">
+        <Label fx:id="titleLabel"
+               text="Placeholder"
+               style="-fx-text-fill: #0D47A1;
+                      -fx-font-size: 28px;
+                      -fx-font-weight: bold;" />
+
+        <Label fx:id="subtitleLabel"
+               text="Preview"
+               wrapText="true"
+               style="-fx-text-fill: #607D8B;
+                      -fx-font-size: 14px;" />
     </VBox>
-    <VBox spacing="12.0" styleClass="panel-card">
-        <Label text="Coming Soon" styleClass="section-title" />
-        <Label fx:id="bodyLabel" text="This screen will be migrated in a later safe slice." wrapText="true" styleClass="body-text" />
+
+    <VBox spacing="14.0"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 22;
+                 -fx-padding: 26;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 5);">
+
+        <Label text="Coming Soon"
+               style="-fx-text-fill: #263238;
+                      -fx-font-size: 22px;
+                      -fx-font-weight: bold;" />
+
+        <Label fx:id="bodyLabel"
+               text="This screen will be migrated in a later safe slice."
+               wrapText="true"
+               style="-fx-text-fill: #455A64;
+                      -fx-font-size: 14px;
+                      -fx-line-spacing: 4px;" />
+
+        <Region prefHeight="10.0" />
+
+        <VBox spacing="10.0"
+              style="-fx-background-color: #FAFCFD;
+                     -fx-background-radius: 18;
+                     -fx-padding: 18;
+                     -fx-border-color: #E0E7EF;
+                     -fx-border-radius: 18;">
+
+            <Label text="Planned Features"
+                   style="-fx-text-fill: #0D47A1;
+                          -fx-font-size: 16px;
+                          -fx-font-weight: bold;" />
+
+            <Label text="• Modern JavaFX migration"
+                   style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
+            <Label text="• SQLite integration and safer storage"
+                   style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
+            <Label text="• Responsive hospital workflow design"
+                   style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
+            <Label text="• Improved patient monitoring experience"
+                   style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+        </VBox>
+
+        <Label text="Module preview mode"
+               style="-fx-background-color: #E3F2FD;
+                      -fx-text-fill: #0D47A1;
+                      -fx-background-radius: 18;
+                      -fx-padding: 8 14;
+                      -fx-font-size: 13px;
+                      -fx-font-weight: bold;" />
     </VBox>
 </VBox>

@@ -1,71 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.BackupExportController">
+<BorderPane
+        prefWidth="1050.0"
+        prefHeight="700.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.BackupExportController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Backup / Export" styleClass="screen-title" />
-                <Label text="Local SQLite backup, CSV exports, and restore validation tools" styleClass="muted-text" />
+                <Label text="Backup / Export"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="Local SQLite backup, CSV exports, and restore validation tools"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
+
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+
+            <Button text="Dashboard" onAction="#showDashboard"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
-                <VBox spacing="16.0">
+                <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
-                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
-                        <Label text="Access denied" styleClass="section-title" />
-                        <Label text="Backup and export tools are available only to authorized hospital roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+
+                    <VBox fx:id="accessDeniedPane"
+                          managed="false"
+                          visible="false"
+                          spacing="10.0"
+                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
+                        <Label text="Access denied"
+                               style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label text="Backup and export tools are available only to authorized hospital roles in this JavaFX preview."
+                               wrapText="true"
+                               style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
                     </VBox>
-                    <VBox fx:id="contentPane" spacing="16.0">
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="Local only" styleClass="status-pill" />
-                            <Label text="No cloud backup" styleClass="status-pill" />
-                            <Label text="Restore is preview-only" styleClass="status-pill" />
+                            <Label text="Local only"
+                                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                            <Label text="No cloud backup"
+                                   style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                            <Label text="Restore is preview-only"
+                                   style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
                         </HBox>
 
-                        <VBox spacing="12.0" styleClass="panel-card">
-                            <Label text="Backup Safety" styleClass="section-title" />
-                            <Label text="Create a ZIP backup containing the SQLite database, local uploads, and a backup information file. Existing backups are never overwritten." wrapText="true" styleClass="body-text" />
+                        <VBox spacing="12.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Backup Safety"
+                                   style="-fx-text-fill: #0D47A1; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                            <Label text="Create a ZIP backup containing the SQLite database, local uploads, and a backup information file. Existing backups are never overwritten."
+                                   wrapText="true"
+                                   style="-fx-text-fill: #455A64; -fx-font-size: 14px;" />
+
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Button fx:id="createBackupButton" text="Create Backup" onAction="#createBackup" styleClass="primary-button" />
-                                <Button fx:id="previewRestoreButton" text="Preview Restore Backup" onAction="#previewRestoreBackup" styleClass="secondary-button" />
+                                <Button fx:id="createBackupButton" text="Create Backup" onAction="#createBackup"
+                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;" />
+
+                                <Button fx:id="previewRestoreButton" text="Preview Restore Backup" onAction="#previewRestoreBackup"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;" />
                             </HBox>
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="panel-card">
-                            <Label text="CSV Export Tools" styleClass="section-title" />
-                            <Label text="Export read-only operational summaries for local review or presentation. CSV files are written with safe escaping." wrapText="true" styleClass="body-text" />
+                        <VBox spacing="12.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="CSV Export Tools"
+                                   style="-fx-text-fill: #0D47A1; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                            <Label text="Export read-only operational summaries for local review or presentation. CSV files are written with safe escaping."
+                                   wrapText="true"
+                                   style="-fx-text-fill: #455A64; -fx-font-size: 14px;" />
+
                             <GridPane hgap="12.0" vgap="12.0">
-                                <Button fx:id="exportPatientsButton" text="Export Patients CSV" onAction="#exportPatientsCsv" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Button fx:id="exportAlertsButton" text="Export Alerts CSV" onAction="#exportAlertsCsv" styleClass="secondary-button" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                <Button fx:id="exportAuditLogsButton" text="Export Audit Logs CSV" onAction="#exportAuditLogsCsv" styleClass="secondary-button" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                <Button fx:id="exportMedicationButton" text="Export Medication Events CSV" onAction="#exportMedicationCsv" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                <Button fx:id="exportSchedulingButton" text="Export Scheduling CSV" onAction="#exportSchedulingCsv" styleClass="secondary-button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Button fx:id="exportPatientsButton" text="Export Patients CSV" onAction="#exportPatientsCsv"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;"
+                                        GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                                <Button fx:id="exportAlertsButton" text="Export Alerts CSV" onAction="#exportAlertsCsv"
+                                        style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                <Button fx:id="exportAuditLogsButton" text="Export Audit Logs CSV" onAction="#exportAuditLogsCsv"
+                                        style="-fx-background-color: #F3E5F5; -fx-text-fill: #6A1B9A; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;"
+                                        GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                                <Button fx:id="exportMedicationButton" text="Export Medication Events CSV" onAction="#exportMedicationCsv"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;"
+                                        GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+                                <Button fx:id="exportSchedulingButton" text="Export Scheduling CSV" onAction="#exportSchedulingCsv"
+                                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="1" />
                             </GridPane>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <Label text="Result" styleClass="section-title" />
-                            <TextArea fx:id="resultArea" editable="false" wrapText="true" prefRowCount="18" />
+                        <VBox spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Result"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+
+                            <TextArea fx:id="resultArea"
+                                      editable="false"
+                                      wrapText="true"
+                                      prefRowCount="18"
+                                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #E0E7EF; -fx-font-size: 13px;" />
                         </VBox>
-                        <Label fx:id="statusLabel" text="Backup/export tools not loaded yet." wrapText="true" styleClass="status-pill" />
+
+                        <Label fx:id="statusLabel"
+                               text="Backup/export tools not loaded yet."
+                               wrapText="true"
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </content>

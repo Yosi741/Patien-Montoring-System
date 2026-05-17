@@ -1,107 +1,152 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.StaffActivityController">
+<BorderPane
+        prefWidth="1200.0"
+        prefHeight="760.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.StaffActivityController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Staff Activity / Shift Overview" styleClass="screen-title" />
-                <Label text="Read-only SQLite staff, alert, and handover activity for shift awareness" styleClass="muted-text" />
+                <Label text="Staff Activity / Shift Overview"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="Read-only SQLite staff, alert, and handover activity for shift awareness"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+            <Button text="Dashboard" onAction="#showDashboard"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
-                <VBox spacing="16.0">
+                <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
-                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
-                        <Label text="Access denied" styleClass="section-title" />
-                        <Label text="Staff Activity is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+
+                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0"
+                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
+                        <Label text="Access denied"
+                               style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label text="Staff Activity is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                               wrapText="true"
+                               style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
                     </VBox>
-                    <VBox fx:id="activityContentPane" spacing="16.0">
-                        <Label fx:id="scopeLabel" text="Staff activity scope" wrapText="true" styleClass="status-pill" />
+
+                    <VBox fx:id="activityContentPane" spacing="18.0">
+
+                        <Label fx:id="scopeLabel" text="Staff activity scope" wrapText="true"
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-weight: bold;" />
 
                         <GridPane hgap="14.0" vgap="14.0">
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Logins Today" styleClass="metric-label" />
-                                <Label fx:id="loginsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 205; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Logins Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="loginsTodayLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Alert Acknowledgements" styleClass="metric-label" />
-                                <Label fx:id="alertAckTodayLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 205; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Alert Acknowledgements" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="alertAckTodayLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Patient Detail Views" styleClass="metric-label" />
-                                <Label fx:id="patientViewsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 205; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Patient Detail Views" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="patientViewsTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Sync Operations" styleClass="metric-label" />
-                                <Label fx:id="syncTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 205; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Sync Operations" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="syncTodayLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Recent Actions Today" styleClass="metric-label" />
-                                <Label fx:id="recentActionsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 205; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Recent Actions Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="recentActionsTodayLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
                         </GridPane>
 
                         <HBox spacing="18.0">
-                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                                <Label text="Active Alerts By Section" styleClass="section-title" />
+                            <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Active Alerts By Section"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                                 <VBox fx:id="activeAlertsBySectionBox" spacing="8.0" />
                             </VBox>
-                            <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                                <Label text="Latest Shift Handover Notes" styleClass="section-title" />
+
+                            <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Latest Shift Handover Notes"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                                 <VBox fx:id="handoverBox" spacing="8.0" />
                             </VBox>
                         </HBox>
 
-                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                        <VBox spacing="12.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Username, action, or patient ID" HBox.hgrow="ALWAYS" />
-                                <Label text="Role" styleClass="field-label" />
-                                <ComboBox fx:id="roleFilter" prefWidth="130.0" />
-                                <Label text="Action" styleClass="field-label" />
-                                <ComboBox fx:id="actionTypeFilter" prefWidth="135.0" />
-                                <Label text="Date" styleClass="field-label" />
-                                <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
+                                <Label text="Search" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <TextField fx:id="searchField" promptText="Username, action, or patient ID" HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+
+                                <Label text="Role" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="roleFilter" prefWidth="130.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+
+                                <Label text="Action" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="actionTypeFilter" prefWidth="135.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+
+                                <Label text="Date" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="dateRangeFilter" prefWidth="145.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
                             </HBox>
+
                             <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-                                <Button text="Refresh" onAction="#loadActivity" styleClass="secondary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button text="Refresh" onAction="#loadActivity"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                             </HBox>
                         </VBox>
 
-                        <TableView fx:id="activityTable" prefHeight="420.0">
-                            <columns>
-                                <TableColumn fx:id="timeColumn" text="Time" prefWidth="160.0" />
-                                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="140.0" />
-                                <TableColumn fx:id="roleColumn" text="Role" prefWidth="100.0" />
-                                <TableColumn fx:id="actionTypeColumn" text="Action Type" prefWidth="115.0" />
-                                <TableColumn fx:id="descriptionColumn" text="Description / Action" prefWidth="520.0" />
-                                <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="120.0" />
-                            </columns>
-                        </TableView>
+                        <VBox spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Staff Activity Log"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
 
-                        <Label fx:id="statusLabel" text="Staff activity not loaded yet." styleClass="status-pill" />
+                            <TableView fx:id="activityTable" prefHeight="420.0"
+                                       style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
+                                <columns>
+                                    <TableColumn fx:id="timeColumn" text="Time" prefWidth="160.0" />
+                                    <TableColumn fx:id="usernameColumn" text="Username" prefWidth="140.0" />
+                                    <TableColumn fx:id="roleColumn" text="Role" prefWidth="100.0" />
+                                    <TableColumn fx:id="actionTypeColumn" text="Action Type" prefWidth="115.0" />
+                                    <TableColumn fx:id="descriptionColumn" text="Description / Action" prefWidth="520.0" />
+                                    <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <Label fx:id="statusLabel" text="Staff activity not loaded yet."
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </content>

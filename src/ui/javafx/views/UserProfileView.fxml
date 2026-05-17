@@ -1,69 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.UserProfileController">
+<BorderPane
+        prefWidth="1050.0"
+        prefHeight="680.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.UserProfileController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Staff Profile" styleClass="screen-title" />
-                <Label text="Read-only JavaFX session and permission preview" styleClass="muted-text" />
+                <Label text="Staff Profile"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="Read-only JavaFX session and permission preview"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
+
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#goDashboard" styleClass="secondary-button" />
-            <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+
+            <Button text="Dashboard" onAction="#goDashboard"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
+
+            <Button text="Logout" onAction="#logout"
+                    style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
         <VBox spacing="18.0">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
+
             <GridPane hgap="16.0" vgap="16.0">
-                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
-                    <Label text="Username" styleClass="metric-label" />
-                    <Label fx:id="usernameLabel" text="-" styleClass="detail-value" />
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Username" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="usernameLabel" text="-" style="-fx-text-fill: #0D47A1; -fx-font-size: 20px; -fx-font-weight: bold;" />
                 </VBox>
-                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
-                    <Label text="Role" styleClass="metric-label" />
-                    <Label fx:id="roleLabel" text="-" styleClass="detail-value" />
-                    <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Role" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="roleLabel" text="-" style="-fx-text-fill: #263238; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN"
+                           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 6 12; -fx-font-weight: bold;" />
                 </VBox>
-                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="detail-card" spacing="6.0">
-                    <Label text="Section / Department" styleClass="metric-label" />
-                    <Label fx:id="sectionLabel" text="-" styleClass="detail-value" />
+
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Section / Department" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="sectionLabel" text="-" style="-fx-text-fill: #263238; -fx-font-size: 20px; -fx-font-weight: bold;" />
                 </VBox>
-                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
-                    <Label text="Account Status" styleClass="metric-label" />
-                    <Label fx:id="accountStatusLabel" text="-" styleClass="detail-value" />
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Account Status" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="accountStatusLabel" text="-" style="-fx-text-fill: #00695C; -fx-font-size: 20px; -fx-font-weight: bold;" />
                 </VBox>
-                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
-                    <Label text="Login Source" styleClass="metric-label" />
-                    <Label fx:id="authSourceLabel" text="-" styleClass="detail-value" />
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Login Source" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="authSourceLabel" text="-" style="-fx-text-fill: #6A1B9A; -fx-font-size: 20px; -fx-font-weight: bold;" />
                 </VBox>
-                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="detail-card" spacing="6.0">
-                    <Label text="Login Time" styleClass="metric-label" />
-                    <Label fx:id="loginTimeLabel" text="-" styleClass="detail-value" />
+
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 260; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <Label text="Login Time" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="loginTimeLabel" text="-" style="-fx-text-fill: #263238; -fx-font-size: 18px; -fx-font-weight: bold;" />
                 </VBox>
             </GridPane>
-            <VBox spacing="12.0" styleClass="panel-card">
-                <Label text="Permission Preview" styleClass="section-title" />
-                <Label text="This panel previews intended JavaFX permissions. Full enforcement will be added in a later safe phase." wrapText="true" styleClass="muted-text" />
+
+            <VBox spacing="12.0"
+                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                <Label text="Permission Preview"
+                       style="-fx-text-fill: #263238; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                <Label text="This panel previews intended JavaFX permissions. Full enforcement will be added in a later safe phase."
+                       wrapText="true"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
                 <VBox fx:id="permissionListBox" spacing="8.0" />
             </VBox>
-            <VBox fx:id="writeFoundationBox" managed="false" visible="false" spacing="12.0" styleClass="panel-card">
-                <Label text="Write Workflow Foundation" styleClass="section-title" />
-                <Label text="Admin-only safe test write. This creates an SQLite audit log row only; no patient, vitals, medication, or user data is changed." wrapText="true" styleClass="muted-text" />
+
+            <VBox fx:id="writeFoundationBox"
+                  managed="false"
+                  visible="false"
+                  spacing="12.0"
+                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+
+                <Label text="Write Workflow Foundation"
+                       style="-fx-text-fill: #263238; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                <Label text="Admin-only safe test write. This creates an SQLite audit log row only; no patient, vitals, medication, or user data is changed."
+                       wrapText="true"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
                 <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <Button fx:id="createTestAuditButton" text="Create Test Audit Event" onAction="#createTestAuditEvent" styleClass="primary-button" />
-                    <Label fx:id="writeFoundationStatusLabel" text="-" wrapText="true" styleClass="status-info" />
+                    <Button fx:id="createTestAuditButton"
+                            text="Create Test Audit Event"
+                            onAction="#createTestAuditEvent"
+                            style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                    <Label fx:id="writeFoundationStatusLabel"
+                           text="-"
+                           wrapText="true"
+                           style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                 </HBox>
             </VBox>
         </VBox>

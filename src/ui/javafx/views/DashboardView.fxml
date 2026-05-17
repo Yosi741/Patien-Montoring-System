@@ -1,145 +1,198 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.DashboardController">
+<BorderPane
+        prefWidth="1200.0"
+        prefHeight="760.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.DashboardController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="18.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label fx:id="welcomeLabel" text="Welcome" styleClass="screen-title" />
-                <Label fx:id="roleLabel" text="Role | Section" styleClass="muted-text" />
+                <Label fx:id="welcomeLabel" text="Welcome"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label fx:id="roleLabel" text="Role | Section"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
+
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dark Mode" onAction="#toggleTheme" styleClass="secondary-button" />
-            <Button text="Refresh" onAction="#refresh" styleClass="secondary-button" />
-            <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+
+            <Button text="Dark Mode" onAction="#toggleTheme"
+                    style="-fx-background-color: #263238; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+            <Button text="Refresh" onAction="#refresh"
+                    style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+            <Button text="Logout" onAction="#logout"
+                    style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
                 <VBox spacing="20.0">
                     <padding>
                         <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
                     </padding>
+
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
                         <VBox spacing="4.0">
-                            <Label text="Hospital Operations Dashboard" styleClass="section-title" />
-                            <Label text="Read-only SQLite metrics for committee demo and clinical situational awareness." styleClass="muted-text" />
+                            <Label text="Hospital Operations Dashboard"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                            <Label text="Read-only SQLite metrics for committee demo and clinical situational awareness."
+                                   style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button text="Open Patients" onAction="#openPatientList" styleClass="primary-button" />
-                        <Button text="Open Alert Center" onAction="#openAlertCenter" styleClass="secondary-button" />
-                        <Button text="Open Work Queue" onAction="#openWorkQueue" styleClass="secondary-button" />
+                        <Button text="Open Patients" onAction="#openPatientList"
+                                style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;" />
+                        <Button text="Open Alert Center" onAction="#openAlertCenter"
+                                style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;" />
+                        <Button text="Open Work Queue" onAction="#openWorkQueue"
+                                style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 18; -fx-cursor: hand;" />
                     </HBox>
 
                     <GridPane hgap="14.0" vgap="14.0">
-                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Total Patients" styleClass="metric-label" />
-                            <Label fx:id="totalPatientsLabel" text="0" styleClass="metric-value" />
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Total Patients" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="totalPatientsLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Active Patients" styleClass="metric-label" />
-                            <Label fx:id="activePatientsLabel" text="0" styleClass="metric-value" />
+
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Active Patients" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="activePatientsLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Critical / Emergency" styleClass="metric-label" />
-                            <Label fx:id="criticalPatientsLabel" text="0" styleClass="metric-value critical-value" />
+
+                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Critical / Emergency" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="criticalPatientsLabel" text="0" style="-fx-text-fill: #B71C1C; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Active Alerts" styleClass="metric-label" />
-                            <Label fx:id="activeAlertsLabel" text="0" styleClass="metric-value warning-value" />
+
+                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Active Alerts" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="activeAlertsLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Acknowledged Today" styleClass="metric-label" />
-                            <Label fx:id="acknowledgedTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Acknowledged Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="acknowledgedTodayLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Resolved Today" styleClass="metric-label" />
-                            <Label fx:id="resolvedTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Resolved Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="resolvedTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 28px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="Imported Files" styleClass="metric-label" />
-                            <Label fx:id="medicalFilesLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Imported Files" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="medicalFilesLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 28px; -fx-font-weight: bold;" />
                         </VBox>
-                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="1" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                            <Label text="AI Notes" styleClass="metric-label" />
-                            <Label fx:id="aiNotesLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="AI Notes" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="aiNotesLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
                         </VBox>
                     </GridPane>
 
                     <HBox spacing="18.0">
-                        <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Patient Priority Summary" styleClass="section-title" />
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Patient Priority Summary" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                             <VBox fx:id="prioritySummaryBox" spacing="8.0" />
                         </VBox>
-                        <VBox spacing="12.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Active Alerts By Severity" styleClass="section-title" />
+
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Active Alerts By Severity" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                             <VBox fx:id="activeAlertSeverityBox" spacing="8.0" />
                         </VBox>
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Vitals Today" styleClass="section-title" />
-                            <Label fx:id="recentVitalsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
-                            <Label text="recent SQLite vital readings recorded today" wrapText="true" styleClass="muted-text" />
-                        </VBox>
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Scheduling Today" styleClass="section-title" />
-                            <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
-                            <Label text="appointments scheduled today" wrapText="true" styleClass="muted-text" />
-                        </VBox>
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Pending Reminders" styleClass="section-title" />
-                            <Label fx:id="pendingRemindersLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
-                            <Label text="open medical reminders in SQLite" wrapText="true" styleClass="muted-text" />
+
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Vitals Today" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="recentVitalsTodayLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="recent SQLite vital readings recorded today" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
                     </HBox>
 
                     <HBox spacing="18.0">
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Overdue Reminders" styleClass="section-title" />
-                            <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value critical-value" />
-                            <Label text="local engine status from SQLite" wrapText="true" styleClass="muted-text" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Scheduling Today" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="appointmentsTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="appointments scheduled today" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Upcoming Reminders" styleClass="section-title" />
-                            <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
-                            <Label text="due within the next work queue window" wrapText="true" styleClass="muted-text" />
+
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Pending Reminders" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="pendingRemindersLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="open medical reminders in SQLite" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
-                        <VBox spacing="8.0" styleClass="panel-card dashboard-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Nurse Queue Tasks" styleClass="section-title" />
-                            <Label fx:id="nurseQueueTasksLabel" text="0" styleClass="metric-value compact-metric-value" />
-                            <Label text="reminders, critical alerts, and missing vitals" wrapText="true" styleClass="muted-text" />
+
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Overdue Reminders" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="overdueRemindersDashboardLabel" text="0" style="-fx-text-fill: #B71C1C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="local engine status from SQLite" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                        </VBox>
+
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Upcoming Reminders" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="upcomingRemindersDashboardLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="due within the next work queue window" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                        </VBox>
+
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Nurse Queue Tasks" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <Label fx:id="nurseQueueTasksLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <Label text="reminders, critical alerts, and missing vitals" wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
                     </HBox>
 
                     <HBox spacing="18.0" VBox.vgrow="ALWAYS">
-                        <VBox spacing="12.0" styleClass="panel-card dashboard-wide-panel" HBox.hgrow="ALWAYS">
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 520; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Recent Alerts" styleClass="section-title" />
+                                <Label text="Recent Alerts" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label text="Click a row to open Alert Center" styleClass="muted-text" />
+                                <Label text="Click a row to open Alert Center" style="-fx-text-fill: #607D8B; -fx-font-size: 12px;" />
                             </HBox>
                             <VBox fx:id="recentAlertsBox" spacing="8.0" />
                         </VBox>
-                        <VBox spacing="12.0" styleClass="panel-card dashboard-wide-panel" HBox.hgrow="ALWAYS">
-                            <Label text="Latest Vitals" styleClass="section-title" />
+
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 420; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Latest Vitals" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
                             <VBox fx:id="latestVitalsBox" spacing="8.0" />
                         </VBox>
                     </HBox>
 
-                    <VBox spacing="8.0" styleClass="panel-card">
-                        <Label text="System Status" styleClass="section-title" />
-                        <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true" styleClass="status-pill" />
-                        <Label fx:id="databaseStatusLabel" text="SQLite status" wrapText="true" styleClass="status-pill" />
-                        <Label fx:id="migrationStatusLabel" text="Migration status" wrapText="true" styleClass="status-pill" />
+                    <VBox spacing="10.0"
+                          style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                        <Label text="System Status" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+
+                        <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true"
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                        <Label fx:id="databaseStatusLabel" text="SQLite status" wrapText="true"
+                               style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                        <Label fx:id="migrationStatusLabel" text="Migration status" wrapText="true"
+                               style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </content>

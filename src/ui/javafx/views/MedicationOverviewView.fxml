@@ -1,97 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicationOverviewController">
+<BorderPane
+        prefWidth="1200.0"
+        prefHeight="760.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.MedicationOverviewController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Medication Administration Overview" styleClass="screen-title" />
-                <Label text="SQLite medication overview with controlled administration write workflow" styleClass="muted-text" />
+                <Label text="Medication Administration Overview"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="SQLite medication overview with controlled administration write workflow"
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+            <Button text="Dashboard" onAction="#showDashboard"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
-                <VBox spacing="16.0">
+                <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
-                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
-                        <Label text="Access denied" styleClass="section-title" />
-                        <Label text="Medication Overview is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+
+                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0"
+                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
+                        <Label text="Access denied"
+                               style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label text="Medication Overview is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                               wrapText="true"
+                               style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
                     </VBox>
-                    <VBox fx:id="medicationContentPane" spacing="16.0">
+
+                    <VBox fx:id="medicationContentPane" spacing="18.0">
+
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label fx:id="scopeLabel" text="Medication overview scope" wrapText="true" styleClass="status-pill" />
-                            <Label fx:id="patientFilterChip" text="" styleClass="filter-chip" managed="false" visible="false" />
-                            <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter" styleClass="secondary-button" managed="false" visible="false" />
+                            <Label fx:id="scopeLabel" text="Medication overview scope" wrapText="true"
+                                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                            <Label fx:id="patientFilterChip" text="" managed="false" visible="false"
+                                   style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                            <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter"
+                                    managed="false" visible="false"
+                                    style="-fx-background-color: transparent; -fx-text-fill: #607D8B; -fx-font-weight: bold; -fx-cursor: hand;" />
                         </HBox>
 
                         <GridPane hgap="14.0" vgap="14.0">
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Active Medications" styleClass="metric-label" />
-                                <Label fx:id="activeMedicationsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Active Medications" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="activeMedicationsLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Events Today" styleClass="metric-label" />
-                                <Label fx:id="eventsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Events Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="eventsTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Missed / Overdue" styleClass="metric-label" />
-                                <Label fx:id="missedOverdueLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
-                                <Label text="placeholder" styleClass="muted-text" />
+
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Missed / Overdue" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="missedOverdueLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                                <Label text="placeholder" style="-fx-text-fill: #90A4AE; -fx-font-size: 12px;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Patients With Active Meds" styleClass="metric-label" />
-                                <Label fx:id="patientsWithMedicationsLabel" text="0" styleClass="metric-value compact-metric-value" />
+
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Patients With Active Meds" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="patientsWithMedicationsLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 28px; -fx-font-weight: bold;" />
                             </VBox>
-                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="metric-card dashboard-metric-card" spacing="6.0">
-                                <Label text="Latest Event Time" styleClass="metric-label" />
-                                <Label fx:id="latestEventTimeLabel" text="-" wrapText="true" styleClass="detail-value" />
+
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 210; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Latest Event Time" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="latestEventTimeLabel" text="-" wrapText="true"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 15px; -fx-font-weight: bold;" />
                             </VBox>
                         </GridPane>
 
-                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+                        <VBox spacing="12.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient ID, patient name, or medication" HBox.hgrow="ALWAYS" />
-                                <Label text="Active" styleClass="field-label" />
-                                <ComboBox fx:id="activeFilter" prefWidth="125.0" />
-                                <Label text="Route" styleClass="field-label" />
-                                <ComboBox fx:id="routeFilter" prefWidth="140.0" />
-                                <Label text="Events" styleClass="field-label" />
-                                <ComboBox fx:id="eventDateRangeFilter" prefWidth="145.0" />
+                                <Label text="Search" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <TextField fx:id="searchField" promptText="Patient ID, patient name, or medication" HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+                                <Label text="Active" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="activeFilter" prefWidth="125.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+                                <Label text="Route" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="routeFilter" prefWidth="140.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+                                <Label text="Events" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <ComboBox fx:id="eventDateRangeFilter" prefWidth="145.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
                             </HBox>
+
                             <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                                <Button fx:id="addMedicationButton" text="Add Medication" onAction="#addMedication" styleClass="primary-button" />
-                                <Button fx:id="editMedicationButton" text="Edit Selected" onAction="#editSelectedMedication" styleClass="secondary-button" />
-                                <Button fx:id="discontinueMedicationButton" text="Discontinue Selected" onAction="#discontinueSelectedMedication" styleClass="danger-button" />
-                                <Button fx:id="recordGivenButton" text="Record Given" onAction="#recordMedicationGiven" styleClass="primary-button" />
-                                <Button fx:id="createReminderButton" text="Create Reminder" onAction="#createMedicationReminder" styleClass="secondary-button" />
-                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-                                <Button text="Refresh" onAction="#loadOverview" styleClass="secondary-button" />
+                                <Button fx:id="addMedicationButton" text="Add Medication" onAction="#addMedication"
+                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="editMedicationButton" text="Edit Selected" onAction="#editSelectedMedication"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="discontinueMedicationButton" text="Discontinue Selected" onAction="#discontinueSelectedMedication"
+                                        style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="recordGivenButton" text="Record Given" onAction="#recordMedicationGiven"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="createReminderButton" text="Create Reminder" onAction="#createMedicationReminder"
+                                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button text="Clear Filters" onAction="#clearFilters"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button text="Refresh" onAction="#loadOverview"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                             </HBox>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <Label text="Active Medication Orders" styleClass="section-title" />
-                            <TableView fx:id="medicationTable" prefHeight="300.0">
+                        <VBox spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Active Medication Orders"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <TableView fx:id="medicationTable" prefHeight="300.0"
+                                       style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
                                 <columns>
                                     <TableColumn fx:id="medPatientIdColumn" text="Patient ID" prefWidth="120.0" />
                                     <TableColumn fx:id="medPatientNameColumn" text="Patient Name" prefWidth="190.0" />
@@ -104,9 +144,12 @@
                             </TableView>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <Label text="Medication Administration Events" styleClass="section-title" />
-                            <TableView fx:id="eventTable" prefHeight="320.0">
+                        <VBox spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Medication Administration Events"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <TableView fx:id="eventTable" prefHeight="320.0"
+                                       style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
                                 <columns>
                                     <TableColumn fx:id="eventPatientIdColumn" text="Patient ID" prefWidth="120.0" />
                                     <TableColumn fx:id="eventMedicationColumn" text="Medication Name" prefWidth="230.0" />
@@ -117,7 +160,8 @@
                             </TableView>
                         </VBox>
 
-                        <Label fx:id="statusLabel" text="Medication overview not loaded yet." styleClass="status-pill" />
+                        <Label fx:id="statusLabel" text="Medication overview not loaded yet."
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </content>

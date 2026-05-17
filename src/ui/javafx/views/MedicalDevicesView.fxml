@@ -1,68 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicalDevicesController">
+<BorderPane
+        prefWidth="1150.0"
+        prefHeight="720.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.MedicalDevicesController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Medical Devices" styleClass="screen-title" />
-                <Label text="SQLite registration and assignment foundation. Real device integration is future work." styleClass="muted-text" />
+                <Label text="Medical Devices"
+                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="SQLite registration and assignment foundation. Real device integration is future work."
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
+
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+
+            <Button text="Dashboard" onAction="#showDashboard"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
-                <VBox spacing="16.0">
+                <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
-                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="panel-card" managed="false" visible="false">
-                        <Label text="Access denied" styleClass="section-title" />
-                        <Label text="Medical Devices is available to Admin, Doctor, and Nurse roles in this JavaFX preview." wrapText="true" styleClass="body-text" />
+
+                    <VBox fx:id="accessDeniedPane"
+                          managed="false"
+                          visible="false"
+                          spacing="10.0"
+                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
+                        <Label text="Access denied"
+                               style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label text="Medical Devices is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                               wrapText="true"
+                               style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
                     </VBox>
-                    <VBox fx:id="contentPane" spacing="16.0">
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="SQLite-only registration and assignment" styleClass="status-pill" />
-                            <Label fx:id="patientFilterChip" text="" styleClass="filter-chip" managed="false" visible="false" />
-                            <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter" styleClass="secondary-button" managed="false" visible="false" />
+                            <Label text="SQLite-only registration and assignment"
+                                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+
+                            <Label fx:id="patientFilterChip"
+                                   text=""
+                                   managed="false"
+                                   visible="false"
+                                   style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+
+                            <Button fx:id="clearPatientFilterButton"
+                                    text="Clear Patient Filter"
+                                    onAction="#clearPatientFilter"
+                                    managed="false"
+                                    visible="false"
+                                    style="-fx-background-color: transparent; -fx-text-fill: #607D8B; -fx-font-weight: bold; -fx-cursor: hand;" />
                         </HBox>
-                        <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
+
+                        <VBox spacing="12.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Device ID, name, serial, patient" HBox.hgrow="ALWAYS" />
-                                <Label text="Type" styleClass="field-label" />
-                                <ComboBox fx:id="typeFilter" prefWidth="180.0" />
-                                <Label text="Status" styleClass="field-label" />
-                                <ComboBox fx:id="statusFilter" prefWidth="150.0" />
+                                <Label text="Search"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                <TextField fx:id="searchField"
+                                           promptText="Device ID, name, serial, patient"
+                                           HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+
+                                <Label text="Type"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                <ComboBox fx:id="typeFilter"
+                                          prefWidth="180.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+
+                                <Label text="Status"
+                                       style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                <ComboBox fx:id="statusFilter"
+                                          prefWidth="150.0"
+                                          style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
                             </HBox>
+
                             <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                                <Button fx:id="registerButton" text="Register Device" onAction="#registerDevice" styleClass="primary-button" />
-                                <Button fx:id="editButton" text="Edit Selected" onAction="#editSelectedDevice" styleClass="secondary-button" />
-                                <Button fx:id="assignButton" text="Assign" onAction="#assignSelectedDevice" styleClass="primary-button" />
-                                <Button fx:id="unassignButton" text="Unassign" onAction="#unassignSelectedDevice" styleClass="secondary-button" />
-                                <Button fx:id="deactivateButton" text="Deactivate" onAction="#deactivateSelectedDevice" styleClass="danger-button" />
-                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-                                <Button text="Refresh" onAction="#loadDevices" styleClass="secondary-button" />
+                                <Button fx:id="registerButton" text="Register Device" onAction="#registerDevice"
+                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button fx:id="editButton" text="Edit Selected" onAction="#editSelectedDevice"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button fx:id="assignButton" text="Assign" onAction="#assignSelectedDevice"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button fx:id="unassignButton" text="Unassign" onAction="#unassignSelectedDevice"
+                                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button fx:id="deactivateButton" text="Deactivate" onAction="#deactivateSelectedDevice"
+                                        style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button text="Clear Filters" onAction="#clearFilters"
+                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                                <Button text="Refresh" onAction="#loadDevices"
+                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                             </HBox>
                         </VBox>
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <Label text="Registered Devices" styleClass="section-title" />
-                            <TableView fx:id="deviceTable" prefHeight="520.0">
+
+                        <VBox spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Registered Devices"
+                                   style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+
+                            <TableView fx:id="deviceTable"
+                                       prefHeight="520.0"
+                                       style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
                                 <columns>
                                     <TableColumn fx:id="deviceIdColumn" text="Device ID" prefWidth="130.0" />
                                     <TableColumn fx:id="nameColumn" text="Name" prefWidth="180.0" />
@@ -75,7 +140,11 @@
                                 </columns>
                             </TableView>
                         </VBox>
-                        <Label fx:id="statusLabel" text="Devices not loaded yet." wrapText="true" styleClass="status-pill" />
+
+                        <Label fx:id="statusLabel"
+                               text="Devices not loaded yet."
+                               wrapText="true"
+                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </content>

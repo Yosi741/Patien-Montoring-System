@@ -1,50 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="14.0" styleClass="panel-card" prefWidth="720.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicalFileUploadController">
-    <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-    </padding>
-    <Label text="Upload Medical File" styleClass="section-title" />
-    <Label text="SQLite-only upload. TXT/CSV/PDF text extraction is local; image OCR is not implemented." wrapText="true" styleClass="muted-text" />
-    <GridPane hgap="12.0" vgap="10.0">
+<VBox
+        spacing="16.0"
+        prefWidth="760.0"
+        style="-fx-background-color: white;
+               -fx-background-radius: 20;
+               -fx-padding: 22;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.MedicalFileUploadController">
+
+    <VBox spacing="4.0">
+        <Label
+                text="Upload Medical File"
+                style="-fx-text-fill: #0D47A1;
+                       -fx-font-size: 22px;
+                       -fx-font-weight: bold;" />
+
+        <Label
+                text="SQLite-only upload. TXT/CSV/PDF text extraction is local; image OCR is not implemented."
+                wrapText="true"
+                style="-fx-text-fill: #607D8B;
+                       -fx-font-size: 13px;" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
         <columnConstraints>
             <ColumnConstraints percentWidth="50.0" />
             <ColumnConstraints percentWidth="50.0" />
         </columnConstraints>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient ID" styleClass="field-label" />
-            <TextField fx:id="patientIdField" promptText="PAT-001" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label
+                    text="Patient ID"
+                    style="-fx-text-fill: #263238;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;" />
+
+            <TextField
+                    fx:id="patientIdField"
+                    promptText="PAT-001"
+                    style="-fx-background-color: #FAFCFD;
+                           -fx-background-radius: 13;
+                           -fx-border-radius: 13;
+                           -fx-border-color: #CFD8DC;
+                           -fx-padding: 10 12;
+                           -fx-font-size: 14px;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Category" styleClass="field-label" />
-            <ComboBox fx:id="categoryBox" maxWidth="Infinity" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label
+                    text="Category"
+                    style="-fx-text-fill: #263238;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;" />
+
+            <ComboBox
+                    fx:id="categoryBox"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #FAFCFD;
+                           -fx-background-radius: 13;
+                           -fx-border-radius: 13;
+                           -fx-border-color: #CFD8DC;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-            <Label text="Selected File" styleClass="field-label" />
+
+        <VBox spacing="6.0"
+              GridPane.columnIndex="0"
+              GridPane.columnSpan="2"
+              GridPane.rowIndex="1">
+
+            <Label
+                    text="Selected File"
+                    style="-fx-text-fill: #263238;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;" />
+
             <HBox spacing="8.0">
-                <TextField fx:id="filePathField" promptText="Choose txt, csv, pdf, png, jpg, or jpeg file" HBox.hgrow="ALWAYS" />
-                <Button text="Browse" onAction="#browseFile" styleClass="secondary-button" />
+                <TextField
+                        fx:id="filePathField"
+                        promptText="Choose txt, csv, pdf, png, jpg, or jpeg file"
+                        HBox.hgrow="ALWAYS"
+                        style="-fx-background-color: #FAFCFD;
+                               -fx-background-radius: 13;
+                               -fx-border-radius: 13;
+                               -fx-border-color: #CFD8DC;
+                               -fx-padding: 10 12;
+                               -fx-font-size: 14px;" />
+
+                <Button
+                        text="Browse"
+                        onAction="#browseFile"
+                        style="-fx-background-color: #EEF5FF;
+                               -fx-text-fill: #0D47A1;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 14;
+                               -fx-padding: 10 18;
+                               -fx-cursor: hand;" />
             </HBox>
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-            <Label text="Notes" styleClass="field-label" />
-            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional upload notes" />
+
+        <VBox spacing="6.0"
+              GridPane.columnIndex="0"
+              GridPane.columnSpan="2"
+              GridPane.rowIndex="2">
+
+            <Label
+                    text="Notes"
+                    style="-fx-text-fill: #263238;
+                           -fx-font-size: 13px;
+                           -fx-font-weight: bold;" />
+
+            <TextArea
+                    fx:id="notesArea"
+                    prefRowCount="4"
+                    wrapText="true"
+                    promptText="Optional upload notes"
+                    style="-fx-background-color: #FAFCFD;
+                           -fx-background-radius: 13;
+                           -fx-border-radius: 13;
+                           -fx-border-color: #CFD8DC;
+                           -fx-padding: 8;
+                           -fx-font-size: 14px;" />
         </VBox>
     </GridPane>
-    <HBox spacing="8.0">
-        <Label text="Uploaded By" styleClass="field-label" />
-        <Label fx:id="uploadedByLabel" text="-" styleClass="muted-text" />
+
+    <HBox spacing="8.0" alignment="CENTER_LEFT">
+        <Label
+                text="Uploaded By"
+                style="-fx-text-fill: #78909C;
+                       -fx-font-size: 12px;
+                       -fx-font-weight: bold;" />
+
+        <Label
+                fx:id="uploadedByLabel"
+                text="-"
+                style="-fx-background-color: #E3F2FD;
+                       -fx-text-fill: #0D47A1;
+                       -fx-background-radius: 16;
+                       -fx-padding: 5 12;
+                       -fx-font-weight: bold;" />
     </HBox>
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+
+    <Label
+            fx:id="statusLabel"
+            text="-"
+            wrapText="true"
+            style="-fx-background-color: #E0F2F1;
+                   -fx-text-fill: #00695C;
+                   -fx-background-radius: 18;
+                   -fx-padding: 8 14;
+                   -fx-font-size: 13px;" />
 </VBox>

@@ -1,103 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.AlertCenterController">
+<BorderPane
+        prefWidth="1150.0"
+        prefHeight="720.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.AlertCenterController">
+
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+        <HBox alignment="CENTER_LEFT" spacing="16.0"
+              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
             <VBox spacing="4.0">
-                <Label text="Alert Center" styleClass="screen-title" />
-                <Label text="SQLite alert preview. Acknowledge here updates SQLite only." styleClass="muted-text" />
+                <Label text="Alert Center"
+                       style="-fx-text-fill: #B71C1C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                <Label text="SQLite alert preview. Acknowledge here updates SQLite only."
+                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+            <Button text="Dashboard" onAction="#showDashboard"
+                    style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
+
     <center>
-        <VBox spacing="14.0">
+        <VBox spacing="16.0">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
-            <HBox alignment="CENTER_LEFT" spacing="12.0">
-                <Label text="Severity" styleClass="field-label" />
-                <ComboBox fx:id="severityFilter" prefWidth="150.0" />
-                <Label text="Status" styleClass="field-label" />
-                <ComboBox fx:id="statusFilter" prefWidth="170.0" />
-                <Label text="Search" styleClass="field-label" />
-                <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS" />
-                <Button text="Refresh" onAction="#loadAlerts" styleClass="secondary-button" />
-                <Button text="Acknowledge" onAction="#acknowledgeSelected" styleClass="primary-button" />
-            </HBox>
-            <HBox fx:id="patientFilterBox" alignment="CENTER_LEFT" spacing="10.0" managed="false" visible="false">
-                <Label fx:id="patientFilterChipLabel" text="" styleClass="filter-chip" />
-                <Button text="Clear Patient Filter" onAction="#clearPatientFilter" styleClass="secondary-button" />
-            </HBox>
-            <SplitPane dividerPositions="0.68" VBox.vgrow="ALWAYS">
-                <TableView fx:id="alertTable">
+
+            <VBox spacing="12.0"
+                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label text="Severity" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                    <ComboBox fx:id="severityFilter" prefWidth="150.0"
+                              style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #CFD8DC; -fx-background-color: #FAFCFD;" />
+
+                    <Label text="Status" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                    <ComboBox fx:id="statusFilter" prefWidth="170.0"
+                              style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #CFD8DC; -fx-background-color: #FAFCFD;" />
+
+                    <Label text="Search" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                    <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS"
+                               style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #CFD8DC; -fx-padding: 9 12; -fx-background-color: #FAFCFD;" />
+
+                    <Button text="Refresh" onAction="#loadAlerts"
+                            style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+
+                    <Button text="Acknowledge" onAction="#acknowledgeSelected"
+                            style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
+                </HBox>
+
+                <HBox fx:id="patientFilterBox" alignment="CENTER_LEFT" spacing="10.0" managed="false" visible="false">
+                    <Label fx:id="patientFilterChipLabel" text=""
+                           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                    <Button text="Clear Patient Filter" onAction="#clearPatientFilter"
+                            style="-fx-background-color: transparent; -fx-text-fill: #607D8B; -fx-font-weight: bold; -fx-cursor: hand;" />
+                </HBox>
+            </VBox>
+
+            <SplitPane dividerPositions="0.68" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: transparent;">
+
+                <TableView fx:id="alertTable"
+                           style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 18; -fx-background-radius: 18;">
                     <columns>
-                        <TableColumn fx:id="idColumn" text="ID" prefWidth="70.0" />
-                        <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="115.0" />
-                        <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="160.0" />
-                        <TableColumn fx:id="severityColumn" text="Severity" prefWidth="120.0" />
-                        <TableColumn fx:id="messageColumn" text="Message" prefWidth="310.0" />
-                        <TableColumn fx:id="alertStatusColumn" text="Status" prefWidth="130.0" />
-                        <TableColumn fx:id="createdAtColumn" text="Created" prefWidth="165.0" />
-                        <TableColumn fx:id="updatedAtColumn" text="Last Updated" prefWidth="165.0" />
-                        <TableColumn fx:id="acknowledgedByColumn" text="Acknowledged By" prefWidth="150.0" />
-                        <TableColumn fx:id="acknowledgedAtColumn" text="Acknowledged At" prefWidth="165.0" />
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="65.0" />
+                        <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="110.0" />
+                        <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="155.0" />
+                        <TableColumn fx:id="severityColumn" text="Severity" prefWidth="115.0" />
+                        <TableColumn fx:id="messageColumn" text="Message" prefWidth="300.0" />
+                        <TableColumn fx:id="alertStatusColumn" text="Status" prefWidth="125.0" />
+                        <TableColumn fx:id="createdAtColumn" text="Created" prefWidth="155.0" />
+                        <TableColumn fx:id="updatedAtColumn" text="Last Updated" prefWidth="155.0" />
+                        <TableColumn fx:id="acknowledgedByColumn" text="Acknowledged By" prefWidth="145.0" />
+                        <TableColumn fx:id="acknowledgedAtColumn" text="Acknowledged At" prefWidth="155.0" />
                     </columns>
                 </TableView>
-                <VBox spacing="12.0" styleClass="panel-card">
-                    <Label fx:id="detailTitleLabel" text="Alert Detail" styleClass="section-title" />
+
+                <VBox spacing="14.0"
+                      style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+
+                    <Label fx:id="detailTitleLabel" text="Alert Detail"
+                           style="-fx-text-fill: #B71C1C; -fx-font-size: 20px; -fx-font-weight: bold;" />
+
                     <VBox spacing="6.0">
-                        <Label text="Patient" styleClass="metric-label" />
-                        <Label fx:id="detailPatientLabel" text="-" styleClass="detail-value" wrapText="true" />
+                        <Label text="Patient" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <Label fx:id="detailPatientLabel" text="-" wrapText="true"
+                               style="-fx-text-fill: #263238; -fx-font-size: 14px; -fx-font-weight: bold;" />
                     </VBox>
-                    <HBox spacing="10.0">
+
+                    <HBox spacing="14.0">
                         <VBox spacing="6.0">
-                            <Label text="Severity" styleClass="metric-label" />
-                            <Label fx:id="detailSeverityLabel" text="-" />
+                            <Label text="Severity" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="detailSeverityLabel" text="-"
+                                   style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-background-radius: 16; -fx-padding: 6 12; -fx-font-weight: bold;" />
                         </VBox>
                         <VBox spacing="6.0">
-                            <Label text="Status" styleClass="metric-label" />
-                            <Label fx:id="detailStatusLabel" text="-" />
+                            <Label text="Status" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="detailStatusLabel" text="-"
+                                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 16; -fx-padding: 6 12; -fx-font-weight: bold;" />
                         </VBox>
                     </HBox>
+
                     <VBox spacing="6.0">
-                        <Label text="Created" styleClass="metric-label" />
-                        <Label fx:id="detailCreatedLabel" text="-" styleClass="body-text" />
+                        <Label text="Created" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <Label fx:id="detailCreatedLabel" text="-" style="-fx-text-fill: #455A64; -fx-font-size: 13px;" />
                     </VBox>
+
                     <VBox spacing="6.0">
-                        <Label text="Last Updated" styleClass="metric-label" />
-                        <Label fx:id="detailUpdatedLabel" text="-" styleClass="body-text" />
+                        <Label text="Last Updated" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <Label fx:id="detailUpdatedLabel" text="-" style="-fx-text-fill: #455A64; -fx-font-size: 13px;" />
                     </VBox>
+
                     <VBox spacing="6.0">
-                        <Label text="Acknowledgement" styleClass="metric-label" />
-                        <Label fx:id="detailAcknowledgedLabel" text="-" styleClass="body-text" wrapText="true" />
+                        <Label text="Acknowledgement" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <Label fx:id="detailAcknowledgedLabel" text="-" wrapText="true"
+                               style="-fx-text-fill: #455A64; -fx-font-size: 13px;" />
                     </VBox>
+
                     <VBox spacing="6.0">
-                        <Label text="Message" styleClass="metric-label" />
-                        <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" prefRowCount="4" />
+                        <Label text="Message" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" prefRowCount="4"
+                                  style="-fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #E0E7EF; -fx-font-size: 13px;" />
                     </VBox>
+
                     <VBox spacing="6.0">
-                        <Label text="Recommended Action" styleClass="metric-label" />
-                        <TextArea fx:id="recommendedActionArea" editable="false" wrapText="true" prefRowCount="5" />
+                        <Label text="Recommended Action" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <TextArea fx:id="recommendedActionArea" editable="false" wrapText="true" prefRowCount="5"
+                                  style="-fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #E0E7EF; -fx-font-size: 13px;" />
                     </VBox>
                 </VBox>
             </SplitPane>
-            <Label fx:id="statusLabel" text="SQLite alerts loaded: 0" styleClass="status-pill" />
+
+            <Label fx:id="statusLabel" text="SQLite alerts loaded: 0"
+                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
         </VBox>
     </center>
 </BorderPane>

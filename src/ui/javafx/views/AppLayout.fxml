@@ -8,51 +8,142 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.AppLayoutController">
+<BorderPane
+        prefWidth="1200.0"
+        prefHeight="760.0"
+        style="-fx-background-color: #F4F8FB;"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.AppLayoutController">
+
     <left>
-        <VBox prefWidth="250.0" spacing="14.0" styleClass="side-nav">
-            <padding>
-                <Insets bottom="22.0" left="18.0" right="18.0" top="22.0" />
-            </padding>
-            <VBox spacing="4.0" styleClass="brand-block">
-                <Label text="SPMS" styleClass="brand-title" />
-                <Label text="JavaFX Hospital Preview" styleClass="muted-text" wrapText="true" />
+        <VBox
+                prefWidth="265.0"
+                spacing="16.0"
+                style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #08306B);
+                       -fx-padding: 22 18;">
+
+            <VBox spacing="4.0">
+                <Label
+                        text="SPMS"
+                        style="-fx-text-fill: white;
+                               -fx-font-size: 30px;
+                               -fx-font-weight: bold;" />
+
+                <Label
+                        text="JavaFX Hospital Preview"
+                        wrapText="true"
+                        style="-fx-text-fill: #BBDEFB;
+                               -fx-font-size: 13px;" />
             </VBox>
-            <VBox spacing="4.0" styleClass="user-block">
-                <Label fx:id="userLabel" text="User" styleClass="field-label" />
-                <Label fx:id="roleLabel" text="Role | Section" styleClass="muted-text" wrapText="true" />
+
+            <VBox
+                    spacing="4.0"
+                    style="-fx-background-color: rgba(255,255,255,0.12);
+                           -fx-background-radius: 16;
+                           -fx-padding: 14;">
+
+                <Label
+                        fx:id="userLabel"
+                        text="User"
+                        style="-fx-text-fill: white;
+                               -fx-font-size: 14px;
+                               -fx-font-weight: bold;" />
+
+                <Label
+                        fx:id="roleLabel"
+                        text="Role | Section"
+                        wrapText="true"
+                        style="-fx-text-fill: #BBDEFB;
+                               -fx-font-size: 12px;" />
             </VBox>
+
             <VBox spacing="8.0">
-                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity" styleClass="nav-button" />
-                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity" styleClass="nav-button" />
-                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity" styleClass="nav-button" />
-                <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="medicalDevicesButton" text="Medical Devices" onAction="#showMedicalDevices" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="roomOccupancyButton" text="Rooms / Beds" onAction="#showRoomBedOccupancy" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="backupExportButton" text="Backup / Export" onAction="#showBackupExport" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity" styleClass="nav-button" managed="false" visible="false" />
-                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity" styleClass="nav-button" />
+
+                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="medicalDevicesButton" text="Medical Devices" onAction="#showMedicalDevices" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="roomOccupancyButton" text="Rooms / Beds" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="backupExportButton" text="Backup / Export" onAction="#showBackupExport" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
             </VBox>
+
             <Region VBox.vgrow="ALWAYS" />
-            <Button text="Dark Mode" onAction="#toggleTheme" maxWidth="Infinity" styleClass="secondary-button" />
-            <Button text="Logout" onAction="#logout" maxWidth="Infinity" styleClass="danger-button" />
+
+            <Button text="Dark Mode" onAction="#toggleTheme" maxWidth="Infinity"
+                    style="-fx-background-color: rgba(255,255,255,0.14); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+            <Button text="Logout" onAction="#logout" maxWidth="Infinity"
+                    style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
         </VBox>
     </left>
+
     <center>
-        <BorderPane>
+        <BorderPane style="-fx-background-color: #F4F8FB;">
             <top>
-                <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="shell-top-user-bar">
-                    <Label fx:id="topUserLabel" text="User | Section" styleClass="muted-text" />
-                    <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
-                    <Button text="Logout" onAction="#logout" styleClass="danger-button" />
+                <HBox alignment="CENTER_RIGHT" spacing="10.0"
+                      style="-fx-background-color: white; -fx-padding: 14 22; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
+
+                    <Label fx:id="topUserLabel" text="User | Section"
+                           style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN"
+                           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 16; -fx-padding: 6 12; -fx-font-size: 12px; -fx-font-weight: bold;" />
+
+                    <Button text="Logout" onAction="#logout"
+                            style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 8 16; -fx-cursor: hand;" />
                 </HBox>
             </top>
+
             <center>
                 <BorderPane fx:id="contentPane" />
             </center>

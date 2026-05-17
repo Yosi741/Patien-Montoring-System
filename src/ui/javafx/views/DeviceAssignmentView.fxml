@@ -5,15 +5,60 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="14.0" styleClass="panel-card" prefWidth="520.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.DeviceAssignmentController">
-    <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-    </padding>
-    <Label text="Assign Device" styleClass="section-title" />
-    <Label fx:id="deviceLabel" text="Device" styleClass="detail-value" wrapText="true" />
-    <VBox spacing="5.0">
-        <Label text="Patient ID" styleClass="field-label" />
-        <TextField fx:id="patientIdField" promptText="Patient ID" />
+<VBox
+        spacing="16.0"
+        prefWidth="560.0"
+        style="-fx-background-color: white;
+               -fx-background-radius: 20;
+               -fx-padding: 22;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.DeviceAssignmentController">
+
+    <Label
+            text="Assign Device"
+            style="-fx-text-fill: #0D47A1;
+                   -fx-font-size: 22px;
+                   -fx-font-weight: bold;" />
+
+    <Label
+            fx:id="deviceLabel"
+            text="Device"
+            wrapText="true"
+            style="-fx-background-color: #E3F2FD;
+                   -fx-text-fill: #0D47A1;
+                   -fx-background-radius: 18;
+                   -fx-padding: 10 14;
+                   -fx-font-size: 14px;
+                   -fx-font-weight: bold;" />
+
+    <VBox spacing="6.0">
+        <Label
+                text="Patient ID"
+                style="-fx-text-fill: #263238;
+                       -fx-font-size: 13px;
+                       -fx-font-weight: bold;" />
+
+        <TextField
+                fx:id="patientIdField"
+                promptText="Patient ID"
+                style="-fx-background-color: #FAFCFD;
+                       -fx-background-radius: 13;
+                       -fx-border-radius: 13;
+                       -fx-border-color: #CFD8DC;
+                       -fx-padding: 10 12;
+                       -fx-font-size: 14px;" />
     </VBox>
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+
+    <Label
+            fx:id="statusLabel"
+            text="-"
+            wrapText="true"
+            style="-fx-background-color: #E0F2F1;
+                   -fx-text-fill: #00695C;
+                   -fx-background-radius: 18;
+                   -fx-padding: 8 14;
+                   -fx-font-size: 13px;" />
+
 </VBox>

@@ -1,48 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="14.0" styleClass="panel-card" prefWidth="620.0" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicationFormController">
-    <padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-    </padding>
-    <Label fx:id="titleLabel" text="Medication" styleClass="section-title" />
-    <Label text="SQLite-only medication order. Swing and legacy text files are unchanged." wrapText="true" styleClass="muted-text" />
-    <GridPane hgap="12.0" vgap="10.0">
+<VBox
+        spacing="16.0"
+        prefWidth="680.0"
+        style="-fx-background-color: white;
+               -fx-background-radius: 20;
+               -fx-padding: 22;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.controllers.MedicationFormController">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Medication"
+               style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <Label text="SQLite-only medication order. Swing and legacy text files are unchanged."
+               wrapText="true"
+               style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
         <columnConstraints>
             <ColumnConstraints percentWidth="50.0" />
             <ColumnConstraints percentWidth="50.0" />
         </columnConstraints>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient ID" styleClass="field-label" />
-            <Label fx:id="patientIdLabel" text="-" styleClass="detail-value" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <Label fx:id="patientIdLabel" text="-"
+                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 16; -fx-padding: 9 12; -fx-font-weight: bold;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Medication Name" styleClass="field-label" />
-            <TextField fx:id="nameField" promptText="Medication name" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Medication Name"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <TextField fx:id="nameField" promptText="Medication name"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="Dose" styleClass="field-label" />
-            <TextField fx:id="doseField" promptText="e.g. 500 mg" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Dose"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <TextField fx:id="doseField" promptText="e.g. 500 mg"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Route" styleClass="field-label" />
-            <TextField fx:id="routeField" promptText="Oral, IV, IM..." />
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Route"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <TextField fx:id="routeField" promptText="Oral, IV, IM..."
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Frequency" styleClass="field-label" />
-            <TextField fx:id="frequencyField" promptText="e.g. Twice daily" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Frequency"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <TextField fx:id="frequencyField" promptText="e.g. Twice daily"
+                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
         </VBox>
-        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-            <Label text="Active Status" styleClass="field-label" />
-            <CheckBox fx:id="activeCheckBox" text="Active medication" />
+
+        <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Active Status"
+                   style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+            <CheckBox fx:id="activeCheckBox" text="Active medication"
+                      style="-fx-text-fill: #00695C; -fx-font-size: 14px; -fx-font-weight: bold;" />
         </VBox>
     </GridPane>
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info" />
+
+    <Label fx:id="statusLabel" text="-" wrapText="true"
+           style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
 </VBox>
