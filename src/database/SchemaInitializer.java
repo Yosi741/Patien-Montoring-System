@@ -29,6 +29,8 @@ public class SchemaInitializer {
             createRooms(statement);
             migrateRooms(statement);
             createDeceasedRecords(statement);
+            createNewbornRecords(statement);
+            migrateCertificateReviewColumns(statement);
             createShiftHandoverNotes(statement);
             createAuditLogs(statement);
             createDevices(statement);
@@ -259,6 +261,44 @@ public class SchemaInitializer {
                 + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
+    }
+
+    private static void createNewbornRecords(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS newborn_records ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "newborn_id TEXT NOT NULL UNIQUE,"
+                + "mother_patient_id TEXT,"
+                + "father_name TEXT,"
+                + "mother_name TEXT NOT NULL,"
+                + "baby_name TEXT NOT NULL,"
+                + "gender TEXT NOT NULL,"
+                + "birth_time TEXT NOT NULL,"
+                + "birth_weight REAL NOT NULL,"
+                + "birth_length REAL,"
+                + "delivery_type TEXT NOT NULL DEFAULT 'UNKNOWN',"
+                + "room TEXT,"
+                + "section TEXT,"
+                + "doctor_or_midwife TEXT,"
+                + "notes TEXT,"
+                + "certificate_path TEXT,"
+                + "created_by TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(mother_patient_id) REFERENCES patients(patient_id) ON DELETE SET NULL"
+                + ")");
+    }
+
+    private static void migrateCertificateReviewColumns(Statement statement) throws SQLException {
+        addCertificateReviewColumns(statement, "deceased_records");
+        addCertificateReviewColumns(statement, "newborn_records");
+    }
+
+    private static void addCertificateReviewColumns(Statement statement, String table) throws SQLException {
+        addColumnIfMissing(statement, table, "review_status", "TEXT NOT NULL DEFAULT 'DRAFT'");
+        addColumnIfMissing(statement, table, "reviewed_by", "TEXT");
+        addColumnIfMissing(statement, table, "reviewed_at", "TEXT");
+        addColumnIfMissing(statement, table, "rejection_reason", "TEXT");
+        statement.execute("UPDATE " + table + " SET review_status = 'DRAFT' WHERE review_status IS NULL OR TRIM(review_status) = ''");
     }
 
     private static void createShiftHandoverNotes(Statement statement) throws SQLException {

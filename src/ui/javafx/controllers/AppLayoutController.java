@@ -83,6 +83,12 @@ public class AppLayoutController implements FxController {
     private Button deceasedRecordsButton;
 
     @FXML
+    private Button newbornRecordsButton;
+
+    @FXML
+    private Button certificateRegistryButton;
+
+    @FXML
     private Button aiRecommendationsButton;
 
     @FXML
@@ -132,6 +138,10 @@ public class AppLayoutController implements FxController {
         roomOccupancyButton.setManaged(admin || clinical);
         deceasedRecordsButton.setVisible(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()));
         deceasedRecordsButton.setManaged(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()));
+        newbornRecordsButton.setVisible(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
+        newbornRecordsButton.setManaged(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
+        certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
+        certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         aiRecommendationsButton.setVisible(admin || clinical);
         aiRecommendationsButton.setManaged(admin || clinical);
         boolean backupTools = PermissionHelper.canViewBackupTools(Session.getCurrentUser());
@@ -227,6 +237,16 @@ public class AppLayoutController implements FxController {
     @FXML
     private void showDeceasedRecords() {
         appShell.showDeceasedRecords();
+    }
+
+    @FXML
+    private void showNewbornRecords() {
+        appShell.showNewbornRecords();
+    }
+
+    @FXML
+    private void showCertificateRegistry() {
+        appShell.showCertificateRegistry();
     }
 
     @FXML

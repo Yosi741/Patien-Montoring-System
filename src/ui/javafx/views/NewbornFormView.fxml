@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0" prefWidth="820.0"
+      style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 22; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
+      xmlns="http://javafx.com/javafx/17.0.15"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.javafx.controllers.NewbornFormController">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Newborn Record"
+               style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label text="Create or update a SQLite newborn record for birth certificate generation."
+               wrapText="true" style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Newborn ID" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="newbornIdField" promptText="NB-001" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Baby Name" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="babyNameField" promptText="Baby name" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Gender" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <ComboBox fx:id="genderBox" maxWidth="Infinity" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Birth Time" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="birthTimeField" promptText="yyyy-MM-dd HH:mm:ss" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Birth Weight (kg)" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="birthWeightField" promptText="3.2" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Birth Length (cm)" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="birthLengthField" promptText="Optional" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Mother Patient ID" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="motherPatientIdField" promptText="Optional existing patient ID" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Mother Name" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="motherNameField" promptText="Mother name" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
+            <Label text="Father Name" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="fatherNameField" promptText="Father name" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Delivery Type" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <ComboBox fx:id="deliveryTypeBox" maxWidth="Infinity" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
+            <Label text="Room" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="roomField" promptText="Room" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label text="Section" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="sectionField" promptText="Maternity" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label text="Doctor / Midwife" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextField fx:id="doctorField" promptText="Doctor or midwife" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="7">
+            <Label text="Notes" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            <TextArea fx:id="notesArea" prefRowCount="3" wrapText="true" promptText="Optional birth notes" style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 8; -fx-font-size: 14px;" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" wrapText="true"
+           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+</VBox>

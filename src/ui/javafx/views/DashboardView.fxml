@@ -88,6 +88,18 @@
                             <Label fx:id="deceasedPatientsLabel" text="0" style="-fx-text-fill: #455A64; -fx-font-size: 32px; -fx-font-weight: bold;" />
                         </VBox>
 
+                        <VBox GridPane.columnIndex="5" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Newborn Records" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="newbornRecordsLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 32px; -fx-font-weight: bold;" />
+                        </VBox>
+
+                        <VBox GridPane.columnIndex="6" GridPane.rowIndex="0" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Births Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="birthsTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 32px; -fx-font-weight: bold;" />
+                        </VBox>
+
                         <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
                               style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                             <Label text="Acknowledged Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
@@ -110,6 +122,24 @@
                               style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                             <Label text="AI Notes" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
                             <Label fx:id="aiNotesLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                        </VBox>
+
+                        <VBox GridPane.columnIndex="4" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Deaths This Month" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="deathsThisMonthLabel" text="0" style="-fx-text-fill: #455A64; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                        </VBox>
+
+                        <VBox GridPane.columnIndex="5" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Pending Birth Certs" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="pendingBirthCertificatesLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                        </VBox>
+
+                        <VBox GridPane.columnIndex="6" GridPane.rowIndex="1" spacing="6.0"
+                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 220; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <Label text="Pending Death Certs" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <Label fx:id="pendingDeathCertificatesLabel" text="0" style="-fx-text-fill: #B71C1C; -fx-font-size: 28px; -fx-font-weight: bold;" />
                         </VBox>
                     </GridPane>
 

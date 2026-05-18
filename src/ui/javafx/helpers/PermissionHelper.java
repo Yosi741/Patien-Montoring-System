@@ -119,6 +119,38 @@ public final class PermissionHelper {
         return isAdmin(user) || isDoctor(user);
     }
 
+    public static boolean canViewNewbornRecords(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canManageNewbornRecords(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canGenerateBirthCertificate(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canSendDeathCertificateNotice(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canSendBirthCertificateNotice(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canViewCertificateRegistry(User user) {
+        return canViewDeceasedRecords(user) || canViewNewbornRecords(user);
+    }
+
+    public static boolean canSubmitCertificateReview(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canApproveCertificateReview(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
     public static boolean canViewMessages(User user) {
         return user != null;
     }

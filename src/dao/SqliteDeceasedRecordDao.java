@@ -55,6 +55,21 @@ public class SqliteDeceasedRecordDao {
         }
     }
 
+    public void updateReviewStatus(long id, String reviewStatus, String reviewedBy, String reviewedAt,
+                                   String rejectionReason) throws SQLException {
+        String sql = "UPDATE deceased_records SET review_status = ?, reviewed_by = ?, reviewed_at = ?, "
+                + "rejection_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(reviewStatus));
+            statement.setString(2, value(reviewedBy));
+            statement.setString(3, value(reviewedAt));
+            statement.setString(4, value(rejectionReason));
+            statement.setLong(5, id);
+            statement.executeUpdate();
+        }
+    }
+
     public Optional<DeathRecord> findById(long id) throws SQLException {
         String sql = selectSql() + " WHERE d.id = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -131,11 +146,33 @@ public class SqliteDeceasedRecordDao {
         }
     }
 
+    public int countCertificatesGenerated() throws SQLException {
+        return countWhere("SELECT COUNT(*) FROM deceased_records WHERE certificate_path IS NOT NULL AND TRIM(certificate_path) <> ''");
+    }
+
+    public int countPendingCertificates() throws SQLException {
+        return countWhere("SELECT COUNT(*) FROM deceased_records WHERE certificate_path IS NULL OR TRIM(certificate_path) = ''");
+    }
+
+    public int countDeathsThisMonth() throws SQLException {
+        return countWhere("SELECT COUNT(*) FROM deceased_records WHERE strftime('%Y-%m', death_time) = strftime('%Y-%m', 'now')");
+    }
+
+    private int countWhere(String sql) throws SQLException {
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            return resultSet.next() ? resultSet.getInt(1) : 0;
+        }
+    }
+
     private String selectSql() {
         return "SELECT d.id, d.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
                 + "COALESCE(p.section, '') AS section, d.death_time, d.pronounced_by, d.cause_of_death, "
                 + "COALESCE(d.notes, '') AS notes, COALESCE(d.certificate_path, '') AS certificate_path, "
-                + "COALESCE(d.created_by, '') AS created_by, d.created_at, d.updated_at "
+                + "COALESCE(d.created_by, '') AS created_by, d.created_at, d.updated_at, "
+                + "COALESCE(d.review_status, 'DRAFT') AS review_status, COALESCE(d.reviewed_by, '') AS reviewed_by, "
+                + "COALESCE(d.reviewed_at, '') AS reviewed_at, COALESCE(d.rejection_reason, '') AS rejection_reason "
                 + "FROM deceased_records d LEFT JOIN patients p ON p.patient_id = d.patient_id";
     }
 
@@ -162,7 +199,11 @@ public class SqliteDeceasedRecordDao {
                 resultSet.getString("certificate_path"),
                 resultSet.getString("created_by"),
                 resultSet.getString("created_at"),
-                resultSet.getString("updated_at")
+                resultSet.getString("updated_at"),
+                resultSet.getString("review_status"),
+                resultSet.getString("reviewed_by"),
+                resultSet.getString("reviewed_at"),
+                resultSet.getString("rejection_reason")
         );
     }
 
@@ -208,10 +249,15 @@ public class SqliteDeceasedRecordDao {
         private final String createdBy;
         private final String createdAt;
         private final String updatedAt;
+        private final String reviewStatus;
+        private final String reviewedBy;
+        private final String reviewedAt;
+        private final String rejectionReason;
 
         public DeathRecord(long id, String patientId, String patientName, String section, String deathTime,
                            String pronouncedBy, String causeOfDeath, String notes, String certificatePath,
-                           String createdBy, String createdAt, String updatedAt) {
+                           String createdBy, String createdAt, String updatedAt, String reviewStatus,
+                           String reviewedBy, String reviewedAt, String rejectionReason) {
             this.id = id;
             this.patientId = patientId;
             this.patientName = patientName;
@@ -224,12 +270,16 @@ public class SqliteDeceasedRecordDao {
             this.createdBy = createdBy;
             this.createdAt = createdAt;
             this.updatedAt = updatedAt;
+            this.reviewStatus = reviewStatus == null || reviewStatus.isBlank() ? "DRAFT" : reviewStatus;
+            this.reviewedBy = reviewedBy;
+            this.reviewedAt = reviewedAt;
+            this.rejectionReason = rejectionReason;
         }
 
         public static DeathRecord newRecord(String patientId, String deathTime, String pronouncedBy,
                                             String causeOfDeath, String notes, String createdBy) {
             return new DeathRecord(0, patientId, "", "", deathTime, pronouncedBy, causeOfDeath,
-                    notes, "", createdBy, "", "");
+                    notes, "", createdBy, "", "", "DRAFT", "", "", "");
         }
 
         public long getId() { return id; }
@@ -244,6 +294,10 @@ public class SqliteDeceasedRecordDao {
         public String getCreatedBy() { return createdBy; }
         public String getCreatedAt() { return createdAt; }
         public String getUpdatedAt() { return updatedAt; }
+        public String getReviewStatus() { return reviewStatus; }
+        public String getReviewedBy() { return reviewedBy; }
+        public String getReviewedAt() { return reviewedAt; }
+        public String getRejectionReason() { return rejectionReason; }
         public String getCertificateStatus() {
             return certificatePath == null || certificatePath.isBlank() ? "Not generated" : "Generated";
         }

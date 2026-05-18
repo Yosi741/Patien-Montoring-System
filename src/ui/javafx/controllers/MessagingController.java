@@ -13,6 +13,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import services.MessagingService;
 import ui.javafx.AppShell;
@@ -23,6 +24,8 @@ import users.Session;
 import users.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessagingController implements FxController {
 
@@ -61,7 +64,9 @@ public class MessagingController implements FxController {
     @FXML private TextArea bodyArea;
     @FXML private Label detailTitleLabel;
     @FXML private Label detailMetaLabel;
+    @FXML private Label detailSourceLabel;
     @FXML private TextArea detailBodyArea;
+    @FXML private FlowPane certificateButtonPane;
     @FXML private Label statusLabel;
 
     @Override
@@ -144,6 +149,28 @@ public class MessagingController implements FxController {
         if (row != null && row.getPatientId() != null && !row.getPatientId().isBlank()) {
             appShell.showPatientDetail(row.getPatientId());
         }
+    }
+
+    @FXML
+    private void openSourceRecord() {
+        SqliteMessageDao.MessageRow row = selectedMessage();
+        CertificateMetadata metadata = metadataFrom(row);
+        if (metadata == null) {
+            NotificationHelper.showInfo(statusLabel, "This message does not include certificate source metadata.");
+            return;
+        }
+        appShell.showMessageCertificateSourceRecord(metadata.sourceType, metadata.sourceId);
+    }
+
+    @FXML
+    private void openCertificate() {
+        SqliteMessageDao.MessageRow row = selectedMessage();
+        CertificateMetadata metadata = metadataFrom(row);
+        if (metadata == null) {
+            NotificationHelper.showInfo(statusLabel, "This message does not include certificate metadata.");
+            return;
+        }
+        appShell.showCertificateFromMessage(metadata.sourceType, metadata.sourceId);
     }
 
     @FXML
@@ -245,12 +272,28 @@ public class MessagingController implements FxController {
         detailMetaLabel.setText("From " + row.getSenderUsername() + " | " + row.getTargetSummary()
                 + " | " + row.getPriority() + " | " + row.getStatus() + " | " + row.getCreatedAt());
         detailBodyArea.setText(row.getBody());
+        CertificateMetadata metadata = metadataFrom(row);
+        if (metadata == null) {
+            detailSourceLabel.setText("Certificate source: none");
+            certificateButtonPane.setVisible(false);
+            certificateButtonPane.setManaged(false);
+        } else {
+            detailSourceLabel.setText("Certificate source: " + metadata.certificateType
+                    + " | Source ID: " + metadata.sourceId
+                    + " | Patient: " + emptyTo(metadata.patientId, "-")
+                    + " | Newborn: " + emptyTo(metadata.newbornId, "-"));
+            certificateButtonPane.setVisible(true);
+            certificateButtonPane.setManaged(true);
+        }
     }
 
     private void clearDetail() {
         detailTitleLabel.setText("Select a message");
         detailMetaLabel.setText("-");
+        detailSourceLabel.setText("Certificate source: none");
         detailBodyArea.clear();
+        certificateButtonPane.setVisible(false);
+        certificateButtonPane.setManaged(false);
     }
 
     private void clearCompose() {
@@ -258,5 +301,65 @@ public class MessagingController implements FxController {
         subjectField.clear();
         bodyArea.clear();
         priorityBox.getSelectionModel().select("NORMAL");
+    }
+
+    private CertificateMetadata metadataFrom(SqliteMessageDao.MessageRow row) {
+        if (row == null || row.getBody() == null || !row.getBody().contains("[SPMS_CERTIFICATE]")) {
+            return null;
+        }
+        boolean inBlock = false;
+        Map<String, String> values = new HashMap<>();
+        for (String line : row.getBody().split("\\R")) {
+            String clean = line.trim();
+            if ("[SPMS_CERTIFICATE]".equals(clean)) {
+                inBlock = true;
+                continue;
+            }
+            if ("[/SPMS_CERTIFICATE]".equals(clean)) {
+                break;
+            }
+            if (inBlock) {
+                int equals = clean.indexOf('=');
+                if (equals > 0) {
+                    values.put(clean.substring(0, equals).trim(), clean.substring(equals + 1).trim());
+                }
+            }
+        }
+        String sourceType = emptyTo(values.get("source_type"), "");
+        String sourceId = emptyTo(values.get("source_id"), "");
+        if (sourceType.isBlank() || sourceId.isBlank() || "-".equals(sourceId)) {
+            return null;
+        }
+        return new CertificateMetadata(
+                emptyTo(values.get("certificate_type"), "CERTIFICATE"),
+                sourceType,
+                sourceId,
+                emptyTo(values.get("patient_id"), ""),
+                emptyTo(values.get("newborn_id"), ""),
+                emptyTo(values.get("certificate_path"), "")
+        );
+    }
+
+    private String emptyTo(String value, String fallback) {
+        return value == null || value.isBlank() || "-".equals(value) ? fallback : value;
+    }
+
+    private static class CertificateMetadata {
+        private final String certificateType;
+        private final String sourceType;
+        private final String sourceId;
+        private final String patientId;
+        private final String newbornId;
+        private final String certificatePath;
+
+        private CertificateMetadata(String certificateType, String sourceType, String sourceId,
+                                    String patientId, String newbornId, String certificatePath) {
+            this.certificateType = certificateType;
+            this.sourceType = sourceType;
+            this.sourceId = sourceId;
+            this.patientId = patientId;
+            this.newbornId = newbornId;
+            this.certificatePath = certificatePath;
+        }
     }
 }

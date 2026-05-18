@@ -45,6 +45,29 @@
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
+                        <HBox spacing="14.0">
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Total Records" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="totalRecordsLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Certificates Generated" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="certificatesGeneratedLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Pending Certificates" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="pendingCertificatesLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                <Label text="Deaths This Month" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="deathsThisMonthLabel" text="0" style="-fx-text-fill: #455A64; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            </VBox>
+                        </HBox>
+
                         <VBox spacing="12.0"
                               style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -59,7 +82,7 @@
                                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
                             </HBox>
 
-                            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                            <FlowPane alignment="CENTER_RIGHT" hgap="10.0" vgap="10.0">
                                 <Button text="Open Patient Detail" onAction="#openPatientDetail"
                                         style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                                 <Button fx:id="updateRecordButton" text="Update Record" onAction="#updateRecord"
@@ -68,11 +91,15 @@
                                         style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                                 <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate"
                                         style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="sendNoticeButton" text="Send Certificate Notice" onAction="#sendCertificateNotice"
+                                        style="-fx-background-color: #EDE7F6; -fx-text-fill: #4527A0; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary"
+                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                                 <Button text="Clear Filters" onAction="#clearFilters"
                                         style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
                                 <Button text="Refresh" onAction="#loadRecords"
                                         style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                            </HBox>
+                            </FlowPane>
                         </VBox>
 
                         <HBox spacing="18.0">

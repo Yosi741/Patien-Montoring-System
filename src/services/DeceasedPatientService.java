@@ -26,14 +26,21 @@ public class DeceasedPatientService {
 
     private final SqliteDeceasedRecordDao deceasedRecordDao;
     private final SqlitePatientDao patientDao;
+    private final CertificateEventService certificateEventService;
 
     public DeceasedPatientService() {
-        this(new SqliteDeceasedRecordDao(), new SqlitePatientDao());
+        this(new SqliteDeceasedRecordDao(), new SqlitePatientDao(), new CertificateEventService());
     }
 
     public DeceasedPatientService(SqliteDeceasedRecordDao deceasedRecordDao, SqlitePatientDao patientDao) {
+        this(deceasedRecordDao, patientDao, new CertificateEventService());
+    }
+
+    public DeceasedPatientService(SqliteDeceasedRecordDao deceasedRecordDao, SqlitePatientDao patientDao,
+                                  CertificateEventService certificateEventService) {
         this.deceasedRecordDao = deceasedRecordDao;
         this.patientDao = patientDao;
+        this.certificateEventService = certificateEventService;
     }
 
     public long markPatientDeceased(User currentUser, DeathRecordRequest request) throws SQLException {
@@ -84,6 +91,7 @@ public class DeceasedPatientService {
         String html = buildCertificateHtml(record, username(currentUser));
         Files.writeString(output, html, StandardCharsets.UTF_8);
         deceasedRecordDao.updateCertificatePath(recordId, output.toString());
+        certificateEventService.notifyDeathCertificateGenerated(currentUser, getDeathRecord(recordId));
         AuditWriteHelper.write(username(currentUser), AuditAction.GENERATE_DEATH_CERTIFICATE,
                 "patient_id=" + record.getPatientId() + ", record_id=" + recordId);
         return output;

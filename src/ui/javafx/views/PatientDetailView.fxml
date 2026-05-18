@@ -34,6 +34,8 @@
                     style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
             <Button fx:id="markDeceasedButton" text="Mark Deceased" onAction="#markPatientDeceased"
                     style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+            <Button fx:id="viewNewbornsButton" text="View Newborns" onAction="#viewPatientNewborns"
+                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
             <Button text="Open Clinical Timeline" onAction="#openClinicalTimeline"
                     style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
             <Button text="Back to Patient List" onAction="#backToPatients"

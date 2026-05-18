@@ -51,12 +51,18 @@
                     <VBox spacing="12" styleClass="panel-card">
                         <Label fx:id="detailTitleLabel" text="Select a notification" styleClass="section-title" wrapText="true" />
                         <Label fx:id="detailMetaLabel" text="-" styleClass="muted-text" wrapText="true" />
+                        <Label fx:id="detailSourceLabel" text="Source: -" styleClass="muted-text" wrapText="true" />
                         <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
-                        <HBox spacing="10">
+                        <FlowPane fx:id="sourceButtonPane" hgap="10" vgap="10" managed="false" visible="false">
+                            <Button text="Open Related Patient" onAction="#openRelatedPatient" styleClass="secondary-button" />
+                            <Button text="Open Related Record" onAction="#openSourceRecord" styleClass="secondary-button" />
+                            <Button text="Open Certificate" onAction="#openCertificate" styleClass="primary-button" />
+                        </FlowPane>
+                        <FlowPane hgap="10" vgap="10">
                             <Button text="Mark Read" onAction="#markRead" styleClass="secondary-button" />
                             <Button text="Dismiss" onAction="#dismissNotification" styleClass="danger-button" />
                             <Button text="Open Linked Item" onAction="#openLinkedItem" styleClass="secondary-button" />
-                        </HBox>
+                        </FlowPane>
                     </VBox>
                 </SplitPane>
                 <Label fx:id="statusLabel" text="Notifications not loaded yet." wrapText="true" styleClass="status-pill" />

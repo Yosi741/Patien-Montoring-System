@@ -107,6 +107,14 @@
                         managed="false" visible="false"
                         style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
 
+                <Button fx:id="newbornRecordsButton" text="Newborn Records" onAction="#showNewbornRecords" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
+                <Button fx:id="certificateRegistryButton" text="Certificates" onAction="#showCertificateRegistry" maxWidth="Infinity"
+                        managed="false" visible="false"
+                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+
                 <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity"
                         managed="false" visible="false"
                         style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />

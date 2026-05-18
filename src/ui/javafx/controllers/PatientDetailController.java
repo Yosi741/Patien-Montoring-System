@@ -88,6 +88,7 @@ public class PatientDetailController implements FxController {
     @FXML private Button uploadMedicalFileButton;
     @FXML private Button movePatientButton;
     @FXML private Button markDeceasedButton;
+    @FXML private Button viewNewbornsButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -167,6 +168,19 @@ public class PatientDetailController implements FxController {
             return;
         }
         appShell.showMedicalDevicesForPatient(patientId);
+    }
+
+    @FXML
+    private void viewPatientNewborns() {
+        if (!PermissionHelper.canViewNewbornRecords(Session.getCurrentUser())) {
+            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        if (patientId == null || patientId.isBlank()) {
+            timelineStatusLabel.setText("No patient selected for newborn lookup.");
+            return;
+        }
+        appShell.showNewbornRecordsForMother(patientId);
     }
 
     @FXML
@@ -546,6 +560,7 @@ public class PatientDetailController implements FxController {
         boolean canMoveRoom = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
         setButtonVisible(movePatientButton, canMoveRoom);
         setButtonVisible(markDeceasedButton, PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser()));
+        setButtonVisible(viewNewbornsButton, PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
     }
 
     private void updateDeceasedButton(String status) {

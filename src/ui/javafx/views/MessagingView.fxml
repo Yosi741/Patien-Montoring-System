@@ -87,12 +87,17 @@
                     <VBox spacing="12" styleClass="panel-card">
                         <Label fx:id="detailTitleLabel" text="Select a message" styleClass="section-title" wrapText="true" />
                         <Label fx:id="detailMetaLabel" text="-" styleClass="muted-text" wrapText="true" />
+                        <Label fx:id="detailSourceLabel" text="Certificate source: none" styleClass="muted-text" wrapText="true" />
                         <TextArea fx:id="detailBodyArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
-                        <HBox spacing="10">
+                        <FlowPane fx:id="certificateButtonPane" hgap="10" vgap="10" managed="false" visible="false">
+                            <Button text="Open Related Record" onAction="#openSourceRecord" styleClass="secondary-button" />
+                            <Button text="Open Certificate" onAction="#openCertificate" styleClass="primary-button" />
+                        </FlowPane>
+                        <FlowPane hgap="10" vgap="10">
                             <Button text="Mark Read" onAction="#markRead" styleClass="secondary-button" />
                             <Button text="Archive" onAction="#archiveMessage" styleClass="danger-button" />
                             <Button text="Open Patient" onAction="#openLinkedPatient" styleClass="secondary-button" />
-                        </HBox>
+                        </FlowPane>
                     </VBox>
                 </SplitPane>
                 <Label fx:id="statusLabel" text="Messages not loaded yet." wrapText="true" styleClass="status-pill" />

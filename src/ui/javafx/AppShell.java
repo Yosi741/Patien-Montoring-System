@@ -4,6 +4,8 @@ import database.DatabaseManager;
 import database.SchemaInitializer;
 import database.SqliteMigrationService;
 import dao.SqliteAuditLogDao;
+import dao.SqliteDeceasedRecordDao;
+import dao.SqliteNewbornRecordDao;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,13 +13,21 @@ import javafx.stage.Stage;
 import ui.javafx.controllers.AlertCenterController;
 import ui.javafx.controllers.AppLayoutController;
 import ui.javafx.controllers.ClinicalTimelineController;
+import ui.javafx.controllers.DeceasedRecordsController;
 import ui.javafx.controllers.MedicationOverviewController;
 import ui.javafx.controllers.MedicalDevicesController;
 import ui.javafx.controllers.MedicalFilesController;
+import ui.javafx.controllers.NewbornRecordsController;
 import ui.javafx.controllers.NurseWorkQueueController;
 import ui.javafx.controllers.PatientDetailController;
 import ui.javafx.controllers.PlaceholderController;
 import ui.javafx.controllers.SchedulingController;
+import services.DeceasedPatientService;
+import services.NewbornService;
+import ui.javafx.helpers.AuditAction;
+import ui.javafx.helpers.AuditWriteHelper;
+import ui.javafx.helpers.DialogHelper;
+import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import users.User;
 
@@ -169,6 +179,44 @@ public class AppShell extends Application {
         setShellContent("/ui/javafx/views/DeceasedRecordsView.fxml", "Smart Patient Monitoring System - Deceased Records");
     }
 
+    public void showDeceasedRecord(long recordId) {
+        ensureShell("Smart Patient Monitoring System - Deceased Record");
+        AppNavigator.LoadedView deceasedRecords = navigator.loadView("/ui/javafx/views/DeceasedRecordsView.fxml");
+        if (deceasedRecords.getController() instanceof DeceasedRecordsController) {
+            ((DeceasedRecordsController) deceasedRecords.getController()).openWithRecord(recordId);
+        }
+        layoutController.setContent(deceasedRecords.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Deceased Record");
+    }
+
+    public void showNewbornRecords() {
+        setShellContent("/ui/javafx/views/NewbornRecordsView.fxml", "Smart Patient Monitoring System - Newborn Records");
+    }
+
+    public void showNewbornRecord(long recordId) {
+        ensureShell("Smart Patient Monitoring System - Newborn Record");
+        AppNavigator.LoadedView newborns = navigator.loadView("/ui/javafx/views/NewbornRecordsView.fxml");
+        if (newborns.getController() instanceof NewbornRecordsController) {
+            ((NewbornRecordsController) newborns.getController()).openWithRecord(recordId);
+        }
+        layoutController.setContent(newborns.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Newborn Record");
+    }
+
+    public void showNewbornRecordsForMother(String motherPatientId) {
+        ensureShell("Smart Patient Monitoring System - Newborn Records");
+        AppNavigator.LoadedView newborns = navigator.loadView("/ui/javafx/views/NewbornRecordsView.fxml");
+        if (newborns.getController() instanceof NewbornRecordsController) {
+            ((NewbornRecordsController) newborns.getController()).openForMother(motherPatientId);
+        }
+        layoutController.setContent(newborns.getParent());
+        primaryStage.setTitle("Smart Patient Monitoring System - Newborn Records");
+    }
+
+    public void showCertificateRegistry() {
+        setShellContent("/ui/javafx/views/CertificateRegistryView.fxml", "Smart Patient Monitoring System - Certificate Registry");
+    }
+
     public void showAiRecommendations() {
         setShellContent("/ui/javafx/views/AiRecommendationsView.fxml", "Smart Patient Monitoring System - AI Recommendations");
     }
@@ -231,6 +279,26 @@ public class AppShell extends Application {
         }
         layoutController.setContent(files.getParent());
         primaryStage.setTitle("Smart Patient Monitoring System - Medical File Details");
+    }
+
+    public void showCertificateSourceRecord(String sourceType, String sourceId) {
+        openCertificateSourceRecord(sourceType, sourceId, AuditAction.OPEN_CERTIFICATE_SOURCE_RECORD);
+    }
+
+    public void showMessageCertificateSourceRecord(String sourceType, String sourceId) {
+        openCertificateSourceRecord(sourceType, sourceId, AuditAction.OPEN_MESSAGE_SOURCE_RECORD);
+    }
+
+    public void showCertificateFromNotification(String sourceType, String sourceId) {
+        openCertificate(sourceType, sourceId, AuditAction.OPEN_CERTIFICATE_FROM_NOTIFICATION);
+    }
+
+    public void showCertificateFromMessage(String sourceType, String sourceId) {
+        openCertificate(sourceType, sourceId, AuditAction.OPEN_CERTIFICATE_FROM_MESSAGE);
+    }
+
+    public void showCertificateFromRegistry(String sourceType, String sourceId) {
+        openCertificate(sourceType, sourceId, AuditAction.OPEN_CERTIFICATE_FROM_REGISTRY);
     }
 
     public void refreshNotificationCount() {
@@ -317,6 +385,76 @@ public class AppShell extends Application {
         primaryStage.setMinWidth(1040);
         primaryStage.setMinHeight(680);
         primaryStage.setScene(scene);
+    }
+
+    private void openCertificateSourceRecord(String sourceType, String sourceId, String auditAction) {
+        try {
+            if ("DEATH_CERTIFICATE".equalsIgnoreCase(sourceType)) {
+                require(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()), "Access denied for deceased records.");
+                long recordId = parseId(sourceId, "death record");
+                new SqliteDeceasedRecordDao().findById(recordId)
+                        .orElseThrow(() -> new IllegalArgumentException("Death record not found in SQLite: " + recordId));
+                showDeceasedRecord(recordId);
+                AuditWriteHelper.write(SessionContext.username(), auditAction, "source=DEATH_CERTIFICATE:" + recordId);
+            } else if ("BIRTH_CERTIFICATE".equalsIgnoreCase(sourceType)) {
+                require(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()), "Access denied for newborn records.");
+                long recordId = resolveNewbornRecordId(sourceId);
+                showNewbornRecord(recordId);
+                AuditWriteHelper.write(SessionContext.username(), auditAction, "source=BIRTH_CERTIFICATE:" + recordId);
+            } else {
+                DialogHelper.warning("Unsupported source", "This notification source cannot open a certificate record: " + sourceType);
+            }
+        } catch (Exception e) {
+            DialogHelper.warning("Source unavailable", e.getMessage());
+        }
+    }
+
+    private void openCertificate(String sourceType, String sourceId, String auditAction) {
+        try {
+            if ("DEATH_CERTIFICATE".equalsIgnoreCase(sourceType)) {
+                require(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()), "Access denied for death certificates.");
+                long recordId = parseId(sourceId, "death record");
+                new DeceasedPatientService().openDeathCertificate(Session.getCurrentUser(), recordId);
+                AuditWriteHelper.write(SessionContext.username(), auditAction, "source=DEATH_CERTIFICATE:" + recordId);
+            } else if ("BIRTH_CERTIFICATE".equalsIgnoreCase(sourceType)) {
+                require(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()), "Access denied for birth certificates.");
+                SqliteNewbornRecordDao.NewbornRecord record = resolveNewbornRecord(sourceId);
+                new NewbornService().openBirthCertificate(Session.getCurrentUser(), record.getNewbornId());
+                AuditWriteHelper.write(SessionContext.username(), auditAction, "source=BIRTH_CERTIFICATE:" + record.getId());
+            } else {
+                DialogHelper.warning("Unsupported certificate", "This source does not point to a certificate: " + sourceType);
+            }
+        } catch (Exception e) {
+            DialogHelper.warning("Certificate unavailable", e.getMessage());
+        }
+    }
+
+    private SqliteNewbornRecordDao.NewbornRecord resolveNewbornRecord(String sourceId) throws Exception {
+        SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
+        if (sourceId != null && sourceId.matches("\\d+")) {
+            long id = Long.parseLong(sourceId);
+            return newbornDao.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Newborn record not found in SQLite: " + id));
+        }
+        return newbornDao.findByNewbornId(sourceId)
+                .orElseThrow(() -> new IllegalArgumentException("Newborn record not found in SQLite: " + sourceId));
+    }
+
+    private long resolveNewbornRecordId(String sourceId) throws Exception {
+        return resolveNewbornRecord(sourceId).getId();
+    }
+
+    private long parseId(String sourceId, String label) {
+        if (sourceId == null || !sourceId.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid " + label + " ID: " + sourceId);
+        }
+        return Long.parseLong(sourceId);
+    }
+
+    private void require(boolean condition, String message) {
+        if (!condition) {
+            throw new SecurityException(message);
+        }
     }
 
     private void applyTheme(Scene scene) {

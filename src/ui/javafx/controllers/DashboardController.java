@@ -33,6 +33,11 @@ public class DashboardController implements FxController {
     @FXML private Label totalPatientsLabel;
     @FXML private Label activePatientsLabel;
     @FXML private Label deceasedPatientsLabel;
+    @FXML private Label newbornRecordsLabel;
+    @FXML private Label birthsTodayLabel;
+    @FXML private Label deathsThisMonthLabel;
+    @FXML private Label pendingBirthCertificatesLabel;
+    @FXML private Label pendingDeathCertificatesLabel;
     @FXML private Label criticalPatientsLabel;
     @FXML private Label activeAlertsLabel;
     @FXML private Label acknowledgedTodayLabel;
@@ -111,6 +116,11 @@ public class DashboardController implements FxController {
         totalPatientsLabel.setText(String.valueOf(metrics.getTotalPatients()));
         activePatientsLabel.setText(String.valueOf(metrics.getActivePatients()));
         deceasedPatientsLabel.setText(String.valueOf(metrics.getDeceasedPatients()));
+        newbornRecordsLabel.setText(String.valueOf(metrics.getNewbornRecords()));
+        birthsTodayLabel.setText(String.valueOf(metrics.getBirthsToday()));
+        deathsThisMonthLabel.setText(String.valueOf(metrics.getDeathsThisMonth()));
+        pendingBirthCertificatesLabel.setText(String.valueOf(metrics.getPendingBirthCertificates()));
+        pendingDeathCertificatesLabel.setText(String.valueOf(metrics.getPendingDeathCertificates()));
         criticalPatientsLabel.setText(String.valueOf(metrics.getCriticalEmergencyPatients()));
         activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
         acknowledgedTodayLabel.setText(String.valueOf(metrics.getAcknowledgedAlertsToday()));

@@ -34,6 +34,14 @@ public class DashboardMetricsService {
             metrics.totalPatients = count(connection, "SELECT COUNT(*) FROM patients");
             metrics.activePatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE')");
             metrics.deceasedPatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) = 'DECEASED'");
+            metrics.newbornRecords = count(connection, "SELECT COUNT(*) FROM newborn_records");
+            metrics.birthsToday = count(connection, "SELECT COUNT(*) FROM newborn_records WHERE date(birth_time) = date('now')");
+            metrics.pendingBirthCertificates = count(connection,
+                    "SELECT COUNT(*) FROM newborn_records WHERE certificate_path IS NULL OR TRIM(certificate_path) = ''");
+            metrics.pendingDeathCertificates = count(connection,
+                    "SELECT COUNT(*) FROM deceased_records WHERE certificate_path IS NULL OR TRIM(certificate_path) = ''");
+            metrics.deathsThisMonth = count(connection,
+                    "SELECT COUNT(*) FROM deceased_records WHERE strftime('%Y-%m', death_time) = strftime('%Y-%m', 'now')");
             metrics.criticalEmergencyPatients = count(connection,
                     "SELECT COUNT(*) FROM patients WHERE UPPER(priority) IN ('CRITICAL', 'EMERGENCY')");
             metrics.activeAlerts = count(connection, "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'ACTIVE'");
@@ -149,6 +157,11 @@ public class DashboardMetricsService {
         private int totalPatients;
         private int activePatients;
         private int deceasedPatients;
+        private int newbornRecords;
+        private int birthsToday;
+        private int pendingBirthCertificates;
+        private int pendingDeathCertificates;
+        private int deathsThisMonth;
         private int criticalEmergencyPatients;
         private int activeAlerts;
         private int acknowledgedAlertsToday;
@@ -169,6 +182,11 @@ public class DashboardMetricsService {
         public int getTotalPatients() { return totalPatients; }
         public int getActivePatients() { return activePatients; }
         public int getDeceasedPatients() { return deceasedPatients; }
+        public int getNewbornRecords() { return newbornRecords; }
+        public int getBirthsToday() { return birthsToday; }
+        public int getPendingBirthCertificates() { return pendingBirthCertificates; }
+        public int getPendingDeathCertificates() { return pendingDeathCertificates; }
+        public int getDeathsThisMonth() { return deathsThisMonth; }
         public int getCriticalEmergencyPatients() { return criticalEmergencyPatients; }
         public int getActiveAlerts() { return activeAlerts; }
         public int getAcknowledgedAlertsToday() { return acknowledgedAlertsToday; }

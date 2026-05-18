@@ -13,6 +13,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import services.NotificationCenterService;
@@ -45,7 +46,9 @@ public class NotificationCenterController implements FxController {
     @FXML private TableColumn<SqliteNotificationDao.NotificationRow, String> createdColumn;
     @FXML private Label detailTitleLabel;
     @FXML private Label detailMetaLabel;
+    @FXML private Label detailSourceLabel;
     @FXML private TextArea detailMessageArea;
+    @FXML private FlowPane sourceButtonPane;
     @FXML private Label statusLabel;
 
     @Override
@@ -121,6 +124,10 @@ public class NotificationCenterController implements FxController {
         if (row == null) {
             return;
         }
+        if (isCertificateSource(row)) {
+            appShell.showCertificateSourceRecord(row.getSourceType(), row.getSourceId());
+            return;
+        }
         if (row.getPatientId() != null && !row.getPatientId().isBlank()) {
             if ("ALERT".equalsIgnoreCase(row.getSourceType()) && row.getSourceId() != null && row.getSourceId().matches("\\d+")) {
                 appShell.showAlertCenterForAlert(Long.parseLong(row.getSourceId()));
@@ -130,6 +137,40 @@ public class NotificationCenterController implements FxController {
                 appShell.showPatientDetail(row.getPatientId());
             }
         }
+    }
+
+    @FXML
+    private void openRelatedPatient() {
+        SqliteNotificationDao.NotificationRow row = selectedRow();
+        if (row != null && row.getPatientId() != null && !row.getPatientId().isBlank()) {
+            appShell.showPatientDetail(row.getPatientId());
+        }
+    }
+
+    @FXML
+    private void openSourceRecord() {
+        SqliteNotificationDao.NotificationRow row = selectedRow();
+        if (row == null) {
+            return;
+        }
+        if (isCertificateSource(row)) {
+            appShell.showCertificateSourceRecord(row.getSourceType(), row.getSourceId());
+        } else {
+            openLinkedItem();
+        }
+    }
+
+    @FXML
+    private void openCertificate() {
+        SqliteNotificationDao.NotificationRow row = selectedRow();
+        if (row == null) {
+            return;
+        }
+        if (!isCertificateSource(row)) {
+            NotificationHelper.showInfo(statusLabel, "This notification is not linked to a certificate.");
+            return;
+        }
+        appShell.showCertificateFromNotification(row.getSourceType(), row.getSourceId());
     }
 
     @FXML
@@ -177,13 +218,19 @@ public class NotificationCenterController implements FxController {
         detailTitleLabel.setText(row.getTitle());
         detailMetaLabel.setText(row.getSeverity() + " | " + row.getStatus() + " | " + row.getTargetSummary()
                 + " | Patient " + nullTo(row.getPatientId(), "-") + " | " + row.getCreatedAt());
+        detailSourceLabel.setText("Source: " + nullTo(row.getSourceType(), "-") + " | Source ID: " + nullTo(row.getSourceId(), "-"));
         detailMessageArea.setText(row.getMessage());
+        sourceButtonPane.setVisible(isCertificateSource(row));
+        sourceButtonPane.setManaged(isCertificateSource(row));
     }
 
     private void clearDetail() {
         detailTitleLabel.setText("Select a notification");
         detailMetaLabel.setText("-");
+        detailSourceLabel.setText("Source: -");
         detailMessageArea.clear();
+        sourceButtonPane.setVisible(false);
+        sourceButtonPane.setManaged(false);
     }
 
     private SqliteNotificationDao.NotificationRow selectedRow() {
@@ -202,5 +249,10 @@ public class NotificationCenterController implements FxController {
 
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private boolean isCertificateSource(SqliteNotificationDao.NotificationRow row) {
+        return row != null && ("DEATH_CERTIFICATE".equalsIgnoreCase(row.getSourceType())
+                || "BIRTH_CERTIFICATE".equalsIgnoreCase(row.getSourceType()));
     }
 }

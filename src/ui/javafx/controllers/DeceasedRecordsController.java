@@ -13,10 +13,15 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
+import services.CertificateEventService;
 import services.DeceasedPatientService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
+import ui.javafx.helpers.AuditAction;
+import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
@@ -27,6 +32,8 @@ import java.util.ArrayList;
 public class DeceasedRecordsController implements FxController {
 
     private final DeceasedPatientService deceasedPatientService = new DeceasedPatientService();
+    private final CertificateEventService certificateEventService = new CertificateEventService();
+    private final SqliteDeceasedRecordDao deceasedRecordDao = new SqliteDeceasedRecordDao();
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final ObservableList<SqliteDeceasedRecordDao.DeathRecord> records = FXCollections.observableArrayList();
     private AppShell appShell;
@@ -36,6 +43,10 @@ public class DeceasedRecordsController implements FxController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> dateRangeFilter;
     @FXML private ComboBox<String> sectionFilter;
+    @FXML private Label totalRecordsLabel;
+    @FXML private Label certificatesGeneratedLabel;
+    @FXML private Label pendingCertificatesLabel;
+    @FXML private Label deathsThisMonthLabel;
     @FXML private TableView<SqliteDeceasedRecordDao.DeathRecord> deceasedTable;
     @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, String> patientIdColumn;
     @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, String> patientNameColumn;
@@ -53,6 +64,8 @@ public class DeceasedRecordsController implements FxController {
     @FXML private Button updateRecordButton;
     @FXML private Button generateCertificateButton;
     @FXML private Button openCertificateButton;
+    @FXML private Button sendNoticeButton;
+    @FXML private Button copySummaryButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -65,6 +78,24 @@ public class DeceasedRecordsController implements FxController {
         }
     }
 
+    public void openWithRecord(long recordId) {
+        if (!PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser())) {
+            return;
+        }
+        clearFilterControls();
+        loadRecords();
+        for (SqliteDeceasedRecordDao.DeathRecord record : records) {
+            if (record.getId() == recordId) {
+                deceasedTable.getSelectionModel().select(record);
+                deceasedTable.scrollTo(record);
+                renderDetail(record);
+                NotificationHelper.showInfo(statusLabel, "Opened death certificate source record: " + recordId);
+                return;
+            }
+        }
+        NotificationHelper.showError(statusLabel, "Death record not found in SQLite: " + recordId);
+    }
+
     @FXML
     private void loadRecords() {
         if (!PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser())) {
@@ -74,6 +105,7 @@ public class DeceasedRecordsController implements FxController {
         try {
             records.setAll(deceasedPatientService.getDeceasedRecords(buildFilter()));
             deceasedTable.setItems(records);
+            loadSummaryCards();
             statusLabel.setText("Deceased records loaded from SQLite: " + records.size());
             renderDetail(null);
         } catch (Exception e) {
@@ -83,9 +115,7 @@ public class DeceasedRecordsController implements FxController {
 
     @FXML
     private void clearFilters() {
-        searchField.clear();
-        dateRangeFilter.getSelectionModel().select("All");
-        sectionFilter.getSelectionModel().select("All");
+        clearFilterControls();
         loadRecords();
     }
 
@@ -148,6 +178,38 @@ public class DeceasedRecordsController implements FxController {
         }
     }
 
+    @FXML
+    private void sendCertificateNotice() {
+        SqliteDeceasedRecordDao.DeathRecord selected = selectedRecord();
+        if (selected == null) {
+            return;
+        }
+        try {
+            long id = certificateEventService.sendDeathCertificateNotice(Session.getCurrentUser(), selected);
+            NotificationHelper.showSuccess(statusLabel, "Death certificate notice sent through SQLite messages. Message ID: " + id);
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void copySummary() {
+        SqliteDeceasedRecordDao.DeathRecord selected = selectedRecord();
+        if (selected == null) {
+            return;
+        }
+        try {
+            ClipboardContent content = new ClipboardContent();
+            content.putString(certificateEventService.deathSummary(selected));
+            Clipboard.getSystemClipboard().setContent(content);
+            AuditWriteHelper.write(username(), AuditAction.COPY_CERTIFICATE_SUMMARY,
+                    "type=death, patient_id=" + selected.getPatientId());
+            NotificationHelper.showSuccess(statusLabel, "Certificate summary copied.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
     private void configureAccess() {
         boolean authorized = PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser());
         accessDeniedPane.setVisible(!authorized);
@@ -158,6 +220,8 @@ public class DeceasedRecordsController implements FxController {
         setButtonVisible(updateRecordButton, canWrite);
         setButtonVisible(generateCertificateButton, PermissionHelper.canGenerateDeathCertificate(Session.getCurrentUser()));
         setButtonVisible(openCertificateButton, authorized);
+        setButtonVisible(sendNoticeButton, PermissionHelper.canSendDeathCertificateNotice(Session.getCurrentUser()));
+        setButtonVisible(copySummaryButton, authorized);
     }
 
     private void configureTable() {
@@ -196,6 +260,23 @@ public class DeceasedRecordsController implements FxController {
         sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadRecords());
     }
 
+    private void clearFilterControls() {
+        searchField.clear();
+        dateRangeFilter.getSelectionModel().select("All");
+        sectionFilter.getSelectionModel().select("All");
+    }
+
+    private void loadSummaryCards() {
+        try {
+            totalRecordsLabel.setText(String.valueOf(deceasedRecordDao.count()));
+            certificatesGeneratedLabel.setText(String.valueOf(deceasedRecordDao.countCertificatesGenerated()));
+            pendingCertificatesLabel.setText(String.valueOf(deceasedRecordDao.countPendingCertificates()));
+            deathsThisMonthLabel.setText(String.valueOf(deceasedRecordDao.countDeathsThisMonth()));
+        } catch (Exception e) {
+            statusLabel.setText("Deceased report counters unavailable: " + e.getMessage());
+        }
+    }
+
     private SqliteDeceasedRecordDao.RecordFilter buildFilter() {
         SqliteDeceasedRecordDao.RecordFilter filter = new SqliteDeceasedRecordDao.RecordFilter();
         filter.setSearch(searchField.getText());
@@ -220,8 +301,8 @@ public class DeceasedRecordsController implements FxController {
         detailCauseLabel.setText(record.getCauseOfDeath());
         detailNotesLabel.setText(record.getNotes() == null || record.getNotes().isBlank() ? "-" : record.getNotes());
         detailCertificateLabel.setText(record.getCertificatePath() == null || record.getCertificatePath().isBlank()
-                ? "Not generated"
-                : record.getCertificatePath());
+                ? "Pending certificate generation"
+                : "Generated: " + record.getCertificatePath());
     }
 
     private SqliteDeceasedRecordDao.DeathRecord selectedRecord() {
@@ -237,5 +318,9 @@ public class DeceasedRecordsController implements FxController {
             button.setVisible(visible);
             button.setManaged(visible);
         }
+    }
+
+    private String username() {
+        return Session.getCurrentUser() == null ? "Unknown" : Session.getCurrentUser().getUsername();
     }
 }

@@ -237,6 +237,9 @@ During the transition:
 - Admin and Doctor users can mark a patient deceased from JavaFX Patient Detail, which writes a SQLite death record and updates the SQLite patient status to `DECEASED`.
 - Admin, Doctor, and Nurse users can open `Deceased Records` to view death records, certificate status, patient details, and generated certificate paths.
 - Death certificate output is currently a safe local HTML file under `data/generated/death-certificates/`; legacy text files are not updated by this JavaFX workflow.
+- Admin, Doctor, and Nurse users can create and update SQLite newborn records from `Newborn Records`.
+- Admin and Doctor users can generate local HTML birth certificates under `data/generated/birth-certificates/`.
+- Patient Detail includes `View Newborns`, which opens Newborn Records filtered by the selected mother's patient ID.
 - Admin, Doctor, and Nurse users can open a read-only `AI Recommendations` board backed by SQLite patients and `ai_notes`.
 - Patient Detail includes `Generate Recommendation`, which analyzes SQLite vitals, active/recent alerts, and recent clinical activity, then saves a rule-based recommendation into `ai_notes`.
 - Generated AI recommendations appear in Clinical Timeline as AI Notes because they use the existing SQLite `ai_notes` table.
@@ -474,7 +477,7 @@ To test Audit Log Viewer:
 5. Acknowledge a SQLite alert in Alert Center and confirm an alert audit row appears.
 6. Login as a non-admin user and confirm Audit Logs is hidden; direct access shows access denied.
 
-Currently audited JavaFX actions include login, logout, SQLite alert acknowledgement, sync from legacy storage, opening patient detail, creating/updating/discharging SQLite patients, marking patients deceased, updating death records, generating/opening death certificates, entering SQLite manual vitals, adding/updating/discontinuing SQLite medications, recording SQLite medication administration events, registering/updating/deactivating/assigning/unassigning SQLite devices, creating/updating/completing/cancelling SQLite appointments and reminders, opening Nurse Work Queue, marking reminders done/missed, detecting overdue reminders, uploading/viewing/opening SQLite medical files, copying file summaries, generating file AI summary notes, opening Staff/User Directory, opening Staff Activity, opening Medication Overview, opening Room/Bed Occupancy, creating/updating/deactivating SQLite rooms, assigning/moving/removing patients from SQLite rooms, opening patient detail from Room/Bed Occupancy, opening AI Recommendations, and generating AI recommendations. Legacy Swing audit logs remain in `data/audit_logs.txt` and are not fully migrated yet.
+Currently audited JavaFX actions include login, logout, SQLite alert acknowledgement, sync from legacy storage, opening patient detail, creating/updating/discharging SQLite patients, marking patients deceased, updating death records, generating/opening death certificates, creating/updating newborn records, generating/opening birth certificates, certificate event notifications, certificate notice messages, certificate source-record drill-down, certificate opening from notifications/messages, opening Certificate Registry, generating/opening/sending/copying certificates from Certificate Registry, submitting/approving/rejecting/resetting certificate reviews, sending certificate review notes, entering SQLite manual vitals, adding/updating/discontinuing SQLite medications, recording SQLite medication administration events, registering/updating/deactivating/assigning/unassigning SQLite devices, creating/updating/completing/cancelling SQLite appointments and reminders, opening Nurse Work Queue, marking reminders done/missed, detecting overdue reminders, uploading/viewing/opening SQLite medical files, copying file summaries, generating file AI summary notes, opening Staff/User Directory, opening Staff Activity, opening Medication Overview, opening Room/Bed Occupancy, creating/updating/deactivating SQLite rooms, assigning/moving/removing patients from SQLite rooms, opening patient detail from Room/Bed Occupancy, opening AI Recommendations, and generating AI recommendations. Legacy Swing audit logs remain in `data/audit_logs.txt` and are not fully migrated yet.
 
 To test Staff/User Directory:
 
@@ -554,11 +557,58 @@ To test Deceased Records and death certificates:
 4. Confirm Patient Detail shows status `DECEASED`; Active patient filters exclude the patient, while the Patient List `DECEASED` status filter can show them.
 5. Open `Deceased Records` from the sidebar and confirm the patient appears.
 6. Select the record and press `Generate Certificate`; confirm an HTML certificate is created under `data/generated/death-certificates/`.
-7. Press `Open Certificate` to open the generated local certificate if desktop file opening is supported.
-8. Open `Audit Logs` and confirm `MARK_PATIENT_DECEASED`, `GENERATE_DEATH_CERTIFICATE`, and `OPEN_DEATH_CERTIFICATE` rows.
-9. Login as Nurse and confirm Deceased Records is view-only.
-10. Login as Staff and confirm Deceased Records is hidden or shows access denied.
-11. Run `LegacySwingMain` and confirm the old Swing app still opens; JavaFX deceased records do not update legacy text files.
+7. Confirm a SQLite notification is created for Admin/Doctor users.
+8. Press `Send Certificate Notice` and confirm the message appears in the recipient role inbox.
+9. Press `Copy Summary` and confirm `COPY_CERTIFICATE_SUMMARY` is audited.
+10. Press `Open Certificate` to open the generated local certificate if desktop file opening is supported.
+11. Confirm the Deceased Records report cards and Dashboard pending death certificate/deaths-this-month counters update.
+12. Open the generated notification in `Notifications`; confirm `Open Related Record` jumps to the Deceased Records detail and `Open Certificate` opens the HTML certificate safely.
+13. Open the notice message in `Messaging`; confirm message detail shows certificate metadata, `Open Related Record`, and `Open Certificate`.
+14. Open `Audit Logs` and confirm `MARK_PATIENT_DECEASED`, `GENERATE_DEATH_CERTIFICATE`, `CERTIFICATE_NOTIFICATION_CREATED`, `SEND_DEATH_CERTIFICATE_NOTICE`, `OPEN_CERTIFICATE_SOURCE_RECORD`, `OPEN_MESSAGE_SOURCE_RECORD`, `OPEN_CERTIFICATE_FROM_NOTIFICATION`, `OPEN_CERTIFICATE_FROM_MESSAGE`, and `OPEN_DEATH_CERTIFICATE` rows where those actions were used.
+15. Login as Nurse and confirm Deceased Records is view-only.
+16. Login as Staff and confirm Deceased Records is hidden or shows access denied.
+17. Run `LegacySwingMain` and confirm the old Swing app still opens; JavaFX deceased records do not update legacy text files.
+
+To test Newborn Records and birth certificates:
+
+1. Run `Main` and login as Admin, Doctor, or Nurse.
+2. Open `Newborn Records` from the sidebar.
+3. Press `Add Newborn`, enter newborn ID, baby name, gender, birth time, birth weight, optional birth length, mother/father details, delivery type, room, section, doctor/midwife, and notes.
+4. Save and confirm the newborn appears in the table and detail panel.
+5. Select the newborn and press `Edit Selected`; update a safe field and save.
+6. Login as Admin or Doctor and press `Generate Certificate`; confirm an HTML certificate is created under `data/generated/birth-certificates/`.
+7. Confirm a SQLite notification is created for Admin/Doctor/Nurse users.
+8. Press `Send Birth Notice` and confirm the message appears in the recipient role inbox.
+9. Press `Copy Summary` and confirm `COPY_CERTIFICATE_SUMMARY` is audited.
+10. Press `Open Certificate` to open the generated local certificate if desktop file opening is supported.
+11. Open a mother patient in Patient Detail and press `View Newborns`; confirm the Newborn Records screen is filtered by that mother patient ID.
+12. Confirm Dashboard shows newborn, births-today, and pending birth certificate counters.
+13. Open the generated notification in `Notifications`; confirm `Open Related Record` jumps to the Newborn Records detail and `Open Certificate` opens the HTML certificate safely.
+14. Open the notice message in `Messaging`; confirm message detail shows certificate metadata, `Open Related Record`, and `Open Certificate`.
+15. Open `Audit Logs` and confirm `CREATE_NEWBORN_RECORD`, `UPDATE_NEWBORN_RECORD`, `GENERATE_BIRTH_CERTIFICATE`, `CERTIFICATE_NOTIFICATION_CREATED`, `SEND_BIRTH_CERTIFICATE_NOTICE`, `OPEN_CERTIFICATE_SOURCE_RECORD`, `OPEN_MESSAGE_SOURCE_RECORD`, `OPEN_CERTIFICATE_FROM_NOTIFICATION`, `OPEN_CERTIFICATE_FROM_MESSAGE`, and `OPEN_BIRTH_CERTIFICATE` rows where those actions were used.
+16. Login as Staff and confirm Newborn Records is hidden or access denied.
+17. Run `LegacySwingMain` and confirm Swing still opens; JavaFX newborn writes do not update legacy newborn text files.
+
+To test Certificate Registry:
+
+1. Run `Main` and login as Admin or Doctor.
+2. Open `Certificates` from the sidebar.
+3. Filter by `BIRTH`, `DEATH`, `GENERATED`, `PENDING`, date range, section, and ID/name search.
+4. Select a pending certificate and press `Generate Certificate`; confirm the matching HTML certificate is created under the safe generated folder.
+5. Select a generated certificate and press `Open Certificate`; confirm safe local opening or a clear desktop unsupported message.
+6. Press `Open Related Record`; confirm birth rows open Newborn Records detail and death rows open Deceased Records detail.
+7. Press `Copy Summary` and confirm `COPY_CERTIFICATE_REGISTRY_SUMMARY` appears in Audit Logs.
+8. Press `Send Notice` for a generated row and confirm the internal message appears in Messaging.
+9. Press `Submit for Review`; confirm review status becomes `PENDING_REVIEW` and notifications are created.
+10. Login as Admin and approve one generated pending-review certificate; confirm review status becomes `APPROVED`.
+11. Submit another certificate and reject it with a reason; confirm review status becomes `REJECTED` and the reason appears in the detail panel.
+12. Confirm rejected certificates cannot be opened from the registry or sent as final notices.
+13. Press `Reset Draft` for a review row and confirm status returns to `DRAFT`.
+14. Optionally press `Send Review Note` and confirm an internal message is created without attachments.
+15. Open `Audit Logs` and confirm `SUBMIT_CERTIFICATE_REVIEW`, `APPROVE_CERTIFICATE`, `REJECT_CERTIFICATE`, `RESET_CERTIFICATE_DRAFT`, and optional `SEND_CERTIFICATE_REVIEW_NOTE` rows.
+16. Login as Nurse and confirm registry visibility follows existing newborn/deceased record permissions, while approval/generation actions are disabled.
+17. Login as Staff and confirm the Certificates screen is hidden or access denied.
+18. Run `LegacySwingMain` and confirm Swing still opens.
 
 To test AI Recommendations:
 
@@ -680,6 +730,53 @@ data/generated/death-certificates/
 ```
 
 Those HTML certificates are created from SQLite `deceased_records` data and are a safe foundation for later JavaFX PDF/template output. They do not write back to legacy text files.
+
+JavaFX Phase 37 birth certificates are currently generated as local HTML files under:
+
+```text
+data/generated/birth-certificates/
+```
+
+Those HTML birth certificates are created from SQLite `newborn_records` data. Full JavaFX PDF template overlay is intentionally left for a later safer phase.
+
+JavaFX Phase 38 adds certificate reporting polish around those HTML outputs:
+
+- Death certificate generation creates SQLite notifications for Admin and Doctor roles.
+- Birth certificate generation creates SQLite notifications for Admin, Doctor, and Nurse roles.
+- Deceased Records and Newborn Records show report cards for total records, generated certificates, pending certificates, and monthly/today counters.
+- Deceased Records can send an internal SQLite death certificate notice; Newborn Records can send an internal SQLite birth notice.
+- Certificate summaries can be copied from the detail panel and are audited.
+- Dashboard now includes deaths-this-month plus pending birth/death certificate counters.
+
+Certificate notices use the existing internal SQLite Messaging screen only. They do not attach certificate files and do not send email, SMS, push notifications, or external hospital paging messages. The JavaFX certificate workflow remains SQLite-only and does not update legacy text-file storage.
+
+JavaFX Phase 39 adds drill-down navigation for certificate events:
+
+- Certificate notifications show source type/source ID and can open the related deceased or newborn record.
+- Certificate notifications can open the generated local certificate through the existing safe certificate services.
+- Certificate notice messages include metadata lines for certificate type, source type, source ID, patient/newborn ID, and certificate path.
+- Message detail shows a related certificate source card and buttons for `Open Related Record` and `Open Certificate`.
+- Metadata is stored as text only; certificate files are not attached to messages.
+- Opening certificates still validates the allowed generated folders: `data/generated/death-certificates/` and `data/generated/birth-certificates/`.
+
+JavaFX Phase 40 adds a unified `Certificates` registry screen:
+
+- Birth certificate rows from SQLite `newborn_records` and death certificate rows from SQLite `deceased_records` appear in one table.
+- Filters include certificate type, generated/pending status, date range, section, and search by ID/name.
+- The detail panel shows source record ID, patient/newborn ID, person name, event time, status, section/room, and a validated local path when generated.
+- Registry actions include `Open Related Record`, `Generate Certificate`, `Open Certificate`, `Copy Summary`, and `Send Notice`.
+- The registry still uses HTML certificate output only and does not attach files to messages.
+- Staff users are denied; Admin/Doctor can generate and send according to existing certificate permissions, while Nurse visibility follows the existing birth/deceased screen permissions.
+
+JavaFX Phase 41 adds a review and approval layer to the registry:
+
+- SQLite `newborn_records` and `deceased_records` now track `review_status`, `reviewed_by`, `reviewed_at`, and `rejection_reason`.
+- Review statuses are `DRAFT`, `PENDING_REVIEW`, `APPROVED`, and `REJECTED`.
+- Generated means an HTML certificate file exists; approved means an authorized user reviewed and approved that generated certificate.
+- Admin and Doctor users can submit certificates for review. Admin and Doctor users can approve or reject according to the current `PermissionHelper` rules.
+- Rejection requires a reason. Rejected certificates cannot be opened from the registry or sent as final notices unless a future phase explicitly adds an override.
+- Submitting, approving, and rejecting certificates creates SQLite notifications for relevant clinical roles.
+- This review status is an internal workflow marker only. It is not a legal, governmental, or official certification claim.
 
 Certificate generation uses Apache PDFBox when a blank template PDF is available. The project is still a plain Java project, so the PDFBox dependency is stored as a jar file:
 
