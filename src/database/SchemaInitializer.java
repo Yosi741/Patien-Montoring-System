@@ -13,6 +13,8 @@ public class SchemaInitializer {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
             createUsers(statement);
+            createUserProfiles(statement);
+            createPasswordResetTokens(statement);
             createPatients(statement);
             createVitalReadings(statement);
             createAlerts(statement);
@@ -50,6 +52,28 @@ public class SchemaInitializer {
                 + "section TEXT NOT NULL DEFAULT 'All',"
                 + "active INTEGER NOT NULL DEFAULT 1,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void createUserProfiles(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS user_profiles ("
+                + "username TEXT PRIMARY KEY,"
+                + "email TEXT,"
+                + "phone TEXT,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createPasswordResetTokens(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS password_reset_tokens ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "username TEXT NOT NULL,"
+                + "token_hash TEXT NOT NULL,"
+                + "expires_at TEXT NOT NULL,"
+                + "used_at TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE"
                 + ")");
     }
 

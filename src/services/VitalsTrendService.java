@@ -94,15 +94,19 @@ public class VitalsTrendService {
         }
         String type = vitalType == null ? "" : vitalType.toLowerCase();
         switch (vitalFilter) {
-            case "Heart Rate":
+            case VitalTypeCatalog.HEART_RATE:
                 return type.contains("heart");
-            case "Blood Pressure":
+            case VitalTypeCatalog.BLOOD_PRESSURE:
                 return type.contains("systolic") || type.contains("diastolic");
-            case "Oxygen":
+            case VitalTypeCatalog.OXYGEN_SATURATION:
                 return type.contains("oxygen");
-            case "Temperature":
+            case VitalTypeCatalog.TEMPERATURE:
                 return type.contains("temperature");
-            case "Sugar Level":
+            case VitalTypeCatalog.SYSTOLIC_PRESSURE:
+                return type.contains("systolic");
+            case VitalTypeCatalog.DIASTOLIC_PRESSURE:
+                return type.contains("diastolic");
+            case VitalTypeCatalog.SUGAR_LEVEL:
                 return type.contains("sugar") || type.contains("glucose");
             default:
                 return type.equals(vitalFilter.toLowerCase());

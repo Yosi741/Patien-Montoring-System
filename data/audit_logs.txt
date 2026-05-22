@@ -258,3 +258,5 @@
 15-05-2026 22:17:06 | System | Alarm ACKNOWLEDGED
 15-05-2026 22:17:06 | System | Alarm ACTIVE for patient: Life Res
 15-05-2026 22:17:07 | System | Alarm RESOLVED
+18-05-2026 17:12:03 | System | Alarm ACTIVE for patient: Iyad Salhab
+18-05-2026 17:12:03 | Yasen | Added manual vital signs for: Iyad Salhab

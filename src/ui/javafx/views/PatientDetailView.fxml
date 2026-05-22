@@ -136,7 +136,7 @@
                           style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                             <Label text="Patient Alert Summary" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
-                            <Label text="Read-only SQLite alert context. JavaFX acknowledgement remains SQLite-only." wrapText="true"
+                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound; Swing alarm windows remain separate." wrapText="true"
                                    style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
                         </VBox>
                         <VBox spacing="5.0">

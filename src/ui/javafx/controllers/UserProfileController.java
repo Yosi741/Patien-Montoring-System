@@ -2,8 +2,15 @@ package ui.javafx.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import services.UserProfileService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -17,6 +24,7 @@ import users.User;
 public class UserProfileController implements FxController {
 
     private AppShell appShell;
+    private final UserProfileService profileService = new UserProfileService();
 
     @FXML private Label usernameLabel;
     @FXML private Label roleLabel;
@@ -25,6 +33,9 @@ public class UserProfileController implements FxController {
     @FXML private Label accountStatusLabel;
     @FXML private Label authSourceLabel;
     @FXML private Label loginTimeLabel;
+    @FXML private TextField emailField;
+    @FXML private TextField phoneField;
+    @FXML private Label profileStatusLabel;
     @FXML private VBox permissionListBox;
     @FXML private VBox writeFoundationBox;
     @FXML private Button createTestAuditButton;
@@ -41,11 +52,6 @@ public class UserProfileController implements FxController {
         appShell.showDashboard(Session.getCurrentUser());
     }
 
-    @FXML
-    private void logout() {
-        appShell.logout();
-    }
-
     private void renderProfile() {
         User user = Session.getCurrentUser();
         usernameLabel.setText(SessionContext.username());
@@ -54,6 +60,14 @@ public class UserProfileController implements FxController {
         accountStatusLabel.setText(user == null ? "Unknown" : "Active");
         authSourceLabel.setText(SessionContext.authSource());
         loginTimeLabel.setText(SessionContext.loginTimeText());
+        try {
+            profileService.findProfile(SessionContext.username()).ifPresent(profile -> {
+                emailField.setText(profile.getEmail());
+                phoneField.setText(profile.getPhone());
+            });
+        } catch (Exception e) {
+            NotificationHelper.showError(profileStatusLabel, "Could not load profile contact fields: " + e.getMessage());
+        }
 
         String group = PermissionHelper.roleGroup(SessionContext.role());
         roleBadgeLabel.setText(group);
@@ -81,6 +95,61 @@ public class UserProfileController implements FxController {
         if (canTestWrite) {
             NotificationHelper.showInfo(writeFoundationStatusLabel, "Ready for an admin-only safe audit write.");
         }
+    }
+
+    @FXML
+    private void saveProfile() {
+        try {
+            profileService.updateProfile(Session.getCurrentUser(), emailField.getText(), phoneField.getText());
+            NotificationHelper.showSuccess(profileStatusLabel, "Profile contact fields saved in SQLite.");
+        } catch (Exception e) {
+            NotificationHelper.showError(profileStatusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void changePassword() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Change Password");
+        dialog.initOwner(usernameLabel.getScene().getWindow());
+
+        PasswordField currentPassword = new PasswordField();
+        currentPassword.setPromptText("Current password");
+        PasswordField newPassword = new PasswordField();
+        newPassword.setPromptText("New password");
+        PasswordField confirmPassword = new PasswordField();
+        confirmPassword.setPromptText("Confirm new password");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(10);
+        grid.add(new Label("Current password"), 0, 0);
+        grid.add(currentPassword, 1, 0);
+        grid.add(new Label("New password"), 0, 1);
+        grid.add(newPassword, 1, 1);
+        grid.add(new Label("Confirm password"), 0, 2);
+        grid.add(confirmPassword, 1, 2);
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveType = new ButtonType("Change Password", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveType);
+        dialog.getDialogPane().lookupButton(saveType).addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            if (!newPassword.getText().equals(confirmPassword.getText())) {
+                NotificationHelper.showError(profileStatusLabel, "New password and confirmation do not match.");
+                event.consume();
+                return;
+            }
+            try {
+                profileService.changeOwnPassword(Session.getCurrentUser(),
+                        currentPassword.getText().toCharArray(),
+                        newPassword.getText().toCharArray());
+                NotificationHelper.showSuccess(profileStatusLabel, "Password changed. Raw passwords were not displayed or logged.");
+            } catch (Exception e) {
+                NotificationHelper.showError(profileStatusLabel, e.getMessage());
+                event.consume();
+            }
+        });
+        dialog.showAndWait();
     }
 
     @FXML

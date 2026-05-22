@@ -18,7 +18,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import models.VitalRecord;
 import dao.SqliteAuditLogDao;
 import services.AiRecommendationService;
+import services.AlertSoundService;
 import services.VitalThresholdService;
+import services.VitalTypeCatalog;
 import services.VitalsTrendService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
@@ -26,6 +28,7 @@ import ui.javafx.SessionContext;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
+import javafx.scene.control.Alert;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -95,7 +98,7 @@ public class PatientDetailController implements FxController {
         this.appShell = appShell;
         configureTable();
         configureWritePermissions();
-        vitalTypeFilter.setItems(FXCollections.observableArrayList("All", "Temperature", "Heart Rate", "Systolic Pressure", "Diastolic Pressure", "Oxygen Saturation"));
+        vitalTypeFilter.setItems(FXCollections.observableArrayList(VitalTypeCatalog.javaFxFilterTypes()));
         vitalTypeFilter.getSelectionModel().select("All");
         vitalTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadVitals());
         configureTrendControls();
@@ -406,6 +409,10 @@ public class PatientDetailController implements FxController {
                 loadVitals();
                 loadTrendChart();
                 loadAlertSummary();
+                if (appShell != null) {
+                    appShell.refreshNotificationCount();
+                }
+                showVitalAlertPopupIfNeeded(result);
                 NotificationHelper.showSuccess(timelineStatusLabel,
                         "Saved " + result.getVitalType() + " " + result.getValue() + " " + result.getUnit()
                                 + " as " + result.getStatus() + ". SQLite timeline and alerts are refreshed.");
@@ -528,9 +535,9 @@ public class PatientDetailController implements FxController {
 
     private void configureTrendControls() {
         trendVitalTypeFilter.setItems(FXCollections.observableArrayList(
-                "Heart Rate", "Blood Pressure", "Oxygen", "Temperature", "Sugar Level"));
+                VitalTypeCatalog.javaFxEntryTypes()));
         trendRangeFilter.setItems(FXCollections.observableArrayList("Last 24 hours", "Last 7 days", "Last 30 days", "All"));
-        trendVitalTypeFilter.getSelectionModel().select("Heart Rate");
+        trendVitalTypeFilter.getSelectionModel().select(VitalTypeCatalog.HEART_RATE);
         trendRangeFilter.getSelectionModel().select("Last 7 days");
         trendVitalTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadTrendChart());
         trendRangeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadTrendChart());
@@ -661,6 +668,34 @@ public class PatientDetailController implements FxController {
             return "trend-warning";
         }
         return "trend-normal";
+    }
+    private void showVitalAlertPopupIfNeeded(services.VitalsWriteService.VitalsWriteResult result) {
+        if (result.getStatus() != VitalThresholdService.VitalStatus.CRITICAL
+                && result.getStatus() != VitalThresholdService.VitalStatus.WARNING) {
+            return;
+        }
+
+        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.CRITICAL
+                ? Alert.AlertType.ERROR
+                : Alert.AlertType.WARNING;
+
+        Alert alert = new Alert(alertType);
+        alert.setTitle(result.getStatus() + " Vital Alert");
+        alert.setHeaderText(result.getStatus() + " vital reading detected");
+        alert.setContentText(
+                "Patient: " + nameLabel.getText()
+                        + "\nPatient ID: " + patientId
+                        + "\nVital: " + result.getVitalType()
+                        + "\nValue: " + result.getValue() + " " + result.getUnit()
+                        + "\n\nImmediate staff review is required."
+        );
+
+        AlertSoundService.playAlertSound();
+        try {
+            alert.showAndWait();
+        } finally {
+            AlertSoundService.stopAlertSound();
+        }
     }
 
     private String fallback(String value, String fallback) {

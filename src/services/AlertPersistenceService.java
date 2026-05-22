@@ -39,14 +39,17 @@ public class AlertPersistenceService {
 
     public static void markAcknowledged(String patientId, String username) {
         updateLifecycle(patientId, username, "ACKNOWLEDGED");
+        AlertSoundService.stopAlertSound();
     }
 
     public static void markStopped(String patientId, String username) {
         updateLifecycle(patientId, username, "ACKNOWLEDGED");
+        AlertSoundService.stopAlertSound();
     }
 
     public static void markResolved(String patientId, String username) {
         updateLifecycle(patientId, username, "RESOLVED");
+        AlertSoundService.stopAlertSound();
     }
 
     private static void updateLifecycle(String patientId, String username, String status) {

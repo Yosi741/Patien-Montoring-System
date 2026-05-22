@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
+import services.AlertSoundService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import users.Session;
@@ -112,13 +113,14 @@ public class AlertCenterController implements FxController {
         }
         try {
             alertDao.acknowledge(selected.getId(), Session.getUsername());
+            AlertSoundService.stopAlertSound();
             logAudit("JavaFX ALERT acknowledge alert #" + selected.getId() + " for patient " + selected.getPatientId());
             loadAlerts();
             alertDao.findAlertRowById(selected.getId()).ifPresent(alert -> {
                 showDetail(alert);
                 selectAlertById(alert.getId());
             });
-            statusLabel.setText("SQLite alert acknowledged. Swing alarm behavior was not changed.");
+            statusLabel.setText("SQLite alert acknowledged. JavaFX alert sound stopped if it was active.");
         } catch (Exception e) {
             statusLabel.setText("Could not acknowledge alert: " + e.getMessage());
         }

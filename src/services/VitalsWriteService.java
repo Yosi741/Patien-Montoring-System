@@ -42,23 +42,22 @@ public class VitalsWriteService {
         String staffUser = currentUser == null ? "Unknown" : currentUser.getUsername();
         LocalDateTime recordedAt = parseDateTime(request.recordedAt);
         String recordedAtText = recordedAt.format(LEGACY_DATE_TIME);
-        String normalizedType = normalizeType(request.vitalType);
-        String unit = expectedUnit(normalizedType);
+        String normalizedType = VitalTypeCatalog.normalize(request.vitalType);
+        String unit = VitalTypeCatalog.expectedUnit(normalizedType);
 
         VitalThresholdService.VitalStatus status;
-        if ("Blood Pressure".equals(normalizedType)) {
+        if (VitalTypeCatalog.BLOOD_PRESSURE.equals(normalizedType)) {
             double systolic = parseNumber(request.value);
             double diastolic = parseNumber(request.secondValue);
-            VitalThresholdService.VitalStatus systolicStatus = thresholdService.evaluate("Systolic Pressure", systolic);
-            VitalThresholdService.VitalStatus diastolicStatus = thresholdService.evaluate("Diastolic Pressure", diastolic);
+            VitalThresholdService.VitalStatus systolicStatus = thresholdService.evaluate(VitalTypeCatalog.SYSTOLIC_PRESSURE, systolic);
+            VitalThresholdService.VitalStatus diastolicStatus = thresholdService.evaluate(VitalTypeCatalog.DIASTOLIC_PRESSURE, diastolic);
             status = worse(systolicStatus, diastolicStatus);
-            vitalReadingDao.insertVitalReading(record(request.patientId, "Systolic Pressure", request.value, unit, recordedAtText, staffUser));
-            vitalReadingDao.insertVitalReading(record(request.patientId, "Diastolic Pressure", request.secondValue, unit, recordedAtText, staffUser));
+            vitalReadingDao.insertVitalReading(record(request.patientId, VitalTypeCatalog.SYSTOLIC_PRESSURE, request.value, unit, recordedAtText, staffUser));
+            vitalReadingDao.insertVitalReading(record(request.patientId, VitalTypeCatalog.DIASTOLIC_PRESSURE, request.secondValue, unit, recordedAtText, staffUser));
         } else {
             double value = parseNumber(request.value);
-            String storedType = storedType(normalizedType);
-            status = thresholdService.evaluate(storedType, value);
-            vitalReadingDao.insertVitalReading(record(request.patientId, storedType, request.value, unit, recordedAtText, staffUser));
+            status = thresholdService.evaluate(normalizedType, value);
+            vitalReadingDao.insertVitalReading(record(request.patientId, normalizedType, request.value, unit, recordedAtText, staffUser));
         }
 
         if (status == VitalThresholdService.VitalStatus.WARNING || status == VitalThresholdService.VitalStatus.CRITICAL) {
@@ -107,9 +106,9 @@ public class VitalsWriteService {
             throw new IllegalArgumentException("Recorded time cannot be in the future.");
         }
 
-        String type = normalizeType(request.vitalType);
+        String type = VitalTypeCatalog.normalize(request.vitalType);
         validateUnit(type, request.unit);
-        if ("Blood Pressure".equals(type)) {
+        if (VitalTypeCatalog.BLOOD_PRESSURE.equals(type)) {
             FormValidationHelper.ValidationResult bpValidation = FormValidationHelper.validateRequired("Diastolic value", request.secondValue);
             if (!bpValidation.isValid()) {
                 throw new IllegalArgumentException(bpValidation.getMessage());
@@ -120,16 +119,22 @@ public class VitalsWriteService {
         }
 
         switch (type) {
-            case "Heart Rate":
+            case VitalTypeCatalog.HEART_RATE:
                 validateRange("Heart rate", request.value, 20, 250);
                 break;
-            case "Oxygen":
+            case VitalTypeCatalog.OXYGEN_SATURATION:
                 validateRange("Oxygen saturation", request.value, 50, 100);
                 break;
-            case "Temperature":
+            case VitalTypeCatalog.TEMPERATURE:
                 validateRange("Temperature", request.value, 30, 45);
                 break;
-            case "Sugar Level":
+            case VitalTypeCatalog.SYSTOLIC_PRESSURE:
+                validateRange("Systolic pressure", request.value, 50, 260);
+                break;
+            case VitalTypeCatalog.DIASTOLIC_PRESSURE:
+                validateRange("Diastolic pressure", request.value, 30, 160);
+                break;
+            case VitalTypeCatalog.SUGAR_LEVEL:
                 validateRange("Sugar level", request.value, 20, 600);
                 break;
             default:
@@ -145,7 +150,7 @@ public class VitalsWriteService {
     }
 
     private void validateUnit(String vitalType, String unit) {
-        String expected = expectedUnit(vitalType);
+        String expected = VitalTypeCatalog.expectedUnit(vitalType);
         if (unit == null || unit.isBlank()) {
             return;
         }
@@ -166,53 +171,6 @@ public class VitalsWriteService {
         }
     }
 
-    private String normalizeType(String vitalType) {
-        if (vitalType == null) {
-            return "";
-        }
-        String type = vitalType.trim().toLowerCase(Locale.ROOT);
-        if (type.contains("heart")) {
-            return "Heart Rate";
-        }
-        if (type.contains("blood")) {
-            return "Blood Pressure";
-        }
-        if (type.contains("oxygen")) {
-            return "Oxygen";
-        }
-        if (type.contains("temperature")) {
-            return "Temperature";
-        }
-        if (type.contains("sugar") || type.contains("glucose")) {
-            return "Sugar Level";
-        }
-        return vitalType.trim();
-    }
-
-    private String storedType(String vitalType) {
-        if ("Oxygen".equals(vitalType)) {
-            return "Oxygen Saturation";
-        }
-        return vitalType;
-    }
-
-    private String expectedUnit(String vitalType) {
-        switch (vitalType) {
-            case "Heart Rate":
-                return "bpm";
-            case "Blood Pressure":
-                return "mmHg";
-            case "Oxygen":
-                return "%";
-            case "Temperature":
-                return "C";
-            case "Sugar Level":
-                return "mg/dL";
-            default:
-                return "";
-        }
-    }
-
     private double parseNumber(String value) {
         return Double.parseDouble(value.trim());
     }
@@ -228,7 +186,7 @@ public class VitalsWriteService {
     }
 
     private String displayValue(VitalsEntryRequest request) {
-        if ("Blood Pressure".equals(normalizeType(request.vitalType))) {
+        if (VitalTypeCatalog.BLOOD_PRESSURE.equals(VitalTypeCatalog.normalize(request.vitalType))) {
             return request.value.trim() + "/" + request.secondValue.trim();
         }
         return request.value.trim();

@@ -31,10 +31,14 @@ import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import users.User;
 
+import java.util.prefs.Preferences;
+
 public class AppShell extends Application {
 
     private static final String LIGHT_THEME = "/ui/javafx/styles/light-theme.css";
     private static final String DARK_THEME = "/ui/javafx/styles/dark-theme.css";
+    private static final String THEME_PREF_KEY = "darkMode";
+    private static final Preferences PREFS = Preferences.userNodeForPackage(AppShell.class);
 
     private Stage primaryStage;
     private AppNavigator navigator;
@@ -51,6 +55,7 @@ public class AppShell extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         this.navigator = new AppNavigator(this);
+        this.darkMode = PREFS.getBoolean(THEME_PREF_KEY, false);
         initializeDatabase();
 
         primaryStage.setTitle("Smart Patient Monitoring System - JavaFX Preview");
@@ -331,7 +336,12 @@ public class AppShell extends Application {
 
     public void toggleTheme() {
         darkMode = !darkMode;
+        PREFS.putBoolean(THEME_PREF_KEY, darkMode);
         applyTheme(primaryStage.getScene());
+    }
+
+    public boolean isDarkMode() {
+        return darkMode;
     }
 
     public String getDatabaseStatus() {

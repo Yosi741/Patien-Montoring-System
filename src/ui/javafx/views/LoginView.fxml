@@ -135,6 +135,15 @@
                                        -fx-cursor: hand;" />
                     </HBox>
 
+                    <Button
+                            onAction="#forgotPassword"
+                            text="Forgot Password?"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #0D47A1;
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: bold;
+                                   -fx-cursor: hand;" />
+
                     <Label
                             fx:id="statusLabel"
                             wrapText="true"

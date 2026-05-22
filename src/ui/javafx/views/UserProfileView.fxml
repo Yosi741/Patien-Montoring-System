@@ -18,7 +18,7 @@
             <VBox spacing="4.0">
                 <Label text="Staff Profile"
                        style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                <Label text="Read-only JavaFX session and permission preview"
+                <Label text="JavaFX session, safe profile fields, and permission preview"
                        style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
             </VBox>
 
@@ -27,8 +27,6 @@
             <Button text="Dashboard" onAction="#goDashboard"
                     style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
 
-            <Button text="Logout" onAction="#logout"
-                    style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
         </HBox>
     </top>
 
@@ -77,6 +75,41 @@
                     <Label fx:id="loginTimeLabel" text="-" style="-fx-text-fill: #263238; -fx-font-size: 18px; -fx-font-weight: bold;" />
                 </VBox>
             </GridPane>
+
+            <VBox spacing="12.0"
+                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                <Label text="Contact & Security"
+                       style="-fx-text-fill: #263238; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                <GridPane hgap="14.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" />
+                        <ColumnConstraints percentWidth="50.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Email" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <TextField fx:id="emailField" promptText="name@hospital.local"
+                                   style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Phone" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <TextField fx:id="phoneField" promptText="Department phone or extension"
+                                   style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12;" />
+                    </VBox>
+                </GridPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Button text="Save Profile" onAction="#saveProfile"
+                            style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Button text="Change Password" onAction="#changePassword"
+                            style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Label fx:id="profileStatusLabel" text="Passwords are never displayed."
+                           wrapText="true"
+                           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                </HBox>
+            </VBox>
 
             <VBox spacing="12.0"
                   style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">

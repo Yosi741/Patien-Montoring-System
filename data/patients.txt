@@ -3,6 +3,6 @@
 215070632,Yasen,Salhab,03-06-2005,Male,140,36.54694971263798,60,104,88,99,Surgery,Active,,,,,,,,,,,,,,
 215070647,Yazan,Salhab,31-05-2006,Male,140,null,null,null,null,null,Surgery,Active,,,,,,,,,,,,,,
 325147896,Yousef,Salhab,07-10-2010,Male,001,null,null,null,null,null,ER,Active,,,,,,,14-05-2026 22:22:00,cancer,zzzz,zzz,Yasen,215070632,data\certificates\death\DC-325147896-1778786537915.pdf,DC-325147896-1778786537915
-147852369,Iyad,Salhab,16-02-1978,Male,001,39.17247111597375,81,152,71,91,ER,Active,,,,,,,,,,,,,,
+147852369,Iyad,Salhab,16-02-1978,Male,001,40.0,120,120,100,50,ER,Active,,,,,,,,,,,,,,
 123654987,Khalida,Salhab,07-01-1981,Female,Room-1,36.849654583184616,72,150,82,85,Birth,DECEASED,,,,,,,14-05-2026 13:32:48,iyad,angltat mn jpzha,yeooo,Q3,215070632,data\certificates\death\DC-123654987-1778754827076.pdf,DC-123654987-1778754827076
 034862177,Mohamad,Amerih,22-08-2004,Male,161,40.0,100,140,100,50,Surgery,Active,,,,,,,,,,,,,,

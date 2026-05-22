@@ -3,14 +3,14 @@ package services;
 public class VitalThresholdService {
 
     public VitalStatus evaluate(String vitalType, double value) {
-        String type = vitalType == null ? "" : vitalType.toLowerCase();
-        if (type.contains("heart")) {
+        String type = VitalTypeCatalog.normalize(vitalType);
+        if (VitalTypeCatalog.HEART_RATE.equals(type)) {
             return range(value, 60, 100, 50, 120);
         }
-        if (type.contains("temperature")) {
+        if (VitalTypeCatalog.TEMPERATURE.equals(type)) {
             return range(value, 36.0, 37.5, 35.0, 38.5);
         }
-        if (type.contains("oxygen")) {
+        if (VitalTypeCatalog.OXYGEN_SATURATION.equals(type)) {
             if (value < 90) {
                 return VitalStatus.CRITICAL;
             }
@@ -19,13 +19,13 @@ public class VitalThresholdService {
             }
             return VitalStatus.NORMAL;
         }
-        if (type.contains("systolic")) {
+        if (VitalTypeCatalog.SYSTOLIC_PRESSURE.equals(type)) {
             return range(value, 90, 120, 80, 180);
         }
-        if (type.contains("diastolic")) {
+        if (VitalTypeCatalog.DIASTOLIC_PRESSURE.equals(type)) {
             return range(value, 60, 80, 50, 120);
         }
-        if (type.contains("sugar") || type.contains("glucose")) {
+        if (VitalTypeCatalog.SUGAR_LEVEL.equals(type)) {
             return range(value, 70, 140, 54, 250);
         }
         return VitalStatus.NORMAL;

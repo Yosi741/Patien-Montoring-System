@@ -18,7 +18,7 @@
         <Label text="Enter Vitals"
                style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
 
-        <Label text="Manual JavaFX vitals entry writes to SQLite only. Abnormal readings create SQLite alerts without starting Swing sounds."
+        <Label text="Manual JavaFX vitals entry writes to SQLite. Abnormal readings create alerts, notifications, and a local JavaFX alarm sound."
                wrapText="true"
                style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
     </VBox>

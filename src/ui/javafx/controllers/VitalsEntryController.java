@@ -11,6 +11,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
+import services.VitalTypeCatalog;
 import services.VitalsWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.SessionContext;
@@ -67,8 +68,8 @@ public class VitalsEntryController {
 
     @FXML
     private void initialize() {
-        vitalTypeBox.getItems().setAll("Heart Rate", "Blood Pressure", "Oxygen", "Temperature", "Sugar Level");
-        vitalTypeBox.getSelectionModel().select("Heart Rate");
+        vitalTypeBox.getItems().setAll(VitalTypeCatalog.javaFxEntryTypes());
+        vitalTypeBox.getSelectionModel().select(VitalTypeCatalog.HEART_RATE);
         vitalTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> updateTypeFields());
         sourceTypeField.setText("Manual");
         sourceTypeField.setEditable(false);
@@ -76,7 +77,7 @@ public class VitalsEntryController {
         staffUserField.setEditable(false);
         recordedAtField.setText(LocalDateTime.now().format(LEGACY_DATE_TIME));
         updateTypeFields();
-        NotificationHelper.showInfo(statusLabel, "SQLite-only vitals entry. Swing alarm sounds are not controlled here.");
+        NotificationHelper.showInfo(statusLabel, "Abnormal JavaFX vitals create SQLite alerts, notifications, and a local JavaFX alarm sound.");
     }
 
     private void prepare(User currentUser, String patientId) {
@@ -105,7 +106,7 @@ public class VitalsEntryController {
 
     private void updateTypeFields() {
         String type = vitalTypeBox.getValue();
-        boolean bloodPressure = "Blood Pressure".equals(type);
+        boolean bloodPressure = VitalTypeCatalog.BLOOD_PRESSURE.equals(VitalTypeCatalog.normalize(type));
         secondValueLabel.setVisible(bloodPressure);
         secondValueLabel.setManaged(bloodPressure);
         secondValueField.setVisible(bloodPressure);
@@ -117,21 +118,6 @@ public class VitalsEntryController {
     }
 
     private String unitFor(String type) {
-        if ("Heart Rate".equals(type)) {
-            return "bpm";
-        }
-        if ("Blood Pressure".equals(type)) {
-            return "mmHg";
-        }
-        if ("Oxygen".equals(type)) {
-            return "%";
-        }
-        if ("Temperature".equals(type)) {
-            return "C";
-        }
-        if ("Sugar Level".equals(type)) {
-            return "mg/dL";
-        }
-        return "";
+        return VitalTypeCatalog.expectedUnit(type);
     }
 }

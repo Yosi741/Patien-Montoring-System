@@ -6,6 +6,8 @@ import javafx.animation.Timeline;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import services.NotificationCenterService;
@@ -100,6 +102,12 @@ public class AppLayoutController implements FxController {
     @FXML
     private Label unreadCountLabel;
 
+    @FXML
+    private MenuButton profileMenuButton;
+
+    @FXML
+    private MenuItem darkModeMenuItem;
+
     private Timeline notificationRefreshTimeline;
 
     @Override
@@ -108,6 +116,8 @@ public class AppLayoutController implements FxController {
         userLabel.setText(SessionContext.username());
         roleLabel.setText(SessionContext.role() + " | " + SessionContext.section());
         topUserLabel.setText(SessionContext.username() + " | " + SessionContext.section());
+        profileMenuButton.setText(avatarText(SessionContext.username()) + " " + SessionContext.username());
+        darkModeMenuItem.setText(appShell.isDarkMode() ? "Switch to Light Mode" : "Switch to Dark Mode");
         roleBadgeLabel.setText(roleGroup(SessionContext.role()));
         roleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
         roleBadgeLabel.getStyleClass().add(roleStyle(SessionContext.role()));
@@ -272,16 +282,23 @@ public class AppLayoutController implements FxController {
     public void refreshNotificationCount() {
         int count = new NotificationCenterService().unreadCount(Session.getCurrentUser());
         unreadCountLabel.setText(String.valueOf(count));
-        topNotificationButton.setText("Notifications");
+        topNotificationButton.setText("Bell");
     }
 
     private void startNotificationRefresh() {
         if (notificationRefreshTimeline != null) {
             notificationRefreshTimeline.stop();
         }
-        notificationRefreshTimeline = new Timeline(new KeyFrame(Duration.seconds(25), event -> refreshNotificationCount()));
+        notificationRefreshTimeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> refreshNotificationCount()));
         notificationRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
         notificationRefreshTimeline.play();
+    }
+
+    private String avatarText(String username) {
+        if (username == null || username.isBlank()) {
+            return "User";
+        }
+        return username.trim().substring(0, 1).toUpperCase();
     }
 
     private String roleGroup(String role) {
