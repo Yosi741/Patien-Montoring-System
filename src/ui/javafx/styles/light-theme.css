@@ -137,6 +137,54 @@
     -fx-font-size: 28px;
 }
 
+.success-value {
+    -fx-text-fill: #166534;
+}
+
+.danger-value {
+    -fx-text-fill: #991b1b;
+}
+
+.warning-value {
+    -fx-text-fill: #d2911c;
+}
+
+.neutral-value {
+    -fx-text-fill: #455A64;
+}
+
+.accent-value {
+    -fx-text-fill: #6A1B9A;
+}
+
+.mini-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.scroll-clear,
+.transparent-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.control-input,
+.combo-box,
+.text-area {
+    -fx-background-color: #FAFCFD;
+    -fx-border-color: #CFD8DC;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.table-surface,
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #dfe8f1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
 .status-pill {
     -fx-background-color: #dbecfa;
     -fx-background-radius: 999;

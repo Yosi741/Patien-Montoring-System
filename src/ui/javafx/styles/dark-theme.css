@@ -131,6 +131,56 @@
     -fx-font-size: 28px;
 }
 
+.success-value {
+    -fx-text-fill: #86efac;
+}
+
+.danger-value {
+    -fx-text-fill: #fca5a5;
+}
+
+.warning-value {
+    -fx-text-fill: #fbbf24;
+}
+
+.neutral-value {
+    -fx-text-fill: #cbd5e1;
+}
+
+.accent-value {
+    -fx-text-fill: #c4b5fd;
+}
+
+.mini-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.scroll-clear,
+.transparent-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.control-input,
+.combo-box,
+.text-area {
+    -fx-background-color: #111827;
+    -fx-text-fill: #f9fafb;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-border-color: #475569;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.table-surface,
+.table-view {
+    -fx-background-color: #111827;
+    -fx-border-color: #374151;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
 .status-pill {
     -fx-background-color: #0f3455;
     -fx-background-radius: 999;
