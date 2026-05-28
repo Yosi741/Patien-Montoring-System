@@ -7,7 +7,9 @@ import models.Patient;
 import users.Session;
 
 import javax.sound.sampled.*;
-import javax.swing.*;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import java.io.File;
 
 public class AlarmService {
@@ -50,7 +52,7 @@ public class AlarmService {
         }
 
         if (!alertDialogOpen && !alertShownForActiveAlarm) {
-            SwingUtilities.invokeLater(() -> showCriticalDialog(patient));
+            Platform.runLater(() -> showCriticalDialog(patient));
         }
     }
 
@@ -116,77 +118,26 @@ public class AlarmService {
         alertDialogOpen = true;
         alertShownForActiveAlarm = true;
 
-        JDialog dialog = new JDialog((java.awt.Frame) null, "Critical Patient Alert", false);
-        dialog.setSize(680, 460);
-        dialog.setMinimumSize(new java.awt.Dimension(620, 380));
-        dialog.setResizable(true);
-        dialog.setLocationRelativeTo(null);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-        JPanel panel = new JPanel(new java.awt.BorderLayout(15, 15));
-        panel.setBorder(BorderFactory.createEmptyBorder(22, 24, 22, 24));
-        panel.setBackground(new java.awt.Color(255, 235, 235));
-
-        JLabel title = new JLabel("CRITICAL ALERT");
-        title.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 28));
-        title.setForeground(new java.awt.Color(180, 35, 35));
-
-        JTextArea message = new JTextArea(
-                "Patient: " + patient.getName()
-                        + "\nRoom: " + patient.getRoom()
-                        + "\nSection: " + patient.getSection()
-                        + "\nRisk Level: CRITICAL"
-                        + "\n\nImmediate medical attention required."
-                        + "\n\nActions:"
-                        + "\n- Review current vitals immediately."
-                        + "\n- Check device ID/history if device error is possible."
-                        + "\n- Press Stop Alarm to acknowledge and silence the alarm."
-                        + "\n\nClosing this window will not restart the alarm."
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Critical Patient Alert");
+        alert.setHeaderText("⚠ CRITICAL ALERT");
+        alert.setContentText(
+            "Patient: " + patient.getName()
+            + "\nRoom: " + patient.getRoom()
+            + "\nSection: " + patient.getSection()
+            + "\nRisk Level: CRITICAL"
+            + "\n\nImmediate medical attention required."
+            + "\n\nActions:"
+            + "\n- Review current vitals immediately."
+            + "\n- Check device ID/history if device error is possible."
+            + "\n- Press OK to acknowledge and silence the alarm."
         );
-        message.setEditable(false);
-        message.setLineWrap(true);
-        message.setWrapStyleWord(true);
-        message.setBackground(new java.awt.Color(255, 245, 245));
-        message.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 18));
-        JScrollPane messageScroll = new JScrollPane(message);
-        messageScroll.setBorder(BorderFactory.createLineBorder(new java.awt.Color(245, 180, 180)));
 
-        JButton stopButton = new JButton("Stop Alarm");
-        stopButton.setBackground(new java.awt.Color(190, 55, 55));
-        stopButton.setForeground(java.awt.Color.WHITE);
-        stopButton.setFocusPainted(false);
-        stopButton.addActionListener(e -> {
+        alert.setOnHidden(event -> {
+            alertDialogOpen = false;
             acknowledgeAlarm();
-            stopButton.setEnabled(false);
-            stopButton.setText("Alarm Acknowledged");
         });
 
-        JButton closeButton = new JButton("Close Alert");
-        closeButton.setFocusPainted(false);
-        closeButton.addActionListener(e -> dialog.dispose());
-
-        JPanel buttons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 10, 0));
-        buttons.setOpaque(false);
-        buttons.add(stopButton);
-        buttons.add(closeButton);
-
-        panel.add(title, java.awt.BorderLayout.NORTH);
-        panel.add(messageScroll, java.awt.BorderLayout.CENTER);
-        panel.add(buttons, java.awt.BorderLayout.SOUTH);
-
-        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e) {
-                alertDialogOpen = false;
-            }
-
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent e) {
-                alertDialogOpen = false;
-            }
-        });
-
-        dialog.add(panel);
-        dialog.setVisible(true);
+        alert.showAndWait();
     }
 }

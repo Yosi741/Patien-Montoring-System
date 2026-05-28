@@ -7,121 +7,131 @@
 <BorderPane
         prefWidth="1150.0"
         prefHeight="720.0"
-        style="-fx-background-color: #F4F8FB;"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.PatientListController">
-
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="18.0"
-              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
-            <VBox spacing="4.0">
-                <Label text="Patients"
-                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                <Label text="SQLite patient board with controlled JavaFX write preview"
-                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Sync From Legacy Storage" onAction="#syncFromLegacyStorage"
-                    style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-            <Button text="Back to Dashboard" onAction="#backToDashboard"
-                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-        </HBox>
-    </top>
+        fx:controller="ui.javafx.controllers.PatientListController" styleClass="content-page">
 
     <center>
-        <VBox spacing="16.0">
+        <ScrollPane fitToWidth="true" styleClass="patient-board-scroll">
+        <VBox spacing="18.0" styleClass="patient-board-page">
             <padding>
-                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
             </padding>
 
-            <HBox spacing="12.0">
-                <Button text="All Patients" onAction="#showAllPatients"
-                        style="-fx-background-color: white; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 16; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 4); -fx-cursor: hand;" />
-                <Button text="Active Patients" onAction="#showActivePatients"
-                        style="-fx-background-color: white; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 16; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 4); -fx-cursor: hand;" />
-                <Button text="Critical/Emergency" onAction="#showCriticalEmergency"
-                        style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 16; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 4); -fx-cursor: hand;" />
-                <Button text="High Priority" onAction="#showHighPriority"
-                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 16; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 4); -fx-cursor: hand;" />
-                <Button text="Recently Updated" onAction="#showRecentlyUpdated"
-                        style="-fx-background-color: white; -fx-text-fill: #6A1B9A; -fx-font-weight: bold; -fx-background-radius: 16; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 4); -fx-cursor: hand;" />
+            <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="patient-hero">
+                <VBox spacing="7.0" HBox.hgrow="ALWAYS">
+                    <Label text="Patient Board" styleClass="patient-page-title" />
+                    <Label text="Find patients, review status, and start common clinical actions from one SQLite-backed board." styleClass="patient-page-subtitle" wrapText="true" />
+                    <Label fx:id="statusLabel" text="Patients loaded from SQLite: 0" styleClass="patient-status-line" />
+                </VBox>
+                <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="patient-header-actions">
+                    <Button text="Sync From Legacy Storage" onAction="#syncFromLegacyStorage" styleClass="patient-action-secondary" />
+                    <Button text="Back to Dashboard" onAction="#backToDashboard" styleClass="patient-action-ghost" />
+                </HBox>
             </HBox>
 
-            <VBox spacing="12.0"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+            <FlowPane hgap="10.0" vgap="10.0" styleClass="patient-quick-filter-row">
+                <Button text="All Patients" onAction="#showAllPatients" styleClass="patient-filter-chip-button" />
+                <Button text="Active Patients" onAction="#showActivePatients" styleClass="patient-filter-chip-button" />
+                <Button fx:id="deceasedQuickButton" text="Deceased Patients" onAction="#showDeceasedPatients" styleClass="patient-filter-chip-danger" />
+                <Button fx:id="newbornQuickButton" text="Newborns" onAction="#showNewborns" styleClass="patient-filter-chip-button" />
+                <Button text="Critical / Emergency" onAction="#showCriticalEmergency" styleClass="patient-filter-chip-danger" />
+                <Button text="High Priority" onAction="#showHighPriority" styleClass="patient-filter-chip-warning" />
+                <Button text="Recently Updated" onAction="#showRecentlyUpdated" styleClass="patient-filter-chip-button" />
+            </FlowPane>
 
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <Label text="Search" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                    <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS"
-                               style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <VBox spacing="16.0" styleClass="patient-filter-card">
+                <GridPane hgap="14.0" vgap="12.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="36.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
+                    </columnConstraints>
 
-                    <Label text="Section" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                    <ComboBox fx:id="sectionFilter" prefWidth="150.0"
-                              style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Search" styleClass="field-label" />
+                        <TextField fx:id="searchField" promptText="Patient ID or name" styleClass="patient-input" />
+                    </VBox>
 
-                    <Label text="Room" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                    <ComboBox fx:id="roomFilter" prefWidth="120.0"
-                              style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
-                </HBox>
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Section" styleClass="field-label" />
+                        <ComboBox fx:id="sectionFilter" maxWidth="Infinity" styleClass="patient-input" />
+                    </VBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <Label text="Status" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                    <ComboBox fx:id="statusFilter" prefWidth="140.0"
-                              style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+                    <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label text="Room" styleClass="field-label" />
+                        <ComboBox fx:id="roomFilter" maxWidth="Infinity" styleClass="patient-input" />
+                    </VBox>
 
-                    <Label text="Priority" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                    <ComboBox fx:id="priorityFilter" prefWidth="150.0"
-                              style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+                    <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                        <Label text="Status" styleClass="field-label" />
+                        <ComboBox fx:id="statusFilter" maxWidth="Infinity" styleClass="patient-input" />
+                    </VBox>
 
-                    <Button text="Clear Filters" onAction="#clearFilters"
-                            style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <VBox spacing="6.0" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                        <Label text="Priority" styleClass="field-label" />
+                        <ComboBox fx:id="priorityFilter" maxWidth="Infinity" styleClass="patient-input" />
+                    </VBox>
+                </GridPane>
 
-                    <Button text="Refresh" onAction="#loadPatients"
-                            style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="patient-action-row">
+                    <Button text="Clear Filters" onAction="#clearFilters" styleClass="patient-action-ghost" />
+                    <Button text="Refresh" onAction="#loadPatients" styleClass="patient-action-ghost" />
 
                     <Region HBox.hgrow="ALWAYS" />
 
-                    <Button fx:id="addPatientButton" text="Add Patient" onAction="#addPatient"
-                            style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Button fx:id="addPatientButton" text="Add Patient" onAction="#addPatient" styleClass="patient-action-primary" />
 
-                    <Button fx:id="editSelectedPatientButton" text="Edit Selected" onAction="#editSelectedPatient"
-                            style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Button fx:id="editSelectedPatientButton" text="Edit Patient" onAction="#editSelectedPatient" styleClass="patient-action-secondary" />
 
-                    <Button fx:id="dischargePatientButton" text="Discharge" onAction="#dischargeSelectedPatient"
-                            style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitalsForSelectedPatient" styleClass="patient-action-secondary" />
 
-                    <Button text="View Details" onAction="#viewDetails"
-                            style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                    <Button fx:id="viewPatientFileButton" text="View Patient File" onAction="#viewDetails" styleClass="patient-action-primary" />
+
+                    <Button fx:id="dischargePatientButton" text="Discharge / Deactivate" onAction="#dischargeSelectedPatient" styleClass="patient-action-danger" />
                 </HBox>
 
                 <FlowPane fx:id="filterChipsBox" hgap="8.0" vgap="8.0" />
             </VBox>
 
             <VBox spacing="10.0"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
-                  VBox.vgrow="ALWAYS">
+                  VBox.vgrow="ALWAYS" styleClass="patient-table-card">
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                        <Label fx:id="boardTitleLabel" text="Patients" styleClass="patient-section-title" />
+                        <Label fx:id="boardSubtitleLabel" text="Double-click a row to open the full patient file." styleClass="patient-page-subtitle" />
+                    </VBox>
+                </HBox>
 
-                <Label text="Patient Board"
-                       style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
-
-                <TableView fx:id="patientTable" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
+                <TableView fx:id="patientTable" prefHeight="420.0" VBox.vgrow="ALWAYS" styleClass="patient-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" text="Patient ID" prefWidth="120.0" />
-                        <TableColumn fx:id="nameColumn" text="Name" prefWidth="190.0" />
-                        <TableColumn fx:id="birthDateColumn" text="Birth Date" prefWidth="110.0" />
-                        <TableColumn fx:id="genderColumn" text="Gender" prefWidth="90.0" />
+                        <TableColumn fx:id="idColumn" text="Patient ID" prefWidth="130.0" />
+                        <TableColumn fx:id="nameColumn" text="Name" prefWidth="210.0" />
+                        <TableColumn fx:id="birthDateColumn" text="Birth Date" prefWidth="120.0" />
+                        <TableColumn fx:id="genderColumn" text="Gender" prefWidth="100.0" />
                         <TableColumn fx:id="sectionColumn" text="Section" prefWidth="150.0" />
-                        <TableColumn fx:id="roomColumn" text="Room" prefWidth="90.0" />
-                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="120.0" />
-                        <TableColumn fx:id="priorityColumn" text="Priority" prefWidth="120.0" />
+                        <TableColumn fx:id="roomColumn" text="Room" prefWidth="105.0" />
+                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="130.0" />
+                        <TableColumn fx:id="priorityColumn" text="Priority" prefWidth="130.0" />
+                    </columns>
+                </TableView>
+
+                <TableView fx:id="newbornTable" prefHeight="420.0" VBox.vgrow="ALWAYS" managed="false" visible="false" styleClass="patient-table">
+                    <columns>
+                        <TableColumn fx:id="newbornIdColumn" text="Newborn ID" prefWidth="130.0" />
+                        <TableColumn fx:id="babyNameColumn" text="Baby Name" prefWidth="170.0" />
+                        <TableColumn fx:id="newbornGenderColumn" text="Gender" prefWidth="95.0" />
+                        <TableColumn fx:id="birthTimeColumn" text="Birth Time" prefWidth="160.0" />
+                        <TableColumn fx:id="motherColumn" text="Mother" prefWidth="220.0" />
+                        <TableColumn fx:id="newbornSectionColumn" text="Section" prefWidth="125.0" />
+                        <TableColumn fx:id="newbornRoomColumn" text="Room" prefWidth="100.0" />
+                        <TableColumn fx:id="certificateStatusColumn" text="Certificate" prefWidth="135.0" />
                     </columns>
                 </TableView>
             </VBox>
-
-            <Label fx:id="statusLabel" text="Patients loaded from SQLite: 0"
-                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
         </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

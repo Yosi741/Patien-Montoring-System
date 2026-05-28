@@ -1,11 +1,14 @@
 package ui.javafx.controllers;
 
 import dao.SqlitePatientDao;
+import dao.SqliteAuditLogDao;
+import dao.SqliteNewbornRecordDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableRow;
@@ -14,7 +17,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
+import services.AlertSoundService;
 import services.PatientWriteService;
+import services.VitalThresholdService;
+import services.VitalsWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.DialogHelper;
@@ -28,10 +34,14 @@ import java.util.List;
 public class PatientListController implements FxController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
+    private final SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
+    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final ObservableList<SqlitePatientDao.PatientListRow> patients = FXCollections.observableArrayList();
+    private final ObservableList<SqliteNewbornRecordDao.NewbornRecord> newborns = FXCollections.observableArrayList();
     private AppShell appShell;
     private String quickFilter = "All Patients";
+    private boolean newbornMode;
     private boolean suppressFilterEvents;
     private boolean filterListenersConfigured;
 
@@ -57,7 +67,16 @@ public class PatientListController implements FxController {
     private Label statusLabel;
 
     @FXML
+    private Label boardTitleLabel;
+
+    @FXML
+    private Label boardSubtitleLabel;
+
+    @FXML
     private TableView<SqlitePatientDao.PatientListRow> patientTable;
+
+    @FXML
+    private TableView<SqliteNewbornRecordDao.NewbornRecord> newbornTable;
 
     @FXML
     private TableColumn<SqlitePatientDao.PatientListRow, String> idColumn;
@@ -84,6 +103,30 @@ public class PatientListController implements FxController {
     private TableColumn<SqlitePatientDao.PatientListRow, String> priorityColumn;
 
     @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornIdColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> babyNameColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornGenderColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> birthTimeColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> motherColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornSectionColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornRoomColumn;
+
+    @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> certificateStatusColumn;
+
+    @FXML
     private Button addPatientButton;
 
     @FXML
@@ -92,16 +135,31 @@ public class PatientListController implements FxController {
     @FXML
     private Button dischargePatientButton;
 
+    @FXML
+    private Button enterVitalsButton;
+
+    @FXML
+    private Button viewPatientFileButton;
+
+    @FXML
+    private Button deceasedQuickButton;
+
+    @FXML
+    private Button newbornQuickButton;
+
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
         configureTable();
         configureFilters();
         configureWritePermissions();
+        configureSelectionActions();
         loadPatients();
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!suppressFilterEvents) {
-                quickFilter = "Custom";
+                if (!newbornMode) {
+                    quickFilter = "Custom";
+                }
                 loadPatients();
             }
         });
@@ -110,12 +168,34 @@ public class PatientListController implements FxController {
     @FXML
     private void loadPatients() {
         try {
+            if (newbornMode) {
+                loadNewborns();
+                return;
+            }
+            showPatientTable();
             patients.setAll(patientDao.findPatientListRows(buildFilter()));
             patientTable.setItems(patients);
-            statusLabel.setText("Patients loaded from SQLite: " + patients.size());
+            updateBoardTitle();
+            statusLabel.setText(boardTitleLabel.getText() + " loaded from SQLite: " + patients.size());
             renderFilterChips();
         } catch (Exception e) {
             statusLabel.setText("Could not load SQLite patients: " + e.getMessage());
+        }
+    }
+
+    private void loadNewborns() {
+        try {
+            showNewbornTable();
+            SqliteNewbornRecordDao.RecordFilter filter = new SqliteNewbornRecordDao.RecordFilter();
+            filter.setSearch(searchField.getText());
+            filter.setSection(value(sectionFilter));
+            newborns.setAll(newbornDao.findRecords(filter));
+            newbornTable.setItems(newborns);
+            updateBoardTitle();
+            statusLabel.setText("Newborn records loaded from SQLite: " + newborns.size());
+            renderFilterChips();
+        } catch (Exception e) {
+            statusLabel.setText("Could not load SQLite newborn records: " + e.getMessage());
         }
     }
 
@@ -132,6 +212,36 @@ public class PatientListController implements FxController {
             return;
         }
         appShell.showPatientDetail(selected.getPatientId());
+    }
+
+    @FXML
+    private void enterVitalsForSelectedPatient() {
+        if (!PermissionHelper.canEnterVitals(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        SqlitePatientDao.PatientListRow selected = selectedPatient();
+        if (selected == null) {
+            return;
+        }
+        try {
+            VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
+                    patientTable.getScene().getWindow(),
+                    Session.getCurrentUser(),
+                    selected.getPatientId());
+            if (result != null) {
+                loadPatients();
+                if (appShell != null) {
+                    appShell.refreshNotificationCount();
+                }
+                showVitalAlertPopupIfNeeded(selected, result);
+                NotificationHelper.showSuccess(statusLabel,
+                        "Saved " + result.getVitalType() + " for " + selected.getName()
+                                + " as " + result.getStatus() + ".");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
     }
 
     @FXML
@@ -213,36 +323,68 @@ public class PatientListController implements FxController {
     @FXML
     private void showAllPatients() {
         quickFilter = "All Patients";
+        newbornMode = false;
         clearFilterControls();
         loadPatients();
     }
 
     @FXML
     private void showActivePatients() {
-        quickFilter = "Active Patients";
+        newbornMode = false;
         clearFilterControls();
         statusFilter.getSelectionModel().select("ACTIVE");
+        quickFilter = "Active Patients";
+        loadPatients();
+    }
+
+    @FXML
+    private void showDeceasedPatients() {
+        if (!PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        newbornMode = false;
+        clearFilterControls();
+        statusFilter.getSelectionModel().select("DECEASED");
+        quickFilter = "Deceased Patients";
+        logAudit("JavaFX PATIENT_BOARD opened Deceased Patients subsection");
+        loadPatients();
+    }
+
+    @FXML
+    private void showNewborns() {
+        if (!PermissionHelper.canViewNewbornRecords(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        quickFilter = "Newborns";
+        newbornMode = true;
+        clearFilterControls();
+        logAudit("JavaFX PATIENT_BOARD opened Newborns subsection");
         loadPatients();
     }
 
     @FXML
     private void showCriticalEmergency() {
         quickFilter = "Critical/Emergency";
+        newbornMode = false;
         clearFilterControls();
         loadPatients();
     }
 
     @FXML
     private void showHighPriority() {
-        quickFilter = "High Priority";
+        newbornMode = false;
         clearFilterControls();
         priorityFilter.getSelectionModel().select("HIGH");
+        quickFilter = "High Priority";
         loadPatients();
     }
 
     @FXML
     private void showRecentlyUpdated() {
         quickFilter = "Recently Updated";
+        newbornMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -250,6 +392,7 @@ public class PatientListController implements FxController {
     @FXML
     private void clearFilters() {
         quickFilter = "All Patients";
+        newbornMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -263,6 +406,19 @@ public class PatientListController implements FxController {
         roomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
+        statusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                getStyleClass().removeAll("patient-status-active", "patient-status-discharged", "patient-status-deceased");
+                if (empty || status == null) {
+                    setText(null);
+                    return;
+                }
+                setText(status);
+                getStyleClass().add(statusStyle(status));
+            }
+        });
         priorityColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String priority, boolean empty) {
@@ -285,6 +441,42 @@ public class PatientListController implements FxController {
             });
             return row;
         });
+
+        newbornIdColumn.setCellValueFactory(new PropertyValueFactory<>("newbornId"));
+        babyNameColumn.setCellValueFactory(new PropertyValueFactory<>("babyName"));
+        newbornGenderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));
+        birthTimeColumn.setCellValueFactory(new PropertyValueFactory<>("birthTime"));
+        motherColumn.setCellValueFactory(new PropertyValueFactory<>("motherDisplay"));
+        newbornSectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        newbornRoomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
+        certificateStatusColumn.setCellValueFactory(new PropertyValueFactory<>("certificateStatus"));
+        certificateStatusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                getStyleClass().removeAll("patient-status-active", "patient-status-discharged");
+                if (empty || status == null) {
+                    setText(null);
+                    return;
+                }
+                setText(status);
+                getStyleClass().add("Generated".equalsIgnoreCase(status) ? "patient-status-active" : "patient-status-discharged");
+            }
+        });
+        newbornTable.setRowFactory(table -> {
+            TableRow<SqliteNewbornRecordDao.NewbornRecord> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    appShell.showNewbornRecord(row.getItem().getId());
+                }
+            });
+            return row;
+        });
+    }
+
+    private void configureSelectionActions() {
+        updateSelectionActions();
+        patientTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateSelectionActions());
     }
 
     private void configureFilters() {
@@ -333,6 +525,15 @@ public class PatientListController implements FxController {
         editSelectedPatientButton.setManaged(canWritePatients);
         dischargePatientButton.setVisible(canDischarge);
         dischargePatientButton.setManaged(canDischarge);
+        boolean canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
+        enterVitalsButton.setVisible(canEnterVitals);
+        enterVitalsButton.setManaged(canEnterVitals);
+        boolean canViewDeceased = PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser());
+        deceasedQuickButton.setVisible(canViewDeceased);
+        deceasedQuickButton.setManaged(canViewDeceased);
+        boolean canViewNewborns = PermissionHelper.canViewNewbornRecords(Session.getCurrentUser());
+        newbornQuickButton.setVisible(canViewNewborns);
+        newbornQuickButton.setManaged(canViewNewborns);
     }
 
     private SqlitePatientDao.PatientListRow selectedPatient() {
@@ -365,7 +566,9 @@ public class PatientListController implements FxController {
         if (suppressFilterEvents) {
             return;
         }
-        quickFilter = "Custom";
+        if (!newbornMode) {
+            quickFilter = "Custom";
+        }
         loadPatients();
     }
 
@@ -374,9 +577,11 @@ public class PatientListController implements FxController {
         addChip("Quick: " + quickFilter);
         addChipIfPresent("Search", searchField.getText());
         addChipIfSelected("Section", value(sectionFilter));
-        addChipIfSelected("Room", value(roomFilter));
-        addChipIfSelected("Status", value(statusFilter));
-        addChipIfSelected("Priority", value(priorityFilter));
+        if (!newbornMode) {
+            addChipIfSelected("Room", value(roomFilter));
+            addChipIfSelected("Status", value(statusFilter));
+            addChipIfSelected("Priority", value(priorityFilter));
+        }
     }
 
     private void addChipIfSelected(String label, String value) {
@@ -415,6 +620,101 @@ public class PatientListController implements FxController {
                 return "priority-high";
             default:
                 return "priority-normal";
+        }
+    }
+
+    private String statusStyle(String status) {
+        if (status == null) {
+            return "patient-status-active";
+        }
+        if ("DECEASED".equalsIgnoreCase(status)) {
+            return "patient-status-deceased";
+        }
+        if ("DISCHARGED".equalsIgnoreCase(status) || "INACTIVE".equalsIgnoreCase(status)) {
+            return "patient-status-discharged";
+        }
+        return "patient-status-active";
+    }
+
+    private void updateSelectionActions() {
+        boolean hasSelection = patientTable != null && patientTable.getSelectionModel().getSelectedItem() != null;
+        setDisabledIfPresent(editSelectedPatientButton, !hasSelection);
+        setDisabledIfPresent(dischargePatientButton, !hasSelection);
+        setDisabledIfPresent(enterVitalsButton, !hasSelection);
+        setDisabledIfPresent(viewPatientFileButton, !hasSelection);
+    }
+
+    private void setDisabledIfPresent(Button button, boolean disabled) {
+        if (button != null) {
+            button.setDisable(disabled);
+        }
+    }
+
+    private void showVitalAlertPopupIfNeeded(SqlitePatientDao.PatientListRow selected, VitalsWriteService.VitalsWriteResult result) {
+        if (result.getStatus() != VitalThresholdService.VitalStatus.CRITICAL
+                && result.getStatus() != VitalThresholdService.VitalStatus.WARNING) {
+            return;
+        }
+
+        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.CRITICAL
+                ? Alert.AlertType.ERROR
+                : Alert.AlertType.WARNING;
+        Alert alert = new Alert(alertType);
+        alert.setTitle(result.getStatus() + " Vital Alert");
+        alert.setHeaderText(result.getStatus() + " vital reading detected");
+        alert.setContentText(
+                "Patient: " + selected.getName()
+                        + "\nPatient ID: " + selected.getPatientId()
+                        + "\nVital: " + result.getVitalType()
+                        + "\nValue: " + result.getValue() + " " + result.getUnit()
+                        + "\n\nImmediate staff review is required."
+        );
+
+        AlertSoundService.playAlertSound();
+        try {
+            alert.showAndWait();
+        } finally {
+            AlertSoundService.stopAlertSound();
+        }
+    }
+
+    private void showPatientTable() {
+        patientTable.setVisible(true);
+        patientTable.setManaged(true);
+        newbornTable.setVisible(false);
+        newbornTable.setManaged(false);
+        updateSelectionActions();
+    }
+
+    private void showNewbornTable() {
+        patientTable.setVisible(false);
+        patientTable.setManaged(false);
+        newbornTable.setVisible(true);
+        newbornTable.setManaged(true);
+        setDisabledIfPresent(editSelectedPatientButton, true);
+        setDisabledIfPresent(dischargePatientButton, true);
+        setDisabledIfPresent(enterVitalsButton, true);
+        setDisabledIfPresent(viewPatientFileButton, true);
+    }
+
+    private void updateBoardTitle() {
+        if (newbornMode) {
+            boardTitleLabel.setText("Newborn Records");
+            boardSubtitleLabel.setText("Double-click a newborn row to open the existing newborn record view.");
+        } else if ("Deceased Patients".equals(quickFilter)) {
+            boardTitleLabel.setText("Deceased Patients");
+            boardSubtitleLabel.setText("Deceased patients are filtered from SQLite patient records. Certificate drill-down remains available internally.");
+        } else {
+            boardTitleLabel.setText("Patients");
+            boardSubtitleLabel.setText("Double-click a row to open the full patient file.");
+        }
+    }
+
+    private void logAudit(String action) {
+        try {
+            auditLogDao.log(Session.getUsername(), action);
+        } catch (Exception e) {
+            System.out.println("SQLite patient board audit skipped: " + e.getMessage());
         }
     }
 }

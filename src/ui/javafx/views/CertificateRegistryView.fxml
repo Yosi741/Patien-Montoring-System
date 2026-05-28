@@ -4,112 +4,89 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefWidth="1200.0" prefHeight="760.0" style="-fx-background-color: #F4F8FB;"
+<BorderPane prefWidth="1200.0" prefHeight="760.0"
             xmlns="http://javafx.com/javafx/17.0.15"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ui.javafx.controllers.CertificateRegistryController">
+            fx:controller="ui.javafx.controllers.CertificateRegistryController" styleClass="content-page">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
-                <Label text="Certificate Registry" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                <Label text="Unified SQLite birth and death certificate tracking with safe local HTML controls"
-                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                <Label text="Certificate Registry" styleClass="screen-title" />
+                <Label text="Unified SQLite birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard"
-                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
         </HBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
                 <VBox spacing="18.0">
                     <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
 
                     <Label fx:id="accessDeniedPane" managed="false" visible="false"
                            text="Access denied. Certificate Registry is available to authorized clinical users only."
-                           wrapText="true"
-                           style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-background-radius: 18; -fx-padding: 18; -fx-font-size: 15px; -fx-font-weight: bold;" />
+                           wrapText="true" styleClass="status-info warning-value" />
 
                     <VBox fx:id="contentPane" spacing="18.0">
                         <HBox spacing="14.0">
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Total Certificates" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="totalCertificatesLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Total Certificates" styleClass="metric-label" />
+                                <Label fx:id="totalCertificatesLabel" text="0" styleClass="metric-value compact-metric-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Generated" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="generatedCertificatesLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Generated" styleClass="metric-label" />
+                                <Label fx:id="generatedCertificatesLabel" text="0" styleClass="success-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Pending" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="pendingCertificatesLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Pending" styleClass="metric-label" />
+                                <Label fx:id="pendingCertificatesLabel" text="0" styleClass="warning-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Birth Records" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="birthCertificatesLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Birth Records" styleClass="metric-label" />
+                                <Label fx:id="birthCertificatesLabel" text="0" styleClass="accent-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Death Records" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="deathCertificatesLabel" text="0" style="-fx-text-fill: #455A64; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Death Records" styleClass="metric-label" />
+                                <Label fx:id="deathCertificatesLabel" text="0" styleClass="body-text" />
                             </VBox>
                         </HBox>
 
-                        <VBox spacing="12.0"
-                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                        <VBox spacing="12.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Type" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Type" styleClass="field-label" />
                                 <ComboBox fx:id="typeFilter" prefWidth="125.0" />
-                                <Label text="Status" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Status" styleClass="field-label" />
                                 <ComboBox fx:id="statusFilter" prefWidth="140.0" />
-                                <Label text="Review" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Review" styleClass="field-label" />
                                 <ComboBox fx:id="reviewStatusFilter" prefWidth="165.0" />
-                                <Label text="Date" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Date" styleClass="field-label" />
                                 <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
-                                <Label text="Section" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Section" styleClass="field-label" />
                                 <ComboBox fx:id="sectionFilter" prefWidth="160.0" />
                                 <TextField fx:id="searchField" promptText="Patient/newborn ID or name" HBox.hgrow="ALWAYS" />
                             </HBox>
                             <FlowPane alignment="CENTER_RIGHT" hgap="10.0" vgap="10.0">
-                                <Button text="Open Related Record" onAction="#openRelatedRecord"
-                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="generateButton" text="Generate Certificate" onAction="#generateCertificate"
-                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate"
-                                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button text="Copy Summary" onAction="#copySummary"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="sendNoticeButton" text="Send Notice" onAction="#sendNotice"
-                                        style="-fx-background-color: #EDE7F6; -fx-text-fill: #4527A0; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="submitReviewButton" text="Submit for Review" onAction="#submitForReview"
-                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="approveButton" text="Approve" onAction="#approveCertificate"
-                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="rejectButton" text="Reject" onAction="#rejectCertificate"
-                                        style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="resetDraftButton" text="Reset Draft" onAction="#resetToDraft"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="sendReviewNoteButton" text="Send Review Note" onAction="#sendReviewNote"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button text="Clear Filters" onAction="#clearFilters"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button text="Refresh" onAction="#loadCertificates"
-                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button text="Open Related Record" onAction="#openRelatedRecord" styleClass="secondary-button" />
+                                <Button fx:id="generateButton" text="Generate Certificate" onAction="#generateCertificate" styleClass="primary-button" />
+                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate" styleClass="secondary-button" />
+                                <Button text="Copy Summary" onAction="#copySummary" styleClass="secondary-button" />
+                                <Button fx:id="sendNoticeButton" text="Send Notice" onAction="#sendNotice" styleClass="secondary-button" />
+                                <Button fx:id="submitReviewButton" text="Submit for Review" onAction="#submitForReview" styleClass="secondary-button" />
+                                <Button fx:id="approveButton" text="Approve" onAction="#approveCertificate" styleClass="secondary-button" />
+                                <Button fx:id="rejectButton" text="Reject" onAction="#rejectCertificate" styleClass="danger-button" />
+                                <Button fx:id="resetDraftButton" text="Reset Draft" onAction="#resetToDraft" styleClass="secondary-button" />
+                                <Button fx:id="sendReviewNoteButton" text="Send Review Note" onAction="#sendReviewNote" styleClass="secondary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadCertificates" styleClass="secondary-button" />
                             </FlowPane>
                         </VBox>
 
                         <HBox spacing="18.0">
-                            <VBox spacing="10.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Certificates" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Certificates" styleClass="section-title" />
                                 <TableView fx:id="certificateTable" prefHeight="500.0">
                                     <columns>
                                         <TableColumn fx:id="typeColumn" text="Type" prefWidth="85.0" />
@@ -125,26 +102,23 @@
                                 </TableView>
                             </VBox>
 
-                            <VBox spacing="12.0" prefWidth="360.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Certificate Detail" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
-                                <Label text="Record" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <VBox spacing="12.0" prefWidth="360.0" styleClass="panel-card">
+                                <Label text="Certificate Detail" styleClass="section-title" />
+                                <Label text="Record" styleClass="metric-label" />
                                 <Label fx:id="detailTitleLabel" text="Select a certificate" wrapText="true" />
-                                <Label text="Metadata" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Metadata" styleClass="metric-label" />
                                 <Label fx:id="detailMetaLabel" text="-" wrapText="true" />
-                                <Label text="Status" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Status" styleClass="metric-label" />
                                 <Label fx:id="detailStatusLabel" text="No certificate selected." wrapText="true" />
-                                <Label text="Review" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Review" styleClass="metric-label" />
                                 <Label fx:id="detailReviewLabel" text="-" wrapText="true" />
-                                <Label fx:id="detailWarningLabel" text="" wrapText="true"
-                                       style="-fx-text-fill: #E65100; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label text="Validated Certificate Path" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label fx:id="detailWarningLabel" text="" wrapText="true" styleClass="warning-value" />
+                                <Label text="Validated Certificate Path" styleClass="metric-label" />
                                 <Label fx:id="detailPathLabel" text="-" wrapText="true" />
                             </VBox>
                         </HBox>
 
-                        <Label fx:id="statusLabel" text="Certificate registry not loaded yet." wrapText="true"
-                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                        <Label fx:id="statusLabel" text="Certificate registry not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
                     </VBox>
                 </VBox>
             </content>

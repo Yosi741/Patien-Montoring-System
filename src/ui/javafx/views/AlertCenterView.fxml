@@ -12,133 +12,168 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.AlertCenterController">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Alert Center"
-                       styleClass="screen-title danger-value" />
-                <Label text="SQLite alert preview. Acknowledge here updates SQLite only."
-                       styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard"
-                    styleClass="secondary-button" />
-        </HBox>
-    </top>
-
     <center>
-        <VBox spacing="16.0">
+        <ScrollPane fitToWidth="true" styleClass="alert-center-scroll">
+        <VBox spacing="18.0" styleClass="alert-center-page">
             <padding>
-                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
             </padding>
 
-            <VBox spacing="12.0"
-                  styleClass="panel-card">
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <Label text="Severity" styleClass="field-label" />
-                    <ComboBox fx:id="severityFilter" prefWidth="150.0"
-                              styleClass="control-input" />
-
-                    <Label text="Status" styleClass="field-label" />
-                    <ComboBox fx:id="statusFilter" prefWidth="170.0"
-                              styleClass="control-input" />
-
-                    <Label text="Search" styleClass="field-label" />
-                    <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS"
-                               styleClass="control-input" />
-
-                    <Button text="Refresh" onAction="#loadAlerts"
-                            styleClass="secondary-button" />
-
-                    <Button text="Acknowledge" onAction="#acknowledgeSelected"
-                            styleClass="danger-button" />
+            <VBox spacing="16.0" styleClass="alert-hero">
+                <HBox alignment="CENTER_LEFT" spacing="18.0">
+                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                        <Label text="Alert Center" styleClass="alert-page-title" />
+                        <Label text="Real-time clinical alerts and acknowledgement workflow" styleClass="alert-page-subtitle" />
+                    </VBox>
+                    <Button text="Dashboard" onAction="#showDashboard" styleClass="alert-action-ghost" />
                 </HBox>
 
+                <GridPane hgap="12.0" vgap="12.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="alert-summary-card">
+                        <Label text="Active" styleClass="alert-summary-label" />
+                        <Label fx:id="activeCountLabel" text="0" styleClass="alert-summary-value alert-summary-active" />
+                    </VBox>
+                    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="alert-summary-card">
+                        <Label text="Critical / Emergency" styleClass="alert-summary-label" />
+                        <Label fx:id="criticalCountLabel" text="0" styleClass="alert-summary-value alert-summary-critical" />
+                    </VBox>
+                    <VBox spacing="4.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="alert-summary-card">
+                        <Label text="Warning" styleClass="alert-summary-label" />
+                        <Label fx:id="warningCountLabel" text="0" styleClass="alert-summary-value alert-summary-warning" />
+                    </VBox>
+                    <VBox spacing="4.0" GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="alert-summary-card">
+                        <Label text="Acknowledged / Resolved" styleClass="alert-summary-label" />
+                        <Label fx:id="completedCountLabel" text="0" styleClass="alert-summary-value" />
+                    </VBox>
+                </GridPane>
+            </VBox>
+
+            <VBox spacing="12.0" styleClass="alert-filter-card">
+                <GridPane hgap="14.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="17.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="17.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="46.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Severity" styleClass="field-label" />
+                        <ComboBox fx:id="severityFilter" maxWidth="Infinity" styleClass="alert-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Status" styleClass="field-label" />
+                        <ComboBox fx:id="statusFilter" maxWidth="Infinity" styleClass="alert-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label text="Search" styleClass="field-label" />
+                        <TextField fx:id="searchField" promptText="Patient ID or name" styleClass="alert-input" />
+                    </VBox>
+
+                    <Button text="Refresh" onAction="#loadAlerts" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="BOTTOM" maxWidth="Infinity" styleClass="alert-action-secondary" />
+                    <Button fx:id="acknowledgeButton" text="Acknowledge" onAction="#acknowledgeSelected" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="BOTTOM" maxWidth="Infinity" styleClass="alert-action-danger" />
+                </GridPane>
+
                 <HBox fx:id="patientFilterBox" alignment="CENTER_LEFT" spacing="10.0" managed="false" visible="false">
-                    <Label fx:id="patientFilterChipLabel" text=""
-                           styleClass="status-info" />
-                    <Button text="Clear Patient Filter" onAction="#clearPatientFilter"
-                            styleClass="secondary-button" />
+                    <Label fx:id="patientFilterChipLabel" text="" styleClass="filter-chip" />
+                    <Button text="Clear Patient Filter" onAction="#clearPatientFilter" styleClass="alert-action-ghost" />
                 </HBox>
             </VBox>
 
-            <SplitPane dividerPositions="0.68" VBox.vgrow="ALWAYS"
-                       styleClass="transparent-pane">
-
-                <TableView fx:id="alertTable"
-                           styleClass="table-surface">
-                    <columns>
-                        <TableColumn fx:id="idColumn" text="ID" prefWidth="65.0" />
-                        <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="110.0" />
-                        <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="155.0" />
-                        <TableColumn fx:id="severityColumn" text="Severity" prefWidth="115.0" />
-                        <TableColumn fx:id="messageColumn" text="Message" prefWidth="300.0" />
-                        <TableColumn fx:id="alertStatusColumn" text="Status" prefWidth="125.0" />
-                        <TableColumn fx:id="createdAtColumn" text="Created" prefWidth="155.0" />
-                        <TableColumn fx:id="updatedAtColumn" text="Last Updated" prefWidth="155.0" />
-                        <TableColumn fx:id="acknowledgedByColumn" text="Acknowledged By" prefWidth="145.0" />
-                        <TableColumn fx:id="acknowledgedAtColumn" text="Acknowledged At" prefWidth="155.0" />
-                    </columns>
-                </TableView>
-
-                <VBox spacing="14.0"
-                      styleClass="panel-card">
-
-                    <Label fx:id="detailTitleLabel" text="Alert Detail"
-                           styleClass="section-title danger-value" />
-
-                    <VBox spacing="6.0">
-                        <Label text="Patient" styleClass="metric-label" />
-                        <Label fx:id="detailPatientLabel" text="-" wrapText="true"
-                               styleClass="body-text" />
-                    </VBox>
-
-                    <HBox spacing="14.0">
-                        <VBox spacing="6.0">
-                            <Label text="Severity" styleClass="metric-label" />
-                            <Label fx:id="detailSeverityLabel" text="-"
-                                   styleClass="severity-critical" />
-                        </VBox>
-                        <VBox spacing="6.0">
-                            <Label text="Status" styleClass="metric-label" />
-                            <Label fx:id="detailStatusLabel" text="-"
-                                   styleClass="alert-acknowledged" />
+            <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+                <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="alert-list-card">
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                            <Label text="Alerts" styleClass="alert-section-title" />
+                            <Label text="Select an alert to review full clinical context." styleClass="alert-page-subtitle" />
                         </VBox>
                     </HBox>
 
-                    <VBox spacing="6.0">
-                        <Label text="Created" styleClass="metric-label" />
-                        <Label fx:id="detailCreatedLabel" text="-" styleClass="muted-text" />
+                    <TableView fx:id="alertTable" prefHeight="500.0" VBox.vgrow="ALWAYS" styleClass="alert-table">
+                        <columns>
+                            <TableColumn fx:id="severityColumn" text="Severity" prefWidth="120.0" />
+                            <TableColumn fx:id="alertStatusColumn" text="Status" prefWidth="130.0" />
+                            <TableColumn fx:id="patientColumn" text="Patient" prefWidth="210.0" />
+                            <TableColumn fx:id="messageColumn" text="Message" prefWidth="420.0" />
+                            <TableColumn fx:id="createdAtColumn" text="Created" prefWidth="165.0" />
+                        </columns>
+                    </TableView>
+
+                    <Label fx:id="statusLabel" text="SQLite alerts loaded: 0" styleClass="status-info" />
+                </VBox>
+
+                <VBox spacing="14.0" prefWidth="390.0" minWidth="350.0" styleClass="alert-detail-card">
+                    <VBox spacing="4.0">
+                        <Label fx:id="detailTitleLabel" text="Alert Detail" styleClass="alert-section-title" />
+                        <Label text="Clinical review panel" styleClass="alert-page-subtitle" />
                     </VBox>
 
                     <VBox spacing="6.0">
-                        <Label text="Last Updated" styleClass="metric-label" />
-                        <Label fx:id="detailUpdatedLabel" text="-" styleClass="muted-text" />
+                        <Label text="Patient" styleClass="alert-detail-label" />
+                        <Label fx:id="detailPatientLabel" text="-" wrapText="true" styleClass="alert-detail-value" />
+                    </VBox>
+
+                    <HBox spacing="10.0">
+                        <VBox spacing="6.0">
+                            <Label text="Severity" styleClass="alert-detail-label" />
+                            <Label fx:id="detailSeverityLabel" text="-" styleClass="severity-critical" />
+                        </VBox>
+                        <VBox spacing="6.0">
+                            <Label text="Status" styleClass="alert-detail-label" />
+                            <Label fx:id="detailStatusLabel" text="-" styleClass="alert-acknowledged" />
+                        </VBox>
+                    </HBox>
+
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                        </columnConstraints>
+                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="alert-detail-soft-card">
+                            <Label text="Created" styleClass="alert-detail-label" />
+                            <Label fx:id="detailCreatedLabel" text="-" wrapText="true" styleClass="alert-page-subtitle" />
+                        </VBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="alert-detail-soft-card">
+                            <Label text="Updated" styleClass="alert-detail-label" />
+                            <Label fx:id="detailUpdatedLabel" text="-" wrapText="true" styleClass="alert-page-subtitle" />
+                        </VBox>
+                    </GridPane>
+
+                    <VBox spacing="6.0">
+                        <Label text="Acknowledgement" styleClass="alert-detail-label" />
+                        <Label fx:id="detailAcknowledgedLabel" text="-" wrapText="true" styleClass="alert-page-subtitle" />
                     </VBox>
 
                     <VBox spacing="6.0">
-                        <Label text="Acknowledgement" styleClass="metric-label" />
-                        <Label fx:id="detailAcknowledgedLabel" text="-" wrapText="true"
-                               styleClass="muted-text" />
-                    </VBox>
-
-                    <VBox spacing="6.0">
-                        <Label text="Message" styleClass="metric-label" />
+                        <Label text="Message" styleClass="alert-detail-label" />
                         <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" prefRowCount="4"
-                                  styleClass="control-input" />
+                                  styleClass="alert-detail-text" />
                     </VBox>
 
                     <VBox spacing="6.0">
-                        <Label text="Recommended Action" styleClass="metric-label" />
+                        <Label text="Recommended Action" styleClass="alert-detail-label" />
                         <TextArea fx:id="recommendedActionArea" editable="false" wrapText="true" prefRowCount="5"
-                                  styleClass="control-input" />
+                                  styleClass="alert-detail-text" />
+                    </VBox>
+
+                    <VBox spacing="9.0">
+                        <Button fx:id="acknowledgeDetailButton" text="Acknowledge Alert" onAction="#acknowledgeSelected" maxWidth="Infinity" styleClass="alert-action-danger" />
+                        <Button fx:id="resolveButton" text="Resolve Alert" onAction="#resolveSelected" maxWidth="Infinity" styleClass="alert-action-secondary" />
+                        <Button fx:id="openPatientFileButton" text="Open Patient File" onAction="#openSelectedPatientFile" maxWidth="Infinity" styleClass="alert-action-primary" />
                     </VBox>
                 </VBox>
-            </SplitPane>
-
-            <Label fx:id="statusLabel" text="SQLite alerts loaded: 0"
-                   styleClass="status-info" />
+            </HBox>
         </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

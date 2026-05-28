@@ -28,6 +28,7 @@ public class AppNavigator {
             if (controller instanceof FxController) {
                 ((FxController) controller).setAppShell(appShell);
             }
+            appShell.applyThemeTo(parent);
             return new LoadedView(parent, controller);
         } catch (IOException e) {
             throw new IllegalStateException("Could not load JavaFX view: " + fxmlPath, e);

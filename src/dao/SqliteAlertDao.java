@@ -262,6 +262,20 @@ public class SqliteAlertDao implements AlertDao {
         }
     }
 
+    public void resolve(long id, String username) throws SQLException {
+        String timestamp = now();
+        String sql = "UPDATE alerts SET status = 'RESOLVED', acknowledged_by = COALESCE(NULLIF(acknowledged_by, ''), ?), "
+                + "acknowledged_at = COALESCE(NULLIF(acknowledged_at, ''), ?), updated_at = ? WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username == null || username.isBlank() ? "Unknown" : username);
+            statement.setString(2, timestamp);
+            statement.setString(3, timestamp);
+            statement.setLong(4, id);
+            statement.executeUpdate();
+        }
+    }
+
     public boolean updateLatestActiveAlertStatus(String patientId, String status, String username) throws SQLException {
         String timestamp = now();
         String sql = "UPDATE alerts SET status = ?, acknowledged_by = COALESCE(NULLIF(acknowledged_by, ''), ?), "

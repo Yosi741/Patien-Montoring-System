@@ -78,7 +78,7 @@
 
             <VBox spacing="12.0"
                   styleClass="panel-card">
-                <Label text="Contact & Security"
+                <Label text="Contact &amp; Security"
                        styleClass="section-title" />
 
                 <GridPane hgap="14.0" vgap="10.0">
@@ -144,8 +144,7 @@
 
                     <Label fx:id="writeFoundationStatusLabel"
                            text="-"
-                           wrapText="true"
-                           style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                           wrapText="true" styleClass="status-success success-value" />
                 </HBox>
             </VBox>
         </VBox>

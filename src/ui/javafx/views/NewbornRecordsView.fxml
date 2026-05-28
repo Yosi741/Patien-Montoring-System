@@ -4,101 +4,84 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefWidth="1200.0" prefHeight="760.0" style="-fx-background-color: #F4F8FB;"
+<BorderPane prefWidth="1200.0" prefHeight="760.0"
             xmlns="http://javafx.com/javafx/17.0.15"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ui.javafx.controllers.NewbornRecordsController">
+            fx:controller="ui.javafx.controllers.NewbornRecordsController" styleClass="content-page">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
-                <Label text="Newborn Records" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                <Label text="SQLite newborn management and local HTML birth certificate foundation"
-                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                <Label text="Newborn Records" styleClass="screen-title" />
+                <Label text="SQLite newborn management and local HTML birth certificate foundation" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#backToDashboard"
-                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
+            <Button text="Dashboard" onAction="#backToDashboard" styleClass="secondary-button" />
         </HBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
                 <VBox spacing="18.0">
                     <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
 
-                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0"
-                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
-                        <Label text="Access denied" style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
+                        <Label text="Access denied" styleClass="warning-value" />
                         <Label text="Newborn records are available to Admin, Doctor, and Nurse roles."
-                               wrapText="true" style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
+                               wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
                         <HBox spacing="14.0">
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Total Newborns" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="totalNewbornsLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Total Newborns" styleClass="metric-label" />
+                                <Label fx:id="totalNewbornsLabel" text="0" styleClass="screen-title" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Births Today" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="birthsTodayLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Births Today" styleClass="metric-label" />
+                                <Label fx:id="birthsTodayLabel" text="0" styleClass="success-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Births This Month" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="birthsThisMonthLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Births This Month" styleClass="metric-label" />
+                                <Label fx:id="birthsThisMonthLabel" text="0" styleClass="screen-title" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Certificates Generated" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="certificatesGeneratedLabel" text="0" style="-fx-text-fill: #00695C; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Certificates Generated" styleClass="metric-label" />
+                                <Label fx:id="certificatesGeneratedLabel" text="0" styleClass="success-value" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Pending Certificates" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="pendingCertificatesLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Pending Certificates" styleClass="metric-label" />
+                                <Label fx:id="pendingCertificatesLabel" text="0" styleClass="warning-value" />
                             </VBox>
                         </HBox>
 
-                        <VBox spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                        <VBox spacing="12.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-                                <TextField fx:id="searchField" promptText="Newborn ID, baby name, or mother" HBox.hgrow="ALWAYS"
-                                           style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
-                                <Label text="Date" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Search" styleClass="field-label" />
+                                <TextField fx:id="searchField" promptText="Newborn ID, baby name, or mother" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <Label text="Date" styleClass="field-label" />
                                 <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
-                                <Label text="Section" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Section" styleClass="field-label" />
                                 <ComboBox fx:id="sectionFilter" prefWidth="160.0" />
-                                <Label text="Gender" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                                <Label text="Gender" styleClass="field-label" />
                                 <ComboBox fx:id="genderFilter" prefWidth="120.0" />
                             </HBox>
                             <FlowPane alignment="CENTER_LEFT" hgap="10.0" vgap="10.0">
-                                <Label fx:id="motherFilterLabel" text="" style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 16; -fx-padding: 6 12; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Button fx:id="addNewbornButton" text="Add Newborn" onAction="#addNewborn"
-                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="editNewbornButton" text="Edit Selected" onAction="#editNewborn"
-                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="generateCertificateButton" text="Generate Certificate" onAction="#generateCertificate"
-                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate"
-                                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="sendBirthNoticeButton" text="Send Birth Notice" onAction="#sendBirthNotice"
-                                        style="-fx-background-color: #EDE7F6; -fx-text-fill: #4527A0; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
-                                <Button text="Clear" onAction="#clearFilters"
-                                        style="-fx-background-color: #F5F7FA; -fx-text-fill: #455A64; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Label fx:id="motherFilterLabel" text="" styleClass="status-info metric-value compact-metric-value" />
+                                <Button fx:id="addNewbornButton" text="Add Newborn" onAction="#addNewborn" styleClass="primary-button" />
+                                <Button fx:id="editNewbornButton" text="Edit Selected" onAction="#editNewborn" styleClass="secondary-button" />
+                                <Button fx:id="generateCertificateButton" text="Generate Certificate" onAction="#generateCertificate" styleClass="secondary-button" />
+                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate" styleClass="secondary-button" />
+                                <Button fx:id="sendBirthNoticeButton" text="Send Birth Notice" onAction="#sendBirthNotice" styleClass="secondary-button" />
+                                <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary" styleClass="secondary-button" />
+                                <Button text="Clear" onAction="#clearFilters" styleClass="secondary-button" />
                             </FlowPane>
                         </VBox>
 
                         <HBox spacing="18.0">
-                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Records" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Records" styleClass="section-title" />
                                 <TableView fx:id="newbornTable" prefHeight="500.0">
                                     <columns>
                                         <TableColumn fx:id="newbornIdColumn" text="Newborn ID" prefWidth="110.0" />
@@ -113,27 +96,26 @@
                                 </TableView>
                             </VBox>
 
-                            <VBox spacing="12.0" prefWidth="360.0" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Newborn Detail" style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
-                                <Label text="Baby" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <VBox spacing="12.0" prefWidth="360.0" styleClass="panel-card">
+                                <Label text="Newborn Detail" styleClass="section-title" />
+                                <Label text="Baby" styleClass="metric-label" />
                                 <Label fx:id="detailBabyLabel" text="No newborn selected" wrapText="true" />
-                                <Label text="Mother / Father" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Mother / Father" styleClass="metric-label" />
                                 <Label fx:id="detailMotherLabel" text="-" wrapText="true" />
-                                <Label text="Birth Time" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Birth Time" styleClass="metric-label" />
                                 <Label fx:id="detailBirthLabel" text="-" wrapText="true" />
-                                <Label text="Measurements" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Measurements" styleClass="metric-label" />
                                 <Label fx:id="detailMeasurementsLabel" text="-" wrapText="true" />
-                                <Label text="Delivery / Location" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Delivery / Location" styleClass="metric-label" />
                                 <Label fx:id="detailDeliveryLabel" text="-" wrapText="true" />
-                                <Label text="Certificate Path" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Certificate Path" styleClass="metric-label" />
                                 <Label fx:id="detailCertificateLabel" text="-" wrapText="true" />
-                                <Label text="Notes" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                <Label text="Notes" styleClass="metric-label" />
                                 <Label fx:id="detailNotesLabel" text="Select a newborn record to view details." wrapText="true" />
                             </VBox>
                         </HBox>
 
-                        <Label fx:id="statusLabel" text="Newborn records not loaded yet." wrapText="true"
-                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                        <Label fx:id="statusLabel" text="Newborn records not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
                     </VBox>
                 </VBox>
             </content>

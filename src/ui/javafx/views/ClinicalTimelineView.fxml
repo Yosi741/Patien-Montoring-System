@@ -7,43 +7,27 @@
 <BorderPane
         prefWidth="1150.0"
         prefHeight="720.0"
-        style="-fx-background-color: #F4F8FB;"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.ClinicalTimelineController">
+        fx:controller="ui.javafx.controllers.ClinicalTimelineController" styleClass="content-page">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              style="-fx-background-color: white;
-                     -fx-padding: 18 24;
-                     -fx-border-color: transparent transparent #E0E7EF transparent;
-                     -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
 
             <VBox spacing="4.0">
                 <Label
-                        text="Clinical Timeline"
-                        style="-fx-text-fill: #0D47A1;
-                               -fx-font-size: 26px;
-                               -fx-font-weight: bold;" />
+                        text="Clinical Timeline" styleClass="screen-title" />
 
                 <Label
                         fx:id="patientLabel"
-                        text="Patient ID: -"
-                        style="-fx-text-fill: #607D8B;
-                               -fx-font-size: 13px;" />
+                        text="Patient ID: -" styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
 
             <Button
                     text="Back to Patient Detail"
-                    onAction="#backToPatientDetail"
-                    style="-fx-background-color: #EEF5FF;
-                           -fx-text-fill: #0D47A1;
-                           -fx-font-weight: bold;
-                           -fx-background-radius: 14;
-                           -fx-padding: 9 18;
-                           -fx-cursor: hand;" />
+                    onAction="#backToPatientDetail" styleClass="secondary-button" />
         </HBox>
     </top>
 
@@ -53,94 +37,51 @@
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
 
-            <VBox spacing="12.0"
-                  style="-fx-background-color: white;
-                         -fx-background-radius: 18;
-                         -fx-padding: 18;
-                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+            <VBox spacing="12.0" styleClass="panel-card">
 
                 <HBox alignment="CENTER_LEFT" spacing="12.0">
 
                     <Label
-                            text="Event Type"
-                            style="-fx-text-fill: #263238;
-                                   -fx-font-size: 13px;
-                                   -fx-font-weight: bold;" />
+                            text="Event Type" styleClass="field-label" />
 
                     <ComboBox
                             fx:id="eventTypeFilter"
-                            prefWidth="170.0"
-                            style="-fx-background-color: #FAFCFD;
-                                   -fx-background-radius: 13;
-                                   -fx-border-radius: 13;
-                                   -fx-border-color: #CFD8DC;" />
+                            prefWidth="170.0" styleClass="control-input" />
 
                     <TextField
                             fx:id="searchField"
                             promptText="Search title, description, severity, or source"
-                            HBox.hgrow="ALWAYS"
-                            style="-fx-background-color: #FAFCFD;
-                                   -fx-background-radius: 13;
-                                   -fx-border-radius: 13;
-                                   -fx-border-color: #CFD8DC;
-                                   -fx-padding: 10 12;
-                                   -fx-font-size: 14px;" />
+                            HBox.hgrow="ALWAYS" styleClass="control-input" />
 
                     <Button
                             text="Refresh"
-                            onAction="#loadTimeline"
-                            style="-fx-background-color: #E0F2F1;
-                                   -fx-text-fill: #00695C;
-                                   -fx-font-weight: bold;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 9 16;
-                                   -fx-cursor: hand;" />
+                            onAction="#loadTimeline" styleClass="secondary-button" />
                 </HBox>
 
                 <Label
                         text="Read-only SQLite timeline combining vitals, alerts, AI notes, files, medical history, medication events, and handover notes."
-                        wrapText="true"
-                        style="-fx-text-fill: #607D8B;
-                               -fx-font-size: 13px;" />
+                        wrapText="true" styleClass="muted-text" />
             </VBox>
 
             <SplitPane dividerPositions="0.38"
-                       VBox.vgrow="ALWAYS"
-                       style="-fx-background-color: transparent;">
+                       VBox.vgrow="ALWAYS" styleClass="transparent-pane">
 
                 <items>
 
-                    <VBox spacing="10.0"
-                          style="-fx-background-color: white;
-                                 -fx-background-radius: 18;
-                                 -fx-padding: 14;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                    <VBox spacing="10.0" styleClass="panel-card">
 
                         <Label
-                                text="Timeline Events"
-                                style="-fx-text-fill: #263238;
-                                       -fx-font-size: 17px;
-                                       -fx-font-weight: bold;" />
+                                text="Timeline Events" styleClass="section-title" />
 
                         <ListView
                                 fx:id="timelineList"
-                                VBox.vgrow="ALWAYS"
-                                style="-fx-background-color: white;
-                                       -fx-border-color: #E0E7EF;
-                                       -fx-border-radius: 14;
-                                       -fx-background-radius: 14;" />
+                                VBox.vgrow="ALWAYS" styleClass="dialog-card" />
                     </VBox>
 
-                    <ScrollPane fitToWidth="true"
-                                style="-fx-background-color: transparent;
-                                       -fx-background: transparent;">
+                    <ScrollPane fitToWidth="true" styleClass="scroll-clear">
 
                         <content>
-                            <VBox spacing="16.0"
-                                  style="-fx-background-color: white;
-                                         -fx-background-radius: 18;
-                                         -fx-padding: 20;
-                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                            <VBox spacing="16.0" styleClass="panel-card">
 
                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
 
@@ -149,84 +90,51 @@
                                         <Label
                                                 fx:id="detailTitleLabel"
                                                 text="Select an event"
-                                                wrapText="true"
-                                                style="-fx-text-fill: #0D47A1;
-                                                       -fx-font-size: 22px;
-                                                       -fx-font-weight: bold;" />
+                                                wrapText="true" styleClass="screen-title" />
 
                                         <Label
                                                 fx:id="detailSubtitleLabel"
                                                 text="Full read-only event details will appear here."
-                                                wrapText="true"
-                                                style="-fx-text-fill: #607D8B;
-                                                       -fx-font-size: 13px;" />
+                                                wrapText="true" styleClass="muted-text" />
                                     </VBox>
 
                                     <Button
                                             fx:id="copySummaryButton"
                                             text="Copy Summary"
                                             onAction="#copySummary"
-                                            disable="true"
-                                            style="-fx-background-color: #EEF5FF;
-                                                   -fx-text-fill: #0D47A1;
-                                                   -fx-font-weight: bold;
-                                                   -fx-background-radius: 14;
-                                                   -fx-padding: 9 16;
-                                                   -fx-cursor: hand;" />
+                                            disable="true" styleClass="secondary-button" />
 
                                     <Button
                                             fx:id="openAlertButton"
                                             text="Open Alert"
                                             onAction="#openSelectedAlert"
-                                            disable="true"
-                                            style="-fx-background-color: #D32F2F;
-                                                   -fx-text-fill: white;
-                                                   -fx-font-weight: bold;
-                                                   -fx-background-radius: 14;
-                                                   -fx-padding: 9 16;
-                                                   -fx-cursor: hand;" />
+                                            disable="true" styleClass="danger-button" />
 
                                     <Button
                                             fx:id="openFileButton"
                                             text="Open File Details"
                                             onAction="#openSelectedFileDetails"
-                                            disable="true"
-                                            style="-fx-background-color: #E0F2F1;
-                                                   -fx-text-fill: #00695C;
-                                                   -fx-font-weight: bold;
-                                                   -fx-background-radius: 14;
-                                                   -fx-padding: 9 16;
-                                                   -fx-cursor: hand;" />
+                                            disable="true" styleClass="secondary-button" />
                                 </HBox>
 
                                 <VBox spacing="6.0">
                                     <Label
-                                            text="Full Description"
-                                            style="-fx-text-fill: #78909C;
-                                                   -fx-font-size: 12px;
-                                                   -fx-font-weight: bold;" />
+                                            text="Full Description" styleClass="metric-label" />
 
                                     <Label
                                             fx:id="detailDescriptionLabel"
                                             text="No event selected."
-                                            wrapText="true"
-                                            style="-fx-text-fill: #455A64;
-                                                   -fx-font-size: 14px;" />
+                                            wrapText="true" styleClass="body-text" />
                                 </VBox>
 
                                 <VBox spacing="6.0">
                                     <Label
-                                            text="Recommended Action"
-                                            style="-fx-text-fill: #78909C;
-                                                   -fx-font-size: 12px;
-                                                   -fx-font-weight: bold;" />
+                                            text="Recommended Action" styleClass="metric-label" />
 
                                     <Label
                                             fx:id="recommendedActionLabel"
                                             text="No recommended action selected."
-                                            wrapText="true"
-                                            style="-fx-text-fill: #455A64;
-                                                   -fx-font-size: 14px;" />
+                                            wrapText="true" styleClass="body-text" />
                                 </VBox>
 
                                 <Separator />
@@ -242,12 +150,7 @@
 
             <Label
                     fx:id="statusLabel"
-                    text="Clinical events loaded from SQLite: 0"
-                    style="-fx-background-color: #E3F2FD;
-                           -fx-text-fill: #0D47A1;
-                           -fx-background-radius: 18;
-                           -fx-padding: 8 14;
-                           -fx-font-size: 13px;" />
+                    text="Clinical events loaded from SQLite: 0" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
     </center>
 </BorderPane>

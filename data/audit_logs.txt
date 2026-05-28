@@ -260,3 +260,13 @@
 15-05-2026 22:17:07 | System | Alarm RESOLVED
 18-05-2026 17:12:03 | System | Alarm ACTIVE for patient: Iyad Salhab
 18-05-2026 17:12:03 | Yasen | Added manual vital signs for: Iyad Salhab
+22-05-2026 15:27:24 | Yasen | Connected device DEV-29CF1121 for patient: Yazan Salhab
+22-05-2026 15:27:24 | Yasen | Connected smart monitor for: Yazan Salhab
+22-05-2026 15:27:25 | System | Alarm ACTIVE for patient: Yazan Salhab
+22-05-2026 15:27:25 | Device:DEV-29CF1121 | Added device vital signs for: Yazan Salhab
+22-05-2026 15:27:30 | Device:DEV-29CF1121 | Added device vital signs for: Yazan Salhab
+22-05-2026 15:27:35 | Device:DEV-29CF1121 | Added device vital signs for: Yazan Salhab
+22-05-2026 15:27:40 | Device:DEV-29CF1121 | Added device vital signs for: Yazan Salhab
+22-05-2026 15:27:42 | Yasen | Disconnected device DEV-29CF1121 for patient: Yazan Salhab
+22-05-2026 15:27:42 | System | Alarm ACKNOWLEDGED
+22-05-2026 15:27:42 | Yasen | Disconnected smart monitor for: Yazan Salhab

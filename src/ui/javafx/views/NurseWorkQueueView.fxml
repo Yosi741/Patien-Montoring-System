@@ -7,114 +7,90 @@
 <BorderPane
         prefWidth="1200.0"
         prefHeight="760.0"
-        style="-fx-background-color: #F4F8FB;"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.NurseWorkQueueController">
+        fx:controller="ui.javafx.controllers.NurseWorkQueueController" styleClass="content-page">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              style="-fx-background-color: white; -fx-padding: 18 24; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
-                <Label text="Nurse Work Queue"
-                       style="-fx-text-fill: #0D47A1; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                <Label text="Prioritized SQLite tasks from reminders, alerts, and missing vitals"
-                       style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                <Label text="Nurse Work Queue" styleClass="screen-title" />
+                <Label text="Prioritized SQLite tasks from reminders, alerts, and missing vitals" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard"
-                    style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 18; -fx-cursor: hand;" />
+            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
         </HBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
                 <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
 
-                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0"
-                          style="-fx-background-color: #FFF3E0; -fx-background-radius: 18; -fx-padding: 20; -fx-border-color: #FFCC80; -fx-border-radius: 18;">
-                        <Label text="Access denied"
-                               style="-fx-text-fill: #E65100; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
+                        <Label text="Access denied" styleClass="warning-value" />
                         <Label text="Nurse Work Queue is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
-                               wrapText="true"
-                               style="-fx-text-fill: #5D4037; -fx-font-size: 14px;" />
+                               wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="Local reminder engine. SQLite-only actions. No external calendar integration."
-                                   style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-weight: bold;" />
+                            <Label text="Local reminder engine. SQLite-only actions. No external calendar integration." styleClass="status-info metric-value compact-metric-value" />
 
-                            <Label fx:id="notificationLabel" text="No reminder notifications yet." wrapText="true" HBox.hgrow="ALWAYS"
-                                   style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 7 14; -fx-font-size: 13px;" />
+                            <Label fx:id="notificationLabel" text="No reminder notifications yet." wrapText="true" HBox.hgrow="ALWAYS" styleClass="status-success success-value" />
                         </HBox>
 
                         <GridPane hgap="14.0" vgap="14.0">
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Overdue Reminders" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="overdueRemindersLabel" text="0" style="-fx-text-fill: #B71C1C; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Overdue Reminders" styleClass="metric-label" />
+                                <Label fx:id="overdueRemindersLabel" text="0" styleClass="danger-value" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Upcoming Reminders" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="upcomingRemindersLabel" text="0" style="-fx-text-fill: #E65100; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Upcoming Reminders" styleClass="metric-label" />
+                                <Label fx:id="upcomingRemindersLabel" text="0" styleClass="warning-value" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Queue Tasks" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="totalTasksLabel" text="0" style="-fx-text-fill: #0D47A1; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Queue Tasks" styleClass="metric-label" />
+                                <Label fx:id="totalTasksLabel" text="0" styleClass="metric-value compact-metric-value" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Critical Alerts" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="criticalAlertsLabel" text="0" style="-fx-text-fill: #B71C1C; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Critical Alerts" styleClass="metric-label" />
+                                <Label fx:id="criticalAlertsLabel" text="0" styleClass="danger-value" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0"
-                                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18; -fx-min-width: 200; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
-                                <Label text="Missing Vitals" style="-fx-text-fill: #78909C; -fx-font-size: 12px; -fx-font-weight: bold;" />
-                                <Label fx:id="missingVitalsLabel" text="0" style="-fx-text-fill: #6A1B9A; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Missing Vitals" styleClass="metric-label" />
+                                <Label fx:id="missingVitalsLabel" text="0" styleClass="accent-value" />
                             </VBox>
                         </GridPane>
 
-                        <VBox spacing="10.0"
-                              style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                        <VBox spacing="10.0" styleClass="panel-card">
 
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Prioritized Task Board"
-                                       style="-fx-text-fill: #263238; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                                <Label text="Prioritized Task Board" styleClass="section-title" />
                                 <Region HBox.hgrow="ALWAYS" />
 
-                                <Button fx:id="doneButton" text="Mark Reminder Done" onAction="#markSelectedDone"
-                                        style="-fx-background-color: #1E88E5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="doneButton" text="Mark Reminder Done" onAction="#markSelectedDone" styleClass="primary-button" />
 
-                                <Button fx:id="missedButton" text="Mark Reminder Missed" onAction="#markSelectedMissed"
-                                        style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="missedButton" text="Mark Reminder Missed" onAction="#markSelectedMissed" styleClass="danger-button" />
 
-                                <Button fx:id="patientButton" text="Open Patient" onAction="#openPatientDetail"
-                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="patientButton" text="Open Patient" onAction="#openPatientDetail" styleClass="secondary-button" />
 
-                                <Button fx:id="scheduleButton" text="Open Schedule" onAction="#openScheduling"
-                                        style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="scheduleButton" text="Open Schedule" onAction="#openScheduling" styleClass="secondary-button" />
 
-                                <Button fx:id="alertButton" text="Open Alert Center" onAction="#openAlertCenter"
-                                        style="-fx-background-color: #FFEBEE; -fx-text-fill: #B71C1C; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button fx:id="alertButton" text="Open Alert Center" onAction="#openAlertCenter" styleClass="danger-button" />
 
-                                <Button text="Refresh" onAction="#refreshQueue"
-                                        style="-fx-background-color: #EEF5FF; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 9 16; -fx-cursor: hand;" />
+                                <Button text="Refresh" onAction="#refreshQueue" styleClass="secondary-button" />
                             </HBox>
 
-                            <TableView fx:id="queueTable" prefHeight="520.0"
-                                       style="-fx-background-color: white; -fx-border-color: #E0E7EF; -fx-border-radius: 14; -fx-background-radius: 14;">
+                            <TableView fx:id="queueTable" prefHeight="520.0" styleClass="dialog-card">
                                 <columns>
                                     <TableColumn fx:id="statusColumn" text="Status" prefWidth="115.0" />
                                     <TableColumn fx:id="typeColumn" text="Task Type" prefWidth="140.0" />
@@ -129,8 +105,7 @@
                             </TableView>
                         </VBox>
 
-                        <Label fx:id="statusLabel" text="Work Queue not loaded yet." wrapText="true"
-                               style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+                        <Label fx:id="statusLabel" text="Work Queue not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
                     </VBox>
                 </VBox>
             </content>

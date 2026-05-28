@@ -6,26 +6,17 @@
 <VBox
         spacing="16.0"
         prefWidth="700.0"
-        style="-fx-background-color: white;
-               -fx-background-radius: 20;
-               -fx-padding: 22;
-               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.MedicationGivenController">
+        fx:controller="ui.javafx.controllers.MedicationGivenController" styleClass="panel-card">
 
     <VBox spacing="4.0">
         <Label
-                text="Record Medication Given"
-                style="-fx-text-fill: #0D47A1;
-                       -fx-font-size: 22px;
-                       -fx-font-weight: bold;" />
+                text="Record Medication Given" styleClass="screen-title" />
 
         <Label
                 text="Records a SQLite medication administration event only. Swing and legacy text files are unchanged."
-                wrapText="true"
-                style="-fx-text-fill: #607D8B;
-                       -fx-font-size: 13px;" />
+                wrapText="true" styleClass="muted-text" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -37,87 +28,47 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label
-                    text="Patient ID"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Patient ID" styleClass="field-label" />
 
             <Label
                     fx:id="patientIdLabel"
-                    text="-"
-                    style="-fx-background-color: #E3F2FD;
-                           -fx-text-fill: #0D47A1;
-                           -fx-background-radius: 16;
-                           -fx-padding: 9 12;
-                           -fx-font-weight: bold;" />
+                    text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label
-                    text="Medication"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Medication" styleClass="field-label" />
 
             <ComboBox
                     fx:id="medicationBox"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;" />
+                    maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label
-                    text="Given By"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Given By" styleClass="field-label" />
 
             <TextField
                     fx:id="givenByField"
-                    promptText="Doctor or nurse username"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 10 12;
-                           -fx-font-size: 14px;" />
+                    promptText="Doctor or nurse username" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label
-                    text="Given At"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Given At" styleClass="field-label" />
 
             <TextField
                     fx:id="givenAtField"
-                    promptText="dd-MM-yyyy HH:mm:ss"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 10 12;
-                           -fx-font-size: 14px;" />
+                    promptText="dd-MM-yyyy HH:mm:ss" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <Label
-                    text="Status"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Status" styleClass="field-label" />
 
             <ComboBox
                     fx:id="statusBox"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;" />
+                    maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0"
@@ -126,32 +77,18 @@
               GridPane.rowIndex="3">
 
             <Label
-                    text="Notes"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Notes" styleClass="field-label" />
 
             <TextArea
                     fx:id="notesArea"
                     prefRowCount="4"
                     wrapText="true"
-                    promptText="Optional administration note"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 8;
-                           -fx-font-size: 14px;" />
+                    promptText="Optional administration note" styleClass="control-input" />
         </VBox>
     </GridPane>
 
     <Label
             fx:id="statusLabel"
             text="-"
-            wrapText="true"
-            style="-fx-background-color: #E0F2F1;
-                   -fx-text-fill: #00695C;
-                   -fx-background-radius: 18;
-                   -fx-padding: 8 14;
-                   -fx-font-size: 13px;" />
+            wrapText="true" styleClass="status-success success-value" />
 </VBox>

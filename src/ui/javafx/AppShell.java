@@ -27,6 +27,7 @@ import services.NewbornService;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.DialogHelper;
+import ui.javafx.helpers.FxFileOpenHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import users.User;
@@ -56,6 +57,7 @@ public class AppShell extends Application {
         this.primaryStage = stage;
         this.navigator = new AppNavigator(this);
         this.darkMode = PREFS.getBoolean(THEME_PREF_KEY, false);
+        FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
         primaryStage.setTitle("Smart Patient Monitoring System - JavaFX Preview");
@@ -350,6 +352,11 @@ public class AppShell extends Application {
 
     public String getMigrationStatus() {
         return migrationStatus;
+    }
+
+    public void applyThemeTo(Parent parent) {
+        // Stylesheets are attached at the Scene level. This hook is kept for callers
+        // that load content before it is placed into the shell.
     }
 
     private void initializeDatabase() {

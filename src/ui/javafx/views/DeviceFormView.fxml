@@ -11,28 +11,19 @@
 <VBox
         spacing="16.0"
         prefWidth="700.0"
-        style="-fx-background-color: white;
-               -fx-background-radius: 20;
-               -fx-padding: 22;
-               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.DeviceFormController">
+        fx:controller="ui.javafx.controllers.DeviceFormController" styleClass="panel-card">
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox spacing="4.0">
             <Label
                     fx:id="titleLabel"
-                    text="Device"
-                    style="-fx-text-fill: #0D47A1;
-                           -fx-font-size: 22px;
-                           -fx-font-weight: bold;" />
+                    text="Device" styleClass="screen-title" />
 
             <Label
                     text="SQLite-only device registration and assignment foundation."
-                    wrapText="true"
-                    style="-fx-text-fill: #607D8B;
-                           -fx-font-size: 13px;" />
+                    wrapText="true" styleClass="muted-text" />
         </VBox>
 
         <Region HBox.hgrow="ALWAYS" />
@@ -47,88 +38,47 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label
-                    text="Device ID"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Device ID" styleClass="field-label" />
 
             <TextField
                     fx:id="deviceIdField"
-                    promptText="DEVICE-001"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 10 12;
-                           -fx-font-size: 14px;" />
+                    promptText="DEVICE-001" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label
-                    text="Device Name"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Device Name" styleClass="field-label" />
 
             <TextField
                     fx:id="nameField"
-                    promptText="Monitor name"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 10 12;
-                           -fx-font-size: 14px;" />
+                    promptText="Monitor name" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label
-                    text="Device Type"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Device Type" styleClass="field-label" />
 
             <ComboBox
                     fx:id="typeBox"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;" />
+                    maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label
-                    text="Serial Number"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Serial Number" styleClass="field-label" />
 
             <TextField
                     fx:id="serialField"
-                    promptText="Serial number"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 10 12;
-                           -fx-font-size: 14px;" />
+                    promptText="Serial number" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <Label
-                    text="Status"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Status" styleClass="field-label" />
 
             <ComboBox
                     fx:id="statusBox"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;" />
+                    maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0"
@@ -137,32 +87,18 @@
               GridPane.rowIndex="3">
 
             <Label
-                    text="Notes"
-                    style="-fx-text-fill: #263238;
-                           -fx-font-size: 13px;
-                           -fx-font-weight: bold;" />
+                    text="Notes" styleClass="field-label" />
 
             <TextArea
                     fx:id="notesArea"
                     prefRowCount="4"
                     wrapText="true"
-                    promptText="Optional registration notes"
-                    style="-fx-background-color: #FAFCFD;
-                           -fx-background-radius: 13;
-                           -fx-border-radius: 13;
-                           -fx-border-color: #CFD8DC;
-                           -fx-padding: 8;
-                           -fx-font-size: 14px;" />
+                    promptText="Optional registration notes" styleClass="control-input" />
         </VBox>
     </GridPane>
 
     <Label
             fx:id="statusLabel"
             text="-"
-            wrapText="true"
-            style="-fx-background-color: #E3F2FD;
-                   -fx-text-fill: #0D47A1;
-                   -fx-background-radius: 18;
-                   -fx-padding: 8 14;
-                   -fx-font-size: 13px;" />
+            wrapText="true" styleClass="status-info metric-value compact-metric-value" />
 </VBox>

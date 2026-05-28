@@ -5,10 +5,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
+import ui.javafx.helpers.FxFileOpenHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -58,17 +58,10 @@ public class MedicalFilePreviewService {
         requireViewPermission(currentUser);
         SqliteMedicalFileDao.MedicalFileRecord file = loadFile(fileId);
         Path path = validateStoredPath(file);
-        if (!Desktop.isDesktopSupported()) {
-            return "Desktop open is not supported on this system. Safe path: " + path;
-        }
-        Desktop desktop = Desktop.getDesktop();
-        if (!desktop.isSupported(Desktop.Action.OPEN)) {
-            return "Desktop open action is not supported on this system. Safe path: " + path;
-        }
-        desktop.open(path.toFile());
+        String result = FxFileOpenHelper.open(path);
         AuditWriteHelper.write(username(currentUser), AuditAction.OPEN_MEDICAL_FILE,
                 "patient_id=" + file.getPatientId() + ", file_id=" + file.getFileId());
-        return "Opened local file: " + path;
+        return result;
     }
 
     public SqliteMedicalFileDao.MedicalFileRecord loadFile(String fileId) throws SQLException {

@@ -6,20 +6,14 @@
 <VBox
         spacing="16.0"
         prefWidth="700.0"
-        style="-fx-background-color: white;
-               -fx-background-radius: 20;
-               -fx-padding: 22;
-               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.PatientFormController">
+        fx:controller="ui.javafx.controllers.PatientFormController" styleClass="panel-card">
 
     <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="Patient"
-               style="-fx-text-fill: #0D47A1; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label fx:id="titleLabel" text="Patient" styleClass="screen-title" />
 
-        <Label fx:id="helpLabel" text="SQLite-only patient write" wrapText="true"
-               style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+        <Label fx:id="helpLabel" text="SQLite-only patient write" wrapText="true" styleClass="muted-text" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -29,66 +23,55 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient ID" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextField fx:id="patientIdField" promptText="ABC-123"
-                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="ABC-123" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Birth Date" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <DatePicker fx:id="birthDatePicker" promptText="dd-MM-yyyy"
-                        style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+            <Label text="Birth Date" styleClass="field-label" />
+            <DatePicker fx:id="birthDatePicker" promptText="dd-MM-yyyy" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="First Name" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextField fx:id="firstNameField" promptText="First name"
-                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <Label text="First Name" styleClass="field-label" />
+            <TextField fx:id="firstNameField" promptText="First name" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Last Name" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextField fx:id="lastNameField" promptText="Last name"
-                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <Label text="Last Name" styleClass="field-label" />
+            <TextField fx:id="lastNameField" promptText="Last name" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Gender" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <ComboBox fx:id="genderBox" maxWidth="Infinity"
-                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+            <Label text="Gender" styleClass="field-label" />
+            <ComboBox fx:id="genderBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-            <Label text="Status" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <ComboBox fx:id="statusBox" maxWidth="Infinity"
-                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Section" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextField fx:id="sectionField" promptText="ICU, ER, Pediatrics..."
-                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <Label text="Section" styleClass="field-label" />
+            <TextField fx:id="sectionField" promptText="ICU, ER, Pediatrics..." styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Label text="Room" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextField fx:id="roomField" promptText="Room / bed"
-                       style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 10 12; -fx-font-size: 14px;" />
+            <Label text="Room" styleClass="field-label" />
+            <TextField fx:id="roomField" promptText="Room / bed" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
-            <Label text="Priority" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <ComboBox fx:id="priorityBox" maxWidth="Infinity"
-                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC;" />
+            <Label text="Priority" styleClass="field-label" />
+            <ComboBox fx:id="priorityBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
-            <Label text="Diagnosis" style="-fx-text-fill: #263238; -fx-font-size: 13px; -fx-font-weight: bold;" />
-            <TextArea fx:id="diagnosisArea" promptText="Short diagnosis or clinical note" prefRowCount="4" wrapText="true"
-                      style="-fx-background-color: #FAFCFD; -fx-background-radius: 13; -fx-border-radius: 13; -fx-border-color: #CFD8DC; -fx-padding: 8; -fx-font-size: 14px;" />
+            <Label text="Diagnosis" styleClass="field-label" />
+            <TextArea fx:id="diagnosisArea" promptText="Short diagnosis or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
         </VBox>
     </GridPane>
 
-    <Label fx:id="statusLabel" text="-" wrapText="true"
-           style="-fx-background-color: #E0F2F1; -fx-text-fill: #00695C; -fx-background-radius: 18; -fx-padding: 8 14; -fx-font-size: 13px;" />
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-success success-value" />
 </VBox>

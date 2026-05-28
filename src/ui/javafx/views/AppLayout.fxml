@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
@@ -10,160 +10,127 @@
 <BorderPane
         prefWidth="1200.0"
         prefHeight="760.0"
-        style="-fx-background-color: #F4F8FB;"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.AppLayoutController">
+        fx:controller="ui.javafx.controllers.AppLayoutController" styleClass="content-page">
 
     <left>
         <VBox
-                prefWidth="265.0"
-                spacing="16.0"
-                style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #08306B);
-                       -fx-padding: 22 18;">
+                prefWidth="286.0"
+                spacing="18.0" styleClass="app-sidebar">
 
-            <VBox spacing="4.0">
-                <Label
-                        text="SPMS"
-                        style="-fx-text-fill: white;
-                               -fx-font-size: 30px;
-                               -fx-font-weight: bold;" />
+            <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="shell-brand-block">
+                <StackPane styleClass="shell-brand-logo">
+                    <Label text="+" styleClass="shell-brand-logo-text" />
+                </StackPane>
 
-                <Label
-                        text="JavaFX Hospital Preview"
-                        wrapText="true"
-                        style="-fx-text-fill: #BBDEFB;
-                               -fx-font-size: 13px;" />
-            </VBox>
+                <VBox spacing="2.0">
+                    <Label text="SPMS" styleClass="shell-brand-title" />
+                    <Label text="Smart Patient Monitoring System"
+                           wrapText="true" styleClass="shell-brand-subtitle" />
+                </VBox>
+            </HBox>
 
             <VBox
-                    spacing="4.0"
-                    style="-fx-background-color: rgba(255,255,255,0.12);
-                           -fx-background-radius: 16;
-                           -fx-padding: 14;">
+                    spacing="4.0" styleClass="shell-user-block">
 
                 <Label
                         fx:id="userLabel"
-                        text="User"
-                        style="-fx-text-fill: white;
-                               -fx-font-size: 14px;
-                               -fx-font-weight: bold;" />
+                        text="User" styleClass="shell-user-name" />
 
                 <Label
                         fx:id="roleLabel"
                         text="Role | Section"
-                        wrapText="true"
-                        style="-fx-text-fill: #BBDEFB;
-                               -fx-font-size: 12px;" />
+                        wrapText="true" styleClass="shell-user-meta" />
             </VBox>
 
-            <VBox spacing="8.0">
+            <VBox spacing="7.0" styleClass="shell-nav-list">
 
-                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity"
-                        style="-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity" styleClass="nav-button-blue-active" />
 
-                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="medicalDevicesButton" text="Medical Devices" onAction="#showMedicalDevices" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="roomOccupancyButton" text="Rooms / Beds" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="deceasedRecordsButton" text="Deceased Records" onAction="#showDeceasedRecords" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="newbornRecordsButton" text="Newborn Records" onAction="#showNewbornRecords" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="certificateRegistryButton" text="Certificates" onAction="#showCertificateRegistry" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="backupExportButton" text="Backup / Export" onAction="#showBackupExport" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity"
-                        managed="false" visible="false"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity"
-                        style="-fx-background-color: transparent; -fx-text-fill: #E3F2FD; -fx-font-weight: bold; -fx-alignment: CENTER_LEFT; -fx-background-radius: 14; -fx-padding: 10 14; -fx-cursor: hand;" />
+                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <Label text="Profile, theme, and logout are in the top-right menu."
-                   wrapText="true"
-                   style="-fx-text-fill: #BBDEFB; -fx-font-size: 12px;" />
+            <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="shell-status-card">
+                <Label text="OK" styleClass="shell-status-icon" />
+                <VBox spacing="2.0">
+                    <Label text="System Status" styleClass="shell-status-title" />
+                    <Label text="Online" styleClass="shell-status-text" />
+                </VBox>
+            </HBox>
         </VBox>
     </left>
 
     <center>
-        <BorderPane style="-fx-background-color: #F4F8FB;">
+        <BorderPane styleClass="content-page">
             <top>
-                <HBox alignment="CENTER_RIGHT" spacing="10.0"
-                      style="-fx-background-color: white; -fx-padding: 14 22; -fx-border-color: transparent transparent #E0E7EF transparent; -fx-border-width: 0 0 1 0;">
+                <HBox alignment="CENTER_RIGHT" spacing="14.0" styleClass="shell-top-bar">
 
-                    <Label fx:id="topUserLabel" text="User | Section"
-                           style="-fx-text-fill: #607D8B; -fx-font-size: 13px;" />
+                    <TextField promptText="Search patients, alerts..." styleClass="shell-search-field" />
 
-                    <Label fx:id="roleBadgeLabel" text="UNKNOWN"
-                           style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-background-radius: 16; -fx-padding: 6 12; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Label fx:id="topUserLabel" text="User | Section" styleClass="muted-text" />
 
-                    <Button fx:id="topNotificationButton" text="Bell" onAction="#showNotifications"
-                            style="-fx-background-color: #E3F2FD; -fx-text-fill: #0D47A1; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 8 14; -fx-cursor: hand;" />
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
 
-                    <Label fx:id="unreadCountLabel" text="0"
-                           style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 16; -fx-padding: 5 10; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    <Button fx:id="topNotificationButton" text="Notifications" onAction="#showNotifications" styleClass="shell-bell-button" />
 
-                    <MenuButton fx:id="profileMenuButton" text="Profile"
-                                style="-fx-background-color: #F6F8FB; -fx-text-fill: #263238; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 7 12; -fx-cursor: hand;">
+                    <Label fx:id="unreadCountLabel" text="0" styleClass="notification-badge" />
+
+                    <MenuButton fx:id="profileMenuButton" text="Profile" styleClass="shell-profile-menu">
                         <items>
-                            <MenuItem text="View Profile / Settings" onAction="#showSettings" />
+                            <MenuItem text="Profile" onAction="#showSettings" />
                             <MenuItem fx:id="darkModeMenuItem" text="Dark Mode" onAction="#toggleTheme" />
                             <SeparatorMenuItem />
                             <MenuItem text="Logout" onAction="#logout" />

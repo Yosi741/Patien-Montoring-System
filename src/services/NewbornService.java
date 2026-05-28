@@ -5,10 +5,10 @@ import dao.SqlitePatientDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;
+import ui.javafx.helpers.FxFileOpenHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -93,10 +93,7 @@ public class NewbornService {
         Path certificate = validateCertificatePath(record.getCertificatePath());
         AuditWriteHelper.write(username(currentUser), AuditAction.OPEN_BIRTH_CERTIFICATE,
                 "newborn_id=" + record.getNewbornId());
-        if (!Desktop.isDesktopSupported()) {
-            throw new UnsupportedOperationException("Desktop open is not supported on this system. Certificate path: " + certificate);
-        }
-        Desktop.getDesktop().open(certificate.toFile());
+        FxFileOpenHelper.open(certificate);
     }
 
     public List<SqliteNewbornRecordDao.NewbornRecord> getNewbornRecords(SqliteNewbornRecordDao.RecordFilter filter) throws SQLException {

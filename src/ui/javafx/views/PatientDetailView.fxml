@@ -1,210 +1,287 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <BorderPane
         prefWidth="1200.0"
         prefHeight="760.0"
-        styleClass="content-page"
+        styleClass="content-page patient-file-root"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.PatientDetailController">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0"
-              styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label fx:id="nameLabel" text="Patient"
-                       styleClass="screen-title" />
-                <Label text="Read-only SQLite patient detail preview"
-                       styleClass="muted-text" />
-            </VBox>
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <Button fx:id="editPatientButton" text="Edit Patient" onAction="#editPatient"
-                    styleClass="secondary-button" />
-            <Button fx:id="movePatientButton" text="Move Patient" onAction="#movePatientRoom"
-                    styleClass="secondary-button" />
-            <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals"
-                    styleClass="primary-button" />
-            <Button fx:id="markDeceasedButton" text="Mark Deceased" onAction="#markPatientDeceased"
-                    styleClass="danger-button" />
-            <Button fx:id="viewNewbornsButton" text="View Newborns" onAction="#viewPatientNewborns"
-                    styleClass="secondary-button" />
-            <Button text="Open Clinical Timeline" onAction="#openClinicalTimeline"
-                    styleClass="secondary-button" />
-            <Button text="Back to Patient List" onAction="#backToPatients"
-                    styleClass="secondary-button" />
-        </HBox>
-    </top>
-
     <center>
-        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
+        <ScrollPane fitToWidth="true" styleClass="patient-file-scroll">
             <content>
-                <VBox spacing="18.0">
+                <VBox spacing="18.0" styleClass="patient-file-page">
                     <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                        <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
                     </padding>
 
-                    <GridPane hgap="16.0" vgap="16.0">
-                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Patient ID" styleClass="metric-label" />
-                            <Label fx:id="patientIdLabel" text="-" styleClass="detail-value" />
+                    <VBox spacing="18.0" styleClass="patient-file-hero">
+                        <HBox alignment="CENTER_LEFT" spacing="18.0">
+                            <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                <Label text="Patient File" styleClass="patient-file-title" />
+                                <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <Label text="ID" styleClass="patient-file-meta-label" />
+                                    <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
+                                    <Label text="Section" styleClass="patient-file-meta-label" />
+                                    <Label fx:id="sectionLabel" text="-" styleClass="patient-file-meta-value" />
+                                    <Label text="Room" styleClass="patient-file-meta-label" />
+                                    <Label fx:id="roomLabel" text="-" styleClass="patient-file-meta-value" />
+                                </HBox>
+                            </VBox>
+                            <VBox alignment="CENTER_RIGHT" spacing="8.0">
+                                <Button text="Back to Patient Board" onAction="#backToPatients" styleClass="patient-file-ghost-button" />
+                                <Label text="SQLite-backed clinical preview" styleClass="patient-file-muted" />
+                            </VBox>
+                        </HBox>
+
+                        <GridPane hgap="12.0" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="16.6" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="16.6" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="16.6" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="16.6" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="16.6" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="17.0" />
+                            </columnConstraints>
+
+                            <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Age" styleClass="patient-file-stat-label" />
+                                <Label fx:id="ageLabel" text="-" styleClass="patient-file-stat-value" />
+                            </VBox>
+                            <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Birth Date" styleClass="patient-file-stat-label" />
+                                <Label fx:id="birthDateLabel" text="-" styleClass="patient-file-stat-value" />
+                            </VBox>
+                            <VBox spacing="5.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Gender" styleClass="patient-file-stat-label" />
+                                <Label fx:id="genderLabel" text="-" styleClass="patient-file-stat-value" />
+                            </VBox>
+                            <VBox spacing="5.0" GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Status" styleClass="patient-file-stat-label" />
+                                <Label fx:id="statusLabel" text="-" styleClass="patient-file-stat-value" />
+                            </VBox>
+                            <VBox spacing="5.0" GridPane.columnIndex="4" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Priority" styleClass="patient-file-stat-label" />
+                                <Label fx:id="priorityLabel" text="NORMAL" styleClass="priority-normal" />
+                            </VBox>
+                            <VBox spacing="5.0" GridPane.columnIndex="5" GridPane.rowIndex="0" styleClass="patient-file-stat">
+                                <Label text="Blood Type" styleClass="patient-file-stat-label" />
+                                <Label text="Not recorded" styleClass="patient-file-empty-inline" />
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+
+                    <GridPane hgap="18.0" vgap="18.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.4" />
+                        </columnConstraints>
+
+                        <VBox spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-card">
+                            <Label text="Clinical Actions" styleClass="patient-file-section-title" />
+                            <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
+                            <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button text="Generate AI Recommendation" onAction="#generateAiRecommendation" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
-                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Age / Birth Date" styleClass="metric-label" />
-                            <Label fx:id="ageLabel" text="-" styleClass="detail-value" />
-                            <Label fx:id="birthDateLabel" text="-" styleClass="muted-text" />
+                        <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
+                            <Label text="Patient Actions" styleClass="patient-file-section-title" />
+                            <Button fx:id="editPatientButton" text="Edit Patient" onAction="#editPatient" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="movePatientButton" text="Move Patient" onAction="#movePatientRoom" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="markDeceasedButton" text="Mark Deceased" onAction="#markPatientDeceased" maxWidth="Infinity" styleClass="patient-file-danger-button" />
                         </VBox>
 
-                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Priority" styleClass="metric-label" />
-                            <Label fx:id="priorityLabel" text="NORMAL"
-                                   styleClass="status-info" />
-                        </VBox>
-
-                        <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Gender" styleClass="metric-label" />
-                            <Label fx:id="genderLabel" text="-" styleClass="detail-value" />
-                        </VBox>
-
-                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Location" styleClass="metric-label" />
-                            <Label fx:id="sectionLabel" text="-" styleClass="detail-value" />
-                            <Label fx:id="roomLabel" text="-" styleClass="muted-text" />
-                        </VBox>
-
-                        <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
-                              styleClass="metric-card">
-                            <Label text="Status" styleClass="metric-label" />
-                            <Label fx:id="statusLabel" text="-" styleClass="detail-value success-value" />
+                        <VBox spacing="12.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="patient-file-card">
+                            <Label text="Records" styleClass="patient-file-section-title" />
+                            <FlowPane hgap="8.0" vgap="8.0">
+                                <Button text="Clinical Timeline" onAction="#openClinicalTimeline" styleClass="patient-file-chip-button" />
+                                <Button text="Alerts" onAction="#viewPatientAlerts" styleClass="patient-file-chip-danger" />
+                                <Button text="Files" onAction="#viewPatientMedicalFiles" styleClass="patient-file-chip-button" />
+                                <Button text="Medications" onAction="#viewPatientMedications" styleClass="patient-file-chip-button" />
+                                <Button fx:id="viewNewbornsButton" text="Newborns" onAction="#viewPatientNewborns" styleClass="patient-file-chip-button" />
+                            </FlowPane>
                         </VBox>
                     </GridPane>
 
-                    <VBox spacing="8.0"
-                          styleClass="panel-card">
-                        <Label text="Diagnosis" styleClass="section-title" />
-                        <Label fx:id="diagnosisLabel" text="No diagnosis recorded" wrapText="true"
-                               styleClass="body-text" />
-                    </VBox>
+                    <GridPane hgap="18.0" vgap="18.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                        </columnConstraints>
 
-                    <!-- باقي الأقسام خليتها بنفس الـ fx:id والـ onAction لكن بتصميم أنظف -->
-                    <VBox spacing="12.0"
-                          styleClass="panel-card">
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-card">
+                            <Label text="Basic Information" styleClass="patient-file-section-title" />
+                            <Label text="Current Diagnosis" styleClass="patient-file-field-label" />
+                            <Label fx:id="diagnosisLabel" text="No diagnosis recorded" wrapText="true" styleClass="patient-file-body" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
+                            <Label text="Allergies" styleClass="patient-file-section-title" />
+                            <Label text="No allergy records found" wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="patient-file-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Current Medications" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="addMedicationButton" text="Add" onAction="#addPatientMedication" styleClass="patient-file-mini-button" />
+                                <Button fx:id="recordMedicationButton" text="Record Given" onAction="#recordPatientMedicationGiven" styleClass="patient-file-mini-button" />
+                            </HBox>
+                            <Label text="Open Medications to view active medications and administration events." wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="patient-file-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Uploaded Medical Files" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="uploadMedicalFileButton" text="Upload" onAction="#uploadPatientMedicalFile" styleClass="patient-file-mini-button" />
+                            </HBox>
+                            <Label text="Use the Files record tab to view reports, scans, and uploaded clinical documents." wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="patient-file-card">
+                            <Label text="Past Hospital Visits" styleClass="patient-file-section-title" />
+                            <Label text="No past hospital visits recorded" wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="patient-file-card">
+                            <Label text="Accidents / Emergency History" styleClass="patient-file-section-title" />
+                            <Label text="No emergency history recorded" wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="patient-file-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Previous Checkups" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="createAppointmentButton" text="Schedule" onAction="#createPatientAppointment" styleClass="patient-file-mini-button" />
+                            </HBox>
+                            <Label text="No previous checkups recorded in this patient file view" wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="patient-file-card">
+                            <Label text="Scans and Imaging" styleClass="patient-file-section-title" />
+                            <Label text="CT, MRI, X-Ray, and ultrasound files will appear through Uploaded Medical Files. No scans uploaded yet." wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
+                    </GridPane>
+
+                    <VBox spacing="14.0" styleClass="patient-file-card">
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                <Label text="AI Recommendation" styleClass="section-title" />
-                                <Label text="Rule-based decision support only. Not a medical diagnosis." wrapText="true"
-                                       styleClass="muted-text" />
+                                <Label text="AI Recommendation" styleClass="patient-file-section-title" />
+                                <Label text="Rule-based decision support only. Not a medical diagnosis." wrapText="true" styleClass="patient-file-muted" />
                             </VBox>
-                            <Button text="Generate Recommendation" onAction="#generateAiRecommendation"
-                                    styleClass="primary-button" />
                         </HBox>
 
                         <GridPane hgap="14.0" vgap="10.0">
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="4.0"
-                                  styleClass="detail-card">
-                                <Label text="Risk Score" styleClass="metric-label" />
-                                <Label fx:id="aiRiskLabel" text="Not generated" style="-fx-text-fill: #0D47A1; -fx-font-size: 16px; -fx-font-weight: bold;" />
-                                <Label fx:id="aiRecommendationTimeLabel" text="-" styleClass="muted-text" />
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="22.0" />
+                                <ColumnConstraints percentWidth="78.0" />
+                            </columnConstraints>
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="5.0" styleClass="patient-file-soft-card">
+                                <Label text="Risk Score" styleClass="patient-file-field-label" />
+                                <Label fx:id="aiRiskLabel" text="Not generated" styleClass="patient-file-stat-value" />
+                                <Label fx:id="aiRecommendationTimeLabel" text="-" styleClass="patient-file-muted" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="4.0"
-                                  styleClass="detail-card">
-                                <Label text="Latest Recommendation" styleClass="metric-label" />
-                                <Label fx:id="aiRecommendationLabel" text="No AI recommendation has been generated for this patient yet." wrapText="true"
-                                       styleClass="body-text" />
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="5.0" styleClass="patient-file-soft-card">
+                                <Label text="Latest Recommendation" styleClass="patient-file-field-label" />
+                                <Label fx:id="aiRecommendationLabel" text="No AI recommendation has been generated for this patient yet." wrapText="true" styleClass="patient-file-body" />
                             </VBox>
                         </GridPane>
 
-                        <Label fx:id="aiRecommendationStatusLabel" text="Rule-based decision support only. Not a medical diagnosis." wrapText="true"
-                               styleClass="status-info" />
+                        <Label fx:id="aiRecommendationStatusLabel" text="Rule-based decision support only. Not a medical diagnosis." wrapText="true" styleClass="status-info" />
                     </VBox>
 
-                    <HBox spacing="14.0"
-                          styleClass="panel-card">
+                    <HBox spacing="16.0" styleClass="patient-file-card">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                            <Label text="Patient Alert Summary" styleClass="section-title" />
-                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound; Swing alarm windows remain separate." wrapText="true"
-                                   styleClass="muted-text" />
+                            <Label text="Alert Summary" styleClass="patient-file-section-title" />
+                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound; Swing alarm windows remain separate." wrapText="true" styleClass="patient-file-muted" />
                         </VBox>
-                        <VBox spacing="5.0">
-                            <Label text="Active Alerts" styleClass="metric-label" />
-                            <Label fx:id="activeAlertCountLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                        <VBox spacing="5.0" styleClass="patient-file-soft-card">
+                            <Label text="Active Alerts" styleClass="patient-file-field-label" />
+                            <Label fx:id="activeAlertCountLabel" text="0" styleClass="patient-file-alert-count" />
                         </VBox>
-                        <VBox spacing="5.0">
-                            <Label text="Latest Alert" styleClass="metric-label" />
+                        <VBox spacing="5.0" styleClass="patient-file-soft-card">
+                            <Label text="Latest Alert" styleClass="patient-file-field-label" />
                             <Label fx:id="latestAlertSeverityLabel" text="No alerts recorded" />
-                            <Label fx:id="latestAlertTimeLabel" text="-" styleClass="muted-text" />
+                            <Label fx:id="latestAlertTimeLabel" text="-" styleClass="patient-file-muted" />
                         </VBox>
-                        <Button text="View Patient Alerts" onAction="#viewPatientAlerts"
-                                styleClass="danger-button" />
+                        <Button text="View Patient Alerts" onAction="#viewPatientAlerts" styleClass="patient-file-danger-button" />
                     </HBox>
 
-                    <VBox spacing="12.0"
-                          styleClass="panel-card">
+                    <VBox spacing="14.0" styleClass="patient-file-card">
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <VBox spacing="3.0">
-                                <Label text="Vital Trend Chart" styleClass="section-title" />
-                                <Label text="Read-only SQLite visualization with basic rule-based status indicators."
-                                       styleClass="muted-text" />
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Vital Trends" styleClass="patient-file-section-title" />
+                                <Label text="Read-only SQLite visualization with basic rule-based status indicators." styleClass="patient-file-muted" />
                             </VBox>
-                            <Region HBox.hgrow="ALWAYS" />
                             <Label text="Vital" styleClass="field-label" />
-                            <ComboBox fx:id="trendVitalTypeFilter" prefWidth="165.0" />
+                            <ComboBox fx:id="trendVitalTypeFilter" prefWidth="175.0" styleClass="patient-input" />
                             <Label text="Range" styleClass="field-label" />
-                            <ComboBox fx:id="trendRangeFilter" prefWidth="145.0" />
-                            <Button text="Refresh Chart" onAction="#loadTrendChart"
-                                    styleClass="secondary-button" />
+                            <ComboBox fx:id="trendRangeFilter" prefWidth="150.0" styleClass="patient-input" />
+                            <Button text="Refresh Chart" onAction="#loadTrendChart" styleClass="patient-file-secondary-button" />
                         </HBox>
 
-                        <LineChart fx:id="vitalsTrendChart" legendVisible="true" prefHeight="280.0">
-                            <xAxis><NumberAxis fx:id="trendXAxis" /></xAxis>
-                            <yAxis><NumberAxis fx:id="trendYAxis" /></yAxis>
-                        </LineChart>
+                        <GridPane hgap="14.0" vgap="14.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="68.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" percentWidth="32.0" />
+                            </columnConstraints>
 
-                        <Label fx:id="trendStatusLabel" text="Trend chart not loaded yet."
-                               styleClass="status-info" />
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-chart-wrap">
+                                <LineChart fx:id="vitalsTrendChart" legendVisible="true" prefHeight="310.0">
+                                    <xAxis><NumberAxis fx:id="trendXAxis" /></xAxis>
+                                    <yAxis><NumberAxis fx:id="trendYAxis" /></yAxis>
+                                </LineChart>
+                            </VBox>
+
+                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="12.0">
+                                <VBox spacing="6.0" styleClass="patient-file-soft-card">
+                                    <Label text="Latest Reading" styleClass="patient-file-field-label" />
+                                    <Label fx:id="latestValueLabel" text="-" wrapText="true" styleClass="trend-normal" />
+                                    <Label fx:id="latestMetaLabel" text="No latest reading available." wrapText="true" styleClass="patient-file-muted" />
+                                </VBox>
+                                <VBox spacing="6.0" styleClass="patient-file-soft-card">
+                                    <Label text="Statistics" styleClass="patient-file-field-label" />
+                                    <Label fx:id="trendStatsLabel" text="Min: - | Max: - | Avg: -" wrapText="true" styleClass="patient-file-body" />
+                                    <Label fx:id="trendCountsLabel" text="Normal: 0 | Warning: 0 | Critical: 0" wrapText="true" styleClass="patient-file-muted" />
+                                </VBox>
+                            </VBox>
+                        </GridPane>
+
+                        <Label fx:id="trendStatusLabel" text="Trend chart not loaded yet." styleClass="status-info" />
                     </VBox>
 
-                    <VBox spacing="12.0"
-                          styleClass="panel-card"
-                          VBox.vgrow="ALWAYS">
+                    <VBox spacing="14.0" styleClass="patient-file-card" VBox.vgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <Label text="Vitals Timeline" styleClass="section-title" />
-                            <Region HBox.hgrow="ALWAYS" />
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Vitals Timeline" styleClass="patient-file-section-title" />
+                                <Label text="Recent readings from SQLite, newest first." styleClass="patient-file-muted" />
+                            </VBox>
                             <Label text="Type" styleClass="field-label" />
-                            <ComboBox fx:id="vitalTypeFilter" prefWidth="180.0" />
-                            <Button text="Refresh" onAction="#loadVitals"
-                                    styleClass="secondary-button" />
+                            <ComboBox fx:id="vitalTypeFilter" prefWidth="190.0" styleClass="patient-input" />
+                            <Button text="Refresh" onAction="#loadVitals" styleClass="patient-file-secondary-button" />
                         </HBox>
 
-                        <TableView fx:id="vitalsTable" VBox.vgrow="ALWAYS"
-                                   styleClass="table-surface">
+                        <TableView fx:id="vitalsTable" prefHeight="360.0" VBox.vgrow="ALWAYS" styleClass="patient-file-table">
                             <columns>
-                                <TableColumn fx:id="typeColumn" text="Type" prefWidth="140.0" />
+                                <TableColumn fx:id="typeColumn" text="Type" prefWidth="150.0" />
                                 <TableColumn fx:id="valueColumn" text="Value" prefWidth="110.0" />
                                 <TableColumn fx:id="unitColumn" text="Unit" prefWidth="90.0" />
                                 <TableColumn fx:id="timeColumn" text="Recorded Time" prefWidth="190.0" />
                                 <TableColumn fx:id="sourceColumn" text="Source" prefWidth="120.0" />
-                                <TableColumn fx:id="staffColumn" text="Staff User" prefWidth="140.0" />
+                                <TableColumn fx:id="staffColumn" text="Staff User" prefWidth="150.0" />
                                 <TableColumn fx:id="deviceColumn" text="Device ID" prefWidth="150.0" />
                             </columns>
                         </TableView>
 
-                        <Label fx:id="timelineStatusLabel" text="Vital readings loaded from SQLite: 0"
-                               styleClass="status-info" />
+                        <Label fx:id="timelineStatusLabel" text="Vital readings loaded from SQLite: 0" styleClass="status-info" />
                     </VBox>
                 </VBox>
             </content>

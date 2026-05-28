@@ -16,52 +16,34 @@
 <BorderPane
         prefWidth="1100.0"
         prefHeight="700.0"
-        style="-fx-background-color: #F4F8FB;"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.AiRecommendationsController">
+        fx:controller="ui.javafx.controllers.AiRecommendationsController" styleClass="content-page">
 
     <top>
         <HBox
                 alignment="CENTER_LEFT"
-                spacing="16.0"
-                style="-fx-background-color: white;
-                       -fx-padding: 18 24;
-                       -fx-border-color: transparent transparent #E0E7EF transparent;
-                       -fx-border-width: 0 0 1 0;">
+                spacing="16.0" styleClass="top-bar compact-top-bar">
 
             <VBox spacing="4.0">
                 <Label
-                        text="AI Recommendations"
-                        style="-fx-text-fill: #0D47A1;
-                               -fx-font-size: 26px;
-                               -fx-font-weight: bold;" />
+                        text="AI Recommendations" styleClass="screen-title" />
 
                 <Label
-                        text="Rule-based decision support only. Not a medical diagnosis."
-                        style="-fx-text-fill: #607D8B;
-                               -fx-font-size: 13px;" />
+                        text="Rule-based decision support only. Not a medical diagnosis." styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
 
             <Button
                     text="Dashboard"
-                    onAction="#showDashboard"
-                    style="-fx-background-color: #EEF5FF;
-                           -fx-text-fill: #0D47A1;
-                           -fx-font-weight: bold;
-                           -fx-background-radius: 14;
-                           -fx-padding: 9 18;
-                           -fx-cursor: hand;" />
+                    onAction="#showDashboard" styleClass="secondary-button" />
         </HBox>
     </top>
 
     <center>
         <ScrollPane
-                fitToWidth="true"
-                style="-fx-background-color: transparent;
-                       -fx-background: transparent;">
+                fitToWidth="true" styleClass="scroll-clear">
 
             <content>
                 <VBox spacing="18.0">
@@ -73,139 +55,73 @@
                             fx:id="accessDeniedPane"
                             managed="false"
                             visible="false"
-                            spacing="10.0"
-                            style="-fx-background-color: #FFF3E0;
-                                   -fx-background-radius: 18;
-                                   -fx-padding: 20;
-                                   -fx-border-color: #FFCC80;
-                                   -fx-border-radius: 18;">
+                            spacing="10.0" styleClass="warning-panel">
 
                         <Label
-                                text="Access denied"
-                                style="-fx-text-fill: #E65100;
-                                       -fx-font-size: 18px;
-                                       -fx-font-weight: bold;" />
+                                text="Access denied" styleClass="warning-value" />
 
                         <Label
                                 text="AI Recommendations are available to Admin, Doctor, and Nurse roles in this JavaFX preview."
-                                wrapText="true"
-                                style="-fx-text-fill: #5D4037;
-                                       -fx-font-size: 14px;" />
+                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="aiContentPane" spacing="18.0">
 
                         <VBox
-                                spacing="8.0"
-                                style="-fx-background-color: white;
-                                       -fx-background-radius: 18;
-                                       -fx-padding: 20;
-                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                spacing="8.0" styleClass="panel-card">
 
                             <Label
-                                    text="Clinical Decision Support Notice"
-                                    style="-fx-text-fill: #0D47A1;
-                                           -fx-font-size: 18px;
-                                           -fx-font-weight: bold;" />
+                                    text="Clinical Decision Support Notice" styleClass="metric-value compact-metric-value" />
 
                             <Label
                                     text="Rule-based decision support only. Not a medical diagnosis. Clinical staff must verify patient condition and follow hospital policy."
-                                    wrapText="true"
-                                    style="-fx-text-fill: #455A64;
-                                           -fx-font-size: 14px;" />
+                                    wrapText="true" styleClass="body-text" />
                         </VBox>
 
                         <VBox
-                                spacing="12.0"
-                                style="-fx-background-color: white;
-                                       -fx-background-radius: 18;
-                                       -fx-padding: 18;
-                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                spacing="12.0" styleClass="panel-card">
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
 
                                 <Label
-                                        text="Section"
-                                        style="-fx-text-fill: #263238;
-                                               -fx-font-size: 13px;
-                                               -fx-font-weight: bold;" />
+                                        text="Section" styleClass="field-label" />
 
                                 <ComboBox
                                         fx:id="sectionFilter"
-                                        prefWidth="180.0"
-                                        style="-fx-background-radius: 12;
-                                               -fx-border-radius: 12;
-                                               -fx-border-color: #CFD8DC;
-                                               -fx-background-color: #FAFCFD;" />
+                                        prefWidth="180.0" styleClass="control-input" />
 
                                 <Label
-                                        text="Risk Level"
-                                        style="-fx-text-fill: #263238;
-                                               -fx-font-size: 13px;
-                                               -fx-font-weight: bold;" />
+                                        text="Risk Level" styleClass="field-label" />
 
                                 <ComboBox
                                         fx:id="riskLevelFilter"
-                                        prefWidth="150.0"
-                                        style="-fx-background-radius: 12;
-                                               -fx-border-radius: 12;
-                                               -fx-border-color: #CFD8DC;
-                                               -fx-background-color: #FAFCFD;" />
+                                        prefWidth="150.0" styleClass="control-input" />
 
                                 <Region HBox.hgrow="ALWAYS" />
 
                                 <Button
                                         text="Open Selected Patient"
-                                        onAction="#openSelectedPatient"
-                                        style="-fx-background-color: #1E88E5;
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 14;
-                                               -fx-padding: 9 18;
-                                               -fx-cursor: hand;" />
+                                        onAction="#openSelectedPatient" styleClass="primary-button" />
 
                                 <Button
                                         text="Clear Filters"
-                                        onAction="#clearFilters"
-                                        style="-fx-background-color: #EEF5FF;
-                                               -fx-text-fill: #0D47A1;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 14;
-                                               -fx-padding: 9 16;
-                                               -fx-cursor: hand;" />
+                                        onAction="#clearFilters" styleClass="secondary-button" />
 
                                 <Button
                                         text="Refresh"
-                                        onAction="#loadRecommendations"
-                                        style="-fx-background-color: #E0F2F1;
-                                               -fx-text-fill: #00695C;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 14;
-                                               -fx-padding: 9 16;
-                                               -fx-cursor: hand;" />
+                                        onAction="#loadRecommendations" styleClass="secondary-button" />
                             </HBox>
                         </VBox>
 
                         <VBox
-                                spacing="10.0"
-                                style="-fx-background-color: white;
-                                       -fx-background-radius: 18;
-                                       -fx-padding: 16;
-                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 18, 0, 0, 5);">
+                                spacing="10.0" styleClass="panel-card">
 
                             <Label
-                                    text="Patient Risk Recommendations"
-                                    style="-fx-text-fill: #263238;
-                                           -fx-font-size: 17px;
-                                           -fx-font-weight: bold;" />
+                                    text="Patient Risk Recommendations" styleClass="section-title" />
 
                             <TableView
                                     fx:id="recommendationTable"
-                                    prefHeight="500.0"
-                                    style="-fx-background-color: white;
-                                           -fx-border-color: #E0E7EF;
-                                           -fx-border-radius: 14;
-                                           -fx-background-radius: 14;">
+                                    prefHeight="500.0" styleClass="dialog-card">
 
                                 <columns>
                                     <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="110.0" />
@@ -223,12 +139,7 @@
                         <Label
                                 fx:id="statusLabel"
                                 text="AI recommendations not loaded yet."
-                                wrapText="true"
-                                style="-fx-background-color: #E3F2FD;
-                                       -fx-text-fill: #0D47A1;
-                                       -fx-background-radius: 18;
-                                       -fx-padding: 8 14;
-                                       -fx-font-size: 13px;" />
+                                wrapText="true" styleClass="status-info metric-value compact-metric-value" />
                     </VBox>
                 </VBox>
             </content>

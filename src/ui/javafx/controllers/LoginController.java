@@ -33,13 +33,9 @@ public class LoginController implements FxController {
     @FXML
     private Label statusLabel;
 
-    @FXML
-    private Label databaseStatusLabel;
-
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
-        databaseStatusLabel.setText(appShell.getDatabaseStatus());
     }
 
     @FXML
@@ -55,7 +51,7 @@ public class LoginController implements FxController {
                 return;
             }
         } catch (Exception e) {
-            statusLabel.setText("SQLite login unavailable, checking legacy users.");
+            statusLabel.setText("Checking secure backup login...");
         }
 
         for (User user : UserStorage.loadUsers()) {

@@ -5,10 +5,10 @@ import dao.SqlitePatientDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;
+import ui.javafx.helpers.FxFileOpenHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -102,10 +102,7 @@ public class DeceasedPatientService {
         Path certificate = validateCertificatePath(record.getCertificatePath());
         AuditWriteHelper.write(username(currentUser), AuditAction.OPEN_DEATH_CERTIFICATE,
                 "patient_id=" + record.getPatientId() + ", record_id=" + recordId);
-        if (!Desktop.isDesktopSupported()) {
-            throw new UnsupportedOperationException("Desktop open is not supported on this system. Certificate path: " + certificate);
-        }
-        Desktop.getDesktop().open(certificate.toFile());
+        FxFileOpenHelper.open(certificate);
     }
 
     public List<SqliteDeceasedRecordDao.DeathRecord> getDeceasedRecords(SqliteDeceasedRecordDao.RecordFilter filter) throws SQLException {

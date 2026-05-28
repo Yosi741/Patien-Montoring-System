@@ -1,13 +1,13 @@
 # Smart Patient Monitoring System
 
-A Java Swing hospital-style patient monitoring platform for managing patients, recording vital signs, viewing live ICU-style dashboards, uploading medical files, and generating rule-based clinical advice notes.
+A modern Java JavaFX hospital-grade patient monitoring platform for managing patients, recording vital signs, viewing live ICU-style dashboards, uploading medical files, and generating rule-based clinical advice notes.
 
 ## Features
 
-- Java Swing desktop GUI with a soft blue, white, and light gray hospital dashboard style
+- **Modern JavaFX UI** with hospital-style dashboard and responsive controls
 - Login system with Admin, Doctor, and Nurse roles
 - Patient management with add, edit, delete, search, and risk filtering
-- Persistent text-file storage in `data/`
+- Dual persistence: SQLite database + legacy text-file storage in `data/`
 - Vital sign recording for temperature, heart rate, blood pressure, and oxygen level
 - ICU-style patient dashboard with animated ECG panel and live vital cards
 - ECG standby mode until a simulated or future real ECG monitor is connected
@@ -15,8 +15,8 @@ A Java Swing hospital-style patient monitoring platform for managing patients, r
 - Reliable alarm state management using ACTIVE, ACKNOWLEDGED, STOPPED, and RESOLVED states
 - Critical alert alarm using `resources/sounds/alarm.wav` with manual Stop Alarm control
 - Smart device connector architecture with a simulated Bluetooth monitor adapter
-- Device registry in `data/devices.txt`
-- Permanent vital-sign history in `data/vitals_history.txt`
+- Device registry in SQLite and `data/devices.txt`
+- Permanent vital-sign history in SQLite and `data/vitals_history.txt`
 - Manual and device vital records store source, staff/device ID, serial number, and timestamp
 - Hospital sections, room ranges, and room capacity checks
 - Sensitive patient medical history with diagnoses, visits, medications, allergies, family history, and files
@@ -76,27 +76,15 @@ javac -cp "lib/*" -d out/production/untitledSmartPatientMonitoringSystem $source
 java -cp "out/production/untitledSmartPatientMonitoringSystem;lib/*" Main
 ```
 
-`Main` now launches the modern JavaFX app by default. The old Swing app is still available as a legacy fallback:
+## Architecture
 
-```powershell
-java -cp "out/production/untitledSmartPatientMonitoringSystem;lib/*" LegacySwingMain
-```
+The application uses a **JavaFX-based modern UI** built with:
+- **UI Layer**: `src/ui/javafx/` with controllers and FXML views (40+ screens)
+- **Service Layer**: Business logic, validation, and audit logging
+- **DAO Layer**: SQLite and text-file persistence
+- **Core Models**: Patient, User, Device, VitalSign, etc.
 
-## JavaFX Preview App
-
-Phase 1 added a JavaFX foundation beside the existing Swing app. As of Phase 32, JavaFX is the default launcher through `Main`. `JavaFxMain` remains available as an explicit JavaFX launcher, and `LegacySwingMain` keeps the old Swing startup path runnable.
-
-Swing is still retained while JavaFX feature parity is being verified. Do not delete Swing screens yet. The current audit and removal plan is documented in:
-
-```text
-docs/swing-to-javafx-parity-report.md
-```
-
-Run the explicit JavaFX entry point:
-
-```bash
-java -cp "out/production/untitledSmartPatientMonitoringSystem:lib/*" JavaFxMain
-```
+All legacy Swing code has been removed. The application is JavaFX-exclusive.
 
 On Windows PowerShell:
 
@@ -134,6 +122,22 @@ The database file is runtime data and is ignored by Git.
 ## SQLite Migration Preview
 
 Phase 2 adds SQLite DAOs beside the existing text-file storage. The current Swing app still reads and writes the text files in `data/`. The JavaFX preview reads patients from SQLite after migration.
+
+## Patient Board Subsections
+
+The JavaFX sidebar is simplified so `Deceased Records` and `Newborn Records` are no longer separate sidebar entry points. Their screens, controllers, services, and drill-down methods remain available internally for certificate, notification, and message navigation.
+
+Open `Patients` to access:
+
+- `All Patients`
+- `Active Patients`
+- `Deceased Patients`
+- `Newborns`
+- `Critical / Emergency`
+- `High Priority`
+- `Recently Updated`
+
+`Deceased Patients` filters the normal SQLite patient table to `DECEASED` status. `Newborns` switches the Patient Board content area to a read-only newborn records table from SQLite `newborn_records`; double-clicking a newborn row opens the existing newborn record view.
 
 The JavaFX preview performs a safe startup migration only when SQLite has no users or no patients yet. You can also run migration manually:
 

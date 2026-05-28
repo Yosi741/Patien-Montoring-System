@@ -146,10 +146,10 @@ public class AppLayoutController implements FxController {
         medicalFilesButton.setManaged(admin || clinical);
         roomOccupancyButton.setVisible(admin || clinical);
         roomOccupancyButton.setManaged(admin || clinical);
-        deceasedRecordsButton.setVisible(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()));
-        deceasedRecordsButton.setManaged(PermissionHelper.canViewDeceasedRecords(Session.getCurrentUser()));
-        newbornRecordsButton.setVisible(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
-        newbornRecordsButton.setManaged(PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
+        deceasedRecordsButton.setVisible(false);
+        deceasedRecordsButton.setManaged(false);
+        newbornRecordsButton.setVisible(false);
+        newbornRecordsButton.setManaged(false);
         certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         aiRecommendationsButton.setVisible(admin || clinical);
@@ -166,6 +166,7 @@ public class AppLayoutController implements FxController {
     }
 
     public void setContent(Parent content) {
+        appShell.applyThemeTo(content);
         contentPane.setCenter(content);
     }
 
@@ -272,6 +273,7 @@ public class AppLayoutController implements FxController {
     @FXML
     private void toggleTheme() {
         appShell.toggleTheme();
+        darkModeMenuItem.setText(appShell.isDarkMode() ? "Switch to Light Mode" : "Switch to Dark Mode");
     }
 
     @FXML
@@ -282,7 +284,7 @@ public class AppLayoutController implements FxController {
     public void refreshNotificationCount() {
         int count = new NotificationCenterService().unreadCount(Session.getCurrentUser());
         unreadCountLabel.setText(String.valueOf(count));
-        topNotificationButton.setText("Bell");
+        topNotificationButton.setText("Notifications");
     }
 
     private void startNotificationRefresh() {

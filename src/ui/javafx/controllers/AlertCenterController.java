@@ -7,6 +7,8 @@ import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
@@ -40,17 +42,16 @@ public class AlertCenterController implements FxController {
     @FXML private HBox patientFilterBox;
     @FXML private Label patientFilterChipLabel;
     @FXML private Label statusLabel;
+    @FXML private Label activeCountLabel;
+    @FXML private Label criticalCountLabel;
+    @FXML private Label warningCountLabel;
+    @FXML private Label completedCountLabel;
     @FXML private TableView<SqliteAlertDao.AlertRow> alertTable;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, Long> idColumn;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> patientIdColumn;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> patientNameColumn;
     @FXML private TableColumn<SqliteAlertDao.AlertRow, String> severityColumn;
+    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> patientColumn;
     @FXML private TableColumn<SqliteAlertDao.AlertRow, String> messageColumn;
     @FXML private TableColumn<SqliteAlertDao.AlertRow, String> alertStatusColumn;
     @FXML private TableColumn<SqliteAlertDao.AlertRow, String> createdAtColumn;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> updatedAtColumn;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> acknowledgedByColumn;
-    @FXML private TableColumn<SqliteAlertDao.AlertRow, String> acknowledgedAtColumn;
     @FXML private Label detailTitleLabel;
     @FXML private Label detailPatientLabel;
     @FXML private Label detailSeverityLabel;
@@ -60,6 +61,10 @@ public class AlertCenterController implements FxController {
     @FXML private Label detailAcknowledgedLabel;
     @FXML private TextArea detailMessageArea;
     @FXML private TextArea recommendedActionArea;
+    @FXML private Button acknowledgeButton;
+    @FXML private Button acknowledgeDetailButton;
+    @FXML private Button resolveButton;
+    @FXML private Button openPatientFileButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -87,6 +92,7 @@ public class AlertCenterController implements FxController {
             alerts.setAll(alertDao.findAlertRows(severityFilter.getValue(), statusFilter.getValue(), searchField.getText(), patientIdFilter));
             alertTable.setItems(alerts);
             renderPatientFilterChip();
+            renderSummaryCounters();
             statusLabel.setText("SQLite alerts loaded: " + alerts.size()
                     + (patientIdFilter == null || patientIdFilter.isBlank() ? "" : " for patient " + patientIdFilter));
             if (selectedId != null && selectAlertById(selectedId)) {
@@ -99,6 +105,7 @@ public class AlertCenterController implements FxController {
             } else {
                 clearDetail();
             }
+            updateActionButtons();
         } catch (Exception e) {
             statusLabel.setText("Could not load alerts: " + e.getMessage());
         }
@@ -124,6 +131,42 @@ public class AlertCenterController implements FxController {
         } catch (Exception e) {
             statusLabel.setText("Could not acknowledge alert: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void resolveSelected() {
+        SqliteAlertDao.AlertRow selected = alertTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            statusLabel.setText("Select an alert first.");
+            return;
+        }
+        try {
+            alertDao.resolve(selected.getId(), Session.getUsername());
+            AlertSoundService.stopAlertSound();
+            logAudit("JavaFX ALERT resolve alert #" + selected.getId() + " for patient " + selected.getPatientId());
+            loadAlerts();
+            alertDao.findAlertRowById(selected.getId()).ifPresent(alert -> {
+                showDetail(alert);
+                selectAlertById(alert.getId());
+            });
+            statusLabel.setText("SQLite alert resolved. JavaFX alert sound stopped if it was active.");
+        } catch (Exception e) {
+            statusLabel.setText("Could not resolve alert: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openSelectedPatientFile() {
+        SqliteAlertDao.AlertRow selected = alertTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            statusLabel.setText("Select an alert first.");
+            return;
+        }
+        if (selected.getPatientId() == null || selected.getPatientId().isBlank()) {
+            statusLabel.setText("This alert has no patient ID to open.");
+            return;
+        }
+        appShell.showPatientDetail(selected.getPatientId());
     }
 
     @FXML
@@ -173,28 +216,23 @@ public class AlertCenterController implements FxController {
     }
 
     private void configureTable() {
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
-        patientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         severityColumn.setCellValueFactory(new PropertyValueFactory<>("severity"));
+        patientColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatPatient(cell.getValue())));
         messageColumn.setCellValueFactory(new PropertyValueFactory<>("message"));
         alertStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-        updatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("updatedAt"));
-        acknowledgedByColumn.setCellValueFactory(new PropertyValueFactory<>("acknowledgedBy"));
-        acknowledgedAtColumn.setCellValueFactory(new PropertyValueFactory<>("acknowledgedAt"));
 
         severityColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String severity, boolean empty) {
                 super.updateItem(severity, empty);
-                getStyleClass().removeAll("severity-warning", "severity-critical", "severity-emergency");
                 if (empty || severity == null) {
                     setText(null);
+                    setGraphic(null);
                     return;
                 }
-                setText(severity);
-                getStyleClass().add(severityStyle(severity));
+                setText(null);
+                setGraphic(badge(severity, severityStyle(severity), "alert-badge-compact"));
             }
         });
 
@@ -202,20 +240,38 @@ public class AlertCenterController implements FxController {
             @Override
             protected void updateItem(String status, boolean empty) {
                 super.updateItem(status, empty);
-                getStyleClass().removeAll("alert-active", "alert-acknowledged", "alert-resolved");
                 if (empty || status == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(badge(status, statusStyle(status), "alert-badge-compact"));
+            }
+        });
+
+        messageColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String message, boolean empty) {
+                super.updateItem(message, empty);
+                setGraphic(null);
+                if (empty || message == null) {
                     setText(null);
                     return;
                 }
-                setText(status);
-                getStyleClass().add(statusStyle(status));
+                setText(message);
+                setWrapText(false);
+                setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
             }
         });
 
         alertTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 showDetail(newValue);
+            } else {
+                clearDetail();
             }
+            updateActionButtons();
         });
 
         alertTable.setRowFactory(table -> new TableRow<>() {
@@ -232,7 +288,7 @@ public class AlertCenterController implements FxController {
 
     private void showDetail(SqliteAlertDao.AlertRow alert) {
         detailTitleLabel.setText("Alert #" + alert.getId());
-        detailPatientLabel.setText(alert.getPatientId() + " | " + alert.getPatientName());
+        detailPatientLabel.setText(formatPatient(alert));
         detailSeverityLabel.setText(alert.getSeverity());
         detailStatusLabel.setText(alert.getStatus());
         detailCreatedLabel.setText(alert.getCreatedAt());
@@ -245,6 +301,7 @@ public class AlertCenterController implements FxController {
         detailSeverityLabel.getStyleClass().add(severityStyle(alert.getSeverity()));
         detailStatusLabel.getStyleClass().removeAll("alert-active", "alert-acknowledged", "alert-resolved");
         detailStatusLabel.getStyleClass().add(statusStyle(alert.getStatus()));
+        updateActionButtons();
     }
 
     private boolean selectAlertById(long alertId) {
@@ -269,6 +326,7 @@ public class AlertCenterController implements FxController {
         detailAcknowledgedLabel.setText("-");
         detailMessageArea.clear();
         recommendedActionArea.clear();
+        updateActionButtons();
     }
 
     private void renderPatientFilterChip() {
@@ -284,6 +342,58 @@ public class AlertCenterController implements FxController {
         } catch (Exception e) {
             statusLabel.setText("Demo alert seeding skipped: " + e.getMessage());
         }
+    }
+
+    private void renderSummaryCounters() {
+        int active = 0;
+        int critical = 0;
+        int warning = 0;
+        int completed = 0;
+        for (SqliteAlertDao.AlertRow alert : alerts) {
+            if ("ACTIVE".equalsIgnoreCase(alert.getStatus())) {
+                active++;
+            }
+            if ("CRITICAL".equalsIgnoreCase(alert.getSeverity()) || "EMERGENCY".equalsIgnoreCase(alert.getSeverity())) {
+                critical++;
+            }
+            if ("WARNING".equalsIgnoreCase(alert.getSeverity())) {
+                warning++;
+            }
+            if ("ACKNOWLEDGED".equalsIgnoreCase(alert.getStatus()) || "RESOLVED".equalsIgnoreCase(alert.getStatus())) {
+                completed++;
+            }
+        }
+        activeCountLabel.setText(String.valueOf(active));
+        criticalCountLabel.setText(String.valueOf(critical));
+        warningCountLabel.setText(String.valueOf(warning));
+        completedCountLabel.setText(String.valueOf(completed));
+    }
+
+    private void updateActionButtons() {
+        SqliteAlertDao.AlertRow selected = alertTable == null ? null : alertTable.getSelectionModel().getSelectedItem();
+        boolean hasSelection = selected != null;
+        boolean active = hasSelection && "ACTIVE".equalsIgnoreCase(selected.getStatus());
+        setDisabled(acknowledgeButton, !active);
+        setDisabled(acknowledgeDetailButton, !active);
+        setDisabled(resolveButton, !active);
+        setDisabled(openPatientFileButton, !hasSelection || selected.getPatientId() == null || selected.getPatientId().isBlank());
+    }
+
+    private void setDisabled(Button button, boolean disabled) {
+        if (button != null) {
+            button.setDisable(disabled);
+        }
+    }
+
+    private Label badge(String text, String style, String extraStyle) {
+        Label label = new Label(text);
+        label.getStyleClass().addAll(style, extraStyle);
+        return label;
+    }
+
+    private String formatPatient(SqliteAlertDao.AlertRow alert) {
+        String patientId = alert.getPatientId() == null || alert.getPatientId().isBlank() ? "No patient ID" : alert.getPatientId();
+        return patientId + " | " + alert.getPatientName();
     }
 
     private void startAutoRefresh() {
