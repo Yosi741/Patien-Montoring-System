@@ -88,7 +88,7 @@ public class StaffActivityController implements FxController {
             );
             StaffActivityService.StaffActivityOverview overview = activityService.loadOverview(filter, scope);
             renderOverview(overview);
-            statusLabel.setText("Staff activity refreshed from SQLite at "
+            statusLabel.setText("Staff activity refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             statusLabel.setText("Could not load staff activity: " + e.getMessage());
@@ -117,7 +117,7 @@ public class StaffActivityController implements FxController {
         activityContentPane.setManaged(authorized);
 
         if (isAdmin()) {
-            scopeLabel.setText("Admin view: all SQLite staff activity, alerts, and shift handover notes.");
+            scopeLabel.setText("Admin view: all local database staff activity, alerts, and shift handover notes.");
         } else if (isClinical()) {
             scopeLabel.setText("Clinical limited view: your audit actions, section alerts, and handover notes for " + SessionContext.section() + ".");
         }

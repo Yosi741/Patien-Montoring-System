@@ -16,7 +16,7 @@
                 text="Upload Medical File" styleClass="screen-title" />
 
         <Label
-                text="SQLite-only upload. TXT/CSV/PDF text extraction is local; image OCR is not implemented."
+                text="Local database upload. TXT/CSV/PDF text extraction is local; image OCR is not implemented."
                 wrapText="true" styleClass="muted-text" />
     </VBox>
 

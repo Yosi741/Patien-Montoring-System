@@ -88,7 +88,7 @@ public class UserFormController {
         roleBox.setItems(FXCollections.observableArrayList("ADMIN", "DOCTOR", "NURSE", "STAFF"));
         roleBox.getSelectionModel().select("STAFF");
         activeCheckBox.setSelected(true);
-        NotificationHelper.showInfo(statusLabel, "SQLite-only user write. Legacy users.txt is not changed.");
+        NotificationHelper.showInfo(statusLabel, "Staff account form. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
@@ -98,7 +98,7 @@ public class UserFormController {
 
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add User");
-            helpLabel.setText("Create a SQLite staff account with a hashed password.");
+            helpLabel.setText("Create a staff account with a hashed password.");
             passwordHelpLabel.setText("Password is required and will be stored only as a PBKDF2 hash.");
             return;
         }

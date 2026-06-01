@@ -82,7 +82,7 @@ public class ClinicalTimelineController implements FxController {
         }
         try {
             timelineEvents.setAll(timelineDao.findEvents(patientId, eventTypeFilter.getValue(), searchField.getText()));
-            statusLabel.setText("Clinical events loaded from SQLite: " + timelineEvents.size());
+            statusLabel.setText("Clinical events loaded from the local database: " + timelineEvents.size());
             clearDetailPanel();
         } catch (Exception e) {
             statusLabel.setText("Could not load clinical timeline: " + e.getMessage());

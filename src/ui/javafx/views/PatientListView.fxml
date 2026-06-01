@@ -21,11 +21,11 @@
             <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="patient-hero">
                 <VBox spacing="7.0" HBox.hgrow="ALWAYS">
                     <Label text="Patient Board" styleClass="patient-page-title" />
-                    <Label text="Find patients, review status, and start common clinical actions from one SQLite-backed board." styleClass="patient-page-subtitle" wrapText="true" />
-                    <Label fx:id="statusLabel" text="Patients loaded from SQLite: 0" styleClass="patient-status-line" />
+                    <Label text="Find patients, review status, and start common clinical actions from one patient board." styleClass="patient-page-subtitle" wrapText="true" />
+                    <Label fx:id="statusLabel" text="Patients loaded: 0" styleClass="patient-status-line" />
                 </VBox>
                 <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="patient-header-actions">
-                    <Button text="Sync From Legacy Storage" onAction="#syncFromLegacyStorage" styleClass="patient-action-secondary" />
+                    <Button text="Import Existing Data" onAction="#syncFromLegacyStorage" styleClass="patient-action-secondary" />
                     <Button text="Back to Dashboard" onAction="#backToDashboard" styleClass="patient-action-ghost" />
                 </HBox>
             </HBox>
@@ -90,6 +90,8 @@
 
                     <Button fx:id="viewPatientFileButton" text="View Patient File" onAction="#viewDetails" styleClass="patient-action-primary" />
 
+                    <Button fx:id="viewDeathRecordButton" text="View Death Record" onAction="#viewDeathRecord" managed="false" visible="false" styleClass="patient-action-secondary" />
+
                     <Button fx:id="dischargePatientButton" text="Discharge / Deactivate" onAction="#dischargeSelectedPatient" styleClass="patient-action-danger" />
                 </HBox>
 
@@ -115,6 +117,9 @@
                         <TableColumn fx:id="roomColumn" text="Room" prefWidth="105.0" />
                         <TableColumn fx:id="statusColumn" text="Status" prefWidth="130.0" />
                         <TableColumn fx:id="priorityColumn" text="Priority" prefWidth="130.0" />
+                        <TableColumn fx:id="deathTimeColumn" text="Death Time" prefWidth="170.0" visible="false" />
+                        <TableColumn fx:id="pronouncedByColumn" text="Pronounced By" prefWidth="150.0" visible="false" />
+                        <TableColumn fx:id="deathCertificateColumn" text="Certificate" prefWidth="135.0" visible="false" />
                     </columns>
                 </TableView>
 

@@ -2,7 +2,9 @@ package ui.javafx.controllers;
 
 import dao.SqlitePatientDao;
 import dao.SqliteAuditLogDao;
+import dao.SqliteDeceasedRecordDao;
 import dao.SqliteNewbornRecordDao;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,17 +26,21 @@ import services.VitalsWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.DialogHelper;
+import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PatientListController implements FxController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
+    private final SqliteDeceasedRecordDao deceasedDao = new SqliteDeceasedRecordDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final ObservableList<SqlitePatientDao.PatientListRow> patients = FXCollections.observableArrayList();
@@ -42,8 +48,10 @@ public class PatientListController implements FxController {
     private AppShell appShell;
     private String quickFilter = "All Patients";
     private boolean newbornMode;
+    private boolean deceasedMode;
     private boolean suppressFilterEvents;
     private boolean filterListenersConfigured;
+    private Map<String, SqliteDeceasedRecordDao.DeathRecord> deathRecordByPatient = new HashMap<>();
 
     @FXML
     private TextField searchField;
@@ -103,6 +111,15 @@ public class PatientListController implements FxController {
     private TableColumn<SqlitePatientDao.PatientListRow, String> priorityColumn;
 
     @FXML
+    private TableColumn<SqlitePatientDao.PatientListRow, String> deathTimeColumn;
+
+    @FXML
+    private TableColumn<SqlitePatientDao.PatientListRow, String> pronouncedByColumn;
+
+    @FXML
+    private TableColumn<SqlitePatientDao.PatientListRow, String> deathCertificateColumn;
+
+    @FXML
     private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornIdColumn;
 
     @FXML
@@ -142,6 +159,9 @@ public class PatientListController implements FxController {
     private Button viewPatientFileButton;
 
     @FXML
+    private Button viewDeathRecordButton;
+
+    @FXML
     private Button deceasedQuickButton;
 
     @FXML
@@ -174,12 +194,13 @@ public class PatientListController implements FxController {
             }
             showPatientTable();
             patients.setAll(patientDao.findPatientListRows(buildFilter()));
+            loadDeathContextIfNeeded();
             patientTable.setItems(patients);
             updateBoardTitle();
-            statusLabel.setText(boardTitleLabel.getText() + " loaded from SQLite: " + patients.size());
+            statusLabel.setText(boardTitleLabel.getText() + " loaded: " + patients.size());
             renderFilterChips();
         } catch (Exception e) {
-            statusLabel.setText("Could not load SQLite patients: " + e.getMessage());
+            statusLabel.setText("Could not load patients: " + e.getMessage());
         }
     }
 
@@ -192,10 +213,10 @@ public class PatientListController implements FxController {
             newborns.setAll(newbornDao.findRecords(filter));
             newbornTable.setItems(newborns);
             updateBoardTitle();
-            statusLabel.setText("Newborn records loaded from SQLite: " + newborns.size());
+            statusLabel.setText("Newborn records loaded: " + newborns.size());
             renderFilterChips();
         } catch (Exception e) {
-            statusLabel.setText("Could not load SQLite newborn records: " + e.getMessage());
+            statusLabel.setText("Could not load newborn records: " + e.getMessage());
         }
     }
 
@@ -206,12 +227,36 @@ public class PatientListController implements FxController {
 
     @FXML
     private void viewDetails() {
+        if (newbornMode) {
+            SqliteNewbornRecordDao.NewbornRecord selected = newbornTable.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                statusLabel.setText("Select a newborn record first.");
+                return;
+            }
+            appShell.showNewbornRecord(selected.getId());
+            return;
+        }
         SqlitePatientDao.PatientListRow selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             statusLabel.setText("Select a patient first.");
             return;
         }
         appShell.showPatientDetail(selected.getPatientId());
+    }
+
+    @FXML
+    private void viewDeathRecord() {
+        SqlitePatientDao.PatientListRow selected = selectedPatient();
+        if (selected == null) {
+            return;
+        }
+        try {
+            SqliteDeceasedRecordDao.DeathRecord record = deceasedDao.findByPatientId(selected.getPatientId())
+                    .orElseThrow(() -> new IllegalArgumentException("No death record found for patient " + selected.getPatientId()));
+            appShell.showDeceasedRecord(record.getId());
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
     }
 
     @FXML
@@ -222,6 +267,11 @@ public class PatientListController implements FxController {
         }
         SqlitePatientDao.PatientListRow selected = selectedPatient();
         if (selected == null) {
+            return;
+        }
+        if (isDeceased(selected)) {
+            logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + selected.getPatientId() + ", action=enter_vitals");
+            NotificationHelper.showError(statusLabel, "Clinical actions are blocked for deceased patients.");
             return;
         }
         try {
@@ -246,6 +296,10 @@ public class PatientListController implements FxController {
 
     @FXML
     private void addPatient() {
+        if (newbornMode) {
+            addNewbornFromBoard();
+            return;
+        }
         if (!PermissionHelper.canCreatePatient(Session.getCurrentUser())) {
             NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
@@ -255,7 +309,23 @@ public class PatientListController implements FxController {
             if (saved) {
                 configureFilters();
                 loadPatients();
-                NotificationHelper.showSuccess(statusLabel, "Patient created in SQLite. Legacy text files were not changed.");
+                NotificationHelper.showSuccess(statusLabel, "Patient record saved.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private void addNewbornFromBoard() {
+        if (!PermissionHelper.canManageNewbornRecords(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            return;
+        }
+        try {
+            boolean saved = NewbornFormController.showCreateDialog(newbornTable.getScene().getWindow(), Session.getCurrentUser(), "");
+            if (saved) {
+                loadPatients();
+                NotificationHelper.showSuccess(statusLabel, "Newborn record saved.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -272,6 +342,11 @@ public class PatientListController implements FxController {
         if (selected == null) {
             return;
         }
+        if (isDeceased(selected)) {
+            logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + selected.getPatientId() + ", action=discharge");
+            NotificationHelper.showError(statusLabel, "Discharge/deactivate is blocked for deceased patients.");
+            return;
+        }
         try {
             SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(selected.getPatientId())
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + selected.getPatientId()));
@@ -279,7 +354,7 @@ public class PatientListController implements FxController {
             if (saved) {
                 configureFilters();
                 loadPatients();
-                NotificationHelper.showSuccess(statusLabel, "Patient updated in SQLite. Legacy text files were not changed.");
+                NotificationHelper.showSuccess(statusLabel, "Patient record updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -298,7 +373,7 @@ public class PatientListController implements FxController {
         }
         boolean confirmed = DialogHelper.confirm(
                 "Discharge Patient",
-                "Discharge " + selected.getName() + "? This updates SQLite status to DISCHARGED only. Legacy text files are not changed.");
+                "Discharge " + selected.getName() + "? This updates the patient status to DISCHARGED.");
         if (!confirmed) {
             return;
         }
@@ -306,7 +381,7 @@ public class PatientListController implements FxController {
             patientWriteService.deactivateOrDischargePatient(Session.getCurrentUser(), selected.getPatientId());
             configureFilters();
             loadPatients();
-            NotificationHelper.showSuccess(statusLabel, "Patient discharged in SQLite: " + selected.getPatientId());
+            NotificationHelper.showSuccess(statusLabel, "Patient discharged: " + selected.getPatientId());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -324,6 +399,7 @@ public class PatientListController implements FxController {
     private void showAllPatients() {
         quickFilter = "All Patients";
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -331,6 +407,7 @@ public class PatientListController implements FxController {
     @FXML
     private void showActivePatients() {
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         statusFilter.getSelectionModel().select("ACTIVE");
         quickFilter = "Active Patients";
@@ -344,10 +421,11 @@ public class PatientListController implements FxController {
             return;
         }
         newbornMode = false;
+        deceasedMode = true;
         clearFilterControls();
         statusFilter.getSelectionModel().select("DECEASED");
         quickFilter = "Deceased Patients";
-        logAudit("JavaFX PATIENT_BOARD opened Deceased Patients subsection");
+        logAudit(AuditAction.OPEN_DECEASED_PATIENT_SUBSECTION);
         loadPatients();
     }
 
@@ -359,8 +437,9 @@ public class PatientListController implements FxController {
         }
         quickFilter = "Newborns";
         newbornMode = true;
+        deceasedMode = false;
         clearFilterControls();
-        logAudit("JavaFX PATIENT_BOARD opened Newborns subsection");
+        logAudit(AuditAction.OPEN_NEWBORN_SUBSECTION);
         loadPatients();
     }
 
@@ -368,6 +447,7 @@ public class PatientListController implements FxController {
     private void showCriticalEmergency() {
         quickFilter = "Critical/Emergency";
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -375,6 +455,7 @@ public class PatientListController implements FxController {
     @FXML
     private void showHighPriority() {
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         priorityFilter.getSelectionModel().select("HIGH");
         quickFilter = "High Priority";
@@ -385,6 +466,7 @@ public class PatientListController implements FxController {
     private void showRecentlyUpdated() {
         quickFilter = "Recently Updated";
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -393,6 +475,7 @@ public class PatientListController implements FxController {
     private void clearFilters() {
         quickFilter = "All Patients";
         newbornMode = false;
+        deceasedMode = false;
         clearFilterControls();
         loadPatients();
     }
@@ -430,6 +513,22 @@ public class PatientListController implements FxController {
                 }
                 setText(priority);
                 getStyleClass().add(priorityStyle(priority));
+            }
+        });
+        deathTimeColumn.setCellValueFactory(cell -> new SimpleStringProperty(deathField(cell.getValue(), "time")));
+        pronouncedByColumn.setCellValueFactory(cell -> new SimpleStringProperty(deathField(cell.getValue(), "pronounced")));
+        deathCertificateColumn.setCellValueFactory(cell -> new SimpleStringProperty(deathField(cell.getValue(), "certificate")));
+        deathCertificateColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                getStyleClass().removeAll("patient-status-active", "patient-status-discharged");
+                if (empty || status == null) {
+                    setText(null);
+                    return;
+                }
+                setText(status);
+                getStyleClass().add("Generated".equalsIgnoreCase(status) ? "patient-status-active" : "patient-status-discharged");
             }
         });
         patientTable.setRowFactory(table -> {
@@ -477,6 +576,7 @@ public class PatientListController implements FxController {
     private void configureSelectionActions() {
         updateSelectionActions();
         patientTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateSelectionActions());
+        newbornTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateSelectionActions());
     }
 
     private void configureFilters() {
@@ -534,6 +634,7 @@ public class PatientListController implements FxController {
         boolean canViewNewborns = PermissionHelper.canViewNewbornRecords(Session.getCurrentUser());
         newbornQuickButton.setVisible(canViewNewborns);
         newbornQuickButton.setManaged(canViewNewborns);
+        setButtonVisible(viewDeathRecordButton, false);
     }
 
     private SqlitePatientDao.PatientListRow selectedPatient() {
@@ -637,11 +738,16 @@ public class PatientListController implements FxController {
     }
 
     private void updateSelectionActions() {
-        boolean hasSelection = patientTable != null && patientTable.getSelectionModel().getSelectedItem() != null;
+        boolean hasPatientSelection = patientTable != null && patientTable.getSelectionModel().getSelectedItem() != null;
+        boolean hasNewbornSelection = newbornTable != null && newbornTable.getSelectionModel().getSelectedItem() != null;
+        boolean hasSelection = newbornMode ? hasNewbornSelection : hasPatientSelection;
+        SqlitePatientDao.PatientListRow selected = hasPatientSelection ? patientTable.getSelectionModel().getSelectedItem() : null;
+        boolean deceased = isDeceased(selected);
         setDisabledIfPresent(editSelectedPatientButton, !hasSelection);
-        setDisabledIfPresent(dischargePatientButton, !hasSelection);
-        setDisabledIfPresent(enterVitalsButton, !hasSelection);
+        setDisabledIfPresent(dischargePatientButton, !hasSelection || deceased || newbornMode);
+        setDisabledIfPresent(enterVitalsButton, !hasSelection || deceased || newbornMode);
         setDisabledIfPresent(viewPatientFileButton, !hasSelection);
+        setDisabledIfPresent(viewDeathRecordButton, !hasPatientSelection || !deceasedMode);
     }
 
     private void setDisabledIfPresent(Button button, boolean disabled) {
@@ -683,6 +789,19 @@ public class PatientListController implements FxController {
         patientTable.setManaged(true);
         newbornTable.setVisible(false);
         newbornTable.setManaged(false);
+        addPatientButton.setText("Add Patient");
+        viewPatientFileButton.setText("View Patient File");
+        setButtonVisible(viewDeathRecordButton, deceasedMode);
+        boolean canWritePatients = PermissionHelper.canCreatePatient(Session.getCurrentUser())
+                || PermissionHelper.canUpdatePatient(Session.getCurrentUser());
+        setButtonVisible(editSelectedPatientButton, canWritePatients);
+        setButtonVisible(dischargePatientButton, PermissionHelper.canDeactivatePatient(Session.getCurrentUser()));
+        setButtonVisible(enterVitalsButton, PermissionHelper.canEnterVitals(Session.getCurrentUser()));
+        setButtonVisible(viewPatientFileButton, true);
+        priorityColumn.setVisible(!deceasedMode);
+        deathTimeColumn.setVisible(deceasedMode);
+        pronouncedByColumn.setVisible(deceasedMode);
+        deathCertificateColumn.setVisible(deceasedMode);
         updateSelectionActions();
     }
 
@@ -691,10 +810,15 @@ public class PatientListController implements FxController {
         patientTable.setManaged(false);
         newbornTable.setVisible(true);
         newbornTable.setManaged(true);
-        setDisabledIfPresent(editSelectedPatientButton, true);
-        setDisabledIfPresent(dischargePatientButton, true);
-        setDisabledIfPresent(enterVitalsButton, true);
-        setDisabledIfPresent(viewPatientFileButton, true);
+        addPatientButton.setText("Add Newborn");
+        viewPatientFileButton.setText("View Newborn Record");
+        setButtonVisible(editSelectedPatientButton, false);
+        setButtonVisible(dischargePatientButton, false);
+        setButtonVisible(enterVitalsButton, false);
+        setButtonVisible(viewDeathRecordButton, false);
+        setButtonVisible(addPatientButton, PermissionHelper.canManageNewbornRecords(Session.getCurrentUser()));
+        setButtonVisible(viewPatientFileButton, true);
+        updateSelectionActions();
     }
 
     private void updateBoardTitle() {
@@ -703,10 +827,55 @@ public class PatientListController implements FxController {
             boardSubtitleLabel.setText("Double-click a newborn row to open the existing newborn record view.");
         } else if ("Deceased Patients".equals(quickFilter)) {
             boardTitleLabel.setText("Deceased Patients");
-            boardSubtitleLabel.setText("Deceased patients are filtered from SQLite patient records. Certificate drill-down remains available internally.");
+            boardSubtitleLabel.setText("Deceased patients are filtered from the local database patient records. Certificate drill-down remains available internally.");
         } else {
             boardTitleLabel.setText("Patients");
             boardSubtitleLabel.setText("Double-click a row to open the full patient file.");
+        }
+    }
+
+    private void loadDeathContextIfNeeded() {
+        deathRecordByPatient = new HashMap<>();
+        if (!deceasedMode) {
+            return;
+        }
+        try {
+            for (SqliteDeceasedRecordDao.DeathRecord record : deceasedDao.findRecords(new SqliteDeceasedRecordDao.RecordFilter())) {
+                deathRecordByPatient.put(record.getPatientId(), record);
+            }
+        } catch (Exception e) {
+            statusLabel.setText("Deceased record details unavailable: " + e.getMessage());
+        }
+    }
+
+    private String deathField(SqlitePatientDao.PatientListRow row, String field) {
+        if (row == null) {
+            return "";
+        }
+        SqliteDeceasedRecordDao.DeathRecord record = deathRecordByPatient.get(row.getPatientId());
+        if (record == null) {
+            return "-";
+        }
+        switch (field) {
+            case "time":
+                return record.getDeathTime();
+            case "pronounced":
+                return record.getPronouncedBy();
+            case "certificate":
+                return record.getCertificateStatus();
+            default:
+                return "";
+        }
+    }
+
+    private boolean isDeceased(SqlitePatientDao.PatientListRow row) {
+        return row != null && "DECEASED".equalsIgnoreCase(row.getStatus());
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        if (button != null) {
+            button.setVisible(visible);
+            button.setManaged(visible);
         }
     }
 

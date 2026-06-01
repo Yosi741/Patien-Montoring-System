@@ -88,7 +88,7 @@ public class NurseWorkQueueController implements FxController {
             tasks.setAll(overview.getTasks());
             queueTable.setItems(tasks);
             renderReminderNotifications();
-            NotificationHelper.showInfo(statusLabel, "Work Queue refreshed from SQLite: " + tasks.size() + " tasks.");
+            NotificationHelper.showInfo(statusLabel, "Work Queue refreshed from the local database: " + tasks.size() + " tasks.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load Work Queue: " + e.getMessage());
         }
@@ -107,7 +107,7 @@ public class NurseWorkQueueController implements FxController {
         try {
             schedulingService.markReminderDone(Session.getCurrentUser(), selected.getSourceId());
             refreshQueue();
-            NotificationHelper.showSuccess(statusLabel, "Reminder marked done in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Reminder marked done.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -126,7 +126,7 @@ public class NurseWorkQueueController implements FxController {
         try {
             schedulingService.markReminderMissed(Session.getCurrentUser(), selected.getSourceId());
             refreshQueue();
-            NotificationHelper.showSuccess(statusLabel, "Reminder marked missed in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Reminder marked missed.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }

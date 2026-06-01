@@ -106,7 +106,7 @@ public class MessagingController implements FxController {
             long id = messagingService.sendMessage(Session.getCurrentUser(), record);
             clearCompose();
             loadMessages();
-            NotificationHelper.showSuccess(statusLabel, "Message sent in SQLite. ID: " + id);
+            NotificationHelper.showSuccess(statusLabel, "Message sent. ID: " + id);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }

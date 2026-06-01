@@ -1,4 +1,4 @@
-package ai;
+/*package ai;
 
 import database.MedicalFileStorage;
 import database.VitalStorage;
@@ -95,6 +95,7 @@ public class AIAdviceEngine {
             notes.add("History context: Review previous visits and doctor notes before final clinical decision.");
         }
 
+
         ArrayList<MedicalFile> files = MedicalFileStorage.getFilesForPatient(patient.getPatientId());
         if (!files.isEmpty()) {
             notes.add("Uploaded files available: Review " + files.size() + " patient file(s) before final decision.");
@@ -144,3 +145,5 @@ public class AIAdviceEngine {
         return value.replace("|", " ");
     }
 }
+
+ */

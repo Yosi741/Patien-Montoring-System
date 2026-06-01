@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Medical Devices" styleClass="screen-title" />
-                <Label text="SQLite registration and assignment foundation. Real device integration is future work." styleClass="muted-text" />
+                <Label text="Device registration and assignment foundation. Real device integration is future work." styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
@@ -37,14 +37,14 @@
                           visible="false"
                           spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Medical Devices is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                        <Label text="Medical Devices is available to Admin, Doctor, and Nurse roles for authorized hospital roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="SQLite-only registration and assignment" styleClass="status-info metric-value compact-metric-value" />
+                            <Label text="Local database registration and assignment" styleClass="status-info metric-value compact-metric-value" />
 
                             <Label fx:id="patientFilterChip"
                                    text=""

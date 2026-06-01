@@ -126,7 +126,7 @@ public class MedicalFilesController implements FxController {
                     patientIdFilter));
             filesTable.setItems(files);
             selectPendingFile();
-            NotificationHelper.showInfo(statusLabel, "Medical files loaded from SQLite: " + files.size());
+            NotificationHelper.showInfo(statusLabel, "Medical files loaded from the local database: " + files.size());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load medical files: " + e.getMessage());
         }
@@ -142,7 +142,7 @@ public class MedicalFilesController implements FxController {
             boolean saved = MedicalFileUploadController.showDialog(filesTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter);
             if (saved) {
                 loadFiles();
-                NotificationHelper.showSuccess(statusLabel, "Medical file uploaded to SQLite. Clinical Timeline can show it as a FILE event.");
+                NotificationHelper.showSuccess(statusLabel, "Medical file uploaded. Clinical Timeline can show it as a FILE event.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -157,7 +157,7 @@ public class MedicalFilesController implements FxController {
         }
         try {
             uploadService.generateAiSummaryNote(Session.getCurrentUser(), selected.getFileId());
-            NotificationHelper.showSuccess(statusLabel, "Rule-based AI summary note saved to SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Rule-based AI summary note saved.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }

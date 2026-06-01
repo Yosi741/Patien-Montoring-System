@@ -13,7 +13,7 @@
     <VBox spacing="4.0">
         <Label fx:id="titleLabel" text="Patient" styleClass="screen-title" />
 
-        <Label fx:id="helpLabel" text="SQLite-only patient write" wrapText="true" styleClass="muted-text" />
+        <Label fx:id="helpLabel" text="Patient record form" wrapText="true" styleClass="muted-text" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -54,12 +54,12 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Section" styleClass="field-label" />
-            <TextField fx:id="sectionField" promptText="ICU, ER, Pediatrics..." styleClass="control-input" />
+            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type section" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <Label text="Room" styleClass="field-label" />
-            <TextField fx:id="roomField" promptText="Room / bed" styleClass="control-input" />
+            <ComboBox fx:id="roomBox" editable="true" promptText="Room / bed" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">

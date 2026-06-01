@@ -13,7 +13,7 @@
     <VBox spacing="4.0">
         <Label fx:id="titleLabel" text="Medication" styleClass="screen-title" />
 
-        <Label text="SQLite-only medication order. Swing and legacy text files are unchanged."
+        <Label text="Local database medication order. System data is stored in the local database."
                wrapText="true" styleClass="muted-text" />
     </VBox>
 

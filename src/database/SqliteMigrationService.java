@@ -1,6 +1,6 @@
 package database;
 
-import ai.AIAdviceEngine;
+// import ai_Prototype.AIAdviceEngine;
 import dao.SqliteAiNoteDao;
 import dao.SqliteMedicalFileDao;
 import dao.SqliteMedicalHistoryDao;
@@ -119,7 +119,7 @@ public class SqliteMigrationService {
         result.append("Vital readings checked/imported: " + imported);
     }
 
-    private void migrateAiNotes(MigrationResult result) throws SQLException {
+    /*private void migrateAiNotes(MigrationResult result) throws SQLException {
         ArrayList<String[]> rows = AIAdviceEngine.loadAllAdviceRows();
         int imported = 0;
         int skipped = 0;
@@ -156,6 +156,8 @@ public class SqliteMigrationService {
         result.medicalFilesChecked = checked;
         result.append("Medical files checked/upserted: " + checked + ", skipped orphaned patients: " + skipped);
     }
+
+     */
 
     private void migratePatientContext(MigrationResult result) throws SQLException {
         ArrayList<Patient> patients = FileStorage.loadPatients();

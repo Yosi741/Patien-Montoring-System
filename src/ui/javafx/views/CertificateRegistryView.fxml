@@ -13,7 +13,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Certificate Registry" styleClass="screen-title" />
-                <Label text="Unified SQLite birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" />
+                <Label text="Unified birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />

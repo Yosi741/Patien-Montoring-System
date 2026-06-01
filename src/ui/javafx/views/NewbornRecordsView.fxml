@@ -13,7 +13,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Newborn Records" styleClass="screen-title" />
-                <Label text="SQLite newborn management and local HTML birth certificate foundation" styleClass="muted-text" />
+                <Label text="Newborn management and local HTML birth certificate foundation" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#backToDashboard" styleClass="secondary-button" />
@@ -102,6 +102,7 @@
                                 <Label fx:id="detailBabyLabel" text="No newborn selected" wrapText="true" />
                                 <Label text="Mother / Father" styleClass="metric-label" />
                                 <Label fx:id="detailMotherLabel" text="-" wrapText="true" />
+                                <Button fx:id="viewMotherFileButton" text="View Mother File" onAction="#viewMotherFile" maxWidth="Infinity" styleClass="secondary-button" />
                                 <Label text="Birth Time" styleClass="metric-label" />
                                 <Label fx:id="detailBirthLabel" text="-" wrapText="true" />
                                 <Label text="Measurements" styleClass="metric-label" />

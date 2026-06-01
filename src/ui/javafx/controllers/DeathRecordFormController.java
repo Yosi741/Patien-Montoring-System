@@ -74,7 +74,7 @@ public class DeathRecordFormController {
     @FXML
     private void initialize() {
         deathTimeField.setText(LocalDateTime.now().format(SQLITE_DATE_TIME));
-        NotificationHelper.showInfo(statusLabel, "SQLite-only death record workflow. Legacy text files are unchanged.");
+        NotificationHelper.showInfo(statusLabel, "Death record workflow. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, String patientId, SqliteDeceasedRecordDao.DeathRecord record) {

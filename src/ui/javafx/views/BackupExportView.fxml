@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Backup / Export" styleClass="screen-title" />
-                <Label text="Local SQLite backup, CSV exports, and restore validation tools" styleClass="muted-text" />
+                <Label text="Local database backup, CSV exports, and restore validation tools" styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
@@ -37,7 +37,7 @@
                           visible="false"
                           spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Backup and export tools are available only to authorized hospital roles in this JavaFX preview."
+                        <Label text="Backup and export tools are available only to authorized hospital roles for authorized hospital roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 

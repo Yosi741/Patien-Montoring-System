@@ -1,6 +1,6 @@
 # AGENTS: How to be productive in this codebase
 
-**Status: Full JavaFX Migration Complete** ✓ All Swing code removed.
+**Status: Full JavaFX Migration Complete** - old Java desktop UI code removed.
 
 ## Quick Start
 - **Main entry**: Run `Main.java` (launches JavaFX)
@@ -16,7 +16,6 @@ Key entry points and commands
 - Main Java launchers:
   - `Main` (default launcher)
   - `JavaFxMain` (explicit JavaFX)
-  - `LegacySwingMain` (explicit Swing)
   - `DatabaseMigrationMain` (migrate text files -> SQLite safely)
 - Build/run from terminal (README examples): compile with `javac -cp "lib/*" -d out/production/... @sources.txt` then run with `java -cp "out/production/...;lib/*" Main` on PowerShell.
 
@@ -38,11 +37,11 @@ Integration points & external deps
 - `src/ui/javafx/controllers/LoginController.java` — authentication flow
 - `src/database/DatabaseManager.java` — database path, PRAGMA config, connection helper
 - `src/database/MedicalFileStorage.java` — file upload storage and indexing
-- `src/ai/AIAdviceEngine.java` — rule-based AI note generation
+- `src/ai_Prototype/AIAdviceEngine.java` — rule-based AI note generation
 - `src/dao/Sqlite*.java` — SQLite schema and query layer
 
 How to make a safe change (recommended pattern)
-1. Run the app and reproduce behavior with the smallest entry point (use `JavaFxMain` or `LegacySwingMain`).
+1. Run the app and reproduce behavior with the smallest entry point (use `Main` or `JavaFxMain`).
 2. Modify Service (validation/audit) + DAO (persistence) — keep Controller changes minimal.
 3. Add unit-like manual test: run migration if you touched persistence, open UI, run the flow, and check `data/` files and `data/smart_patient_monitoring.db`.
 4. If adding a write path for JavaFX, update migration logic and add audit entries.
@@ -53,5 +52,5 @@ Where to leave notes for other agents
 If unsure: prefer non-destructive changes and add explicit checks (e.g., do not overwrite text-file legacy stores; prefer adding an opt-in migration path).
 
 ---
-Short references: `Main.java`, `JavaFxMain.java`, `LegacySwingMain.java`, `DatabaseMigrationMain.java`, `src/database/DatabaseManager.java`, `src/database/MedicalFileStorage.java`, `src/ai/AIAdviceEngine.java`, `src/dao/SqlitePatientDao.java`.
+Short references: `Main.java`, `JavaFxMain.java`, `DatabaseMigrationMain.java`, `src/database/DatabaseManager.java`, `src/database/MedicalFileStorage.java`, `src/ai_Prototype/AIAdviceEngine.java`, `src/dao/SqlitePatientDao.java`.
 

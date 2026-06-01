@@ -53,7 +53,7 @@ public class AuditLogController implements FxController {
         try {
             rows.setAll(auditLogDao.findRows(searchField.getText(), dateRangeFilter.getValue(), actionTypeFilter.getValue()));
             auditTable.setItems(rows);
-            statusLabel.setText(rows.isEmpty() ? "No audit logs match the selected filters." : "SQLite audit logs loaded: " + rows.size());
+            statusLabel.setText(rows.isEmpty() ? "No audit logs match the selected filters." : "Audit logs loaded: " + rows.size());
         } catch (Exception e) {
             statusLabel.setText("Could not load audit logs: " + e.getMessage());
         }

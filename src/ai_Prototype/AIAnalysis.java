@@ -1,4 +1,4 @@
-package ai;
+/*package ai;
 
 import models.VitalSign;
 
@@ -78,3 +78,5 @@ public class AIAnalysis {
     }
 
 }
+
+ */

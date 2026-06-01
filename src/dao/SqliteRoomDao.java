@@ -80,6 +80,23 @@ public class SqliteRoomDao {
         return rooms;
     }
 
+    public List<String> findActiveRoomsForSection(String section) throws SQLException {
+        ArrayList<String> rooms = new ArrayList<>();
+        String sql = "SELECT room_number FROM rooms "
+                + "WHERE UPPER(section) = ? AND UPPER(COALESCE(status, 'ACTIVE')) = 'ACTIVE' "
+                + "ORDER BY room_number COLLATE NOCASE";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(section).toUpperCase());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rooms.add(resultSet.getString("room_number"));
+                }
+            }
+        }
+        return rooms;
+    }
+
     public boolean existsSectionRoom(String section, String roomNumber, long excludedId) throws SQLException {
         String sql = "SELECT 1 FROM rooms WHERE UPPER(section) = ? AND UPPER(room_number) = ? AND id <> ? LIMIT 1";
         try (Connection connection = DatabaseManager.getConnection();

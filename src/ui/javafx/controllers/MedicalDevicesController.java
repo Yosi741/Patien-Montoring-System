@@ -80,7 +80,7 @@ public class MedicalDevicesController implements FxController {
         try {
             devices.setAll(deviceDao.findDevices(searchField.getText(), typeFilter.getValue(), statusFilter.getValue(), patientIdFilter));
             deviceTable.setItems(devices);
-            NotificationHelper.showInfo(statusLabel, "Devices loaded from SQLite: " + devices.size());
+            NotificationHelper.showInfo(statusLabel, "Devices loaded from the local database: " + devices.size());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load devices: " + e.getMessage());
         }
@@ -95,7 +95,7 @@ public class MedicalDevicesController implements FxController {
         try {
             if (DeviceFormController.showCreateDialog(deviceTable.getScene().getWindow(), Session.getCurrentUser())) {
                 loadDevices();
-                NotificationHelper.showSuccess(statusLabel, "Device registered in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Device registered.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -115,7 +115,7 @@ public class MedicalDevicesController implements FxController {
         try {
             if (DeviceFormController.showEditDialog(deviceTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
                 loadDevices();
-                NotificationHelper.showSuccess(statusLabel, "Device updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Device updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -138,7 +138,7 @@ public class MedicalDevicesController implements FxController {
         try {
             deviceWriteService.deactivateDevice(Session.getCurrentUser(), selected.getDeviceId());
             loadDevices();
-            NotificationHelper.showSuccess(statusLabel, "Device deactivated in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Device deactivated.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -157,7 +157,7 @@ public class MedicalDevicesController implements FxController {
         try {
             if (DeviceAssignmentController.showDialog(deviceTable.getScene().getWindow(), Session.getCurrentUser(), selected, patientIdFilter)) {
                 loadDevices();
-                NotificationHelper.showSuccess(statusLabel, "Device assigned in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Device assigned.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -177,7 +177,7 @@ public class MedicalDevicesController implements FxController {
         try {
             deviceWriteService.unassignDevice(Session.getCurrentUser(), selected.getDeviceId());
             loadDevices();
-            NotificationHelper.showSuccess(statusLabel, "Device unassigned in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Device unassigned.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }

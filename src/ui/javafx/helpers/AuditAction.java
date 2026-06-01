@@ -82,6 +82,16 @@ public final class AuditAction {
     public static final String REJECT_CERTIFICATE = "REJECT_CERTIFICATE";
     public static final String RESET_CERTIFICATE_DRAFT = "RESET_CERTIFICATE_DRAFT";
     public static final String SEND_CERTIFICATE_REVIEW_NOTE = "SEND_CERTIFICATE_REVIEW_NOTE";
+    public static final String REMOVE_SWING_LEGACY = "REMOVE_SWING_LEGACY";
+    public static final String OPEN_DECEASED_PATIENT_SUBSECTION = "OPEN_DECEASED_PATIENT_SUBSECTION";
+    public static final String OPEN_NEWBORN_SUBSECTION = "OPEN_NEWBORN_SUBSECTION";
+    public static final String CREATE_SECTION = "CREATE_SECTION";
+    public static final String UPDATE_SECTION = "UPDATE_SECTION";
+    public static final String DEACTIVATE_SECTION = "DEACTIVATE_SECTION";
+    public static final String LINK_NEWBORN_TO_MOTHER = "LINK_NEWBORN_TO_MOTHER";
+    public static final String OPEN_MOTHER_FROM_NEWBORN = "OPEN_MOTHER_FROM_NEWBORN";
+    public static final String OPEN_BABIES_FROM_MOTHER = "OPEN_BABIES_FROM_MOTHER";
+    public static final String BLOCK_DECEASED_CLINICAL_ACTION = "BLOCK_DECEASED_CLINICAL_ACTION";
 
     private AuditAction() {
     }

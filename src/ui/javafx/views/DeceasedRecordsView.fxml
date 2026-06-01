@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Deceased Records" styleClass="screen-title" />
-                <Label text="SQLite death records, certificate status, and safe local certificate controls" styleClass="muted-text" />
+                <Label text="Death records, certificate status, and safe local certificate controls" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#backToDashboard" styleClass="secondary-button" />

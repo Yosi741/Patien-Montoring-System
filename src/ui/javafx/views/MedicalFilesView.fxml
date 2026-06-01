@@ -16,7 +16,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Medical Files" styleClass="screen-title" />
-                <Label text="SQLite upload and local basic analysis preview" styleClass="muted-text" />
+                <Label text="Local upload and basic analysis" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
@@ -33,14 +33,14 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Medical Files is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                        <Label text="Medical Files is available to Admin, Doctor, and Nurse roles for authorized hospital roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="SQLite-only upload. No OCR, no external AI, no legacy text-file writeback." styleClass="status-info metric-value compact-metric-value" />
+                            <Label text="Local database upload. No OCR, no external AI, no external writeback." styleClass="status-info metric-value compact-metric-value" />
                             <Label fx:id="patientFilterChip" text="" managed="false" visible="false" styleClass="status-success success-value" />
                             <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter"
                                     managed="false" visible="false" styleClass="transparent-pane secondary-button" />

@@ -77,7 +77,7 @@ public class UserProfileController implements FxController {
         permissionListBox.getChildren().clear();
         addPermission("View patients", true, "Read-only JavaFX patient board");
         addPermission("View alerts", true, "Read-only JavaFX Alert Center");
-        addPermission("Acknowledge SQLite alerts", true, "SQLite-only; does not stop Swing sounds/dialogs");
+        addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
         addPermission("View clinical timeline", true, "Read-only patient history preview");
         addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
         addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");

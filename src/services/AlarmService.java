@@ -1,6 +1,6 @@
 package services;
 
-import ai.AIAnalysis;
+import ai_Prototype.AIAnalysis;
 import database.NotificationStorage;
 import logs.AuditLog;
 import models.Patient;
@@ -9,7 +9,7 @@ import users.Session;
 import javax.sound.sampled.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+
 import java.io.File;
 
 public class AlarmService {

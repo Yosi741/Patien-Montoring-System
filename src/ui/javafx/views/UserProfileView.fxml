@@ -18,7 +18,7 @@
             <VBox spacing="4.0">
                 <Label text="Staff Profile"
                        styleClass="screen-title" />
-                <Label text="JavaFX session, safe profile fields, and permission preview"
+                <Label text="Session, safe profile fields, and permission summary"
                        styleClass="muted-text" />
             </VBox>
 
@@ -116,7 +116,7 @@
                 <Label text="Permission Preview"
                        styleClass="section-title" />
 
-                <Label text="This panel previews intended JavaFX permissions. Full enforcement will be added in a later safe phase."
+                <Label text="This panel summarizes the permissions currently available for this role."
                        wrapText="true"
                        styleClass="muted-text" />
 

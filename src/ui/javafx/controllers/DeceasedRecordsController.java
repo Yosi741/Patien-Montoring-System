@@ -106,7 +106,7 @@ public class DeceasedRecordsController implements FxController {
             records.setAll(deceasedPatientService.getDeceasedRecords(buildFilter()));
             deceasedTable.setItems(records);
             loadSummaryCards();
-            statusLabel.setText("Deceased records loaded from SQLite: " + records.size());
+            statusLabel.setText("Deceased records loaded from the local database: " + records.size());
             renderDetail(null);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load deceased records: " + e.getMessage());
@@ -142,7 +142,7 @@ public class DeceasedRecordsController implements FxController {
             boolean saved = DeathRecordFormController.showEditDialog(deceasedTable.getScene().getWindow(), Session.getCurrentUser(), selected);
             if (saved) {
                 loadRecords();
-                NotificationHelper.showSuccess(statusLabel, "Death record updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Death record updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());

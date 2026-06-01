@@ -45,7 +45,7 @@ public class AppShell extends Application {
     private AppNavigator navigator;
     private AppLayoutController layoutController;
     private boolean darkMode;
-    private String databaseStatus = "SQLite not initialized";
+    private String databaseStatus = "Local database not initialized";
     private String migrationStatus = "Migration not checked";
 
     public static void launchApp(String[] args) {
@@ -60,7 +60,7 @@ public class AppShell extends Application {
         FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
-        primaryStage.setTitle("Smart Patient Monitoring System - JavaFX Preview");
+        primaryStage.setTitle("Smart Patient Monitoring System");
         showLogin();
         primaryStage.show();
     }
@@ -330,9 +330,9 @@ public class AppShell extends Application {
         SqliteMigrationService.MigrationResult result = new SqliteMigrationService().migrateFromTextFiles();
         migrationStatus = result.getSummary().trim();
         databaseStatus = DatabaseManager.testConnection()
-                ? "SQLite ready: " + DatabaseManager.getDatabasePath()
-                : "SQLite connection check failed after sync";
-        logAudit("JavaFX SYSTEM sync from legacy storage");
+                ? "Local database ready: " + DatabaseManager.getDatabasePath()
+                : "Local database connection check failed after import";
+        logAudit("JavaFX SYSTEM imported existing data into local database");
         return migrationStatus;
     }
 
@@ -365,10 +365,10 @@ public class AppShell extends Application {
             SqliteMigrationService.MigrationResult migrationResult = new SqliteMigrationService().migrateIfNeeded();
             migrationStatus = migrationResult.getSummary().trim();
             databaseStatus = DatabaseManager.testConnection()
-                    ? "SQLite ready: " + DatabaseManager.getDatabasePath()
-                    : "SQLite schema created, connection check failed";
+                    ? "Local database ready: " + DatabaseManager.getDatabasePath()
+                    : "Local database schema created, connection check failed";
         } catch (Exception e) {
-            databaseStatus = "SQLite initialization failed: " + e.getMessage();
+            databaseStatus = "Local database initialization failed: " + e.getMessage();
             System.out.println(databaseStatus);
         }
     }

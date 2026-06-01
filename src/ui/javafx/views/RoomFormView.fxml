@@ -24,7 +24,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Section / Department" styleClass="field-label" />
-            <TextField fx:id="sectionField" promptText="ICU" styleClass="control-input" />
+            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type section" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">

@@ -109,7 +109,7 @@
                         </columns>
                     </TableView>
 
-                    <Label fx:id="statusLabel" text="SQLite alerts loaded: 0" styleClass="status-info" />
+                    <Label fx:id="statusLabel" text="Alerts loaded: 0" styleClass="status-info" />
                 </VBox>
 
                 <VBox spacing="14.0" prefWidth="390.0" minWidth="350.0" styleClass="alert-detail-card">

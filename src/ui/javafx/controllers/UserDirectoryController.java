@@ -93,7 +93,7 @@ public class UserDirectoryController implements FxController {
             userTable.setItems(rows);
             statusLabel.setText(rows.isEmpty()
                     ? "No users match the selected filters."
-                    : "SQLite users loaded: " + rows.size() + " | Sorted by role, section, username");
+                    : "Users loaded: " + rows.size() + " | Sorted by role, section, username");
         } catch (Exception e) {
             statusLabel.setText("Could not load users: " + e.getMessage());
         }
@@ -169,7 +169,7 @@ public class UserDirectoryController implements FxController {
         if (UserFormController.showCreateDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser())) {
             reloadSections();
             loadUsers();
-            NotificationHelper.showSuccess(statusLabel, "User created in SQLite. Legacy users.txt was not changed.");
+            NotificationHelper.showSuccess(statusLabel, "User account saved.");
         }
     }
 
@@ -187,7 +187,7 @@ public class UserDirectoryController implements FxController {
             reloadSections();
             loadUsers();
             selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "User updated in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "User updated.");
         }
     }
 
@@ -212,7 +212,7 @@ public class UserDirectoryController implements FxController {
             userWriteService.deactivateUser(Session.getCurrentUser(), selected.getUsername(), self);
             loadUsers();
             selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "User deactivated in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "User deactivated.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -231,7 +231,7 @@ public class UserDirectoryController implements FxController {
         if (UserFormController.showResetPasswordDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
             loadUsers();
             selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "Password reset in SQLite. Raw password was not logged.");
+            NotificationHelper.showSuccess(statusLabel, "Password reset. Raw password was not logged.");
         }
     }
 
@@ -267,12 +267,12 @@ public class UserDirectoryController implements FxController {
         boolean adminRole = "ADMIN".equals(group);
         addPermission("View patients", true, "Read-only JavaFX patient board");
         addPermission("View alerts", true, "Read-only JavaFX Alert Center");
-        addPermission("Acknowledge SQLite alerts", true, "SQLite-only; does not stop Swing sounds/dialogs");
+        addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
         addPermission("View clinical timeline", true, "Read-only patient history preview");
         addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Admin-only SQLite create/edit/deactivate/reset workflow");
         addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user), "Admin audit viewer");
-        addPermission("Edit patients", false, "Future JavaFX feature; Swing remains production write path");
-        addPermission("Enter vitals", false, "Future JavaFX feature; Swing remains production write path");
+        addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "local database patient workflow");
+        addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "local database vitals workflow");
     }
 
     private void clearDetail() {
@@ -304,7 +304,7 @@ public class UserDirectoryController implements FxController {
         try {
             auditLogDao.log(SessionContext.username(), action);
         } catch (Exception e) {
-            System.out.println("SQLite staff directory audit skipped: " + e.getMessage());
+            System.out.println("Staff directory audit skipped: " + e.getMessage());
         }
     }
 

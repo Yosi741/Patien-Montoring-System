@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Nurse Work Queue" styleClass="screen-title" />
-                <Label text="Prioritized SQLite tasks from reminders, alerts, and missing vitals" styleClass="muted-text" />
+                <Label text="Prioritized tasks from reminders, alerts, and missing vitals" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
@@ -32,14 +32,14 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Nurse Work Queue is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                        <Label text="Nurse Work Queue is available to Admin, Doctor, and Nurse roles for authorized hospital roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="Local reminder engine. SQLite-only actions. No external calendar integration." styleClass="status-info metric-value compact-metric-value" />
+                            <Label text="Local reminder engine. Local database actions. No external calendar integration." styleClass="status-info metric-value compact-metric-value" />
 
                             <Label fx:id="notificationLabel" text="No reminder notifications yet." wrapText="true" HBox.hgrow="ALWAYS" styleClass="status-success success-value" />
                         </HBox>

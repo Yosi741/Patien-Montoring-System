@@ -59,7 +59,7 @@
                 </HBox>
 
                 <Label
-                        text="Read-only SQLite timeline combining vitals, alerts, AI notes, files, medical history, medication events, and handover notes."
+                        text="Read-only local database timeline combining vitals, alerts, AI notes, files, medical history, medication events, and handover notes."
                         wrapText="true" styleClass="muted-text" />
             </VBox>
 
@@ -150,7 +150,7 @@
 
             <Label
                     fx:id="statusLabel"
-                    text="Clinical events loaded from SQLite: 0" styleClass="status-info metric-value compact-metric-value" />
+                    text="Clinical events loaded from the local database: 0" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
     </center>
 </BorderPane>

@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Audit Logs" styleClass="screen-title" />
-                <Label text="Read-only SQLite admin audit viewer" styleClass="muted-text" />
+                <Label text="Read-only local database admin audit viewer" styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
@@ -37,7 +37,7 @@
 
                 <Label text="Access denied" styleClass="warning-value" />
 
-                <Label text="Audit logs are visible only for Admin users in this JavaFX preview."
+                <Label text="Audit logs are visible only for Admin users for authorized hospital roles."
                        wrapText="true" styleClass="body-text" />
             </VBox>
 
@@ -81,7 +81,7 @@
                 </VBox>
 
                 <Label fx:id="statusLabel"
-                       text="SQLite audit logs loaded: 0" styleClass="status-info metric-value compact-metric-value" />
+                       text="Audit logs loaded: 0" styleClass="status-info metric-value compact-metric-value" />
             </VBox>
         </VBox>
     </center>

@@ -9,7 +9,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Staff/User Directory" styleClass="screen-title" />
-                <Label text="SQLite staff directory and Admin user management" styleClass="muted-text" />
+                <Label text="Staff directory and Admin user management" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
@@ -24,7 +24,7 @@
 
             <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="panel-card">
                 <Label text="Access denied" styleClass="section-title" />
-                <Label text="Staff/User Directory management is visible only for Admin users in this JavaFX preview." wrapText="true" styleClass="body-text" />
+                <Label text="Staff/User Directory management is visible only for Admin users for authorized hospital roles." wrapText="true" styleClass="body-text" />
             </VBox>
 
             <VBox fx:id="directoryContentPane" spacing="16.0">
@@ -96,7 +96,7 @@
                     </ScrollPane>
                 </SplitPane>
 
-                <Label fx:id="statusLabel" text="SQLite users loaded: 0" wrapText="true" styleClass="status-pill" />
+                <Label fx:id="statusLabel" text="Users loaded: 0" wrapText="true" styleClass="status-pill" />
             </VBox>
         </VBox>
     </center>

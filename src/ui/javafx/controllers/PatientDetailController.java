@@ -3,6 +3,7 @@ package ui.javafx.controllers;
 import dao.SqlitePatientDao;
 import dao.SqliteVitalReadingDao;
 import dao.SqliteAlertDao;
+import dao.SqliteNewbornRecordDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,21 +30,26 @@ import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.VBox;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PatientDetailController implements FxController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();
     private final SqliteAlertDao alertDao = new SqliteAlertDao();
+    private final SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final VitalsTrendService vitalsTrendService = new VitalsTrendService();
     private final AiRecommendationService aiRecommendationService = new AiRecommendationService();
     private final ObservableList<VitalRecord> vitals = FXCollections.observableArrayList();
     private AppShell appShell;
     private String patientId;
+    private boolean deceasedPatient;
 
     @FXML private Label nameLabel;
     @FXML private Label patientIdLabel;
@@ -68,6 +74,8 @@ public class PatientDetailController implements FxController {
     @FXML private Label aiRecommendationLabel;
     @FXML private Label aiRecommendationTimeLabel;
     @FXML private Label aiRecommendationStatusLabel;
+    @FXML private Label babiesCountLabel;
+    @FXML private Label babiesListLabel;
     @FXML private ComboBox<String> vitalTypeFilter;
     @FXML private ComboBox<String> trendVitalTypeFilter;
     @FXML private ComboBox<String> trendRangeFilter;
@@ -92,6 +100,8 @@ public class PatientDetailController implements FxController {
     @FXML private Button movePatientButton;
     @FXML private Button markDeceasedButton;
     @FXML private Button viewNewbornsButton;
+    @FXML private Button viewBabiesButton;
+    @FXML private VBox babiesCard;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -121,11 +131,14 @@ public class PatientDetailController implements FxController {
             priorityLabel.getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
+            deceasedPatient = "DECEASED".equalsIgnoreCase(detail.getStatus());
             updateDeceasedButton(detail.getStatus());
+            updateClinicalActionBlocks();
             loadVitals();
             loadTrendChart();
             loadAlertSummary();
             loadAiRecommendation();
+            loadLinkedNewborns();
         } catch (Exception e) {
             nameLabel.setText("Patient unavailable");
             diagnosisLabel.setText(e.getMessage());
@@ -183,6 +196,7 @@ public class PatientDetailController implements FxController {
             timelineStatusLabel.setText("No patient selected for newborn lookup.");
             return;
         }
+        logAudit(ui.javafx.helpers.AuditAction.OPEN_BABIES_FROM_MOTHER + " patient_id=" + patientId);
         appShell.showNewbornRecordsForMother(patientId);
     }
 
@@ -208,7 +222,7 @@ public class PatientDetailController implements FxController {
         try {
             boolean saved = MedicalFileUploadController.showDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Medical file uploaded to SQLite. Open Medical Files or Clinical Timeline to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Medical file uploaded. Open Medical Files or Clinical Timeline to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -234,10 +248,13 @@ public class PatientDetailController implements FxController {
             timelineStatusLabel.setText("No patient selected for appointment scheduling.");
             return;
         }
+        if (blockIfDeceased("create appointment")) {
+            return;
+        }
         try {
             boolean saved = AppointmentFormController.showCreateDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Appointment saved in SQLite. Open Scheduling to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Appointment saved. Open Scheduling to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -254,10 +271,13 @@ public class PatientDetailController implements FxController {
             timelineStatusLabel.setText("No patient selected for reminder scheduling.");
             return;
         }
+        if (blockIfDeceased("create reminder/checkup order")) {
+            return;
+        }
         try {
             boolean saved = ReminderFormController.showCreateDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId, null, "");
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Reminder saved in SQLite. Open Scheduling to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Reminder saved. Open Scheduling to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -287,11 +307,14 @@ public class PatientDetailController implements FxController {
             timelineStatusLabel.setText("No patient selected for room move.");
             return;
         }
+        if (blockIfDeceased("move room")) {
+            return;
+        }
         try {
             boolean saved = RoomAssignmentController.showMovePatientDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
                 loadPatient(patientId);
-                NotificationHelper.showSuccess(timelineStatusLabel, "Patient room updated in SQLite. Legacy text files were not changed.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Patient room updated. System data updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -312,7 +335,7 @@ public class PatientDetailController implements FxController {
             boolean saved = DeathRecordFormController.showMarkDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
                 loadPatient(patientId);
-                NotificationHelper.showSuccess(timelineStatusLabel, "Patient marked DECEASED in SQLite and death record created.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Patient marked DECEASED and death record created.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -327,6 +350,9 @@ public class PatientDetailController implements FxController {
         }
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for medication entry.");
+            return;
+        }
+        if (blockIfDeceased("add medication")) {
             return;
         }
         try {
@@ -352,6 +378,9 @@ public class PatientDetailController implements FxController {
             timelineStatusLabel.setText("No patient selected for medication administration.");
             return;
         }
+        if (blockIfDeceased("record medication")) {
+            return;
+        }
         try {
             boolean saved = MedicationGivenController.showDialog(
                     nameLabel.getScene().getWindow(),
@@ -359,7 +388,7 @@ public class PatientDetailController implements FxController {
                     patientId,
                     null);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Medication administration event recorded in SQLite.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Medication administration recorded.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -382,7 +411,7 @@ public class PatientDetailController implements FxController {
             boolean saved = PatientFormController.showEditDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), detail);
             if (saved) {
                 loadPatient(patientId);
-                NotificationHelper.showSuccess(timelineStatusLabel, "Patient updated in SQLite. Legacy text files were not changed.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Patient updated. System data updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -397,6 +426,9 @@ public class PatientDetailController implements FxController {
         }
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for vitals entry.");
+            return;
+        }
+        if (blockIfDeceased("enter vitals")) {
             return;
         }
         try {
@@ -415,7 +447,7 @@ public class PatientDetailController implements FxController {
                 showVitalAlertPopupIfNeeded(result);
                 NotificationHelper.showSuccess(timelineStatusLabel,
                         "Saved " + result.getVitalType() + " " + result.getValue() + " " + result.getUnit()
-                                + " as " + result.getStatus() + ". SQLite timeline and alerts are refreshed.");
+                                + " as " + result.getStatus() + ". Timeline and alerts are refreshed.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -447,7 +479,7 @@ public class PatientDetailController implements FxController {
         try {
             vitals.setAll(vitalReadingDao.findByPatientIdAndType(patientId, vitalTypeFilter.getValue()));
             vitalsTable.setItems(vitals);
-            timelineStatusLabel.setText("Vital readings loaded from SQLite: " + vitals.size());
+            timelineStatusLabel.setText("Vital readings loaded from the local database: " + vitals.size());
         } catch (Exception e) {
             timelineStatusLabel.setText("Could not load vitals: " + e.getMessage());
         }
@@ -501,7 +533,7 @@ public class PatientDetailController implements FxController {
         try {
             aiRecommendationService.findLatestRecommendation(patientId).ifPresentOrElse(note -> {
                 renderAiRecommendation(note.getRiskScore(), note.getRiskLevel(), note.getNote(), note.getCreatedAt());
-                aiRecommendationStatusLabel.setText("Latest AI note loaded from SQLite.");
+                aiRecommendationStatusLabel.setText("Latest AI note loaded from the local database.");
             }, () -> {
                 aiRiskLabel.setText("Not generated");
                 aiRecommendationLabel.setText("No AI recommendation has been generated for this patient yet.");
@@ -576,6 +608,18 @@ public class PatientDetailController implements FxController {
         setButtonVisible(markDeceasedButton, visible);
     }
 
+    private void updateClinicalActionBlocks() {
+        if (!deceasedPatient) {
+            return;
+        }
+        setButtonVisible(enterVitalsButton, false);
+        setButtonVisible(addMedicationButton, false);
+        setButtonVisible(recordMedicationButton, false);
+        setButtonVisible(createAppointmentButton, false);
+        setButtonVisible(createReminderButton, false);
+        setButtonVisible(movePatientButton, false);
+    }
+
     private void setButtonVisible(Button button, boolean visible) {
         if (button != null) {
             button.setVisible(visible);
@@ -588,7 +632,7 @@ public class PatientDetailController implements FxController {
         latestValueLabel.getStyleClass().removeAll("trend-normal", "trend-warning", "trend-critical");
 
         if (result.isEmpty()) {
-            trendStatusLabel.setText("No SQLite vital readings found for " + result.getVitalFilter() + " in " + result.getRangeFilter() + ".");
+            trendStatusLabel.setText("No vital readings found for " + result.getVitalFilter() + " in " + result.getRangeFilter() + ".");
             latestValueLabel.setText("-");
             latestMetaLabel.setText("No latest reading available.");
             trendStatsLabel.setText("Min: - | Max: - | Avg: -");
@@ -612,7 +656,7 @@ public class PatientDetailController implements FxController {
         latestValueLabel.setText(latest.getRawValue() + " " + latest.getUnit() + " - " + latest.getStatus());
         latestValueLabel.getStyleClass().add(trendStyle(latest.getStatus()));
         latestMetaLabel.setText(latest.getRecordedAt()
-                + " | Source: " + fallback(latest.getSourceType(), "Manual/legacy")
+                + " | Source: " + fallback(latest.getSourceType(), "Manual/imported")
                 + " | Staff: " + fallback(latest.getStaffUser(), "Not recorded")
                 + (latest.getDeviceId().isBlank() ? "" : " | Device: " + latest.getDeviceId()));
         trendStatsLabel.setText(String.format("Min: %.1f | Max: %.1f | Avg: %.1f",
@@ -620,7 +664,44 @@ public class PatientDetailController implements FxController {
         trendCountsLabel.setText("Normal: " + result.getNormalCount()
                 + " | Warning: " + result.getWarningCount()
                 + " | Critical: " + result.getCriticalCount());
-        trendStatusLabel.setText("Read-only SQLite trend loaded: " + result.getReadings().size() + " readings.");
+        trendStatusLabel.setText("Read-only local database trend loaded: " + result.getReadings().size() + " readings.");
+    }
+
+    private void loadLinkedNewborns() {
+        if (patientId == null || patientId.isBlank()) {
+            return;
+        }
+        try {
+            List<SqliteNewbornRecordDao.NewbornRecord> babies = newbornDao.findByMother(patientId);
+            babiesCountLabel.setText(babies.size() + (babies.size() == 1 ? " linked newborn" : " linked newborns"));
+            if (babies.isEmpty()) {
+                babiesListLabel.setText("No babies linked to this patient yet");
+                return;
+            }
+            babiesListLabel.setText(babies.stream()
+                    .map(baby -> baby.getNewbornId() + " - " + baby.getBabyName() + " (" + baby.getBirthTime() + ")")
+                    .collect(Collectors.joining("\n")));
+        } catch (Exception e) {
+            babiesCountLabel.setText("Newborn links unavailable");
+            babiesListLabel.setText(e.getMessage());
+        }
+    }
+
+    private boolean blockIfDeceased(String action) {
+        if (!deceasedPatient) {
+            return false;
+        }
+        logAudit(ui.javafx.helpers.AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + patientId + ", action=" + action);
+        NotificationHelper.showError(timelineStatusLabel, "Clinical actions are blocked for deceased patients.");
+        return true;
+    }
+
+    private void logAudit(String action) {
+        try {
+            auditLogDao.log(SessionContext.username(), action);
+        } catch (Exception e) {
+            System.out.println("SQLite patient detail audit skipped: " + e.getMessage());
+        }
     }
 
     private String priorityStyle(String priority) {

@@ -15,7 +15,7 @@
                 text="Record Medication Given" styleClass="screen-title" />
 
         <Label
-                text="Records a SQLite medication administration event only. Swing and legacy text files are unchanged."
+                text="Records a medication administration event only. System data is stored in the local database."
                 wrapText="true" styleClass="muted-text" />
     </VBox>
 

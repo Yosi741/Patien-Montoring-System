@@ -1,6 +1,6 @@
 package dao;
 
-import ai.AIAnalysis;
+// import ai_Prototype.AIAnalysis;
 import database.DatabaseManager;
 import models.Patient;
 import models.VitalSign;

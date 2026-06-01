@@ -99,7 +99,7 @@ public class RoomAssignmentController {
 
     @FXML
     private void initialize() {
-        NotificationHelper.showInfo(statusLabel, "SQLite-only patient location update. Legacy text files are unchanged.");
+        NotificationHelper.showInfo(statusLabel, "Local database patient location update. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, AssignmentAction action, long roomId, String patientId) throws Exception {

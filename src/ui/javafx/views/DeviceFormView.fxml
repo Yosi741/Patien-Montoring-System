@@ -22,7 +22,7 @@
                     text="Device" styleClass="screen-title" />
 
             <Label
-                    text="SQLite-only device registration and assignment foundation."
+                    text="Local database device registration and assignment foundation."
                     wrapText="true" styleClass="muted-text" />
         </VBox>
 

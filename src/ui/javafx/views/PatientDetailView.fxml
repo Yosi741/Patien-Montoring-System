@@ -168,6 +168,15 @@
                             <Label text="Scans and Imaging" styleClass="patient-file-section-title" />
                             <Label text="CT, MRI, X-Ray, and ultrasound files will appear through Uploaded Medical Files. No scans uploaded yet." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
+
+                        <VBox fx:id="babiesCard" spacing="10.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4" styleClass="patient-file-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Babies / Newborns" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="viewBabiesButton" text="View Babies" onAction="#viewPatientNewborns" styleClass="patient-file-mini-button" />
+                            </HBox>
+                            <Label fx:id="babiesCountLabel" text="No linked newborn records" styleClass="patient-file-field-label" />
+                            <Label fx:id="babiesListLabel" text="No babies linked to this patient yet" wrapText="true" styleClass="patient-file-empty" />
+                        </VBox>
                     </GridPane>
 
                     <VBox spacing="14.0" styleClass="patient-file-card">
@@ -201,7 +210,7 @@
                     <HBox spacing="16.0" styleClass="patient-file-card">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                             <Label text="Alert Summary" styleClass="patient-file-section-title" />
-                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound; Swing alarm windows remain separate." wrapText="true" styleClass="patient-file-muted" />
+                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound." wrapText="true" styleClass="patient-file-muted" />
                         </VBox>
                         <VBox spacing="5.0" styleClass="patient-file-soft-card">
                             <Label text="Active Alerts" styleClass="patient-file-field-label" />
@@ -219,7 +228,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                 <Label text="Vital Trends" styleClass="patient-file-section-title" />
-                                <Label text="Read-only SQLite visualization with basic rule-based status indicators." styleClass="patient-file-muted" />
+                                <Label text="Read-only local database visualization with basic rule-based status indicators." styleClass="patient-file-muted" />
                             </VBox>
                             <Label text="Vital" styleClass="field-label" />
                             <ComboBox fx:id="trendVitalTypeFilter" prefWidth="175.0" styleClass="patient-input" />
@@ -262,7 +271,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                 <Label text="Vitals Timeline" styleClass="patient-file-section-title" />
-                                <Label text="Recent readings from SQLite, newest first." styleClass="patient-file-muted" />
+                                <Label text="Recent readings from the local database, newest first." styleClass="patient-file-muted" />
                             </VBox>
                             <Label text="Type" styleClass="field-label" />
                             <ComboBox fx:id="vitalTypeFilter" prefWidth="190.0" styleClass="patient-input" />
@@ -281,7 +290,7 @@
                             </columns>
                         </TableView>
 
-                        <Label fx:id="timelineStatusLabel" text="Vital readings loaded from SQLite: 0" styleClass="status-info" />
+                        <Label fx:id="timelineStatusLabel" text="Vital readings loaded from the local database: 0" styleClass="status-info" />
                     </VBox>
                 </VBox>
             </content>

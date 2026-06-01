@@ -93,7 +93,7 @@ public class AlertCenterController implements FxController {
             alertTable.setItems(alerts);
             renderPatientFilterChip();
             renderSummaryCounters();
-            statusLabel.setText("SQLite alerts loaded: " + alerts.size()
+            statusLabel.setText("Alerts loaded: " + alerts.size()
                     + (patientIdFilter == null || patientIdFilter.isBlank() ? "" : " for patient " + patientIdFilter));
             if (selectedId != null && selectAlertById(selectedId)) {
                 preselectedAlertId = null;

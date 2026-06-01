@@ -64,7 +64,7 @@ public class AiRecommendationsController implements FxController {
         try {
             rows.setAll(recommendationService.loadBoardRows(sectionFilter.getValue(), riskLevelFilter.getValue()));
             recommendationTable.setItems(rows);
-            statusLabel.setText("AI recommendations refreshed from SQLite at "
+            statusLabel.setText("AI recommendations refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             statusLabel.setText("Could not load AI recommendations: " + e.getMessage());

@@ -28,6 +28,8 @@ public class SchemaInitializer {
             migrateAiNotes(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
+            createSections(statement);
+            seedSections(statement);
             createRooms(statement);
             migrateRooms(statement);
             createDeceasedRecords(statement);
@@ -261,6 +263,26 @@ public class SchemaInitializer {
                 + "capacity INTEGER NOT NULL DEFAULT 1,"
                 + "UNIQUE(section, room_number)"
                 + ")");
+    }
+
+    private static void createSections(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS sections ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "name TEXT NOT NULL UNIQUE,"
+                + "status TEXT NOT NULL DEFAULT 'ACTIVE',"
+                + "notes TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+    }
+
+    private static void seedSections(Statement statement) throws SQLException {
+        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) "
+                + "SELECT DISTINCT TRIM(section), 'ACTIVE', 'Imported from patient locations' FROM patients "
+                + "WHERE section IS NOT NULL AND TRIM(section) <> ''");
+        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) "
+                + "SELECT DISTINCT TRIM(section), 'ACTIVE', 'Imported from room records' FROM rooms "
+                + "WHERE section IS NOT NULL AND TRIM(section) <> ''");
     }
 
     private static void migrateRooms(Statement statement) throws SQLException {

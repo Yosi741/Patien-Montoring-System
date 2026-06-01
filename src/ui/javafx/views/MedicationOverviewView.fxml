@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Medication Administration Overview" styleClass="screen-title" />
-                <Label text="SQLite medication overview with controlled administration write workflow" styleClass="muted-text" />
+                <Label text="Medication overview with controlled administration write workflow" styleClass="muted-text" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
@@ -32,7 +32,7 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Medication Overview is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                        <Label text="Medication Overview is available to Admin, Doctor, and Nurse roles for authorized hospital roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 

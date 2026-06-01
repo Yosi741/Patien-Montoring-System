@@ -73,6 +73,7 @@ public class NewbornRecordsController implements FxController {
     @FXML private Button openCertificateButton;
     @FXML private Button sendBirthNoticeButton;
     @FXML private Button copySummaryButton;
+    @FXML private Button viewMotherFileButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -121,7 +122,7 @@ public class NewbornRecordsController implements FxController {
             records.setAll(newbornService.getNewbornRecords(buildFilter()));
             newbornTable.setItems(records);
             loadSummaryCards();
-            statusLabel.setText("Newborn records loaded from SQLite: " + records.size());
+            statusLabel.setText("Newborn records loaded from the local database: " + records.size());
             renderDetail(null);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load newborn records: " + e.getMessage());
@@ -140,7 +141,7 @@ public class NewbornRecordsController implements FxController {
             boolean saved = NewbornFormController.showCreateDialog(newbornTable.getScene().getWindow(), Session.getCurrentUser(), motherFilter);
             if (saved) {
                 loadRecords();
-                NotificationHelper.showSuccess(statusLabel, "Newborn record created in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Newborn record created.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -157,7 +158,7 @@ public class NewbornRecordsController implements FxController {
             boolean saved = NewbornFormController.showEditDialog(newbornTable.getScene().getWindow(), Session.getCurrentUser(), selected);
             if (saved) {
                 loadRecords();
-                NotificationHelper.showSuccess(statusLabel, "Newborn record updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Newborn record updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -220,6 +221,25 @@ public class NewbornRecordsController implements FxController {
             AuditWriteHelper.write(username(), AuditAction.COPY_CERTIFICATE_SUMMARY,
                     "type=birth, newborn_id=" + selected.getNewbornId());
             NotificationHelper.showSuccess(statusLabel, "Certificate summary copied.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void viewMotherFile() {
+        SqliteNewbornRecordDao.NewbornRecord selected = selectedRecord();
+        if (selected == null) {
+            return;
+        }
+        if (selected.getMotherPatientId() == null || selected.getMotherPatientId().isBlank()) {
+            NotificationHelper.showInfo(statusLabel, "This newborn record is not linked to a mother patient file.");
+            return;
+        }
+        try {
+            AuditWriteHelper.write(username(), AuditAction.OPEN_MOTHER_FROM_NEWBORN,
+                    "newborn_id=" + selected.getNewbornId() + ", mother_patient_id=" + selected.getMotherPatientId());
+            appShell.showPatientDetail(selected.getMotherPatientId());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -316,6 +336,7 @@ public class NewbornRecordsController implements FxController {
             detailDeliveryLabel.setText("-");
             detailCertificateLabel.setText("-");
             detailNotesLabel.setText("Select a newborn record to view details.");
+            setButtonVisible(viewMotherFileButton, false);
             return;
         }
         detailBabyLabel.setText(record.getNewbornId() + " | " + record.getBabyName() + " | " + record.getGender());
@@ -329,6 +350,7 @@ public class NewbornRecordsController implements FxController {
                 ? "Pending certificate generation"
                 : "Generated: " + record.getCertificatePath());
         detailNotesLabel.setText(fallback(record.getNotes()));
+        setButtonVisible(viewMotherFileButton, record.getMotherPatientId() != null && !record.getMotherPatientId().isBlank());
     }
 
     private SqliteNewbornRecordDao.NewbornRecord selectedRecord() {

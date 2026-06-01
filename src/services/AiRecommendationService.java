@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class AiRecommendationService {
+/*public class AiRecommendationService {
 
     private static final String SOURCE_TITLE = "JavaFX AI Recommendation";
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -712,3 +712,5 @@ public class AiRecommendationService {
         public String getCreatedAt() { return createdAt; }
     }
 }
+
+ */

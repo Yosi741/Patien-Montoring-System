@@ -97,7 +97,7 @@ public class AppointmentFormController {
         }
         if (appointment == null) {
             titleLabel.setText("Create Appointment");
-            NotificationHelper.showInfo(statusLabel, "SQLite-only scheduling. External calendar integration is future work.");
+            NotificationHelper.showInfo(statusLabel, "Local database scheduling. External calendar integration is future work.");
             return;
         }
         titleLabel.setText("Edit Appointment");

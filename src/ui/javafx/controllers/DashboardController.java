@@ -77,7 +77,7 @@ public class DashboardController implements FxController {
         try {
             DashboardMetricsService.DashboardMetrics metrics = metricsService.loadMetrics();
             renderMetrics(metrics);
-            refreshStatusLabel.setText("Dashboard refreshed from SQLite at "
+            refreshStatusLabel.setText("Dashboard refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             refreshStatusLabel.setText("Could not refresh dashboard metrics: " + e.getMessage());
@@ -155,7 +155,7 @@ public class DashboardController implements FxController {
 
         latestVitalsBox.getChildren().setAll();
         if (metrics.getLatestVitals().isEmpty()) {
-            latestVitalsBox.getChildren().add(emptyRow("No SQLite vital readings found."));
+            latestVitalsBox.getChildren().add(emptyRow("No vital readings found."));
         } else {
             for (DashboardMetricsService.LatestVital vital : metrics.getLatestVitals()) {
                 latestVitalsBox.getChildren().add(vitalRow(vital));

@@ -1,6 +1,5 @@
 package ui.javafx.controllers;
 
-import database.UserStorage;
 import dao.SqliteAuditLogDao;
 import dao.SqliteUserDao;
 import javafx.scene.control.ButtonBar;
@@ -12,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import services.PasswordResetService;
-import security.PasswordHasher;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import users.User;
@@ -46,20 +44,13 @@ public class LoginController implements FxController {
         try {
             if (sqliteUserDao.verifyPassword(username, password)) {
                 User user = sqliteUserDao.findByUsername(username).get();
-                logLogin(user.getUsername(), "SQLite");
-                appShell.showDashboard(user, "SQLite");
+                logLogin(user.getUsername(), "Local database");
+                appShell.showDashboard(user, "Local database");
                 return;
             }
         } catch (Exception e) {
-            statusLabel.setText("Checking secure backup login...");
-        }
-
-        for (User user : UserStorage.loadUsers()) {
-            if (user.getUsername().equals(username) && passwordMatches(password, user.getPassword())) {
-                logLogin(user.getUsername(), "Legacy text-file fallback");
-                appShell.showDashboard(user, "Legacy text-file fallback");
-                return;
-            }
+            statusLabel.setText("Could not check local database login: " + e.getMessage());
+            return;
         }
 
         statusLabel.setText("Invalid username or password.");
@@ -78,7 +69,7 @@ public class LoginController implements FxController {
         requestDialog.setTitle("Forgot Password");
         requestDialog.initOwner(usernameField.getScene().getWindow());
         TextField resetUsername = new TextField(usernameField.getText());
-        resetUsername.setPromptText("SQLite username");
+        resetUsername.setPromptText("Username");
         GridPane requestGrid = new GridPane();
         requestGrid.setHgap(12);
         requestGrid.setVgap(10);
@@ -144,13 +135,6 @@ public class LoginController implements FxController {
             }
         });
         dialog.showAndWait();
-    }
-
-    private boolean passwordMatches(char[] inputPassword, String storedPassword) {
-        if (PasswordHasher.isHashed(storedPassword)) {
-            return PasswordHasher.verify(inputPassword, storedPassword);
-        }
-        return new String(inputPassword).equals(storedPassword);
     }
 
     private void logLogin(String username, String source) {

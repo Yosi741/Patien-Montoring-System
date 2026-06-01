@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
                 <Label text="Room / Bed Occupancy" styleClass="screen-title" />
-                <Label text="SQLite room, bed, capacity, and patient assignment management" styleClass="muted-text" />
+                <Label text="Room, bed, capacity, section, and patient assignment management" styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
@@ -34,7 +34,7 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Room/Bed Occupancy is available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                        <Label text="Room/Bed Occupancy is available to Admin, Doctor, and Nurse roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
@@ -74,6 +74,27 @@
                             </VBox>
                         </HBox>
 
+                        <VBox spacing="10.0" styleClass="panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Sections" styleClass="section-title" />
+                                    <Label text="Select a section row before editing or deactivating it." styleClass="muted-text" wrapText="true" />
+                                </VBox>
+                                <Button fx:id="addSectionButton" text="Add Section" onAction="#addSection" styleClass="secondary-button" />
+                                <Button fx:id="editSectionButton" text="Edit Section" onAction="#editSection" styleClass="secondary-button" />
+                                <Button fx:id="deactivateSectionButton" text="Deactivate Section" onAction="#deactivateSection" styleClass="danger-button" />
+                            </HBox>
+
+                            <TableView fx:id="sectionTable" prefHeight="180.0" styleClass="dialog-card">
+                                <columns>
+                                    <TableColumn fx:id="sectionNameColumn" text="Section" prefWidth="190.0" />
+                                    <TableColumn fx:id="sectionStatusColumn" text="Status" prefWidth="120.0" />
+                                    <TableColumn fx:id="sectionUpdatedColumn" text="Updated" prefWidth="180.0" />
+                                    <TableColumn fx:id="sectionNotesColumn" text="Notes" prefWidth="520.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
                         <VBox spacing="12.0" styleClass="panel-card">
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -96,9 +117,9 @@
                                 <Button fx:id="editRoomButton" text="Edit Room" onAction="#editRoom" styleClass="secondary-button" />
 
                                 <Button fx:id="deactivateRoomButton" text="Deactivate Room" onAction="#deactivateRoom" styleClass="danger-button" />
+                            </HBox>
 
-                                <Region HBox.hgrow="ALWAYS" />
-
+                            <HBox alignment="CENTER_RIGHT" spacing="10.0">
                                 <Button fx:id="assignPatientButton" text="Assign Patient" onAction="#assignPatientToRoom" styleClass="secondary-button" />
 
                                 <Button fx:id="movePatientButton" text="Move Patient" onAction="#movePatientToRoom" styleClass="secondary-button" />

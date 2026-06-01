@@ -90,7 +90,7 @@ public class ClinicalTimelineDao {
                 field(fields, "Device ID", resultSet.getString("device_id"));
                 String description = joinDetails("Recorded " + value(resultSet.getString("vital_type")),
                         value(resultSet.getString("value")) + " " + value(resultSet.getString("unit")),
-                        "Source: " + fallback(resultSet.getString("source_type"), "Manual/legacy"));
+                        "Source: " + fallback(resultSet.getString("source_type"), "Manual/imported"));
                 return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
                         resultSet.getString("recorded_at"), event.getSourceTable(), event.getSourceId(), description, "", "", fields));
             }
@@ -113,7 +113,7 @@ public class ClinicalTimelineDao {
                 field(fields, "Acknowledged By", resultSet.getString("acknowledged_by"));
                 field(fields, "Acknowledged At", resultSet.getString("acknowledged_at"));
                 field(fields, "Updated At", resultSet.getString("updated_at"));
-                String action = "Review patient status and use the current Swing alarm controls for production acknowledgement or sound handling.";
+                String action = "Review patient status and use JavaFX Alert Center acknowledgement or sound handling.";
                 return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
                         resultSet.getString("created_at"), event.getSourceTable(), event.getSourceId(), resultSet.getString("message"),
                         resultSet.getString("severity"), action, fields));
@@ -250,7 +250,7 @@ public class ClinicalTimelineDao {
                             value(resultSet.getString("recorded_at")),
                             "Vitals",
                             vitalType + ": " + value + (unit.isBlank() ? "" : " " + unit),
-                            joinDetails("Source: " + fallback(source, "Manual/legacy"),
+                            joinDetails("Source: " + fallback(source, "Manual/imported"),
                                     "Staff: " + fallback(staff, "Not recorded"),
                                     device.isBlank() ? "" : "Device: " + device),
                             "",
@@ -301,7 +301,7 @@ public class ClinicalTimelineDao {
                     events.add(new TimelineEvent(
                             value(resultSet.getString("created_at")),
                             "AI Notes",
-                            sourceTitle.isBlank() ? "AI note" : "Imported legacy AI note: " + sourceTitle,
+                            sourceTitle.isBlank() ? "AI note" : "Imported AI note: " + sourceTitle,
                             joinDetails(riskScore > 0 ? "Risk score: " + riskScore : "",
                                     value(resultSet.getString("note"))),
                             riskScore >= 80 ? "CRITICAL" : riskScore >= 50 ? "WARNING" : "",
@@ -353,7 +353,7 @@ public class ClinicalTimelineDao {
                     events.add(new TimelineEvent(
                             value(resultSet.getString("created_at")),
                             "Medical History",
-                            category.isBlank() ? "Imported legacy medical history" : category,
+                            category.isBlank() ? "Imported medical history" : category,
                             joinDetails(value(resultSet.getString("details")),
                                     createdBy.isBlank() ? "" : "Recorded by: " + createdBy),
                             "",
@@ -407,7 +407,7 @@ public class ClinicalTimelineDao {
                     events.add(new TimelineEvent(
                             value(resultSet.getString("created_at")),
                             "Shift Handover",
-                            "Imported legacy shift handover note",
+                            "Imported shift handover note",
                             joinDetails(value(resultSet.getString("note")),
                                     fromUser.isBlank() ? "" : "From: " + fromUser,
                                     toSection.isBlank() ? "" : "To section: " + toSection),

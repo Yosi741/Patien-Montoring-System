@@ -117,7 +117,7 @@ public class SchedulingController implements FxController {
             appointmentTable.setItems(appointments);
             reminders.setAll(overview.getReminders());
             reminderTable.setItems(reminders);
-            NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from SQLite. Appointments: "
+            NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from the local database. Appointments: "
                     + appointments.size() + ", reminders: " + reminders.size());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load scheduling data: " + e.getMessage());
@@ -133,7 +133,7 @@ public class SchedulingController implements FxController {
         try {
             if (AppointmentFormController.showCreateDialog(appointmentTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter)) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Appointment saved in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Appointment saved.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -153,7 +153,7 @@ public class SchedulingController implements FxController {
         try {
             if (AppointmentFormController.showEditDialog(appointmentTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Appointment updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Appointment updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -169,7 +169,7 @@ public class SchedulingController implements FxController {
         try {
             schedulingService.markAppointmentCompleted(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment marked completed in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Appointment marked completed.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -187,7 +187,7 @@ public class SchedulingController implements FxController {
         try {
             schedulingService.cancelAppointment(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment cancelled in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Appointment cancelled.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -202,7 +202,7 @@ public class SchedulingController implements FxController {
         try {
             if (ReminderFormController.showCreateDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter, null, "")) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Reminder saved in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Reminder saved.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -222,7 +222,7 @@ public class SchedulingController implements FxController {
         try {
             if (ReminderFormController.showEditDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Reminder updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Reminder updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -238,7 +238,7 @@ public class SchedulingController implements FxController {
         try {
             schedulingService.markReminderDone(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Reminder marked done in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Reminder marked done.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -256,7 +256,7 @@ public class SchedulingController implements FxController {
         try {
             schedulingService.cancelReminder(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Reminder cancelled in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Reminder cancelled.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }

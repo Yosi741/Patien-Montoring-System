@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0" prefWidth="620.0"
+      xmlns="http://javafx.com/javafx/17.0.15"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.javafx.controllers.SectionFormController" styleClass="panel-card">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Section" styleClass="screen-title" />
+        <Label text="Manage SQLite hospital sections used by patient, room, and filter workflows."
+               wrapText="true" styleClass="muted-text" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="60.0" />
+            <ColumnConstraints percentWidth="40.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Section Name" styleClass="field-label" />
+            <TextField fx:id="nameField" promptText="Emergency, ICU, Maternity..." styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional section notes" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+</VBox>

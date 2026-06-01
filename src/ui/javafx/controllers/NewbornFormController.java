@@ -1,6 +1,7 @@
 package ui.javafx.controllers;
 
 import dao.SqliteNewbornRecordDao;
+import dao.SqlitePatientDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +27,7 @@ public class NewbornFormController {
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final NewbornService newbornService = new NewbornService();
+    private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private User currentUser;
     private SqliteNewbornRecordDao.NewbornRecord existingRecord;
     private String motherPatientId;
@@ -88,7 +90,7 @@ public class NewbornFormController {
         deliveryTypeBox.getItems().setAll("NATURAL", "C_SECTION", "ASSISTED", "UNKNOWN");
         deliveryTypeBox.getSelectionModel().select("UNKNOWN");
         birthTimeField.setText(LocalDateTime.now().format(SQLITE_DATE_TIME));
-        NotificationHelper.showInfo(statusLabel, "SQLite-only newborn workflow. Legacy text files are unchanged.");
+        NotificationHelper.showInfo(statusLabel, "Newborn record workflow. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, String motherPatientId, SqliteNewbornRecordDao.NewbornRecord record) {
@@ -96,6 +98,9 @@ public class NewbornFormController {
         this.existingRecord = record;
         this.motherPatientId = motherPatientId == null ? "" : motherPatientId;
         motherPatientIdField.setText(this.motherPatientId);
+        if (!this.motherPatientId.isBlank()) {
+            findMother();
+        }
         if (record == null) {
             titleLabel.setText("Create Newborn Record");
             doctorField.setText(currentUser == null ? "" : currentUser.getUsername());
@@ -147,6 +152,29 @@ public class NewbornFormController {
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
             return false;
+        }
+    }
+
+    @FXML
+    private void findMother() {
+        String motherId = motherPatientIdField.getText() == null ? "" : motherPatientIdField.getText().trim();
+        if (motherId.isBlank()) {
+            NotificationHelper.showInfo(statusLabel, "Enter a mother patient ID to look up.");
+            return;
+        }
+        try {
+            SqlitePatientDao.PatientDetail mother = patientDao.findDetailById(motherId)
+                    .orElseThrow(() -> new IllegalArgumentException("Mother patient ID not found in SQLite: " + motherId));
+            motherNameField.setText(mother.getName());
+            if (sectionField.getText() == null || sectionField.getText().isBlank()) {
+                sectionField.setText(mother.getSection());
+            }
+            if (roomField.getText() == null || roomField.getText().isBlank()) {
+                roomField.setText(mother.getRoom());
+            }
+            NotificationHelper.showSuccess(statusLabel, "Mother linked: " + mother.getName());
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
         }
     }
 }

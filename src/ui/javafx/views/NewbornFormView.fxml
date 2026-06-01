@@ -46,7 +46,10 @@
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Mother Patient ID" styleClass="field-label" />
-            <TextField fx:id="motherPatientIdField" promptText="Optional existing patient ID" styleClass="control-input" />
+            <HBox spacing="8.0">
+                <TextField fx:id="motherPatientIdField" promptText="Optional existing patient ID" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                <Button text="Find" onAction="#findMother" styleClass="secondary-button" />
+            </HBox>
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <Label text="Mother Name" styleClass="field-label" />

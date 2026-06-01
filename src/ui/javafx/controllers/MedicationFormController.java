@@ -70,7 +70,7 @@ public class MedicationFormController {
     @FXML
     private void initialize() {
         activeCheckBox.setSelected(true);
-        NotificationHelper.showInfo(statusLabel, "SQLite-only medication write. Legacy text files are not changed.");
+        NotificationHelper.showInfo(statusLabel, "Medication form. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, String patientId, SqliteMedicationDao.MedicationRecord medication) {

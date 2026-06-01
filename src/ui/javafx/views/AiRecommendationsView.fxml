@@ -61,7 +61,7 @@
                                 text="Access denied" styleClass="warning-value" />
 
                         <Label
-                                text="AI Recommendations are available to Admin, Doctor, and Nurse roles in this JavaFX preview."
+                                text="AI Recommendations are available to Admin, Doctor, and Nurse roles for authorized hospital roles."
                                 wrapText="true" styleClass="body-text" />
                     </VBox>
 

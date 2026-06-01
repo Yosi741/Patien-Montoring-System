@@ -154,7 +154,7 @@
                               styleClass="dashboard-panel-card dashboard-vitals-card">
                             <Label text="Vitals Today" styleClass="dashboard-panel-title" />
                             <Label fx:id="recentVitalsTodayLabel" text="0" styleClass="dashboard-vitals-value" />
-                            <Label text="Recent SQLite vital readings recorded today"
+                            <Label text="Recent vital readings recorded today"
                                    wrapText="true"
                                    styleClass="dashboard-page-subtitle" />
                             <Region VBox.vgrow="ALWAYS" />
@@ -226,7 +226,7 @@
                         <Label text="System Status" styleClass="dashboard-panel-title" />
                         <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true"
                                styleClass="status-info" />
-                        <Label fx:id="databaseStatusLabel" text="SQLite status" wrapText="true"
+                        <Label fx:id="databaseStatusLabel" text="Database status" wrapText="true"
                                styleClass="status-success" />
                         <Label fx:id="migrationStatusLabel" text="Migration status" wrapText="true"
                                styleClass="status-info" />

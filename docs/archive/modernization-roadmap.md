@@ -7,7 +7,7 @@ The current application is a plain Java desktop project using Swing, text-file p
 - `src/gui`: 35 Swing GUI classes, mostly `JFrame` screens.
 - `src/database`: text-file storage classes for patients, users, vitals, rooms, messages, notifications, files, mothers, newborns, and devices.
 - `src/services`: business logic for vitals, alarms, rooms, devices, certificates, files, patients, and permissions.
-- `src/ai`: lightweight rule-based analysis.
+- `src/ai_Prototype`: lightweight rule-based analysis.
 - `src/alerts`: alert facade over `AlarmService`.
 - `src/users`: session and user role models.
 - `data`: runtime text files and uploaded/generated files.
@@ -29,7 +29,7 @@ src/dao/                  SQLite DAO interfaces/implementations
 src/database/             SQLite connection, schema, migrations
 src/models/               Domain models and DTOs
 src/alerts/               Alert rules, cooldown, sound, notification dispatch
-src/ai/                   Trend analysis, risk scoring, recommendations
+src/ai_Prototype/                   Trend analysis, risk scoring, recommendations
 src/devices/              Device interfaces and simulator adapters
 src/security/             Password hashing, session, authorization helpers
 src/logs/                 Audit logging abstraction

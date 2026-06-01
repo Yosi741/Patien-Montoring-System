@@ -14,6 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import services.RoomWriteService;
+import services.SectionService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;
@@ -21,12 +22,13 @@ import users.User;
 public class RoomFormController {
 
     private final RoomWriteService roomWriteService = new RoomWriteService();
+    private final SectionService sectionService = new SectionService();
     private User currentUser;
     private SqliteRoomDao.RoomDetail existingRoom;
     private boolean saved;
 
     @FXML private Label titleLabel;
-    @FXML private TextField sectionField;
+    @FXML private ComboBox<String> sectionBox;
     @FXML private TextField roomNumberField;
     @FXML private TextField capacityField;
     @FXML private ComboBox<String> statusBox;
@@ -71,7 +73,12 @@ public class RoomFormController {
         statusBox.getItems().setAll("ACTIVE", "MAINTENANCE", "INACTIVE");
         statusBox.getSelectionModel().select("ACTIVE");
         capacityField.setText("1");
-        NotificationHelper.showInfo(statusLabel, "SQLite-only room management. Legacy room text storage is unchanged.");
+        try {
+            sectionBox.getItems().setAll(sectionService.findActiveSectionNames());
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Active section choices unavailable: " + e.getMessage());
+        }
+        NotificationHelper.showInfo(statusLabel, "Local database room management. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, SqliteRoomDao.RoomDetail room) {
@@ -82,7 +89,7 @@ public class RoomFormController {
             return;
         }
         titleLabel.setText("Edit Room");
-        sectionField.setText(room.getSection());
+        selectOrSet(sectionBox, room.getSection());
         roomNumberField.setText(room.getRoomNumber());
         capacityField.setText(String.valueOf(room.getCapacity()));
         statusBox.getSelectionModel().select(room.getStatus());
@@ -93,7 +100,7 @@ public class RoomFormController {
         try {
             int capacity = Integer.parseInt(capacityField.getText().trim());
             RoomWriteService.RoomRequest request = new RoomWriteService.RoomRequest(
-                    sectionField.getText(),
+                    comboValue(sectionBox),
                     roomNumberField.getText(),
                     capacity,
                     statusBox.getValue(),
@@ -113,5 +120,27 @@ public class RoomFormController {
             NotificationHelper.showError(statusLabel, e.getMessage());
             return false;
         }
+    }
+
+    private void selectOrSet(ComboBox<String> comboBox, String value) {
+        String safeValue = value == null ? "" : value.trim();
+        if (safeValue.isBlank()) {
+            comboBox.getSelectionModel().clearSelection();
+            comboBox.getEditor().clear();
+            return;
+        }
+        if (!comboBox.getItems().contains(safeValue)) {
+            comboBox.getItems().add(safeValue);
+        }
+        comboBox.getSelectionModel().select(safeValue);
+        comboBox.getEditor().setText(safeValue);
+    }
+
+    private String comboValue(ComboBox<String> comboBox) {
+        String editorText = comboBox.getEditor() == null ? "" : comboBox.getEditor().getText();
+        if (editorText != null && !editorText.isBlank()) {
+            return editorText.trim();
+        }
+        return comboBox.getValue() == null ? "" : comboBox.getValue().trim();
     }
 }

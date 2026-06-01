@@ -25,7 +25,7 @@
                     text="Appointment" styleClass="screen-title" />
 
             <Label
-                    text="SQLite-only appointment scheduling. No external calendar integration in this phase."
+                    text="Local database appointment scheduling. No external calendar integration in this phase."
                     wrapText="true" styleClass="muted-text" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />

@@ -49,6 +49,6 @@
             <Label text="• Improved patient monitoring experience" styleClass="muted-text" />
         </VBox>
 
-        <Label text="Module preview mode" styleClass="status-info metric-value compact-metric-value" />
+        <Label text="Module coming soon" styleClass="status-info metric-value compact-metric-value" />
     </VBox>
 </VBox>

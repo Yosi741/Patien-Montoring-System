@@ -83,7 +83,7 @@ public class ReminderFormController {
         reminderTypeBox.getSelectionModel().select("CUSTOM");
         statusBox.getSelectionModel().select("PENDING");
         dueTimeField.setText(LocalDateTime.now().plusHours(4).withSecond(0).withNano(0).format(DATE_TIME));
-        NotificationHelper.showInfo(statusLabel, "SQLite-only reminder. External calendar integration is future work.");
+        NotificationHelper.showInfo(statusLabel, "Local database reminder. External calendar integration is future work.");
     }
 
     private void prepare(User currentUser, String patientId, Long medicationId, String medicationName,

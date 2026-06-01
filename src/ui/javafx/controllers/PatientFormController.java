@@ -1,6 +1,8 @@
 package ui.javafx.controllers;
 
 import dao.SqlitePatientDao;
+import dao.SqliteRoomDao;
+import services.SectionService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,6 +21,9 @@ import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -28,6 +33,8 @@ public class PatientFormController {
     private static final DateTimeFormatter LEGACY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private final PatientWriteService patientWriteService = new PatientWriteService();
+    private final SectionService sectionService = new SectionService();
+    private final SqliteRoomDao roomDao = new SqliteRoomDao();
     private User currentUser;
     private SqlitePatientDao.PatientDetail existingPatient;
     private boolean saved;
@@ -39,8 +46,8 @@ public class PatientFormController {
     @FXML private TextField lastNameField;
     @FXML private DatePicker birthDatePicker;
     @FXML private ComboBox<String> genderBox;
-    @FXML private TextField sectionField;
-    @FXML private TextField roomField;
+    @FXML private ComboBox<String> sectionBox;
+    @FXML private ComboBox<String> roomBox;
     @FXML private ComboBox<String> statusBox;
     @FXML private ComboBox<String> priorityBox;
     @FXML private TextArea diagnosisArea;
@@ -87,7 +94,9 @@ public class PatientFormController {
         genderBox.getSelectionModel().select("Unknown");
         statusBox.getSelectionModel().select("ACTIVE");
         priorityBox.getSelectionModel().select("NORMAL");
-        NotificationHelper.showInfo(statusLabel, "SQLite-only patient write. Legacy text files are not changed.");
+        loadSections();
+        sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> loadRoomsForSection(newValue));
+        NotificationHelper.showInfo(statusLabel, "Patient record form. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, SqlitePatientDao.PatientDetail patient) {
@@ -95,20 +104,21 @@ public class PatientFormController {
         this.existingPatient = patient;
         if (patient == null) {
             titleLabel.setText("Add Patient");
-            helpLabel.setText("Create a SQLite-only patient record for the JavaFX preview.");
+            helpLabel.setText("Create a patient record in the local database.");
             return;
         }
 
         titleLabel.setText("Edit Patient");
-        helpLabel.setText("Update this SQLite patient record only. Legacy text-file storage is unchanged.");
+        helpLabel.setText("Update this patient record only. System data is stored in the local database.");
         patientIdField.setText(patient.getPatientId());
         patientIdField.setDisable(true);
         firstNameField.setText(patient.getFirstName());
         lastNameField.setText(patient.getLastName());
         birthDatePicker.setValue(parseBirthDate(patient.getBirthDate()));
         genderBox.getSelectionModel().select(blankTo(patient.getGender(), "Unknown"));
-        sectionField.setText(patient.getSection());
-        roomField.setText(patient.getRoom());
+        selectOrSet(sectionBox, patient.getSection());
+        loadRoomsForSection(patient.getSection());
+        selectOrSet(roomBox, patient.getRoom());
         statusBox.getSelectionModel().select(normalizeStatus(patient.getStatus()));
         priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
         diagnosisArea.setText(patient.getDiagnosis());
@@ -137,12 +147,68 @@ public class PatientFormController {
                 lastNameField.getText(),
                 birthDatePicker.getValue() == null ? "" : birthDatePicker.getValue().format(LEGACY_DATE),
                 genderBox.getValue(),
-                sectionField.getText(),
-                roomField.getText(),
+                comboValue(sectionBox),
+                comboValue(roomBox),
                 statusBox.getValue(),
                 priorityBox.getValue(),
                 diagnosisArea.getText()
         );
+    }
+
+    private void loadSections() {
+        LinkedHashSet<String> sections = new LinkedHashSet<>();
+        try {
+            sections.addAll(sectionService.findActiveSectionNames());
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Active section list unavailable: " + e.getMessage());
+        }
+        try {
+            sections.addAll(new SqlitePatientDao().findDistinctSections());
+        } catch (Exception ignored) {
+            // Patient sections are a fallback only.
+        }
+        sectionBox.getItems().setAll(sections);
+    }
+
+    private void loadRoomsForSection(String section) {
+        String selected = comboValue(roomBox);
+        List<String> rooms = new ArrayList<>();
+        if (section != null && !section.isBlank()) {
+            try {
+                rooms.addAll(roomDao.findActiveRoomsForSection(section));
+            } catch (Exception e) {
+                NotificationHelper.showInfo(statusLabel, "Room choices unavailable for section: " + e.getMessage());
+            }
+        }
+        roomBox.getItems().setAll(rooms);
+        if (selected != null && !selected.isBlank()) {
+            selectOrSet(roomBox, selected);
+        }
+    }
+
+    private void selectOrSet(ComboBox<String> comboBox, String value) {
+        String safeValue = value == null ? "" : value.trim();
+        if (safeValue.isBlank()) {
+            comboBox.getSelectionModel().clearSelection();
+            comboBox.getEditor().clear();
+            return;
+        }
+        if (!comboBox.getItems().contains(safeValue)) {
+            comboBox.getItems().add(safeValue);
+        }
+        comboBox.getSelectionModel().select(safeValue);
+        comboBox.getEditor().setText(safeValue);
+    }
+
+    private String comboValue(ComboBox<String> comboBox) {
+        if (comboBox == null) {
+            return "";
+        }
+        String editorText = comboBox.getEditor() == null ? "" : comboBox.getEditor().getText();
+        if (editorText != null && !editorText.isBlank()) {
+            return editorText.trim();
+        }
+        return comboBox.getValue() == null ? "" : comboBox.getValue().trim();
     }
 
     private LocalDate parseBirthDate(String value) {

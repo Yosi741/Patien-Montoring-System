@@ -111,7 +111,7 @@ public class MedicationOverviewController implements FxController {
             );
             MedicationOverviewService.MedicationOverview overview = medicationService.loadOverview(filter);
             renderOverview(overview);
-            statusLabel.setText("Medication overview refreshed from SQLite at "
+            statusLabel.setText("Medication overview refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             statusLabel.setText("Could not load medication overview: " + e.getMessage());
@@ -154,7 +154,7 @@ public class MedicationOverviewController implements FxController {
             boolean saved = MedicationFormController.showCreateDialog(medicationTable.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
                 loadOverview();
-                NotificationHelper.showSuccess(statusLabel, "Medication saved to SQLite. Legacy text files were not changed.");
+                NotificationHelper.showSuccess(statusLabel, "Medication saved. System data updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -178,7 +178,7 @@ public class MedicationOverviewController implements FxController {
                     toMedicationRecord(selected));
             if (saved) {
                 loadOverview();
-                NotificationHelper.showSuccess(statusLabel, "Medication updated in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Medication updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -205,7 +205,7 @@ public class MedicationOverviewController implements FxController {
         try {
             medicationWriteService.discontinueMedication(Session.getCurrentUser(), selected.getId());
             loadOverview();
-            NotificationHelper.showSuccess(statusLabel, "Medication discontinued in SQLite.");
+            NotificationHelper.showSuccess(statusLabel, "Medication discontinued.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -236,7 +236,7 @@ public class MedicationOverviewController implements FxController {
                     selectedMedication);
             if (saved) {
                 loadOverview();
-                NotificationHelper.showSuccess(statusLabel, "Medication administration event recorded in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Medication administration recorded.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -266,7 +266,7 @@ public class MedicationOverviewController implements FxController {
                     selected.getMedicationName());
             if (saved) {
                 loadOverview();
-                NotificationHelper.showSuccess(statusLabel, "Medication reminder saved in SQLite.");
+                NotificationHelper.showSuccess(statusLabel, "Medication reminder saved.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -280,9 +280,9 @@ public class MedicationOverviewController implements FxController {
         medicationContentPane.setVisible(authorized);
         medicationContentPane.setManaged(authorized);
         if (isAdmin()) {
-            scopeLabel.setText("Admin view: all SQLite medication rows and administration events.");
+            scopeLabel.setText("Admin view: all local database medication rows and administration events.");
         } else if (isClinical()) {
-            scopeLabel.setText("Clinical read-only medication overview for JavaFX preview.");
+            scopeLabel.setText("Clinical read-only medication overview for JavaFX application.");
         }
         updatePatientFilterChip();
     }
@@ -396,7 +396,7 @@ public class MedicationOverviewController implements FxController {
         try {
             auditLogDao.log(SessionContext.username(), action);
         } catch (Exception e) {
-            System.out.println("SQLite medication overview audit skipped: " + e.getMessage());
+            System.out.println("Medication overview audit skipped: " + e.getMessage());
         }
     }
 

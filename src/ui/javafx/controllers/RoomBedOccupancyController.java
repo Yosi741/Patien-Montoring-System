@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import dao.SqliteRoomDao;
 import dao.SqliteAuditLogDao;
+import dao.SqliteSectionDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,6 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import services.RoomWriteService;
 import services.RoomBedOccupancyService;
+import services.SectionService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -36,10 +38,14 @@ public class RoomBedOccupancyController implements FxController {
 
     private final RoomBedOccupancyService occupancyService = new RoomBedOccupancyService();
     private final RoomWriteService roomWriteService = new RoomWriteService();
+    private final SectionService sectionService = new SectionService();
     private final SqliteRoomDao roomDao = new SqliteRoomDao();
+    private final SqliteSectionDao sectionDao = new SqliteSectionDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final ObservableList<RoomBedOccupancyService.RoomRow> rows = FXCollections.observableArrayList();
+    private final ObservableList<SqliteSectionDao.SectionRecord> sections = FXCollections.observableArrayList();
     private AppShell appShell;
+    private boolean filterListenersConfigured;
 
     @FXML private VBox accessDeniedPane;
     @FXML private VBox occupancyContentPane;
@@ -54,6 +60,11 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private Label fallbackStatusLabel;
     @FXML private VBox activePatientsBySectionBox;
     @FXML private VBox criticalPatientsBySectionBox;
+    @FXML private TableView<SqliteSectionDao.SectionRecord> sectionTable;
+    @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionNameColumn;
+    @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionStatusColumn;
+    @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionUpdatedColumn;
+    @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionNotesColumn;
     @FXML private TableView<RoomBedOccupancyService.RoomRow> roomTable;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> sectionColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> roomColumn;
@@ -66,6 +77,9 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private Button addRoomButton;
     @FXML private Button editRoomButton;
     @FXML private Button deactivateRoomButton;
+    @FXML private Button addSectionButton;
+    @FXML private Button editSectionButton;
+    @FXML private Button deactivateSectionButton;
     @FXML private Button assignPatientButton;
     @FXML private Button movePatientButton;
     @FXML private Button removePatientRoomButton;
@@ -77,6 +91,7 @@ public class RoomBedOccupancyController implements FxController {
         configureAccess();
         configureFilters();
         configureTable();
+        configureSectionTable();
         if (isAuthorized()) {
             logAudit("JavaFX ROOM_OCCUPANCY opened overview");
             loadOccupancy();
@@ -99,7 +114,8 @@ public class RoomBedOccupancyController implements FxController {
             );
             RoomBedOccupancyService.OccupancyOverview overview = occupancyService.loadOverview(filter);
             renderOverview(overview);
-            statusLabel.setText("Room/bed occupancy refreshed from SQLite at "
+            loadSections();
+            statusLabel.setText("Room/bed occupancy refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
             statusLabel.setText("Could not load room/bed occupancy: " + e.getMessage());
@@ -135,8 +151,54 @@ public class RoomBedOccupancyController implements FxController {
         try {
             boolean saved = RoomFormController.showCreateDialog(roomTable.getScene().getWindow(), Session.getCurrentUser());
             if (saved) {
-                refreshAfterWrite("Room created in SQLite.");
+                refreshAfterWrite("Room created.");
             }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void addSection() {
+        try {
+            boolean saved = SectionFormController.showCreateDialog(roomTable.getScene().getWindow(), Session.getCurrentUser());
+            if (saved) {
+                reloadSectionChoices();
+                refreshAfterWrite("Section created.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void editSection() {
+        SqliteSectionDao.SectionRecord section = selectedSectionRecord();
+        if (section == null) {
+            return;
+        }
+        try {
+            boolean saved = SectionFormController.showEditDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), section);
+            if (saved) {
+                reloadSectionChoices();
+                refreshAfterWrite("Section updated.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void deactivateSection() {
+        SqliteSectionDao.SectionRecord section = selectedSectionRecord();
+        if (section == null) {
+            return;
+        }
+        try {
+            boolean confirmed = sectionService.confirmDeactivateWithActiveRecords(section.getName());
+            sectionService.deactivateSection(Session.getCurrentUser(), section.getId(), confirmed);
+            reloadSectionChoices();
+            refreshAfterWrite("Section deactivated.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -153,7 +215,7 @@ public class RoomBedOccupancyController implements FxController {
                     .orElseThrow(() -> new IllegalArgumentException("Room not found in SQLite."));
             boolean saved = RoomFormController.showEditDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), room);
             if (saved) {
-                refreshAfterWrite("Room updated in SQLite.");
+                refreshAfterWrite("Room updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -172,7 +234,7 @@ public class RoomBedOccupancyController implements FxController {
         }
         try {
             roomWriteService.deactivateRoom(Session.getCurrentUser(), selected.getRoomId());
-            refreshAfterWrite("Room deactivated in SQLite.");
+            refreshAfterWrite("Room deactivated.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -187,7 +249,7 @@ public class RoomBedOccupancyController implements FxController {
         try {
             boolean saved = RoomAssignmentController.showAssignDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
             if (saved) {
-                refreshAfterWrite("Patient assigned to room in SQLite.");
+                refreshAfterWrite("Patient assigned to room.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -200,7 +262,7 @@ public class RoomBedOccupancyController implements FxController {
         try {
             boolean saved = RoomAssignmentController.showMoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
             if (saved) {
-                refreshAfterWrite("Patient moved to room in SQLite.");
+                refreshAfterWrite("Patient moved to room.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -217,7 +279,7 @@ public class RoomBedOccupancyController implements FxController {
         try {
             boolean saved = RoomAssignmentController.showRemoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
             if (saved) {
-                refreshAfterWrite("Patient removed from room in SQLite.");
+                refreshAfterWrite("Patient removed from room.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -234,6 +296,9 @@ public class RoomBedOccupancyController implements FxController {
         setButtonVisible(addRoomButton, canManageRooms);
         setButtonVisible(editRoomButton, canManageRooms);
         setButtonVisible(deactivateRoomButton, canManageRooms);
+        setButtonVisible(addSectionButton, canManageRooms);
+        setButtonVisible(editSectionButton, canManageRooms);
+        setButtonVisible(deactivateSectionButton, canManageRooms);
         boolean canAssign = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
         setButtonVisible(assignPatientButton, canAssign);
         setButtonVisible(movePatientButton, canAssign);
@@ -244,7 +309,12 @@ public class RoomBedOccupancyController implements FxController {
         ArrayList<String> sections = new ArrayList<>();
         sections.add("All");
         try {
-            sections.addAll(occupancyService.findSections());
+            sections.addAll(sectionService.findActiveSectionNames());
+            for (String section : occupancyService.findSections()) {
+                if (!sections.contains(section)) {
+                    sections.add(section);
+                }
+            }
         } catch (Exception e) {
             statusLabel.setText("Section filters unavailable: " + e.getMessage());
         }
@@ -255,10 +325,13 @@ public class RoomBedOccupancyController implements FxController {
         statusFilter.getSelectionModel().select("All");
         priorityFilter.getSelectionModel().select("All");
 
-        sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
-        roomSearchField.textProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
-        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
-        priorityFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
+        if (!filterListenersConfigured) {
+            sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
+            roomSearchField.textProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
+            statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
+            priorityFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadOccupancy());
+            filterListenersConfigured = true;
+        }
     }
 
     private void configureTable() {
@@ -285,6 +358,22 @@ public class RoomBedOccupancyController implements FxController {
                 }
             });
             return row;
+        });
+    }
+
+    private void configureSectionTable() {
+        if (sectionTable == null) {
+            return;
+        }
+        sectionNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        sectionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        sectionUpdatedColumn.setCellValueFactory(new PropertyValueFactory<>("updatedAt"));
+        sectionNotesColumn.setCellValueFactory(new PropertyValueFactory<>("notes"));
+        sectionTable.setItems(sections);
+        sectionTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selected) -> {
+            if (selected != null && selected.getName() != null) {
+                sectionFilter.getSelectionModel().select(selected.getName());
+            }
         });
     }
 
@@ -360,7 +449,43 @@ public class RoomBedOccupancyController implements FxController {
 
     private void refreshAfterWrite(String message) {
         loadOccupancy();
-        NotificationHelper.showSuccess(statusLabel, message + " Legacy text files were not changed.");
+        NotificationHelper.showSuccess(statusLabel, message);
+    }
+
+    private void loadSections() {
+        try {
+            sections.setAll(sectionService.findSections());
+        } catch (Exception e) {
+            statusLabel.setText("Could not load sections: " + e.getMessage());
+        }
+    }
+
+    private void reloadSectionChoices() {
+        String selected = sectionFilter.getValue();
+        configureFilters();
+        if (selected != null && sectionFilter.getItems().contains(selected)) {
+            sectionFilter.getSelectionModel().select(selected);
+        }
+        loadSections();
+    }
+
+    private SqliteSectionDao.SectionRecord selectedSectionRecord() {
+        SqliteSectionDao.SectionRecord selected = sectionTable == null ? null : sectionTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            return selected;
+        }
+        String selectedName = sectionFilter.getValue();
+        if (selectedName == null || selectedName.isBlank() || "All".equalsIgnoreCase(selectedName)) {
+            NotificationHelper.showInfo(statusLabel, "Select a section row or choose a specific section filter first.");
+            return null;
+        }
+        try {
+            return sectionDao.findByName(selectedName)
+                    .orElseThrow(() -> new IllegalArgumentException("Section not found: " + selectedName));
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+            return null;
+        }
     }
 
     private void setButtonVisible(Button button, boolean visible) {

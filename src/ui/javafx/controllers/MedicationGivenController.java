@@ -73,7 +73,7 @@ public class MedicationGivenController {
         givenByField.setText(SessionContext.username());
         givenByField.setEditable(false);
         givenAtField.setText(LocalDateTime.now().format(LEGACY_DATE_TIME));
-        NotificationHelper.showInfo(statusLabel, "SQLite-only medication event. Legacy text files are not changed.");
+        NotificationHelper.showInfo(statusLabel, "Local database medication event. System data is stored in the local database.");
     }
 
     private void prepare(User currentUser, String patientId, SqliteMedicationDao.MedicationRecord selectedMedication) throws Exception {

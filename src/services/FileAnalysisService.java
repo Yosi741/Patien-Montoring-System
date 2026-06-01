@@ -1,6 +1,6 @@
 package services;
 
-import ai.MedicalFileAnalyzer;
+import ai_Prototype.MedicalFileAnalyzer;
 import models.MedicalFile;
 
 import java.util.ArrayList;
