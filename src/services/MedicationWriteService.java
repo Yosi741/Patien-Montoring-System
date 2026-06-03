@@ -17,8 +17,11 @@ import java.util.Set;
 
 public class MedicationWriteService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final Set<String> EVENT_STATUSES = Set.of("GIVEN", "MISSED", "DELAYED");
+    private static final Set<String> ROUTES = Set.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Other");
+    private static final Set<String> FREQUENCIES = Set.of("Once daily", "Twice daily", "Three times daily",
+            "Every 6 hours", "Every 8 hours", "Every 12 hours", "Weekly", "As needed", "Other");
 
     private final SqliteMedicationDao medicationDao;
     private final SqlitePatientDao patientDao;
@@ -78,7 +81,7 @@ public class MedicationWriteService {
                 request.medicationId,
                 medication.getPatientId(),
                 username(currentUser),
-                parseDateTime(request.givenAt).format(LEGACY_DATE_TIME),
+                parseDateTime(request.givenAt).format(DISPLAY_DATE_TIME),
                 notes
         );
         AuditWriteHelper.write(username(currentUser), AuditAction.GIVE_MEDICATION,
@@ -110,6 +113,15 @@ public class MedicationWriteService {
         );
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
+        }
+        if (!ROUTES.contains(trim(request.route))) {
+            throw new IllegalArgumentException("Route must be selected from the approved route list.");
+        }
+        if (!FREQUENCIES.contains(trim(request.frequency))) {
+            throw new IllegalArgumentException("Frequency must be selected from the approved frequency list.");
+        }
+        if (!trim(request.dose).matches("(?i)^[0-9]+(\\.[0-9]+)?\\s*(mg|g|mcg|ml|units?|tablet[s]?|capsule[s]?|puff[s]?|drop[s]?|%)?.*")) {
+            throw new IllegalArgumentException("Dose should include a reasonable numeric amount, such as 500 mg or 5 ml.");
         }
         if (!patientDao.existsByPatientId(request.patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId);
@@ -149,7 +161,7 @@ public class MedicationWriteService {
 
     private LocalDateTime parseDateTime(String value) {
         try {
-            return LocalDateTime.parse(value.trim(), LEGACY_DATE_TIME);
+            return LocalDateTime.parse(value.trim(), DISPLAY_DATE_TIME);
         } catch (DateTimeParseException e) {
             return LocalDateTime.parse(value.trim().replace(" ", "T"));
         }

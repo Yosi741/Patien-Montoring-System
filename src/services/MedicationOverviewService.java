@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class MedicationOverviewService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public MedicationOverviewService() {
         ensureSchema();
@@ -237,7 +237,7 @@ public class MedicationOverviewService {
                 return LocalDateTime.parse(value.replace(" ", "T"));
             } catch (DateTimeParseException ignoredAgain) {
                 try {
-                    return LocalDateTime.parse(value, LEGACY_DATE_TIME);
+                    return LocalDateTime.parse(value, DISPLAY_DATE_TIME);
                 } catch (DateTimeParseException ignoredThird) {
                     return LocalDateTime.MIN;
                 }

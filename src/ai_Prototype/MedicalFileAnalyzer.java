@@ -1,4 +1,4 @@
-/* package ai;
+package ai_Prototype;
 
 import models.MedicalFile;
 
@@ -163,5 +163,3 @@ public class MedicalFileAnalyzer {
         return line;
     }
 }
-
- */

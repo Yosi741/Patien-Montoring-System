@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -29,8 +30,8 @@ public class MedicationFormController {
     @FXML private Label patientIdLabel;
     @FXML private TextField nameField;
     @FXML private TextField doseField;
-    @FXML private TextField routeField;
-    @FXML private TextField frequencyField;
+    @FXML private ComboBox<String> routeField;
+    @FXML private ComboBox<String> frequencyField;
     @FXML private CheckBox activeCheckBox;
     @FXML private Label statusLabel;
 
@@ -69,6 +70,11 @@ public class MedicationFormController {
 
     @FXML
     private void initialize() {
+        routeField.getItems().setAll("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Other");
+        frequencyField.getItems().setAll("Once daily", "Twice daily", "Three times daily", "Every 6 hours",
+                "Every 8 hours", "Every 12 hours", "Weekly", "As needed", "Other");
+        routeField.getSelectionModel().select("Oral");
+        frequencyField.getSelectionModel().select("Once daily");
         activeCheckBox.setSelected(true);
         NotificationHelper.showInfo(statusLabel, "Medication form. System data is stored in the local database.");
     }
@@ -86,8 +92,8 @@ public class MedicationFormController {
         titleLabel.setText("Edit Medication");
         nameField.setText(medication.getName());
         doseField.setText(medication.getDose());
-        routeField.setText(medication.getRoute());
-        frequencyField.setText(medication.getFrequency());
+        selectOrFallback(routeField, medication.getRoute());
+        selectOrFallback(frequencyField, medication.getFrequency());
         activeCheckBox.setSelected(medication.isActive());
     }
 
@@ -98,8 +104,8 @@ public class MedicationFormController {
                     patientId,
                     nameField.getText(),
                     doseField.getText(),
-                    routeField.getText(),
-                    frequencyField.getText(),
+                    routeField.getValue(),
+                    frequencyField.getValue(),
                     activeCheckBox.isSelected()
             );
             if (existingMedication == null) {
@@ -112,6 +118,14 @@ public class MedicationFormController {
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
             return false;
+        }
+    }
+
+    private void selectOrFallback(ComboBox<String> comboBox, String value) {
+        if (value != null && comboBox.getItems().contains(value)) {
+            comboBox.getSelectionModel().select(value);
+        } else if (!comboBox.getItems().isEmpty()) {
+            comboBox.getSelectionModel().selectFirst();
         }
     }
 }

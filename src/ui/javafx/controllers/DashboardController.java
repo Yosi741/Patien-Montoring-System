@@ -10,6 +10,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import services.DashboardMetricsService;
+import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import users.Session;
@@ -28,7 +29,6 @@ public class DashboardController implements FxController {
     @FXML private Label welcomeLabel;
     @FXML private Label roleLabel;
     @FXML private Label databaseStatusLabel;
-    @FXML private Label migrationStatusLabel;
     @FXML private Label refreshStatusLabel;
     @FXML private Label totalPatientsLabel;
     @FXML private Label activePatientsLabel;
@@ -44,6 +44,7 @@ public class DashboardController implements FxController {
     @FXML private Label resolvedTodayLabel;
     @FXML private Label medicalFilesLabel;
     @FXML private Label aiNotesLabel;
+    @FXML private VBox aiNotesCard;
     @FXML private Label recentVitalsTodayLabel;
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label pendingRemindersLabel;
@@ -72,7 +73,6 @@ public class DashboardController implements FxController {
         welcomeLabel.setText("Welcome, " + username);
         roleLabel.setText(role + " | Section: " + section);
         databaseStatusLabel.setText(appShell.getDatabaseStatus());
-        migrationStatusLabel.setText(appShell.getMigrationStatus());
 
         try {
             DashboardMetricsService.DashboardMetrics metrics = metricsService.loadMetrics();
@@ -96,7 +96,7 @@ public class DashboardController implements FxController {
 
     @FXML
     private void openAlertCenter() {
-        appShell.showAlertCenter();
+        appShell.showNotificationCenter();
     }
 
     @FXML
@@ -127,6 +127,10 @@ public class DashboardController implements FxController {
         resolvedTodayLabel.setText(String.valueOf(metrics.getResolvedAlertsToday()));
         medicalFilesLabel.setText(String.valueOf(metrics.getImportedMedicalFiles()));
         aiNotesLabel.setText(String.valueOf(metrics.getAiNotes()));
+        if (aiNotesCard != null) {
+            aiNotesCard.setVisible(AppFeatures.aiEnabled());
+            aiNotesCard.setManaged(AppFeatures.aiEnabled());
+        }
         recentVitalsTodayLabel.setText(String.valueOf(metrics.getRecentVitalsToday()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
         pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));
@@ -188,7 +192,7 @@ public class DashboardController implements FxController {
         HBox.setHgrow(text, Priority.ALWAYS);
         HBox row = new HBox(10, severity, text, spacer, time);
         row.getStyleClass().add("dashboard-list-row");
-        row.setOnMouseClicked(event -> appShell.showAlertCenterForAlert(alert.getId()));
+        row.setOnMouseClicked(event -> appShell.showNotificationCenter());
         return row;
     }
 

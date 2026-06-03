@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class StaffActivityService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final Pattern PATIENT_ID_PATTERN = Pattern.compile("(?i)(?:patient(?: id)?|detail for|alerts for)\\s+([A-Za-z0-9_-]+)");
 
     public StaffActivityService() {
@@ -396,7 +396,7 @@ public class StaffActivityService {
                 return LocalDateTime.parse(value.replace(" ", "T"));
             } catch (DateTimeParseException ignoredAgain) {
                 try {
-                    return LocalDateTime.parse(value, LEGACY_DATE_TIME);
+                    return LocalDateTime.parse(value, DISPLAY_DATE_TIME);
                 } catch (DateTimeParseException ignoredThird) {
                     return LocalDateTime.MIN;
                 }

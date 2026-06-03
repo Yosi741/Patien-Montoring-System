@@ -22,7 +22,8 @@ Use this checklist after compile or UI cleanup changes.
 
 - Confirm metric cards load.
 - Confirm alert/reminder/patient counters display.
-- Use quick links to open Patients, Alert Center, and Nurse Work Queue.
+- Use quick links to open Patients, Notifications, and Nurse Work Queue.
+- Confirm AI Recommendations and Medical Devices are hidden in demo mode.
 
 ## Patients
 
@@ -48,16 +49,15 @@ Use this checklist after compile or UI cleanup changes.
 
 ## Alerts
 
-- Open Alert Center.
-- Test severity/status/search filters.
-- Select an alert and confirm the detail panel updates.
-- Acknowledge an active alert and confirm status changes in the local database.
-- Open the linked patient file.
+- Open Notification Center from the top-bar bell.
+- Confirm alert notifications are visible in the notification feed.
+- Open linked patient files where available.
+- Confirm acknowledging clinical alerts from the relevant workflow stops JavaFX alert sound.
 
 ## Messages
 
-- Open Messaging.
-- Send a message to a user, role, or section.
+- Open Messaging from the profile menu.
+- Send a message to an exact selected user account.
 - Open the inbox and read/archive a message.
 
 ## Notifications
@@ -106,13 +106,6 @@ Use this checklist after compile or UI cleanup changes.
 - Confirm the Medical Files screen shows metadata and safe preview.
 - Confirm unsupported/missing files show a clear message.
 
-## Devices
-
-- Open Medical Devices.
-- Register a device.
-- Assign/unassign it to a patient.
-- Deactivate it.
-
 ## Scheduling
 
 - Create an appointment.
@@ -141,6 +134,6 @@ Use this checklist after compile or UI cleanup changes.
 
 ## Final Check
 
-- Run a source search for `LegacySwingMain` and `src/gui`.
-- Confirm no active Swing UI package exists.
+- Run a source search for old text-storage runtime helpers and migration commands.
+- Confirm no active text-file storage package remains.
 - Confirm `Main` is the only launcher needed for normal use.

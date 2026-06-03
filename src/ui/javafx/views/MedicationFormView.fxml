@@ -13,7 +13,7 @@
     <VBox spacing="4.0">
         <Label fx:id="titleLabel" text="Medication" styleClass="screen-title" />
 
-        <Label text="Local database medication order. System data is stored in the local database."
+        <Label text="Create or update a medication order in the local database."
                wrapText="true" styleClass="muted-text" />
     </VBox>
 
@@ -44,13 +44,13 @@
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label text="Route" styleClass="field-label" />
 
-            <TextField fx:id="routeField" promptText="Oral, IV, IM..." styleClass="control-input" />
+            <ComboBox fx:id="routeField" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <Label text="Frequency" styleClass="field-label" />
 
-            <TextField fx:id="frequencyField" promptText="e.g. Twice daily" styleClass="control-input" />
+            <ComboBox fx:id="frequencyField" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2">

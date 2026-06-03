@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public class ReminderEngineService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final int UPCOMING_WINDOW_MINUTES = 120;
     private static final int NOTIFICATION_COOLDOWN_MINUTES = 10;
     private static final Map<Long, LocalDateTime> NOTIFICATION_COOLDOWNS = new HashMap<>();
@@ -119,7 +119,7 @@ public class ReminderEngineService {
         }
         String trimmed = value.trim();
         try {
-            return Optional.of(LocalDateTime.parse(trimmed, LEGACY_DATE_TIME));
+            return Optional.of(LocalDateTime.parse(trimmed, DISPLAY_DATE_TIME));
         } catch (DateTimeParseException ignored) {
             try {
                 return Optional.of(LocalDateTime.parse(trimmed, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));

@@ -13,12 +13,15 @@ public class SchemaInitializer {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
             createUsers(statement);
+            migrateUsers(statement);
             createUserProfiles(statement);
             createPasswordResetTokens(statement);
             createPatients(statement);
             createVitalReadings(statement);
             createAlerts(statement);
             migrateAlerts(statement);
+            createMedicationCatalog(statement);
+            createMedicationInteractions(statement);
             createMedications(statement);
             createMedicationEvents(statement);
             createAppointments(statement);
@@ -52,9 +55,14 @@ public class SchemaInitializer {
                 + "password_hash TEXT NOT NULL,"
                 + "role TEXT NOT NULL,"
                 + "section TEXT NOT NULL DEFAULT 'All',"
+                + "email TEXT,"
                 + "active INTEGER NOT NULL DEFAULT 1,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
                 + ")");
+    }
+
+    private static void migrateUsers(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "users", "email", "TEXT");
     }
 
     private static void createUserProfiles(Statement statement) throws SQLException {
@@ -153,6 +161,58 @@ public class SchemaInitializer {
                 + "active INTEGER NOT NULL DEFAULT 1,"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
+    }
+
+    private static void createMedicationCatalog(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medication_catalog ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "name TEXT NOT NULL UNIQUE,"
+                + "form_type TEXT NOT NULL DEFAULT 'OTHER',"
+                + "default_route TEXT,"
+                + "default_frequency TEXT,"
+                + "default_unit TEXT,"
+                + "allowed_units TEXT,"
+                + "max_single_dose REAL,"
+                + "max_daily_dose REAL,"
+                + "min_interval_hours REAL,"
+                + "notes TEXT,"
+                + "active INTEGER NOT NULL DEFAULT 1,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                + ")");
+        addColumnIfMissing(statement, "medication_catalog", "form_type", "TEXT NOT NULL DEFAULT 'OTHER'");
+        addColumnIfMissing(statement, "medication_catalog", "default_route", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "default_frequency", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "default_unit", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "allowed_units", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "max_single_dose", "REAL");
+        addColumnIfMissing(statement, "medication_catalog", "max_daily_dose", "REAL");
+        addColumnIfMissing(statement, "medication_catalog", "min_interval_hours", "REAL");
+        addColumnIfMissing(statement, "medication_catalog", "notes", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "active", "INTEGER NOT NULL DEFAULT 1");
+        addColumnIfMissing(statement, "medication_catalog", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
+        addColumnIfMissing(statement, "medication_catalog", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
+        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_catalog_name ON medication_catalog(name)");
+    }
+
+    private static void createMedicationInteractions(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS medication_interactions ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "medication_a TEXT NOT NULL,"
+                + "medication_b TEXT NOT NULL,"
+                + "severity TEXT NOT NULL DEFAULT 'WARNING',"
+                + "message TEXT NOT NULL,"
+                + "active INTEGER NOT NULL DEFAULT 1,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "UNIQUE(medication_a, medication_b)"
+                + ")");
+        addColumnIfMissing(statement, "medication_interactions", "severity", "TEXT NOT NULL DEFAULT 'WARNING'");
+        addColumnIfMissing(statement, "medication_interactions", "message", "TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(statement, "medication_interactions", "active", "INTEGER NOT NULL DEFAULT 1");
+        addColumnIfMissing(statement, "medication_interactions", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
+        addColumnIfMissing(statement, "medication_interactions", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
+        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_interactions_pair ON medication_interactions(medication_a, medication_b)");
     }
 
     private static void createMedicationEvents(Statement statement) throws SQLException {

@@ -33,7 +33,7 @@
                         <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="dashboard-action-row">
                             <Button text="Open Patients" onAction="#openPatientList"
                                     styleClass="dashboard-action-primary" />
-                            <Button text="Open Alert Center" onAction="#openAlertCenter"
+                            <Button text="Open Notifications" onAction="#openAlertCenter"
                                     styleClass="dashboard-action-danger" />
                             <Button text="Open Work Queue" onAction="#openWorkQueue"
                                     styleClass="dashboard-action-secondary" />
@@ -67,7 +67,7 @@
                     </TilePane>
 
                     <TilePane hgap="14.0" vgap="14.0" prefColumns="6" tileAlignment="TOP_LEFT">
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="aiNotesCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Newborn Records" styleClass="dashboard-mini-label" />
                             <Label fx:id="newbornRecordsLabel" text="0" styleClass="dashboard-mini-value accent-value" />
                             <Label text="Total" styleClass="dashboard-mini-caption" />
@@ -210,7 +210,7 @@
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
                                 <Label text="Recent Alerts" styleClass="dashboard-panel-title" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label text="Click a row to open Alert Center" styleClass="dashboard-mini-caption" />
+                                <Label text="Click a row to open Notifications" styleClass="dashboard-mini-caption" />
                             </HBox>
                             <VBox fx:id="recentAlertsBox" spacing="10.0" />
                         </VBox>
@@ -228,8 +228,6 @@
                                styleClass="status-info" />
                         <Label fx:id="databaseStatusLabel" text="Database status" wrapText="true"
                                styleClass="status-success" />
-                        <Label fx:id="migrationStatusLabel" text="Migration status" wrapText="true"
-                               styleClass="status-info" />
                     </VBox>
                 </VBox>
             </content>

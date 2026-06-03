@@ -73,7 +73,7 @@ public class DeviceFormController {
         statusBox.getItems().setAll("AVAILABLE", "ASSIGNED", "MAINTENANCE", "INACTIVE");
         typeBox.getSelectionModel().select("Other");
         statusBox.getSelectionModel().select("AVAILABLE");
-        NotificationHelper.showInfo(statusLabel, "Registration only. Real Bluetooth and HealthKit integration are future work.");
+        NotificationHelper.showInfo(statusLabel, "Registration only. Real device integration is future work.");
     }
 
     private void prepare(User currentUser, SqliteDeviceDao.DeviceRecord device) {

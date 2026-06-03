@@ -50,11 +50,14 @@
 
                 <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
+                <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity"
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
+                <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity"
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
+                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity"
+                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
@@ -131,6 +134,7 @@
                     <MenuButton fx:id="profileMenuButton" text="Profile" styleClass="shell-profile-menu">
                         <items>
                             <MenuItem text="Profile" onAction="#showSettings" />
+                            <MenuItem text="Messages" onAction="#showMessages" />
                             <MenuItem fx:id="darkModeMenuItem" text="Dark Mode" onAction="#toggleTheme" />
                             <SeparatorMenuItem />
                             <MenuItem text="Logout" onAction="#logout" />

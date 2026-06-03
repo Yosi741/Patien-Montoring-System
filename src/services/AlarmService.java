@@ -1,8 +1,7 @@
 package services;
 
 import ai_Prototype.AIAnalysis;
-import database.NotificationStorage;
-import logs.AuditLog;
+import dao.SqliteAuditLogDao;
 import models.Patient;
 import users.Session;
 
@@ -46,9 +45,11 @@ public class AlarmService {
             state = AlarmState.ACTIVE;
             alertShownForActiveAlarm = false;
             startAlarm();
-            AuditLog.addLog("System", "Alarm ACTIVE for patient: " + patient.getName());
-            NotificationStorage.addNotification("ALL", "CRITICAL", "Critical alert active for patient " + patient.getName() + " in " + patient.getSection() + " room " + patient.getRoom());
+            logAudit("System", "Alarm ACTIVE for patient: " + patient.getName());
             AlertPersistenceService.persistCriticalPatientAlert(patient);
+            new NotificationCenterService().notifyCriticalAlert(patient.getPatientId(), "CRITICAL",
+                    "Critical alert active for patient " + patient.getName() + " in " + patient.getSection() + " room " + patient.getRoom(),
+                    patient.getPatientId());
         }
 
         if (!alertDialogOpen && !alertShownForActiveAlarm) {
@@ -61,7 +62,7 @@ public class AlarmService {
         stopSoundOnly();
         state = AlarmState.ACKNOWLEDGED;
         alertShownForActiveAlarm = true;
-        AuditLog.addLog("System", "Alarm ACKNOWLEDGED");
+        logAudit("System", "Alarm ACKNOWLEDGED");
     }
 
     public static synchronized void stopAlarm() {
@@ -69,7 +70,7 @@ public class AlarmService {
         stopSoundOnly();
         state = AlarmState.STOPPED;
         alertShownForActiveAlarm = false;
-        AuditLog.addLog("System", "Alarm STOPPED");
+        logAudit("System", "Alarm STOPPED");
     }
 
     public static synchronized void resolveAlarm() {
@@ -78,7 +79,7 @@ public class AlarmService {
         state = AlarmState.RESOLVED;
         activePatientId = "";
         alertShownForActiveAlarm = false;
-        AuditLog.addLog("System", "Alarm RESOLVED");
+        logAudit("System", "Alarm RESOLVED");
     }
 
     public static synchronized AlarmState getState() {
@@ -139,5 +140,13 @@ public class AlarmService {
         });
 
         alert.showAndWait();
+    }
+
+    private static void logAudit(String username, String action) {
+        try {
+            new SqliteAuditLogDao().log(username, action);
+        } catch (Exception e) {
+            System.out.println("SQLite alarm audit skipped: " + e.getMessage());
+        }
     }
 }

@@ -1,8 +1,6 @@
 package services;
 
-import database.FileStorage;
-import database.HospitalData;
-import logs.AuditLog;
+import dao.SqliteAuditLogDao;
 import models.Patient;
 import users.Session;
 
@@ -11,8 +9,7 @@ import java.util.ArrayList;
 public class PatientService {
 
     public static void savePatientChanges(Patient patient) {
-        FileStorage.savePatients(HospitalData.patientManager.getPatients());
-        AuditLog.addLog(Session.getUsername(), "Updated patient record: " + patient.getName());
+        logAudit(Session.getUsername(), "Updated patient record: " + patient.getName());
     }
 
     public static void applyExtractedMedicalInfo(Patient patient, ArrayList<String> extractedItems) {
@@ -34,7 +31,7 @@ public class PatientService {
         }
 
         savePatientChanges(patient);
-        AuditLog.addLog(Session.getUsername(), "Confirmed AI-extracted file information for: " + patient.getName());
+        logAudit(Session.getUsername(), "Confirmed extracted file information for: " + patient.getName());
     }
 
     private static String append(String current, String addition) {
@@ -53,5 +50,13 @@ public class PatientService {
             return item.substring(colon + 1).trim();
         }
         return item.trim();
+    }
+
+    private static void logAudit(String username, String action) {
+        try {
+            new SqliteAuditLogDao().log(username, action);
+        } catch (Exception e) {
+            System.out.println("SQLite patient service audit skipped: " + e.getMessage());
+        }
     }
 }

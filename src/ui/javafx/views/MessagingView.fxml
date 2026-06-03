@@ -66,11 +66,12 @@
                                         <VBox spacing="12" styleClass="panel-card">
                                             <HBox spacing="10">
                                                 <Label text="Target" styleClass="field-label" />
-                                                <ComboBox fx:id="targetTypeBox" prefWidth="120" />
-                                                <ComboBox fx:id="targetUserBox" prefWidth="170" />
-                                                <ComboBox fx:id="targetRoleBox" prefWidth="140" />
-                                                <TextField fx:id="targetSectionField" promptText="Section / Department" HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="targetTypeBox" prefWidth="120" managed="false" visible="false" />
+                                                <ComboBox fx:id="targetUserBox" promptText="Select exact recipient account" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                                <ComboBox fx:id="targetRoleBox" prefWidth="140" managed="false" visible="false" />
+                                                <TextField fx:id="targetSectionField" promptText="Section / Department" managed="false" visible="false" />
                                             </HBox>
+                                            <Label text="Choose the exact staff account. Free-text recipient names are disabled for safety." wrapText="true" styleClass="muted-text" />
                                             <HBox spacing="10">
                                                 <TextField fx:id="patientIdField" promptText="Optional patient ID" prefWidth="180" />
                                                 <ComboBox fx:id="priorityBox" prefWidth="140" />

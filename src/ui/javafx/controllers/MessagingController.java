@@ -55,7 +55,7 @@ public class MessagingController implements FxController {
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentStatusColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentCreatedColumn;
     @FXML private ComboBox<String> targetTypeBox;
-    @FXML private ComboBox<String> targetUserBox;
+    @FXML private ComboBox<SqliteUserDao.UserTarget> targetUserBox;
     @FXML private ComboBox<String> targetRoleBox;
     @FXML private TextField targetSectionField;
     @FXML private TextField patientIdField;
@@ -218,22 +218,22 @@ public class MessagingController implements FxController {
         targetTypeBox.getSelectionModel().select("User");
         targetRoleBox.getSelectionModel().select("NURSE");
         priorityBox.getSelectionModel().select("NORMAL");
+        targetTypeBox.setVisible(false);
+        targetTypeBox.setManaged(false);
+        targetRoleBox.setVisible(false);
+        targetRoleBox.setManaged(false);
+        targetSectionField.setVisible(false);
+        targetSectionField.setManaged(false);
         reloadUsers();
-        targetTypeBox.valueProperty().addListener((obs, old, value) -> updateTargetControls());
-        updateTargetControls();
     }
 
     private void reloadUsers() {
-        ArrayList<String> users = new ArrayList<>();
         try {
-            for (User user : userDao.findAll()) {
-                users.add(user.getUsername());
-            }
+            targetUserBox.setItems(FXCollections.observableArrayList(userDao.findMessageTargets()));
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load user targets: " + e.getMessage());
         }
-        targetUserBox.setItems(FXCollections.observableArrayList(users));
-        if (!users.isEmpty()) {
+        if (!targetUserBox.getItems().isEmpty()) {
             targetUserBox.getSelectionModel().selectFirst();
         }
     }
@@ -246,12 +246,15 @@ public class MessagingController implements FxController {
     }
 
     private SqliteMessageDao.MessageWriteRecord buildRecord() {
-        String type = targetTypeBox.getValue();
+        SqliteUserDao.UserTarget selected = targetUserBox.getValue();
+        if (selected == null || selected.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Select an exact user account recipient before sending.");
+        }
         return new SqliteMessageDao.MessageWriteRecord(
                 Session.getUsername(),
-                "User".equals(type) ? targetUserBox.getValue() : "",
-                "Role".equals(type) ? targetRoleBox.getValue() : "",
-                "Section".equals(type) ? targetSectionField.getText() : "",
+                selected.getUsername(),
+                "",
+                "",
                 patientIdField.getText(),
                 subjectField.getText(),
                 bodyArea.getText(),

@@ -38,7 +38,7 @@
                             </VBox>
                             <VBox alignment="CENTER_RIGHT" spacing="8.0">
                                 <Button text="Back to Patient Board" onAction="#backToPatients" styleClass="patient-file-ghost-button" />
-                                <Label text="SQLite-backed clinical preview" styleClass="patient-file-muted" />
+                                <Label text="Local database clinical record" styleClass="patient-file-muted" />
                             </VBox>
                         </HBox>
 
@@ -90,7 +90,7 @@
                             <Label text="Clinical Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
                             <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
-                            <Button text="Generate AI Recommendation" onAction="#generateAiRecommendation" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="generateAiButton" text="Generate AI Recommendation" onAction="#generateAiRecommendation" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -179,7 +179,7 @@
                         </VBox>
                     </GridPane>
 
-                    <VBox spacing="14.0" styleClass="patient-file-card">
+                    <VBox fx:id="aiRecommendationCard" spacing="14.0" styleClass="patient-file-card">
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                 <Label text="AI Recommendation" styleClass="patient-file-section-title" />

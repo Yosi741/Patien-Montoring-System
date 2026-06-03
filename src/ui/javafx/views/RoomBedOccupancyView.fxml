@@ -157,7 +157,7 @@
                             </TableView>
                         </VBox>
 
-                        <Label fx:id="fallbackStatusLabel" text="Room occupancy source not loaded yet." wrapText="true" styleClass="status-info warning-value" />
+                        <Label fx:id="occupancySourceLabel" text="Room occupancy source not loaded yet." wrapText="true" styleClass="status-info warning-value" />
 
                         <Label fx:id="statusLabel" text="Room/bed occupancy not loaded yet." styleClass="status-info metric-value compact-metric-value" />
                     </VBox>

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class VitalsTrendService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private final VitalThresholdService thresholdService = new VitalThresholdService();
 
     public VitalsTrendService() {
@@ -139,7 +139,7 @@ public class VitalsTrendService {
             return LocalDateTime.MIN;
         }
         try {
-            return LocalDateTime.parse(value, LEGACY_DATE_TIME);
+            return LocalDateTime.parse(value, DISPLAY_DATE_TIME);
         } catch (DateTimeParseException e) {
             try {
                 return LocalDateTime.parse(value.replace(" ", "T"));

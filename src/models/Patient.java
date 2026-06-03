@@ -42,7 +42,7 @@ public class Patient {
         this.birthDate = birthDate;
         this.gender = gender;
         this.room = room;
-        this.section = services.RoomService.detectSectionFromRoom(room);
+        this.section = "Unassigned";
         this.status = "Active";
         this.diagnosis = "";
         this.medicalHistory = "";

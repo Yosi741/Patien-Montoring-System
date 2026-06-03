@@ -23,6 +23,7 @@ import services.AlertSoundService;
 import services.VitalThresholdService;
 import services.VitalTypeCatalog;
 import services.VitalsTrendService;
+import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -101,7 +102,9 @@ public class PatientDetailController implements FxController {
     @FXML private Button markDeceasedButton;
     @FXML private Button viewNewbornsButton;
     @FXML private Button viewBabiesButton;
+    @FXML private Button generateAiButton;
     @FXML private VBox babiesCard;
+    @FXML private VBox aiRecommendationCard;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -112,6 +115,7 @@ public class PatientDetailController implements FxController {
         vitalTypeFilter.getSelectionModel().select("All");
         vitalTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadVitals());
         configureTrendControls();
+        configureDemoFeatures();
     }
 
     public void loadPatient(String patientId) {
@@ -179,6 +183,10 @@ public class PatientDetailController implements FxController {
 
     @FXML
     private void viewPatientDevices() {
+        if (!AppFeatures.devicesEnabled()) {
+            timelineStatusLabel.setText("Device workflows are hidden for this demo.");
+            return;
+        }
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for device view.");
             return;
@@ -286,6 +294,10 @@ public class PatientDetailController implements FxController {
 
     @FXML
     private void assignPatientDevice() {
+        if (!AppFeatures.devicesEnabled()) {
+            timelineStatusLabel.setText("Device workflows are hidden for this demo.");
+            return;
+        }
         if (!PermissionHelper.canAssignDevice(Session.getCurrentUser())) {
             timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
             return;
@@ -457,6 +469,10 @@ public class PatientDetailController implements FxController {
 
     @FXML
     private void generateAiRecommendation() {
+        if (!AppFeatures.aiEnabled()) {
+            aiRecommendationStatusLabel.setText("AI recommendations are disabled for this demo.");
+            return;
+        }
         if (patientId == null || patientId.isBlank()) {
             aiRecommendationStatusLabel.setText("No patient selected for AI recommendation.");
             return;
@@ -527,6 +543,9 @@ public class PatientDetailController implements FxController {
     }
 
     private void loadAiRecommendation() {
+        if (!AppFeatures.aiEnabled()) {
+            return;
+        }
         if (patientId == null || patientId.isBlank()) {
             return;
         }
@@ -563,6 +582,18 @@ public class PatientDetailController implements FxController {
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("sourceType"));
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("staffName"));
         deviceColumn.setCellValueFactory(new PropertyValueFactory<>("deviceId"));
+    }
+
+    private void configureDemoFeatures() {
+        boolean aiVisible = AppFeatures.aiEnabled();
+        if (aiRecommendationCard != null) {
+            aiRecommendationCard.setVisible(aiVisible);
+            aiRecommendationCard.setManaged(aiVisible);
+        }
+        if (generateAiButton != null) {
+            generateAiButton.setVisible(aiVisible);
+            generateAiButton.setManaged(aiVisible);
+        }
     }
 
     private void configureTrendControls() {
@@ -656,7 +687,7 @@ public class PatientDetailController implements FxController {
         latestValueLabel.setText(latest.getRawValue() + " " + latest.getUnit() + " - " + latest.getStatus());
         latestValueLabel.getStyleClass().add(trendStyle(latest.getStatus()));
         latestMetaLabel.setText(latest.getRecordedAt()
-                + " | Source: " + fallback(latest.getSourceType(), "Manual/imported")
+                + " | Source: " + fallback(latest.getSourceType(), "Manual")
                 + " | Staff: " + fallback(latest.getStaffUser(), "Not recorded")
                 + (latest.getDeviceId().isBlank() ? "" : " | Device: " + latest.getDeviceId()));
         trendStatsLabel.setText(String.format("Min: %.1f | Max: %.1f | Avg: %.1f",

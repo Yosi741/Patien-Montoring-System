@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class ClinicalTimelineDao {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public ClinicalTimelineDao() {
         ensureSchema();
@@ -496,7 +496,7 @@ public class ClinicalTimelineDao {
             return LocalDateTime.MIN;
         }
         try {
-            return LocalDateTime.parse(value, LEGACY_DATE_TIME);
+            return LocalDateTime.parse(value, DISPLAY_DATE_TIME);
         } catch (DateTimeParseException ignored) {
             try {
                 return LocalDateTime.parse(value.replace(" ", "T"));

@@ -2004,3 +2004,32 @@
     -fx-text-fill: #172b49;
     -fx-font-size: 13px;
 }
+
+/* Phase 46 contrast stabilization */
+.priority-normal, .patient-status-active, .severity-info {
+    -fx-text-fill: #166534;
+    -fx-background-color: #dcfce7;
+    -fx-border-color: #86efac;
+}
+.priority-high, .severity-warning, .warning-value {
+    -fx-text-fill: #92400e;
+    -fx-background-color: #fef3c7;
+    -fx-border-color: #f59e0b;
+}
+.priority-critical, .severity-critical, .danger-value {
+    -fx-text-fill: #991b1b;
+    -fx-background-color: #fee2e2;
+    -fx-border-color: #ef4444;
+}
+.priority-emergency, .severity-emergency, .patient-status-deceased {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #7f1d1d;
+    -fx-border-color: #dc2626;
+}
+.table-row-cell:selected, .patient-table .table-row-cell:selected, .alert-table .table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #0f172a;
+}
+.nav-button-blue, .nav-button-blue-active, .primary-button, .secondary-button, .danger-button {
+    -fx-font-weight: 700;
+}

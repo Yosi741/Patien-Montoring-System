@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 
 public class VitalsEntryController {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     private final VitalsWriteService vitalsWriteService = new VitalsWriteService();
     private User currentUser;
@@ -75,7 +75,7 @@ public class VitalsEntryController {
         sourceTypeField.setEditable(false);
         staffUserField.setText(SessionContext.username());
         staffUserField.setEditable(false);
-        recordedAtField.setText(LocalDateTime.now().format(LEGACY_DATE_TIME));
+        recordedAtField.setText(LocalDateTime.now().format(DISPLAY_DATE_TIME));
         updateTypeFields();
         NotificationHelper.showInfo(statusLabel, "Abnormal JavaFX vitals create SQLite alerts, notifications, and a local JavaFX alarm sound.");
     }

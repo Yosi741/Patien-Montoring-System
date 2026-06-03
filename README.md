@@ -15,9 +15,9 @@ A JavaFX desktop hospital management and patient monitoring system. The applicat
 - Staff login, profile, session context, and role-based UI access
 - Dashboard with hospital metrics, alert summaries, reminders, and patient counters
 - Patient Board with active, deceased, and newborn subsections
-- Patient File with demographics, vitals, alerts, AI recommendations, clinical timeline, medical files, medications, devices, scheduling, and room actions
+- Patient File with demographics, vitals, alerts, clinical timeline, medical files, medications, scheduling, and room actions
 - Manual vitals entry with rule-based thresholds, JavaFX alerts, notifications, and local alarm sound
-- Alert Center with acknowledge/resolve workflow
+- Alert notifications and clinical alert follow-up through the Notification Center and patient workflows
 - Notification Center and internal messaging
 - Room, bed, and section management
 - Medication administration overview and write workflows
@@ -29,6 +29,16 @@ A JavaFX desktop hospital management and patient monitoring system. The applicat
 - Staff/user directory and admin user management
 - Audit log viewer
 - Local ZIP backup and CSV export tools
+
+## Demo Presentation Mode
+
+The project currently starts in a simplified 15-minute demo configuration:
+
+- `DEMO_MODE=true`
+- `APP_FEATURE_AI=false`
+- `APP_FEATURE_DEVICES=false`
+
+AI recommendation and medical-device screens are hidden for the presentation, but their code and database tables remain in the project for later phases. Core hospital workflows stay active: patients, vitals, medications, rooms/beds, scheduling, Nurse Work Queue, medical files, certificates, notifications, profile, and admin tools.
 
 ## How To Run
 
@@ -77,24 +87,22 @@ Runtime data is stored locally under `data/`.
 - Backups: `data/backups/`
 - Certificate templates, if used later: `data/certificate_templates/`
 
-Older imported files may still exist in `data/` for migration history. The running JavaFX application uses SQLite as its active data source.
+Older archive files may still exist in `data/` from earlier development phases, but the running application no longer reads or writes operational data from text files.
 
-## Importing Existing Data
+## SQLite-Only Runtime
 
-If older text data exists, it can be imported into SQLite through the Patient Board's `Import Existing Data` button or by running:
+The runtime data path is now:
 
-```powershell
-java -cp "out/production/untitledSmartPatientMonitoringSystem;lib/*" DatabaseMigrationMain
-```
+JavaFX UI -> Services -> SQLite DAOs -> `data/smart_patient_monitoring.db`
 
-The importer is one-way and duplicate-safe. New JavaFX writes are stored in SQLite.
+Patient records, vitals, alerts, messages, notifications, rooms, medications, newborn/deceased records, certificates, audit logs, and staff accounts are stored in SQLite. Backup/export tools remain available for presentation and recovery workflows.
 
 ## Architecture
 
 - `src/ui/javafx/`: JavaFX shell, controllers, FXML views, and styles
 - `src/services/`: validation, business workflows, alerts, certificates, backups, scheduling, AI recommendations, and write services
 - `src/dao/`: SQLite DAO classes and query models
-- `src/database/`: database manager, schema initializer, and import utilities
+- `src/database/`: SQLite database manager and schema initializer
 - `src/models/`: core model objects
 - `src/security/`: password hashing
 
@@ -122,8 +130,8 @@ Restore is intentionally preview-only; it does not overwrite the live database.
 ## Notes And Limitations
 
 - This is a local desktop application, not a networked hospital deployment.
-- Rule-based AI recommendations are decision-support notes, not medical diagnosis.
-- Real Bluetooth, smart watch, Apple HealthKit, external email/SMS, and hospital paging integrations are future work.
+- Rule-based AI recommendation code is retained but hidden in the current demo configuration.
+- Real device, smart watch, external email/SMS, and hospital paging integrations are future work.
 - HTML certificates are presentation-ready foundations, not official legal certification.
 - Passwords are hashed for SQLite users; raw passwords are not displayed or logged.
 

@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class SqliteMedicalFileDao implements MedicalFileDao {
 
-    private static final DateTimeFormatter LEGACY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public SqliteMedicalFileDao() {
@@ -203,14 +203,14 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         } else {
             return;
         }
-        String legacy = today.minusDays(days).format(LEGACY_DATE);
+        String displayDate = today.minusDays(days).format(DISPLAY_DATE);
         String iso = today.minusDays(days).format(ISO_DATE);
         if (days == 0) {
-            sql.append("AND (mf.uploaded_at LIKE '").append(today.format(LEGACY_DATE)).append("%' OR mf.uploaded_at LIKE '")
+            sql.append("AND (mf.uploaded_at LIKE '").append(today.format(DISPLAY_DATE)).append("%' OR mf.uploaded_at LIKE '")
                     .append(today.format(ISO_DATE)).append("%') ");
         } else {
             sql.append("AND (datetime(mf.uploaded_at) >= datetime('").append(iso).append(" 00:00:00') ")
-                    .append("OR mf.uploaded_at >= '").append(legacy).append("') ");
+                    .append("OR mf.uploaded_at >= '").append(displayDate).append("') ");
         }
     }
 

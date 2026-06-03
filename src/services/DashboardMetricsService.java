@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class DashboardMetricsService {
 
-    private static final DateTimeFormatter LEGACY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public DashboardMetricsService() {
@@ -27,7 +27,7 @@ public class DashboardMetricsService {
     public DashboardMetrics loadMetrics() throws SQLException {
         try (Connection connection = DatabaseManager.getConnection()) {
             LocalDate today = LocalDate.now();
-            String legacyToday = today.format(LEGACY_DATE) + "%";
+            String displayToday = today.format(DISPLAY_DATE) + "%";
             String isoToday = today.format(ISO_DATE) + "%";
 
             DashboardMetrics metrics = new DashboardMetrics();
@@ -47,15 +47,15 @@ public class DashboardMetricsService {
             metrics.activeAlerts = count(connection, "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'ACTIVE'");
             metrics.acknowledgedAlertsToday = countToday(connection,
                     "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'ACKNOWLEDGED' AND (acknowledged_at LIKE ? OR acknowledged_at LIKE ?)",
-                    legacyToday, isoToday);
+                    displayToday, isoToday);
             metrics.resolvedAlertsToday = countToday(connection,
                     "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'RESOLVED' AND (updated_at LIKE ? OR updated_at LIKE ?)",
-                    legacyToday, isoToday);
+                    displayToday, isoToday);
             metrics.importedMedicalFiles = count(connection, "SELECT COUNT(*) FROM medical_files");
             metrics.aiNotes = count(connection, "SELECT COUNT(*) FROM ai_notes");
             metrics.recentVitalsToday = countToday(connection,
                     "SELECT COUNT(*) FROM vital_readings WHERE recorded_at LIKE ? OR recorded_at LIKE ?",
-                    legacyToday, isoToday);
+                    displayToday, isoToday);
             metrics.appointmentsToday = count(connection, "SELECT COUNT(*) FROM appointments WHERE date(start_time) = date('now') "
                     + "OR substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')");
             metrics.pendingReminders = count(connection, "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'PENDING'");
@@ -131,9 +131,9 @@ public class DashboardMetricsService {
         }
     }
 
-    private int countToday(Connection connection, String sql, String legacyToday, String isoToday) throws SQLException {
+    private int countToday(Connection connection, String sql, String displayToday, String isoToday) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, legacyToday);
+            statement.setString(1, displayToday);
             statement.setString(2, isoToday);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next() ? resultSet.getInt(1) : 0;

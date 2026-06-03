@@ -2,7 +2,6 @@ package ui.javafx;
 
 import database.DatabaseManager;
 import database.SchemaInitializer;
-import database.SqliteMigrationService;
 import dao.SqliteAuditLogDao;
 import dao.SqliteDeceasedRecordDao;
 import dao.SqliteNewbornRecordDao;
@@ -46,7 +45,6 @@ public class AppShell extends Application {
     private AppLayoutController layoutController;
     private boolean darkMode;
     private String databaseStatus = "Local database not initialized";
-    private String migrationStatus = "Migration not checked";
 
     public static void launchApp(String[] args) {
         launch(args);
@@ -225,14 +223,26 @@ public class AppShell extends Application {
     }
 
     public void showAiRecommendations() {
+        if (!AppFeatures.aiEnabled()) {
+            showDashboard(Session.getCurrentUser());
+            return;
+        }
         setShellContent("/ui/javafx/views/AiRecommendationsView.fxml", "Smart Patient Monitoring System - AI Recommendations");
     }
 
     public void showMedicalDevices() {
+        if (!AppFeatures.devicesEnabled()) {
+            showNotificationCenter();
+            return;
+        }
         setShellContent("/ui/javafx/views/MedicalDevicesView.fxml", "Smart Patient Monitoring System - Medical Devices");
     }
 
     public void showMedicalDevicesForPatient(String patientId) {
+        if (!AppFeatures.devicesEnabled()) {
+            showPatientDetail(patientId);
+            return;
+        }
         ensureShell("Smart Patient Monitoring System - Patient Devices");
         AppNavigator.LoadedView devices = navigator.loadView("/ui/javafx/views/MedicalDevicesView.fxml");
         if (devices.getController() instanceof MedicalDevicesController) {
@@ -326,16 +336,6 @@ public class AppShell extends Application {
         showLogin();
     }
 
-    public String syncFromLegacyStorage() {
-        SqliteMigrationService.MigrationResult result = new SqliteMigrationService().migrateFromTextFiles();
-        migrationStatus = result.getSummary().trim();
-        databaseStatus = DatabaseManager.testConnection()
-                ? "Local database ready: " + DatabaseManager.getDatabasePath()
-                : "Local database connection check failed after import";
-        logAudit("JavaFX SYSTEM imported existing data into local database");
-        return migrationStatus;
-    }
-
     public void toggleTheme() {
         darkMode = !darkMode;
         PREFS.putBoolean(THEME_PREF_KEY, darkMode);
@@ -350,10 +350,6 @@ public class AppShell extends Application {
         return databaseStatus;
     }
 
-    public String getMigrationStatus() {
-        return migrationStatus;
-    }
-
     public void applyThemeTo(Parent parent) {
         // Stylesheets are attached at the Scene level. This hook is kept for callers
         // that load content before it is placed into the shell.
@@ -362,11 +358,9 @@ public class AppShell extends Application {
     private void initializeDatabase() {
         try {
             SchemaInitializer.initialize();
-            SqliteMigrationService.MigrationResult migrationResult = new SqliteMigrationService().migrateIfNeeded();
-            migrationStatus = migrationResult.getSummary().trim();
             databaseStatus = DatabaseManager.testConnection()
                     ? "Local database ready: " + DatabaseManager.getDatabasePath()
-                    : "Local database schema created, connection check failed";
+                    : "Local database schema initialized, connection check failed";
         } catch (Exception e) {
             databaseStatus = "Local database initialization failed: " + e.getMessage();
             System.out.println(databaseStatus);

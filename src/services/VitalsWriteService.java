@@ -17,7 +17,7 @@ import java.util.Locale;
 
 public class VitalsWriteService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     private final SqliteVitalReadingDao vitalReadingDao;
     private final SqlitePatientDao patientDao;
@@ -41,7 +41,7 @@ public class VitalsWriteService {
 
         String staffUser = currentUser == null ? "Unknown" : currentUser.getUsername();
         LocalDateTime recordedAt = parseDateTime(request.recordedAt);
-        String recordedAtText = recordedAt.format(LEGACY_DATE_TIME);
+        String recordedAtText = recordedAt.format(DISPLAY_DATE_TIME);
         String normalizedType = VitalTypeCatalog.normalize(request.vitalType);
         String unit = VitalTypeCatalog.expectedUnit(normalizedType);
 
@@ -165,7 +165,7 @@ public class VitalsWriteService {
 
     private LocalDateTime parseDateTime(String value) {
         try {
-            return LocalDateTime.parse(value.trim(), LEGACY_DATE_TIME);
+            return LocalDateTime.parse(value.trim(), DISPLAY_DATE_TIME);
         } catch (DateTimeParseException e) {
             return LocalDateTime.parse(value.trim().replace(" ", "T"));
         }

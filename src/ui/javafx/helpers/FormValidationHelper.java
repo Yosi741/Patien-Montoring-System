@@ -10,7 +10,7 @@ import java.util.function.BooleanSupplier;
 
 public final class FormValidationHelper {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private FormValidationHelper() {
@@ -47,7 +47,7 @@ public final class FormValidationHelper {
             return ValidationResult.ok();
         } catch (DateTimeParseException ignored) {
             try {
-                LocalDateTime.parse(trimmed, LEGACY_DATE_TIME);
+                LocalDateTime.parse(trimmed, DISPLAY_DATE_TIME);
                 return ValidationResult.ok();
             } catch (DateTimeParseException ignoredAgain) {
                 try {

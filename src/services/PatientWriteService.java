@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class PatientWriteService {
 
-    private static final DateTimeFormatter LEGACY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final Set<String> VALID_STATUSES = Set.of("ACTIVE", "DISCHARGED", "DECEASED");
     private static final Set<String> VALID_PRIORITIES = Set.of("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
 
@@ -127,7 +127,7 @@ public class PatientWriteService {
     private LocalDate parseBirthDate(String value) {
         String trimmed = value.trim();
         try {
-            return LocalDate.parse(trimmed, LEGACY_DATE);
+            return LocalDate.parse(trimmed, DISPLAY_DATE);
         } catch (DateTimeParseException e) {
             return LocalDate.parse(trimmed);
         }

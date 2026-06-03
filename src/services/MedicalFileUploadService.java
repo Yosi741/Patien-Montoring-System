@@ -30,7 +30,7 @@ import java.util.UUID;
 public class MedicalFileUploadService {
 
     private static final long MAX_FILE_SIZE_BYTES = 10L * 1024L * 1024L;
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final DateTimeFormatter FILE_STAMP = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("txt", "csv", "pdf", "png", "jpg", "jpeg");
     private static final Set<String> CATEGORIES = Set.of("LAB_RESULT", "DISCHARGE_SUMMARY", "IMAGING", "PRESCRIPTION", "OTHER");
@@ -58,7 +58,7 @@ public class MedicalFileUploadService {
         File sourceFile = new File(request.filePath);
         String extension = extension(sourceFile.getName());
         long fileSize = sourceFile.length();
-        String uploadedAt = LocalDateTime.now().format(LEGACY_DATE_TIME);
+        String uploadedAt = LocalDateTime.now().format(DISPLAY_DATE_TIME);
         if (medicalFileDao.hasRecentDuplicate(request.patientId.trim(), sourceFile.getName(), fileSize, uploadedAt)) {
             throw new IllegalArgumentException("A file with the same patient, filename, and size was already uploaded today.");
         }
@@ -106,10 +106,10 @@ public class MedicalFileUploadService {
         if (file.getExtractedSummary() == null || file.getExtractedSummary().isBlank()) {
             throw new IllegalArgumentException("No extracted summary is available for this file.");
         }
-        String createdAt = LocalDateTime.now().format(LEGACY_DATE_TIME);
+        String createdAt = LocalDateTime.now().format(DISPLAY_DATE_TIME);
         String note = "Rule-based file summary only. Not a medical diagnosis. "
                 + file.getOriginalName() + ": " + file.getExtractedSummary();
-        aiNoteDao.saveLegacyNote(file.getPatientId(), "File Summary: " + file.getOriginalName(), note, createdAt, 0);
+        aiNoteDao.saveNote(file.getPatientId(), "File Summary: " + file.getOriginalName(), note, createdAt, 0);
         AuditWriteHelper.write(username(currentUser), AuditAction.GENERATE_FILE_AI_SUMMARY,
                 "patient_id=" + file.getPatientId() + ", file_id=" + fileId);
     }

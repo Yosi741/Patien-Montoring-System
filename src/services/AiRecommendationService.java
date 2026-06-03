@@ -21,11 +21,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/*public class AiRecommendationService {
+public class AiRecommendationService {
 
     private static final String SOURCE_TITLE = "JavaFX AI Recommendation";
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public AiRecommendationService() {
         ensureSchema();
@@ -505,7 +505,7 @@ import java.util.Set;
                 return LocalDateTime.parse(value.replace(" ", "T"));
             } catch (DateTimeParseException ignoredAgain) {
                 try {
-                    return LocalDateTime.parse(value, LEGACY_DATE_TIME);
+                    return LocalDateTime.parse(value, DISPLAY_DATE_TIME);
                 } catch (DateTimeParseException ignoredThird) {
                     return LocalDateTime.MIN;
                 }
@@ -712,5 +712,3 @@ import java.util.Set;
         public String getCreatedAt() { return createdAt; }
     }
 }
-
- */

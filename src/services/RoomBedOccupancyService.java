@@ -31,8 +31,8 @@ public class RoomBedOccupancyService {
             patients = queryAssignedPatients(connection);
         }
 
-        boolean fallbackMode = roomSeeds.isEmpty();
-        List<RoomRow> rows = fallbackMode ? buildRowsFromPatients(patients) : buildRowsFromRooms(roomSeeds, patients);
+        boolean derivedFromPatients = roomSeeds.isEmpty();
+        List<RoomRow> rows = derivedFromPatients ? buildRowsFromPatients(patients) : buildRowsFromRooms(roomSeeds, patients);
         rows.removeIf(row -> !matches(row, filter));
         rows.sort(Comparator.comparing(RoomRow::getSection, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(RoomRow::getRoomNumber, String.CASE_INSENSITIVE_ORDER));
@@ -44,7 +44,7 @@ public class RoomBedOccupancyService {
                 availableCapacity(rows),
                 activePatientsBySection(patients, filter),
                 criticalEmergencyBySection(patients, filter),
-                fallbackMode,
+                derivedFromPatients,
                 rows
         );
     }
@@ -79,7 +79,7 @@ public class RoomBedOccupancyService {
                         value(resultSet.getString("section")),
                         value(resultSet.getString("room_number")),
                         Math.max(1, resultSet.getInt("capacity")),
-                        fallback(resultSet.getString("status"), "ACTIVE"),
+                        defaultValue(resultSet.getString("status"), "ACTIVE"),
                         value(resultSet.getString("notes"))
                 ));
             }
@@ -97,10 +97,10 @@ public class RoomBedOccupancyService {
                 rows.add(new PatientAssignment(
                         value(resultSet.getString("patient_id")),
                         fullName(resultSet.getString("first_name"), resultSet.getString("last_name")),
-                        fallback(resultSet.getString("section"), "Unassigned"),
-                        fallback(resultSet.getString("room"), "Unassigned"),
-                        fallback(resultSet.getString("status"), "Unknown"),
-                        fallback(resultSet.getString("priority"), "NORMAL")
+                        defaultValue(resultSet.getString("section"), "Unassigned"),
+                        defaultValue(resultSet.getString("room"), "Unassigned"),
+                        defaultValue(resultSet.getString("status"), "Unknown"),
+                        defaultValue(resultSet.getString("priority"), "NORMAL")
                 ));
             }
         }
@@ -130,7 +130,7 @@ public class RoomBedOccupancyService {
             }
             PatientAssignment first = assigned.get(0);
             rows.add(toRoomRow(0, first.getSection(), first.getRoom(), Math.max(assigned.size(), 1),
-                    "FALLBACK", "", assigned));
+                    "DERIVED", "", assigned));
         }
         return rows;
     }
@@ -321,8 +321,8 @@ public class RoomBedOccupancyService {
         return name.isBlank() ? "Unknown patient" : name;
     }
 
-    private String fallback(String value, String fallback) {
-        return value == null || value.isBlank() ? fallback : value;
+    private String defaultValue(String value, String defaultValue) {
+        return value == null || value.isBlank() ? defaultValue : value;
     }
 
     private String value(String value) {
@@ -413,20 +413,20 @@ public class RoomBedOccupancyService {
         private final int availableCapacity;
         private final Map<String, Integer> activePatientsBySection;
         private final Map<String, Integer> criticalEmergencyBySection;
-        private final boolean fallbackMode;
+        private final boolean derivedFromPatients;
         private final List<RoomRow> rooms;
 
         public OccupancyOverview(int totalRooms, int occupiedRooms, int occupiedBeds, int availableCapacity,
                                  Map<String, Integer> activePatientsBySection,
                                  Map<String, Integer> criticalEmergencyBySection,
-                                 boolean fallbackMode, List<RoomRow> rooms) {
+                                 boolean derivedFromPatients, List<RoomRow> rooms) {
             this.totalRooms = totalRooms;
             this.occupiedRooms = occupiedRooms;
             this.occupiedBeds = occupiedBeds;
             this.availableCapacity = availableCapacity;
             this.activePatientsBySection = activePatientsBySection;
             this.criticalEmergencyBySection = criticalEmergencyBySection;
-            this.fallbackMode = fallbackMode;
+            this.derivedFromPatients = derivedFromPatients;
             this.rooms = rooms;
         }
 
@@ -436,7 +436,7 @@ public class RoomBedOccupancyService {
         public int getAvailableCapacity() { return availableCapacity; }
         public Map<String, Integer> getActivePatientsBySection() { return activePatientsBySection; }
         public Map<String, Integer> getCriticalEmergencyBySection() { return criticalEmergencyBySection; }
-        public boolean isFallbackMode() { return fallbackMode; }
+        public boolean isDerivedFromPatients() { return derivedFromPatients; }
         public List<RoomRow> getRooms() { return rooms; }
     }
 

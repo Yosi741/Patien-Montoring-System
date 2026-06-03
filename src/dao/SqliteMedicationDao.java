@@ -259,6 +259,7 @@ public class SqliteMedicationDao implements MedicationDao {
         public String getRoute() { return route; }
         public String getFrequency() { return frequency; }
         public boolean isActive() { return active; }
+        public int setDose(String dose) { return this.dose.compareTo(dose); }
 
         @Override
         public String toString() {

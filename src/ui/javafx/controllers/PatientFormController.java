@@ -30,7 +30,7 @@ import java.time.format.DateTimeParseException;
 
 public class PatientFormController {
 
-    private static final DateTimeFormatter LEGACY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final SectionService sectionService = new SectionService();
@@ -145,7 +145,7 @@ public class PatientFormController {
                 patientIdField.getText(),
                 firstNameField.getText(),
                 lastNameField.getText(),
-                birthDatePicker.getValue() == null ? "" : birthDatePicker.getValue().format(LEGACY_DATE),
+                birthDatePicker.getValue() == null ? "" : birthDatePicker.getValue().format(DISPLAY_DATE),
                 genderBox.getValue(),
                 comboValue(sectionBox),
                 comboValue(roomBox),
@@ -165,7 +165,7 @@ public class PatientFormController {
         try {
             sections.addAll(new SqlitePatientDao().findDistinctSections());
         } catch (Exception ignored) {
-            // Patient sections are a fallback only.
+            // Patient sections supplement the configured section list.
         }
         sectionBox.getItems().setAll(sections);
     }
@@ -216,7 +216,7 @@ public class PatientFormController {
             return null;
         }
         try {
-            return LocalDate.parse(value.trim(), LEGACY_DATE);
+            return LocalDate.parse(value.trim(), DISPLAY_DATE);
         } catch (DateTimeParseException e) {
             try {
                 return LocalDate.parse(value.trim());

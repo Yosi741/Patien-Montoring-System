@@ -57,7 +57,7 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private Label occupiedRoomsLabel;
     @FXML private Label occupiedBedsLabel;
     @FXML private Label availableCapacityLabel;
-    @FXML private Label fallbackStatusLabel;
+    @FXML private Label occupancySourceLabel;
     @FXML private VBox activePatientsBySectionBox;
     @FXML private VBox criticalPatientsBySectionBox;
     @FXML private TableView<SqliteSectionDao.SectionRecord> sectionTable;
@@ -382,9 +382,9 @@ public class RoomBedOccupancyController implements FxController {
         occupiedRoomsLabel.setText(String.valueOf(overview.getOccupiedRooms()));
         occupiedBedsLabel.setText(String.valueOf(overview.getOccupiedBeds()));
         availableCapacityLabel.setText(String.valueOf(overview.getAvailableCapacity()));
-        fallbackStatusLabel.setText(overview.isFallbackMode()
-                ? "Fallback mode: SQLite rooms table is empty, so rows are built from patient section/room assignments."
-                : "Rooms mode: SQLite rooms table is available and patient assignments are overlaid.");
+        occupancySourceLabel.setText(overview.isDerivedFromPatients()
+                ? "Room rows are derived from current patient section/room assignments because no room records are configured yet."
+                : "Room records are active and patient assignments are overlaid.");
 
         renderSectionBox(activePatientsBySectionBox, overview.getActivePatientsBySection(), "No active patient section counts for this filter.", false);
         renderSectionBox(criticalPatientsBySectionBox, overview.getCriticalEmergencyBySection(), "No critical/emergency patients for this filter.", true);
@@ -441,7 +441,7 @@ public class RoomBedOccupancyController implements FxController {
             return null;
         }
         if (selected.getRoomId() <= 0) {
-            NotificationHelper.showInfo(statusLabel, "This is a fallback row from patient location fields. Add a SQLite room before editing or assigning.");
+            NotificationHelper.showInfo(statusLabel, "This row is derived from patient location fields. Add a room record before editing or assigning.");
             return null;
         }
         return selected;

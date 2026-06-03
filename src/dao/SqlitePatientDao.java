@@ -1,6 +1,6 @@
 package dao;
 
-// import ai_Prototype.AIAnalysis;
+import ai_Prototype.AIAnalysis;
 import database.DatabaseManager;
 import models.Patient;
 import models.VitalSign;
@@ -10,9 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -315,20 +313,6 @@ public class SqlitePatientDao implements PatientDao {
             }
         }
         return Optional.empty();
-    }
-
-    public boolean hasNewerSqliteUpdate(String patientId, long legacyModifiedMillis) throws SQLException {
-        Optional<String> updatedAt = findUpdatedAt(patientId);
-        if (updatedAt.isEmpty() || legacyModifiedMillis <= 0) {
-            return false;
-        }
-        try {
-            LocalDateTime sqliteUpdated = parseSqliteDateTime(updatedAt.get());
-            LocalDateTime legacyModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(legacyModifiedMillis), ZoneId.systemDefault());
-            return sqliteUpdated.isAfter(legacyModified);
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     @Override

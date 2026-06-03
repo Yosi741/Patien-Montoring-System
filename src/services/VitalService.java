@@ -1,10 +1,8 @@
 package services;
 
 import alerts.CriticalAlertManager;
-import database.FileStorage;
-import database.HospitalData;
-import database.VitalStorage;
-import logs.AuditLog;
+import dao.SqliteAuditLogDao;
+import dao.SqliteVitalReadingDao;
 import models.MedicalDevice;
 import models.Patient;
 import models.VitalRecord;
@@ -42,18 +40,16 @@ public class VitalService {
     public static void recordManualVitals(Patient patient, VitalSign vitalSign) {
         patient.setVitalSign(vitalSign);
         saveVitalSet(patient, vitalSign, "Manual", Session.getUsername(), "", "", "", "");
-        FileStorage.savePatients(HospitalData.patientManager.getPatients());
         CriticalAlertManager.checkPatient(patient);
-        AuditLog.addLog(Session.getUsername(), "Added manual vital signs for: " + patient.getName());
+        logAudit(Session.getUsername(), "Added manual vital signs for: " + patient.getName());
     }
 
     public static void recordDeviceVitals(Patient patient, VitalSign vitalSign, MedicalDevice device) {
         patient.setVitalSign(vitalSign);
         saveVitalSet(patient, vitalSign, "Device", "", device.getDeviceId(), device.getSerialNumber(),
                 device.getDeviceName(), device.getDeviceType());
-        FileStorage.savePatients(HospitalData.patientManager.getPatients());
         CriticalAlertManager.checkPatient(patient);
-        AuditLog.addLog("Device:" + device.getDeviceId(), "Added device vital signs for: " + patient.getName());
+        logAudit("Device:" + device.getDeviceId(), "Added device vital signs for: " + patient.getName());
     }
 
     private static void saveVitalSet(Patient patient, VitalSign vitalSign, String sourceType, String staffName,
@@ -69,19 +65,31 @@ public class VitalService {
     private static void addRecord(Patient patient, String vitalType, String value, String unit, String now,
                                   String sourceType, String staffName, String deviceId, String deviceSerial,
                                   String deviceName, String deviceType) {
-        VitalStorage.addRecord(new VitalRecord(
-                UUID.randomUUID().toString(),
-                patient.getPatientId(),
-                vitalType,
-                value,
-                unit,
-                now,
-                sourceType,
-                staffName,
-                deviceId,
-                deviceSerial,
-                deviceName,
-                deviceType
-        ));
+        try {
+            new SqliteVitalReadingDao().insertVitalReading(new VitalRecord(
+                    UUID.randomUUID().toString(),
+                    patient.getPatientId(),
+                    vitalType,
+                    value,
+                    unit,
+                    now,
+                    sourceType,
+                    staffName,
+                    deviceId,
+                    deviceSerial,
+                    deviceName,
+                    deviceType
+            ));
+        } catch (Exception e) {
+            System.out.println("SQLite vital runtime save failed: " + e.getMessage());
+        }
+    }
+
+    private static void logAudit(String username, String action) {
+        try {
+            new SqliteAuditLogDao().log(username, action);
+        } catch (Exception e) {
+            System.out.println("SQLite vital audit skipped: " + e.getMessage());
+        }
     }
 }

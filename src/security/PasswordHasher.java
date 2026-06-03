@@ -16,8 +16,6 @@ public class PasswordHasher {
     private static final int SALT_BYTES = 16;
     private static final String PREFIX = "pbkdf2_sha256";
 
-    private PasswordHasher() {
-    }
 
     public static String hash(char[] password) {
         byte[] salt = new byte[SALT_BYTES];

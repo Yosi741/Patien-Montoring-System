@@ -26,7 +26,7 @@ import java.util.List;
 
 public class MedicationGivenController {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     private final MedicationWriteService medicationWriteService = new MedicationWriteService();
     private User currentUser;
@@ -72,7 +72,7 @@ public class MedicationGivenController {
         statusBox.getSelectionModel().select("GIVEN");
         givenByField.setText(SessionContext.username());
         givenByField.setEditable(false);
-        givenAtField.setText(LocalDateTime.now().format(LEGACY_DATE_TIME));
+        givenAtField.setText(LocalDateTime.now().format(DISPLAY_DATE_TIME));
         NotificationHelper.showInfo(statusLabel, "Local database medication event. System data is stored in the local database.");
     }
 

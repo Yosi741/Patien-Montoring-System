@@ -48,7 +48,7 @@
                                alignment="CENTER"
                                styleClass="login-brand-message" />
 
-                        <Label text="Patients | Alerts | Devices | Files | Clinical notes"
+                        <Label text="Patients | Alerts | Files | Clinical records"
                                wrapText="true"
                                textAlignment="CENTER"
                                alignment="CENTER"

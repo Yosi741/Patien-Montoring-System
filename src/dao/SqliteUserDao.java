@@ -172,6 +172,28 @@ public class SqliteUserDao implements UserDao {
         return sections;
     }
 
+    public List<UserTarget> findMessageTargets() throws SQLException {
+        ArrayList<UserTarget> targets = new ArrayList<>();
+        String sql = "SELECT u.username, u.role, u.section, COALESCE(u.email, p.email, '') AS email "
+                + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username "
+                + "WHERE u.active = 1 ORDER BY u.username COLLATE NOCASE";
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                String username = resultSet.getString("username");
+                targets.add(new UserTarget(
+                        username,
+                        username,
+                        resultSet.getString("role"),
+                        resultSet.getString("section"),
+                        resultSet.getString("email")
+                ));
+            }
+        }
+        return targets;
+    }
+
     public Optional<UserDirectoryRow> findDirectoryRowByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, role, section, active, created_at FROM users WHERE username = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -349,5 +371,37 @@ public class SqliteUserDao implements UserDao {
         public String getRole() { return role; }
         public String getSection() { return section; }
         public boolean isActive() { return active; }
+    }
+
+    public static class UserTarget {
+        private final String username;
+        private final String displayName;
+        private final String role;
+        private final String section;
+        private final String email;
+
+        public UserTarget(String username, String displayName, String role, String section, String email) {
+            this.username = username == null ? "" : username;
+            this.displayName = displayName == null || displayName.isBlank() ? this.username : displayName;
+            this.role = role == null ? "" : role;
+            this.section = section == null ? "" : section;
+            this.email = email == null ? "" : email;
+        }
+
+        public String getUsername() { return username; }
+        public String getDisplayName() { return displayName; }
+        public String getRole() { return role; }
+        public String getSection() { return section; }
+        public String getEmail() { return email; }
+
+        public String getDisplayText() {
+            String mail = email.isBlank() ? "no email" : email;
+            return username + " | " + displayName + " | " + role + " | " + section + " | " + mail;
+        }
+
+        @Override
+        public String toString() {
+            return getDisplayText();
+        }
     }
 }

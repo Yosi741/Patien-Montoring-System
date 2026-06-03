@@ -11,6 +11,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import services.NotificationCenterService;
+import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -124,10 +125,9 @@ public class AppLayoutController implements FxController {
         boolean admin = isAdmin();
         boolean clinical = isClinical();
         boolean loggedIn = Session.getCurrentUser() != null;
-        messagesButton.setVisible(PermissionHelper.canViewMessages(Session.getCurrentUser()));
-        messagesButton.setManaged(PermissionHelper.canViewMessages(Session.getCurrentUser()));
-        notificationsButton.setVisible(PermissionHelper.canViewNotifications(Session.getCurrentUser()));
-        notificationsButton.setManaged(PermissionHelper.canViewNotifications(Session.getCurrentUser()));
+        setButtonVisible(messagesButton, false);
+        setButtonVisible(notificationsButton, false);
+        setButtonVisible(alertsButton, false);
         topNotificationButton.setVisible(loggedIn);
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
@@ -136,8 +136,7 @@ public class AppLayoutController implements FxController {
         staffActivityButton.setManaged(admin || clinical);
         medicationOverviewButton.setVisible(admin || clinical);
         medicationOverviewButton.setManaged(admin || clinical);
-        medicalDevicesButton.setVisible(admin || clinical);
-        medicalDevicesButton.setManaged(admin || clinical);
+        setButtonVisible(medicalDevicesButton, AppFeatures.devicesEnabled() && (admin || clinical));
         schedulingButton.setVisible(admin || clinical);
         schedulingButton.setManaged(admin || clinical);
         workQueueButton.setVisible(admin || clinical);
@@ -152,8 +151,7 @@ public class AppLayoutController implements FxController {
         newbornRecordsButton.setManaged(false);
         certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
-        aiRecommendationsButton.setVisible(admin || clinical);
-        aiRecommendationsButton.setManaged(admin || clinical);
+        setButtonVisible(aiRecommendationsButton, AppFeatures.aiEnabled() && (admin || clinical));
         boolean backupTools = PermissionHelper.canViewBackupTools(Session.getCurrentUser());
         backupExportButton.setVisible(backupTools);
         backupExportButton.setManaged(backupTools);
@@ -222,6 +220,10 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showMedicalDevices() {
+        if (!AppFeatures.devicesEnabled()) {
+            appShell.showNotificationCenter();
+            return;
+        }
         appShell.showMedicalDevices();
     }
 
@@ -262,6 +264,10 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showAiRecommendations() {
+        if (!AppFeatures.aiEnabled()) {
+            appShell.showDashboard(Session.getCurrentUser());
+            return;
+        }
         appShell.showAiRecommendations();
     }
 
@@ -345,5 +351,10 @@ public class AppLayoutController implements FxController {
     private boolean isClinical() {
         String role = roleGroup(SessionContext.role());
         return role.equals("DOCTOR") || role.equals("NURSE");
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        button.setVisible(visible);
+        button.setManaged(visible);
     }
 }

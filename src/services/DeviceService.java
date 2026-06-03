@@ -1,10 +1,10 @@
 package services;
 
-import database.DeviceStorage;
-import database.NotificationStorage;
+import dao.SqliteAuditLogDao;
+import dao.SqliteDeviceDao;
+import dao.SqliteNotificationDao;
 import devices.MedicalDeviceAdapter;
 import devices.SimulatedBluetoothDeviceAdapter;
-import logs.AuditLog;
 import models.MedicalDevice;
 import models.Patient;
 import models.VitalSign;
@@ -53,8 +53,8 @@ public class DeviceService {
         connectedDevices.put(patient.getPatientId(), device);
         adapters.put(patient.getPatientId(), adapter);
         runningByPatient.put(patient.getPatientId(), true);
-        DeviceStorage.upsertDevice(device);
-        AuditLog.addLog(Session.getUsername(), "Connected device " + device.getDeviceId() + " for patient: " + patient.getName());
+        saveDevice(device);
+        logAudit(Session.getUsername(), "Connected device " + device.getDeviceId() + " for patient: " + patient.getName());
 
         if (startReadingLoop) {
             startReadingLoop(patient, device, adapter);
@@ -76,9 +76,9 @@ public class DeviceService {
         if (device != null) {
             device.setConnectionStatus("Disconnected");
             device.setLastConnectionTime(now());
-            DeviceStorage.upsertDevice(device);
-            AuditLog.addLog(Session.getUsername(), "Disconnected device " + device.getDeviceId() + " for patient: " + patient.getName());
-            NotificationStorage.addNotification("ALL", "WARNING", "Device disconnected for patient " + patient.getName() + ": " + device.getDeviceName());
+            saveDevice(device);
+            logAudit(Session.getUsername(), "Disconnected device " + device.getDeviceId() + " for patient: " + patient.getName());
+            notifyDeviceDisconnected(patient, device);
         }
     }
 
@@ -117,5 +117,65 @@ public class DeviceService {
 
     private static String now() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+    }
+
+    private static void saveDevice(MedicalDevice device) {
+        try {
+            SqliteDeviceDao dao = new SqliteDeviceDao();
+            SqliteDeviceDao.DeviceRecord record = new SqliteDeviceDao.DeviceRecord(
+                    device.getDeviceId(),
+                    device.getDeviceName(),
+                    device.getDeviceType(),
+                    device.getSerialNumber(),
+                    normalizeStatus(device.getConnectionStatus()),
+                    device.getPatientId(),
+                    "",
+                    "Runtime device state",
+                    device.getLastConnectionTime()
+            );
+            if (dao.existsByDeviceId(device.getDeviceId())) {
+                dao.updateDevice(record);
+            } else {
+                dao.insertDevice(record);
+            }
+        } catch (Exception e) {
+            System.out.println("SQLite device runtime state skipped: " + e.getMessage());
+        }
+    }
+
+    private static String normalizeStatus(String status) {
+        if ("Connected".equalsIgnoreCase(status)) {
+            return "ASSIGNED";
+        }
+        if ("Disconnected".equalsIgnoreCase(status)) {
+            return "AVAILABLE";
+        }
+        return status == null || status.isBlank() ? "AVAILABLE" : status.toUpperCase();
+    }
+
+    private static void notifyDeviceDisconnected(Patient patient, MedicalDevice device) {
+        try {
+            new SqliteNotificationDao().insert(new SqliteNotificationDao.NotificationWriteRecord(
+                    "",
+                    "NURSE",
+                    patient.getSection(),
+                    patient.getPatientId(),
+                    "WARNING",
+                    "Device disconnected",
+                    "Device disconnected for patient " + patient.getName() + ": " + device.getDeviceName(),
+                    "DEVICE",
+                    device.getDeviceId()
+            ));
+        } catch (Exception e) {
+            System.out.println("SQLite device notification skipped: " + e.getMessage());
+        }
+    }
+
+    private static void logAudit(String username, String action) {
+        try {
+            new SqliteAuditLogDao().log(username, action);
+        } catch (Exception e) {
+            System.out.println("SQLite device audit skipped: " + e.getMessage());
+        }
     }
 }

@@ -388,14 +388,6 @@ public class PatientListController implements FxController {
     }
 
     @FXML
-    private void syncFromLegacyStorage() {
-        String result = appShell.syncFromLegacyStorage();
-        configureFilters();
-        loadPatients();
-        statusLabel.setText(result.replace(System.lineSeparator(), " "));
-    }
-
-    @FXML
     private void showAllPatients() {
         quickFilter = "All Patients";
         newbornMode = false;

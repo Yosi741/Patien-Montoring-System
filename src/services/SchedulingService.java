@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class SchedulingService {
 
-    private static final DateTimeFormatter LEGACY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final Set<String> APPOINTMENT_TYPES = Set.of("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "MEDICATION_REVIEW", "OTHER");
     private static final Set<String> APPOINTMENT_STATUSES = Set.of("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
     private static final Set<String> REMINDER_TYPES = Set.of("MEDICATION", "APPOINTMENT", "CHECKUP", "CUSTOM");
@@ -257,8 +257,8 @@ public class SchedulingService {
                 trim(request.patientId),
                 trim(request.title),
                 normalizeAppointmentType(request.appointmentType),
-                parseDateTime(request.startTime).format(LEGACY_DATE_TIME),
-                parseDateTime(request.endTime).format(LEGACY_DATE_TIME),
+                parseDateTime(request.startTime).format(DISPLAY_DATE_TIME),
+                parseDateTime(request.endTime).format(DISPLAY_DATE_TIME),
                 trim(request.location),
                 trim(request.assignedStaff),
                 normalizeAppointmentStatus(request.status),
@@ -276,7 +276,7 @@ public class SchedulingService {
                 request.medicationId == null || request.medicationId <= 0 ? null : request.medicationId,
                 normalizeReminderType(request.reminderType),
                 trim(request.title),
-                parseDateTime(request.dueTime).format(LEGACY_DATE_TIME),
+                parseDateTime(request.dueTime).format(DISPLAY_DATE_TIME),
                 trim(request.repeatRule),
                 normalizeReminderStatus(request.status),
                 trim(request.assignedTo),
@@ -293,7 +293,7 @@ public class SchedulingService {
         }
         String trimmed = value.trim();
         try {
-            return LocalDateTime.parse(trimmed, LEGACY_DATE_TIME);
+            return LocalDateTime.parse(trimmed, DISPLAY_DATE_TIME);
         } catch (DateTimeParseException ignored) {
             try {
                 return LocalDateTime.parse(trimmed, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

@@ -16,7 +16,7 @@ public class SqliteAiNoteDao implements AiNoteDao {
     }
 
     @Override
-    public boolean saveLegacyNote(String patientId, String sourceTitle, String note, String createdAt, int riskScore) throws SQLException {
+    public boolean saveNote(String patientId, String sourceTitle, String note, String createdAt, int riskScore) throws SQLException {
         String sql = "INSERT INTO ai_notes(patient_id, risk_score, note, created_at, source_title) "
                 + "SELECT ?, ?, ?, ?, ? "
                 + "WHERE NOT EXISTS ("
