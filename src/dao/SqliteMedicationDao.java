@@ -69,7 +69,8 @@ public class SqliteMedicationDao implements MedicationDao {
     }
 
     public long insertMedication(MedicationRecord medication) throws SQLException {
-        String sql = "INSERT INTO medications(patient_id, name, dose, route, frequency, active) VALUES(?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO medications(patient_id, catalog_medication_id, name, dose, dose_amount, dose_unit, route, frequency, active) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             bindMedication(statement, medication);
@@ -84,15 +85,19 @@ public class SqliteMedicationDao implements MedicationDao {
     }
 
     public void updateMedication(MedicationRecord medication) throws SQLException {
-        String sql = "UPDATE medications SET name = ?, dose = ?, route = ?, frequency = ?, active = ? WHERE id = ?";
+        String sql = "UPDATE medications SET catalog_medication_id = ?, name = ?, dose = ?, dose_amount = ?, dose_unit = ?, "
+                + "route = ?, frequency = ?, active = ? WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, value(medication.getName()));
-            statement.setString(2, value(medication.getDose()));
-            statement.setString(3, value(medication.getRoute()));
-            statement.setString(4, value(medication.getFrequency()));
-            statement.setInt(5, medication.isActive() ? 1 : 0);
-            statement.setLong(6, medication.getId());
+            setNullableLong(statement, 1, medication.getCatalogMedicationId());
+            statement.setString(2, value(medication.getName()));
+            statement.setString(3, value(medication.getDose()));
+            setNullableDouble(statement, 4, medication.getDoseAmount());
+            statement.setString(5, value(medication.getDoseUnit()));
+            statement.setString(6, value(medication.getRoute()));
+            statement.setString(7, value(medication.getFrequency()));
+            statement.setInt(8, medication.isActive() ? 1 : 0);
+            statement.setLong(9, medication.getId());
             statement.executeUpdate();
         }
     }
@@ -120,7 +125,7 @@ public class SqliteMedicationDao implements MedicationDao {
     }
 
     public Optional<MedicationRecord> findMedicationById(long medicationId) throws SQLException {
-        String sql = "SELECT id, patient_id, name, dose, route, frequency, active FROM medications WHERE id = ?";
+        String sql = medicationSelect() + " WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, medicationId);
@@ -135,7 +140,7 @@ public class SqliteMedicationDao implements MedicationDao {
 
     public List<MedicationRecord> findActiveMedicationsForPatient(String patientId) throws SQLException {
         ArrayList<MedicationRecord> medications = new ArrayList<>();
-        String sql = "SELECT id, patient_id, name, dose, route, frequency, active FROM medications "
+        String sql = medicationSelect()
                 + "WHERE patient_id = ? AND active = 1 ORDER BY name COLLATE NOCASE, dose COLLATE NOCASE";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -194,23 +199,39 @@ public class SqliteMedicationDao implements MedicationDao {
 
     private void bindMedication(PreparedStatement statement, MedicationRecord medication) throws SQLException {
         statement.setString(1, medication.getPatientId());
-        statement.setString(2, value(medication.getName()));
-        statement.setString(3, value(medication.getDose()));
-        statement.setString(4, value(medication.getRoute()));
-        statement.setString(5, value(medication.getFrequency()));
-        statement.setInt(6, medication.isActive() ? 1 : 0);
+        setNullableLong(statement, 2, medication.getCatalogMedicationId());
+        statement.setString(3, value(medication.getName()));
+        statement.setString(4, value(medication.getDose()));
+        setNullableDouble(statement, 5, medication.getDoseAmount());
+        statement.setString(6, value(medication.getDoseUnit()));
+        statement.setString(7, value(medication.getRoute()));
+        statement.setString(8, value(medication.getFrequency()));
+        statement.setInt(9, medication.isActive() ? 1 : 0);
     }
 
     private MedicationRecord mapMedication(ResultSet resultSet) throws SQLException {
+        Double doseAmount = nullableDouble(resultSet, "dose_amount");
+        String doseUnit = resultSet.getString("dose_unit");
+        String dose = resultSet.getString("dose");
+        if ((dose == null || dose.isBlank()) && doseAmount != null) {
+            dose = formatDose(doseAmount, doseUnit);
+        }
         return new MedicationRecord(
                 resultSet.getLong("id"),
                 resultSet.getString("patient_id"),
+                nullableLong(resultSet, "catalog_medication_id"),
                 resultSet.getString("name"),
-                resultSet.getString("dose"),
+                dose,
+                doseAmount,
+                doseUnit,
                 resultSet.getString("route"),
                 resultSet.getString("frequency"),
                 resultSet.getInt("active") == 1
         );
+    }
+
+    private String medicationSelect() {
+        return "SELECT id, patient_id, catalog_medication_id, name, dose, dose_amount, dose_unit, route, frequency, active FROM medications ";
     }
 
     private int count(String tableName) throws SQLException {
@@ -233,20 +254,65 @@ public class SqliteMedicationDao implements MedicationDao {
         return value == null ? "" : value;
     }
 
+    private void setNullableLong(PreparedStatement statement, int index, Long value) throws SQLException {
+        if (value == null || value <= 0) {
+            statement.setNull(index, java.sql.Types.INTEGER);
+        } else {
+            statement.setLong(index, value);
+        }
+    }
+
+    private void setNullableDouble(PreparedStatement statement, int index, Double value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, java.sql.Types.REAL);
+        } else {
+            statement.setDouble(index, value);
+        }
+    }
+
+    private Long nullableLong(ResultSet resultSet, String column) throws SQLException {
+        long value = resultSet.getLong(column);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    private Double nullableDouble(ResultSet resultSet, String column) throws SQLException {
+        double value = resultSet.getDouble(column);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    private String formatDose(Double amount, String unit) {
+        if (amount == null) {
+            return "";
+        }
+        String amountText = amount == Math.rint(amount) ? String.valueOf(amount.longValue()) : String.valueOf(amount);
+        return unit == null || unit.isBlank() ? amountText : amountText + " " + unit;
+    }
+
     public static class MedicationRecord {
         private final long id;
         private final String patientId;
+        private final Long catalogMedicationId;
         private final String name;
         private final String dose;
+        private final Double doseAmount;
+        private final String doseUnit;
         private final String route;
         private final String frequency;
         private final boolean active;
 
         public MedicationRecord(long id, String patientId, String name, String dose, String route, String frequency, boolean active) {
+            this(id, patientId, null, name, dose, parseDoseAmount(dose), parseDoseUnit(dose), route, frequency, active);
+        }
+
+        public MedicationRecord(long id, String patientId, Long catalogMedicationId, String name, String dose,
+                                Double doseAmount, String doseUnit, String route, String frequency, boolean active) {
             this.id = id;
             this.patientId = patientId;
+            this.catalogMedicationId = catalogMedicationId;
             this.name = name;
             this.dose = dose;
+            this.doseAmount = doseAmount;
+            this.doseUnit = doseUnit;
             this.route = route;
             this.frequency = frequency;
             this.active = active;
@@ -254,8 +320,11 @@ public class SqliteMedicationDao implements MedicationDao {
 
         public long getId() { return id; }
         public String getPatientId() { return patientId; }
+        public Long getCatalogMedicationId() { return catalogMedicationId; }
         public String getName() { return name; }
         public String getDose() { return dose; }
+        public Double getDoseAmount() { return doseAmount; }
+        public String getDoseUnit() { return doseUnit; }
         public String getRoute() { return route; }
         public String getFrequency() { return frequency; }
         public boolean isActive() { return active; }
@@ -264,6 +333,27 @@ public class SqliteMedicationDao implements MedicationDao {
         @Override
         public String toString() {
             return name + " " + dose + " (" + route + ", " + frequency + ")";
+        }
+
+        private static Double parseDoseAmount(String dose) {
+            if (dose == null || dose.isBlank()) {
+                return null;
+            }
+            String[] parts = dose.trim().split("\\s+");
+            try {
+                return Double.parseDouble(parts[0]);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private static String parseDoseUnit(String dose) {
+            if (dose == null || dose.isBlank()) {
+                return "";
+            }
+            String trimmed = dose.trim();
+            int firstSpace = trimmed.indexOf(' ');
+            return firstSpace < 0 ? "" : trimmed.substring(firstSpace + 1).trim();
         }
     }
 }

@@ -154,13 +154,20 @@ public class SchemaInitializer {
         statement.execute("CREATE TABLE IF NOT EXISTS medications ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "patient_id TEXT NOT NULL,"
+                + "catalog_medication_id INTEGER,"
                 + "name TEXT NOT NULL,"
                 + "dose TEXT,"
+                + "dose_amount REAL,"
+                + "dose_unit TEXT,"
                 + "route TEXT,"
                 + "frequency TEXT,"
                 + "active INTEGER NOT NULL DEFAULT 1,"
+                + "FOREIGN KEY(catalog_medication_id) REFERENCES medication_catalog(id),"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
+        addColumnIfMissing(statement, "medications", "catalog_medication_id", "INTEGER");
+        addColumnIfMissing(statement, "medications", "dose_amount", "REAL");
+        addColumnIfMissing(statement, "medications", "dose_unit", "TEXT");
     }
 
     private static void createMedicationCatalog(Statement statement) throws SQLException {

@@ -1,6 +1,7 @@
 package services;
 
 import dao.SqliteMedicationDao;
+import dao.SqliteMedicationCatalogDao;
 import dao.SqlitePatientDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
@@ -13,26 +14,33 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class MedicationWriteService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final Set<String> EVENT_STATUSES = Set.of("GIVEN", "MISSED", "DELAYED");
-    private static final Set<String> ROUTES = Set.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Other");
+    private static final Set<String> ROUTES = Set.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Eye drops", "Ear drops", "Other");
     private static final Set<String> FREQUENCIES = Set.of("Once daily", "Twice daily", "Three times daily",
             "Every 6 hours", "Every 8 hours", "Every 12 hours", "Weekly", "As needed", "Other");
 
     private final SqliteMedicationDao medicationDao;
     private final SqlitePatientDao patientDao;
+    private final SqliteMedicationCatalogDao catalogDao;
 
     public MedicationWriteService() {
-        this(new SqliteMedicationDao(), new SqlitePatientDao());
+        this(new SqliteMedicationDao(), new SqlitePatientDao(), new SqliteMedicationCatalogDao());
     }
 
     public MedicationWriteService(SqliteMedicationDao medicationDao, SqlitePatientDao patientDao) {
+        this(medicationDao, patientDao, new SqliteMedicationCatalogDao());
+    }
+
+    public MedicationWriteService(SqliteMedicationDao medicationDao, SqlitePatientDao patientDao, SqliteMedicationCatalogDao catalogDao) {
         this.medicationDao = medicationDao;
         this.patientDao = patientDao;
+        this.catalogDao = catalogDao;
     }
 
     public long addMedication(User currentUser, MedicationRequest request) throws SQLException {
@@ -93,6 +101,10 @@ public class MedicationWriteService {
         return medicationDao.findActiveMedicationsForPatient(patientId);
     }
 
+    public Optional<SqliteMedicationDao.MedicationRecord> findMedicationById(long medicationId) throws SQLException {
+        return medicationDao.findMedicationById(medicationId);
+    }
+
     private void requireMedicationManagePermission(User currentUser) {
         if (!PermissionHelper.canAddMedication(currentUser)) {
             throw new SecurityException("Only Admin and Doctor users can add, edit, or discontinue medications.");
@@ -102,12 +114,16 @@ public class MedicationWriteService {
     private void validateMedication(MedicationRequest request, long excludeMedicationId) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validatePatientId(request.patientId),
-                FormValidationHelper.validateRequired("Medication name", request.name),
-                FormValidationHelper.validateRequired("Dose", request.dose),
+                request.catalogMedicationId != null && request.catalogMedicationId > 0
+                        ? FormValidationHelper.ValidationResult.ok()
+                        : FormValidationHelper.validateRequired("Medication name", request.name),
+                FormValidationHelper.validateRequired("Dose amount", request.doseAmount),
+                FormValidationHelper.validateRequired("Dose unit", request.doseUnit),
                 FormValidationHelper.validateRequired("Route", request.route),
                 FormValidationHelper.validateRequired("Frequency", request.frequency),
                 FormValidationHelper.validateMaxLength("Medication name", request.name, 120),
-                FormValidationHelper.validateMaxLength("Dose", request.dose, 80),
+                FormValidationHelper.validateMaxLength("Dose amount", request.doseAmount, 40),
+                FormValidationHelper.validateMaxLength("Dose unit", request.doseUnit, 40),
                 FormValidationHelper.validateMaxLength("Route", request.route, 60),
                 FormValidationHelper.validateMaxLength("Frequency", request.frequency, 80)
         );
@@ -120,13 +136,34 @@ public class MedicationWriteService {
         if (!FREQUENCIES.contains(trim(request.frequency))) {
             throw new IllegalArgumentException("Frequency must be selected from the approved frequency list.");
         }
-        if (!trim(request.dose).matches("(?i)^[0-9]+(\\.[0-9]+)?\\s*(mg|g|mcg|ml|units?|tablet[s]?|capsule[s]?|puff[s]?|drop[s]?|%)?.*")) {
-            throw new IllegalArgumentException("Dose should include a reasonable numeric amount, such as 500 mg or 5 ml.");
+        Double doseAmount = parsePositiveDoseAmount(request.doseAmount);
+        if (doseAmount == null) {
+            throw new IllegalArgumentException("Dose amount is required and must be a positive number.");
+        }
+        if (!hasText(request.doseUnit)) {
+            throw new IllegalArgumentException("Dose unit is required.");
+        }
+        SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem = null;
+        String medicationName = trim(request.name);
+        if (request.catalogMedicationId != null && request.catalogMedicationId > 0) {
+            catalogItem = catalogDao.findCatalogItemById(request.catalogMedicationId)
+                    .orElseThrow(() -> new IllegalArgumentException("Selected catalog medication does not exist."));
+            medicationName = trim(catalogItem.getName());
+            if (!catalogItem.isActive()) {
+                throw new IllegalArgumentException("Selected catalog medication is inactive.");
+            }
+            if (!csvContains(catalogItem.getAllowedUnits(), request.doseUnit)) {
+                throw new IllegalArgumentException("Dose unit is not allowed for the selected catalog medication.");
+            }
+            if (!csvContains(catalogItem.getAllowedRoutes(), request.route)) {
+                throw new IllegalArgumentException("Route is not allowed for the selected catalog medication.");
+            }
         }
         if (!patientDao.existsByPatientId(request.patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId);
         }
-        if (request.active && medicationDao.hasDuplicateActiveMedication(request.patientId, request.name, request.dose, excludeMedicationId)) {
+        String doseText = formatDose(doseAmount, request.doseUnit);
+        if (request.active && medicationDao.hasDuplicateActiveMedication(request.patientId, medicationName, doseText, excludeMedicationId)) {
             throw new IllegalArgumentException("An active medication with the same patient, name, and dose already exists.");
         }
     }
@@ -148,11 +185,19 @@ public class MedicationWriteService {
     }
 
     private SqliteMedicationDao.MedicationRecord clean(MedicationRequest request, long id) {
+        SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem = findCatalogItemOrNull(request.catalogMedicationId);
+        String medicationName = catalogItem == null ? trim(request.name) : trim(catalogItem.getName());
+        Double doseAmount = parsePositiveDoseAmount(request.doseAmount);
+        String doseUnit = trim(request.doseUnit);
+        String doseText = formatDose(doseAmount, doseUnit);
         return new SqliteMedicationDao.MedicationRecord(
                 id,
                 trim(request.patientId),
-                trim(request.name),
-                trim(request.dose),
+                request.catalogMedicationId,
+                medicationName,
+                doseText,
+                doseAmount,
+                doseUnit,
                 trim(request.route),
                 trim(request.frequency),
                 request.active
@@ -189,23 +234,94 @@ public class MedicationWriteService {
         return value == null ? "" : value.trim();
     }
 
+    private SqliteMedicationCatalogDao.MedicationCatalogRecord findCatalogItemOrNull(Long catalogMedicationId) {
+        if (catalogMedicationId == null || catalogMedicationId <= 0) {
+            return null;
+        }
+        try {
+            return catalogDao.findCatalogItemById(catalogMedicationId).orElse(null);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    private Double parsePositiveDoseAmount(String value) {
+        if (!hasText(value)) {
+            return null;
+        }
+        try {
+            double number = Double.parseDouble(value.trim());
+            return number > 0 ? number : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private String formatDose(Double amount, String unit) {
+        if (amount == null) {
+            return "";
+        }
+        String amountText = amount == Math.rint(amount) ? String.valueOf(amount.longValue()) : String.valueOf(amount);
+        return hasText(unit) ? amountText + " " + unit.trim() : amountText;
+    }
+
+    private boolean csvContains(String csv, String value) {
+        if (!hasText(csv) || !hasText(value)) {
+            return false;
+        }
+        String normalized = value.trim().toUpperCase();
+        for (String part : csv.split(",")) {
+            if (part.trim().toUpperCase().equals(normalized)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static class MedicationRequest {
         private final long id;
         private final String patientId;
+        private final Long catalogMedicationId;
         private final String name;
         private final String dose;
+        private final String doseAmount;
+        private final String doseUnit;
         private final String route;
         private final String frequency;
         private final boolean active;
 
         public MedicationRequest(long id, String patientId, String name, String dose, String route, String frequency, boolean active) {
+            this(id, patientId, null, name, dose, parseDoseAmountText(dose), parseDoseUnitText(dose), route, frequency, active);
+        }
+
+        public MedicationRequest(long id, String patientId, Long catalogMedicationId, String name, String dose,
+                                 String doseAmount, String doseUnit, String route, String frequency, boolean active) {
             this.id = id;
             this.patientId = patientId;
+            this.catalogMedicationId = catalogMedicationId;
             this.name = name;
             this.dose = dose;
+            this.doseAmount = doseAmount;
+            this.doseUnit = doseUnit;
             this.route = route;
             this.frequency = frequency;
             this.active = active;
+        }
+
+        private static String parseDoseAmountText(String dose) {
+            if (dose == null || dose.isBlank()) {
+                return "";
+            }
+            return dose.trim().split("\\s+")[0];
+        }
+
+        private static String parseDoseUnitText(String dose) {
+            if (dose == null || dose.isBlank()) {
+                return "";
+            }
+            String trimmed = dose.trim();
+            int firstSpace = trimmed.indexOf(' ');
+            return firstSpace < 0 ? "" : trimmed.substring(firstSpace + 1).trim();
         }
     }
 

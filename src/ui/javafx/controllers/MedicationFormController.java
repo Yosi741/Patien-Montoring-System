@@ -1,5 +1,6 @@
 package ui.javafx.controllers;
 
+import dao.SqliteMedicationCatalogDao;
 import dao.SqliteMedicationDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,26 +14,41 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
+import services.MedicationCatalogService;
 import services.MedicationWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MedicationFormController {
 
+    private static final List<String> DEFAULT_UNITS = List.of("mg", "g", "mcg", "mL", "units", "tablet", "capsule", "puff", "drop", "%");
+    private static final List<String> DEFAULT_ROUTES = List.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Eye drops", "Ear drops", "Other");
+    private static final List<String> DEFAULT_FREQUENCIES = List.of("Once daily", "Twice daily", "Three times daily",
+            "Every 6 hours", "Every 8 hours", "Every 12 hours", "Weekly", "As needed", "Other");
+
     private final MedicationWriteService medicationWriteService = new MedicationWriteService();
+    private final MedicationCatalogService medicationCatalogService = new MedicationCatalogService();
+
     private User currentUser;
     private String patientId;
     private SqliteMedicationDao.MedicationRecord existingMedication;
     private boolean saved;
+    private boolean loadingCatalog;
 
     @FXML private Label titleLabel;
     @FXML private Label patientIdLabel;
-    @FXML private TextField nameField;
-    @FXML private TextField doseField;
+    @FXML private ComboBox<SqliteMedicationCatalogDao.MedicationCatalogRecord> catalogMedicationBox;
+    @FXML private TextField doseAmountField;
+    @FXML private ComboBox<String> doseUnitField;
     @FXML private ComboBox<String> routeField;
     @FXML private ComboBox<String> frequencyField;
     @FXML private CheckBox activeCheckBox;
+    @FXML private Label safetyInfoLabel;
     @FXML private Label statusLabel;
 
     public static boolean showCreateDialog(Window owner, User currentUser, String patientId) {
@@ -70,13 +86,38 @@ public class MedicationFormController {
 
     @FXML
     private void initialize() {
-        routeField.getItems().setAll("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Other");
-        frequencyField.getItems().setAll("Once daily", "Twice daily", "Three times daily", "Every 6 hours",
-                "Every 8 hours", "Every 12 hours", "Weekly", "As needed", "Other");
+        catalogMedicationBox.setEditable(true);
+        catalogMedicationBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(SqliteMedicationCatalogDao.MedicationCatalogRecord record) {
+                return record == null ? "" : record.getName();
+            }
+
+            @Override
+            public SqliteMedicationCatalogDao.MedicationCatalogRecord fromString(String value) {
+                return catalogMedicationBox.getItems().stream()
+                        .filter(row -> row.getName() != null && row.getName().equalsIgnoreCase(value == null ? "" : value.trim()))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+
+        doseUnitField.getItems().setAll(DEFAULT_UNITS);
+        routeField.getItems().setAll(DEFAULT_ROUTES);
+        frequencyField.getItems().setAll(DEFAULT_FREQUENCIES);
+        doseUnitField.getSelectionModel().select("mg");
         routeField.getSelectionModel().select("Oral");
         frequencyField.getSelectionModel().select("Once daily");
         activeCheckBox.setSelected(true);
-        NotificationHelper.showInfo(statusLabel, "Medication form. System data is stored in the local database.");
+
+        catalogMedicationBox.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> applyCatalogSelection(newValue));
+        catalogMedicationBox.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!loadingCatalog) {
+                loadCatalogMatches(newValue);
+            }
+        });
+        NotificationHelper.showInfo(statusLabel, "Medication order form ready.");
     }
 
     private void prepare(User currentUser, String patientId, SqliteMedicationDao.MedicationRecord medication) {
@@ -84,26 +125,58 @@ public class MedicationFormController {
         this.patientId = patientId == null ? "" : patientId;
         this.existingMedication = medication;
         patientIdLabel.setText(this.patientId);
+        loadCatalogMatches("");
         if (medication == null) {
             titleLabel.setText("Add Medication");
+            safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
             return;
         }
 
         titleLabel.setText("Edit Medication");
-        nameField.setText(medication.getName());
-        doseField.setText(medication.getDose());
-        selectOrFallback(routeField, medication.getRoute());
-        selectOrFallback(frequencyField, medication.getFrequency());
+        if (medication.getCatalogMedicationId() != null && medication.getCatalogMedicationId() > 0) {
+            try {
+                SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem =
+                        medicationCatalogService.getMedicationCatalogItem(medication.getCatalogMedicationId());
+                selectCatalogItem(catalogItem);
+            } catch (Exception e) {
+                catalogMedicationBox.getEditor().setText(medication.getName());
+                safetyInfoLabel.setText("Original catalog item is unavailable. The saved medication name is shown.");
+            }
+        } else {
+            catalogMedicationBox.getEditor().setText(medication.getName());
+        }
+        doseAmountField.setText(formatNumber(medication.getDoseAmount()));
+        selectOrFallback(doseUnitField, medication.getDoseUnit(), DEFAULT_UNITS);
+        selectOrFallback(routeField, medication.getRoute(), DEFAULT_ROUTES);
+        selectOrFallback(frequencyField, medication.getFrequency(), DEFAULT_FREQUENCIES);
         activeCheckBox.setSelected(medication.isActive());
+    }
+
+    @FXML
+    private void registerNewMedication() {
+        try {
+            boolean changed = MedicationCatalogController.showDialog(catalogMedicationBox.getScene().getWindow(), currentUser);
+            if (changed) {
+                loadCatalogMatches(catalogMedicationBox.getEditor().getText());
+                NotificationHelper.showSuccess(statusLabel, "Medication catalog updated.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
     }
 
     private boolean save() {
         try {
+            SqliteMedicationCatalogDao.MedicationCatalogRecord selectedCatalog = catalogMedicationBox.getSelectionModel().getSelectedItem();
+            String typedName = catalogMedicationBox.getEditor().getText();
             MedicationWriteService.MedicationRequest request = new MedicationWriteService.MedicationRequest(
                     existingMedication == null ? 0 : existingMedication.getId(),
                     patientId,
-                    nameField.getText(),
-                    doseField.getText(),
+                    selectedCatalog == null ? null : selectedCatalog.getId(),
+                    selectedCatalog == null ? typedName : selectedCatalog.getName(),
+                    "",
+                    doseAmountField.getText(),
+                    doseUnitField.getValue(),
                     routeField.getValue(),
                     frequencyField.getValue(),
                     activeCheckBox.isSelected()
@@ -121,11 +194,97 @@ public class MedicationFormController {
         }
     }
 
-    private void selectOrFallback(ComboBox<String> comboBox, String value) {
+    private void loadCatalogMatches(String searchText) {
+        try {
+            loadingCatalog = true;
+            String typed = searchText == null ? "" : searchText;
+            catalogMedicationBox.getItems().setAll(medicationCatalogService.searchMedicationsByName(typed));
+            catalogMedicationBox.getEditor().setText(typed);
+            catalogMedicationBox.getEditor().positionCaret(typed.length());
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Could not load medication catalog: " + e.getMessage());
+        } finally {
+            loadingCatalog = false;
+        }
+    }
+
+    private void applyCatalogSelection(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
+        if (catalogItem == null) {
+            doseUnitField.getItems().setAll(DEFAULT_UNITS);
+            routeField.getItems().setAll(DEFAULT_ROUTES);
+            safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
+            return;
+        }
+        List<String> allowedUnits = csvValues(catalogItem.getAllowedUnits(), DEFAULT_UNITS);
+        List<String> allowedRoutes = csvValues(catalogItem.getAllowedRoutes(), DEFAULT_ROUTES);
+        doseUnitField.getItems().setAll(allowedUnits);
+        routeField.getItems().setAll(allowedRoutes);
+        selectOrFallback(doseUnitField, catalogItem.getDefaultUnit(), allowedUnits);
+        if (catalogItem.getDefaultRoute() != null && !catalogItem.getDefaultRoute().isBlank()) {
+            selectOrFallback(routeField, catalogItem.getDefaultRoute(), allowedRoutes);
+        } else if (!allowedRoutes.isEmpty()) {
+            routeField.getSelectionModel().selectFirst();
+        }
+        safetyInfoLabel.setText(safetySummary(catalogItem));
+    }
+
+    private void selectCatalogItem(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
+        loadingCatalog = true;
+        if (!catalogMedicationBox.getItems().contains(catalogItem)) {
+            catalogMedicationBox.getItems().add(catalogItem);
+        }
+        catalogMedicationBox.getSelectionModel().select(catalogItem);
+        catalogMedicationBox.getEditor().setText(catalogItem.getName());
+        loadingCatalog = false;
+        applyCatalogSelection(catalogItem);
+    }
+
+    private List<String> csvValues(String csv, List<String> fallback) {
+        if (csv == null || csv.isBlank()) {
+            return fallback;
+        }
+        ArrayList<String> values = new ArrayList<>();
+        for (String part : csv.split(",")) {
+            String value = part.trim();
+            if (!value.isEmpty()) {
+                values.add(value);
+            }
+        }
+        return values.isEmpty() ? fallback : values;
+    }
+
+    private String safetySummary(SqliteMedicationCatalogDao.MedicationCatalogRecord item) {
+        String maxSingle = formatNumber(item.getMaxSingleDose());
+        String maxDaily = formatNumber(item.getMaxDailyDose());
+        String minInterval = formatNumber(item.getMinIntervalMinutes());
+        StringBuilder text = new StringBuilder("Catalog safety: ");
+        text.append("max single dose ").append(maxSingle.isBlank() ? "not set" : maxSingle + " " + item.getDefaultUnit());
+        text.append(" | max daily ").append(maxDaily.isBlank() ? "not set" : maxDaily + " " + item.getDefaultUnit());
+        text.append(" | min interval ").append(minInterval.isBlank() ? "not set" : minInterval + " minutes");
+        if (item.isRequiresDoctorOverride()) {
+            text.append(" | doctor override required");
+        }
+        if (item.getDangerNotes() != null && !item.getDangerNotes().isBlank()) {
+            text.append(" | ").append(item.getDangerNotes());
+        }
+        return text.toString();
+    }
+
+    private void selectOrFallback(ComboBox<String> comboBox, String value, List<String> fallback) {
         if (value != null && comboBox.getItems().contains(value)) {
             comboBox.getSelectionModel().select(value);
-        } else if (!comboBox.getItems().isEmpty()) {
-            comboBox.getSelectionModel().selectFirst();
+        } else {
+            comboBox.getItems().setAll(fallback);
+            if (!comboBox.getItems().isEmpty()) {
+                comboBox.getSelectionModel().selectFirst();
+            }
         }
+    }
+
+    private String formatNumber(Double value) {
+        if (value == null) {
+            return "";
+        }
+        return value == Math.rint(value) ? String.valueOf(value.longValue()) : String.valueOf(value);
     }
 }

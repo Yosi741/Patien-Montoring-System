@@ -5,15 +5,14 @@
 
 <VBox
         spacing="16.0"
-        prefWidth="680.0"
+        prefWidth="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.MedicationFormController" styleClass="panel-card">
 
     <VBox spacing="4.0">
         <Label fx:id="titleLabel" text="Medication" styleClass="screen-title" />
-
-        <Label text="Create or update a medication order in the local database."
+        <Label text="Create or update a medication order using the medication catalog when available."
                wrapText="true" styleClass="muted-text" />
     </VBox>
 
@@ -25,38 +24,47 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Patient ID" styleClass="field-label" />
-
             <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Medication Name" styleClass="field-label" />
-
-            <TextField fx:id="nameField" promptText="Medication name" styleClass="control-input" />
+            <Label text="Medication Catalog" styleClass="field-label" />
+            <HBox spacing="8.0">
+                <ComboBox fx:id="catalogMedicationBox" promptText="Search or type medication name"
+                          maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                <Button text="Register New Medication" onAction="#registerNewMedication" styleClass="secondary-button" />
+            </HBox>
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="Dose" styleClass="field-label" />
-
-            <TextField fx:id="doseField" promptText="e.g. 500 mg" styleClass="control-input" />
+            <Label text="Dose Amount" styleClass="field-label" />
+            <TextField fx:id="doseAmountField" promptText="Example: 500" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Route" styleClass="field-label" />
-
-            <ComboBox fx:id="routeField" maxWidth="Infinity" styleClass="control-input" />
+            <Label text="Dose Unit" styleClass="field-label" />
+            <ComboBox fx:id="doseUnitField" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Frequency" styleClass="field-label" />
+            <Label text="Route" styleClass="field-label" />
+            <ComboBox fx:id="routeField" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
 
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Frequency" styleClass="field-label" />
             <ComboBox fx:id="frequencyField" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Active Status" styleClass="field-label" />
-
             <CheckBox fx:id="activeCheckBox" text="Active medication" styleClass="success-value" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Catalog Safety Info" styleClass="field-label" />
+            <Label fx:id="safetyInfoLabel" text="Select a catalog medication to show dose and route guidance."
+                   wrapText="true" styleClass="status-info" />
         </VBox>
     </GridPane>
 

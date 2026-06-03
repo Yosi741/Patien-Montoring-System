@@ -394,6 +394,14 @@ public class MedicationOverviewController implements FxController {
     }
 
     private SqliteMedicationDao.MedicationRecord toMedicationRecord(MedicationOverviewService.MedicationRow row) {
+        try {
+            return medicationWriteService.findMedicationById(row.getId()).orElseGet(() -> fallbackMedicationRecord(row));
+        } catch (Exception e) {
+            return fallbackMedicationRecord(row);
+        }
+    }
+
+    private SqliteMedicationDao.MedicationRecord fallbackMedicationRecord(MedicationOverviewService.MedicationRow row) {
         return new SqliteMedicationDao.MedicationRecord(
                 row.getId(),
                 row.getPatientId(),
