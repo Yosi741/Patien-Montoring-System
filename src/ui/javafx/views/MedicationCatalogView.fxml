@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefWidth="980.0" prefHeight="680.0"
+            xmlns="http://javafx.com/javafx/17.0.15"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.javafx.controllers.MedicationCatalogController"
+            styleClass="content-page">
+    <top>
+        <VBox spacing="4.0" styleClass="panel-card">
+            <Label text="Medication Catalog" styleClass="screen-title" />
+            <Label text="Register medication safety limits for demo decision-support checks." wrapText="true" styleClass="muted-text" />
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.42">
+            <items>
+                <VBox spacing="12.0" styleClass="panel-card">
+                    <padding>
+                        <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                    </padding>
+                    <Label text="Catalog List" styleClass="section-title" />
+                    <TextField fx:id="catalogSearchField" promptText="Search medication catalog" styleClass="control-input" />
+                    <TableView fx:id="catalogTable" prefHeight="480.0" styleClass="dialog-card">
+                        <columns>
+                            <TableColumn fx:id="nameColumn" text="Medication" prefWidth="155.0" />
+                            <TableColumn fx:id="formTypeColumn" text="Form" prefWidth="90.0" />
+                            <TableColumn fx:id="defaultUnitColumn" text="Unit" prefWidth="70.0" />
+                            <TableColumn fx:id="activeColumn" text="Active" prefWidth="70.0" />
+                        </columns>
+                    </TableView>
+                    <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                        <Button text="New Entry" onAction="#resetForm" styleClass="secondary-button" />
+                        <Button fx:id="deactivateButton" text="Deactivate Selected" onAction="#deactivateSelected" styleClass="danger-button" />
+                    </HBox>
+                </VBox>
+
+                <ScrollPane fitToWidth="true" styleClass="scroll-clear">
+                    <content>
+                        <VBox spacing="14.0" styleClass="panel-card">
+                            <padding>
+                                <Insets bottom="16.0" left="18.0" right="18.0" top="16.0" />
+                            </padding>
+                            <Label fx:id="formTitleLabel" text="Register New Medication" styleClass="section-title" />
+
+                            <GridPane hgap="12.0" vgap="10.0">
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="150.0" percentWidth="34.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="66.0" />
+                                </columnConstraints>
+
+                                <Label text="Medication Name" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="field-label" />
+                                <TextField fx:id="nameField" promptText="Example: Paracetamol" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="control-input" />
+
+                                <Label text="Form Type" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="field-label" />
+                                <ComboBox fx:id="formTypeBox" GridPane.columnIndex="1" GridPane.rowIndex="1" maxWidth="Infinity" styleClass="control-input" />
+
+                                <Label text="Default Unit" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="field-label" />
+                                <ComboBox fx:id="defaultUnitBox" GridPane.columnIndex="1" GridPane.rowIndex="2" maxWidth="Infinity" styleClass="control-input" />
+
+                                <Label text="Allowed Units" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="field-label" />
+                                <TextField fx:id="allowedUnitsField" promptText="Comma separated units" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="control-input" />
+
+                                <Label text="Allowed Routes" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="field-label" />
+                                <TextField fx:id="allowedRoutesField" promptText="Comma separated routes" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="control-input" />
+
+                                <Label text="Min Single Dose" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="field-label" />
+                                <TextField fx:id="minSingleDoseField" promptText="Optional number" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="control-input" />
+
+                                <Label text="Max Single Dose" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="field-label" />
+                                <TextField fx:id="maxSingleDoseField" promptText="Optional number" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="control-input" />
+
+                                <Label text="Max Daily Dose" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="field-label" />
+                                <TextField fx:id="maxDailyDoseField" promptText="Optional number" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="control-input" />
+
+                                <Label text="Minimum Interval" GridPane.columnIndex="0" GridPane.rowIndex="8" styleClass="field-label" />
+                                <TextField fx:id="minimumIntervalMinutesField" promptText="Minutes, optional" GridPane.columnIndex="1" GridPane.rowIndex="8" styleClass="control-input" />
+
+                                <Label text="Safety Flags" GridPane.columnIndex="0" GridPane.rowIndex="9" styleClass="field-label" />
+                                <HBox spacing="14.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                    <CheckBox fx:id="requiresDoctorOverrideCheck" text="Requires doctor override" styleClass="body-text" />
+                                    <CheckBox fx:id="activeCheck" text="Active" styleClass="body-text" />
+                                </HBox>
+
+                                <Label text="Danger Notes" GridPane.columnIndex="0" GridPane.rowIndex="10" styleClass="field-label" />
+                                <TextArea fx:id="dangerNotesArea" promptText="Optional safety notes for warnings or future interaction checks"
+                                          prefRowCount="5" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10" styleClass="control-input" />
+                            </GridPane>
+
+                            <Label fx:id="statusLabel" text="Medication catalog form ready." wrapText="true" styleClass="status-info" />
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>

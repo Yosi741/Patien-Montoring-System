@@ -172,9 +172,14 @@ public class SchemaInitializer {
                 + "default_frequency TEXT,"
                 + "default_unit TEXT,"
                 + "allowed_units TEXT,"
+                + "allowed_routes TEXT,"
+                + "min_single_dose REAL,"
                 + "max_single_dose REAL,"
                 + "max_daily_dose REAL,"
+                + "min_interval_minutes REAL,"
                 + "min_interval_hours REAL,"
+                + "requires_doctor_override INTEGER NOT NULL DEFAULT 0,"
+                + "danger_notes TEXT,"
                 + "notes TEXT,"
                 + "active INTEGER NOT NULL DEFAULT 1,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
@@ -185,9 +190,14 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, "medication_catalog", "default_frequency", "TEXT");
         addColumnIfMissing(statement, "medication_catalog", "default_unit", "TEXT");
         addColumnIfMissing(statement, "medication_catalog", "allowed_units", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "allowed_routes", "TEXT");
+        addColumnIfMissing(statement, "medication_catalog", "min_single_dose", "REAL");
         addColumnIfMissing(statement, "medication_catalog", "max_single_dose", "REAL");
         addColumnIfMissing(statement, "medication_catalog", "max_daily_dose", "REAL");
+        addColumnIfMissing(statement, "medication_catalog", "min_interval_minutes", "REAL");
         addColumnIfMissing(statement, "medication_catalog", "min_interval_hours", "REAL");
+        addColumnIfMissing(statement, "medication_catalog", "requires_doctor_override", "INTEGER NOT NULL DEFAULT 0");
+        addColumnIfMissing(statement, "medication_catalog", "danger_notes", "TEXT");
         addColumnIfMissing(statement, "medication_catalog", "notes", "TEXT");
         addColumnIfMissing(statement, "medication_catalog", "active", "INTEGER NOT NULL DEFAULT 1");
         addColumnIfMissing(statement, "medication_catalog", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");

@@ -20,8 +20,9 @@ public class SqliteMedicationCatalogDao {
 
     public long insertCatalogItem(MedicationCatalogRecord record) throws SQLException {
         String sql = "INSERT INTO medication_catalog(name, form_type, default_route, default_frequency, default_unit, "
-                + "allowed_units, max_single_dose, max_daily_dose, min_interval_hours, notes, active, updated_at) "
-                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+                + "allowed_units, allowed_routes, min_single_dose, max_single_dose, max_daily_dose, "
+                + "min_interval_minutes, min_interval_hours, requires_doctor_override, danger_notes, notes, active, updated_at) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             bindCatalog(statement, record);
@@ -34,12 +35,13 @@ public class SqliteMedicationCatalogDao {
 
     public void updateCatalogItem(MedicationCatalogRecord record) throws SQLException {
         String sql = "UPDATE medication_catalog SET name = ?, form_type = ?, default_route = ?, default_frequency = ?, "
-                + "default_unit = ?, allowed_units = ?, max_single_dose = ?, max_daily_dose = ?, min_interval_hours = ?, "
-                + "notes = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+                + "default_unit = ?, allowed_units = ?, allowed_routes = ?, min_single_dose = ?, max_single_dose = ?, "
+                + "max_daily_dose = ?, min_interval_minutes = ?, min_interval_hours = ?, requires_doctor_override = ?, "
+                + "danger_notes = ?, notes = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             bindCatalog(statement, record);
-            statement.setLong(12, record.getId());
+            statement.setLong(17, record.getId());
             statement.executeUpdate();
         }
     }
@@ -74,8 +76,9 @@ public class SqliteMedicationCatalogDao {
             sql.append("AND active = 1 ");
         }
         if (search != null && !search.isBlank()) {
-            sql.append("AND (name LIKE ? OR form_type LIKE ? OR notes LIKE ?) ");
+            sql.append("AND (name LIKE ? OR form_type LIKE ? OR notes LIKE ? OR danger_notes LIKE ?) ");
             String like = "%" + search.trim() + "%";
+            params.add(like);
             params.add(like);
             params.add(like);
             params.add(like);
@@ -203,7 +206,8 @@ public class SqliteMedicationCatalogDao {
 
     private String catalogSelect() {
         return "SELECT id, name, form_type, default_route, default_frequency, default_unit, allowed_units, "
-                + "max_single_dose, max_daily_dose, min_interval_hours, notes, active, created_at, updated_at "
+                + "allowed_routes, min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, "
+                + "min_interval_hours, requires_doctor_override, danger_notes, notes, active, created_at, updated_at "
                 + "FROM medication_catalog";
     }
 
@@ -219,11 +223,16 @@ public class SqliteMedicationCatalogDao {
         statement.setString(4, value(record.getDefaultFrequency()));
         statement.setString(5, value(record.getDefaultUnit()));
         statement.setString(6, value(record.getAllowedUnits()));
-        setNullableDouble(statement, 7, record.getMaxSingleDose());
-        setNullableDouble(statement, 8, record.getMaxDailyDose());
-        setNullableDouble(statement, 9, record.getMinIntervalHours());
-        statement.setString(10, value(record.getNotes()));
-        statement.setInt(11, record.isActive() ? 1 : 0);
+        statement.setString(7, value(record.getAllowedRoutes()));
+        setNullableDouble(statement, 8, record.getMinSingleDose());
+        setNullableDouble(statement, 9, record.getMaxSingleDose());
+        setNullableDouble(statement, 10, record.getMaxDailyDose());
+        setNullableDouble(statement, 11, record.getMinIntervalMinutes());
+        setNullableDouble(statement, 12, record.getMinIntervalHours());
+        statement.setInt(13, record.isRequiresDoctorOverride() ? 1 : 0);
+        statement.setString(14, value(record.getDangerNotes()));
+        statement.setString(15, value(record.getNotes()));
+        statement.setInt(16, record.isActive() ? 1 : 0);
     }
 
     private MedicationCatalogRecord mapCatalog(ResultSet resultSet) throws SQLException {
@@ -235,9 +244,14 @@ public class SqliteMedicationCatalogDao {
                 resultSet.getString("default_frequency"),
                 resultSet.getString("default_unit"),
                 resultSet.getString("allowed_units"),
+                resultSet.getString("allowed_routes"),
+                nullableDouble(resultSet, "min_single_dose"),
                 nullableDouble(resultSet, "max_single_dose"),
                 nullableDouble(resultSet, "max_daily_dose"),
+                nullableDouble(resultSet, "min_interval_minutes"),
                 nullableDouble(resultSet, "min_interval_hours"),
+                resultSet.getInt("requires_doctor_override") == 1,
+                resultSet.getString("danger_notes"),
                 resultSet.getString("notes"),
                 resultSet.getInt("active") == 1,
                 resultSet.getString("created_at"),
@@ -314,17 +328,24 @@ public class SqliteMedicationCatalogDao {
         private final String defaultFrequency;
         private final String defaultUnit;
         private final String allowedUnits;
+        private final String allowedRoutes;
+        private final Double minSingleDose;
         private final Double maxSingleDose;
         private final Double maxDailyDose;
+        private final Double minIntervalMinutes;
         private final Double minIntervalHours;
+        private final boolean requiresDoctorOverride;
+        private final String dangerNotes;
         private final String notes;
         private final boolean active;
         private final String createdAt;
         private final String updatedAt;
 
         public MedicationCatalogRecord(long id, String name, String formType, String defaultRoute, String defaultFrequency,
-                                       String defaultUnit, String allowedUnits, Double maxSingleDose, Double maxDailyDose,
-                                       Double minIntervalHours, String notes, boolean active, String createdAt, String updatedAt) {
+                                       String defaultUnit, String allowedUnits, String allowedRoutes, Double minSingleDose,
+                                       Double maxSingleDose, Double maxDailyDose, Double minIntervalMinutes,
+                                       Double minIntervalHours, boolean requiresDoctorOverride, String dangerNotes,
+                                       String notes, boolean active, String createdAt, String updatedAt) {
             this.id = id;
             this.name = name;
             this.formType = formType;
@@ -332,9 +353,14 @@ public class SqliteMedicationCatalogDao {
             this.defaultFrequency = defaultFrequency;
             this.defaultUnit = defaultUnit;
             this.allowedUnits = allowedUnits;
+            this.allowedRoutes = allowedRoutes;
+            this.minSingleDose = minSingleDose;
             this.maxSingleDose = maxSingleDose;
             this.maxDailyDose = maxDailyDose;
+            this.minIntervalMinutes = minIntervalMinutes;
             this.minIntervalHours = minIntervalHours;
+            this.requiresDoctorOverride = requiresDoctorOverride;
+            this.dangerNotes = dangerNotes;
             this.notes = notes;
             this.active = active;
             this.createdAt = createdAt;
@@ -348,9 +374,14 @@ public class SqliteMedicationCatalogDao {
         public String getDefaultFrequency() { return defaultFrequency; }
         public String getDefaultUnit() { return defaultUnit; }
         public String getAllowedUnits() { return allowedUnits; }
+        public String getAllowedRoutes() { return allowedRoutes; }
+        public Double getMinSingleDose() { return minSingleDose; }
         public Double getMaxSingleDose() { return maxSingleDose; }
         public Double getMaxDailyDose() { return maxDailyDose; }
+        public Double getMinIntervalMinutes() { return minIntervalMinutes; }
         public Double getMinIntervalHours() { return minIntervalHours; }
+        public boolean isRequiresDoctorOverride() { return requiresDoctorOverride; }
+        public String getDangerNotes() { return dangerNotes; }
         public String getNotes() { return notes; }
         public boolean isActive() { return active; }
         public String getCreatedAt() { return createdAt; }

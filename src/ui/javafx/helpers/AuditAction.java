@@ -11,6 +11,9 @@ public final class AuditAction {
     public static final String UPDATE_MEDICATION = "UPDATE_MEDICATION";
     public static final String DISCONTINUE_MEDICATION = "DISCONTINUE_MEDICATION";
     public static final String GIVE_MEDICATION = "GIVE_MEDICATION";
+    public static final String CREATE_CATALOG_MEDICATION = "CREATE_CATALOG_MEDICATION";
+    public static final String UPDATE_CATALOG_MEDICATION = "UPDATE_CATALOG_MEDICATION";
+    public static final String DEACTIVATE_CATALOG_MEDICATION = "DEACTIVATE_CATALOG_MEDICATION";
     public static final String CREATE_USER = "CREATE_USER";
     public static final String UPDATE_USER = "UPDATE_USER";
     public static final String DEACTIVATE_USER = "DEACTIVATE_USER";

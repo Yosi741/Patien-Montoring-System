@@ -31,6 +31,14 @@ public final class PermissionHelper {
         return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
 
+    public static boolean canManageMedicationCatalog(User user) {
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canViewMedicationCatalog(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
     public static boolean canCreateUser(User user) {
         return isAdmin(user);
     }

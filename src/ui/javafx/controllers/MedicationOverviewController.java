@@ -43,6 +43,7 @@ public class MedicationOverviewController implements FxController {
     @FXML private Label patientFilterChip;
     @FXML private Button clearPatientFilterButton;
     @FXML private Button addMedicationButton;
+    @FXML private Button registerCatalogButton;
     @FXML private Button editMedicationButton;
     @FXML private Button discontinueMedicationButton;
     @FXML private Button recordGivenButton;
@@ -155,6 +156,24 @@ public class MedicationOverviewController implements FxController {
             if (saved) {
                 loadOverview();
                 NotificationHelper.showSuccess(statusLabel, "Medication saved. System data updated.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void registerCatalogMedication() {
+        if (!PermissionHelper.canManageMedicationCatalog(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        try {
+            boolean changed = MedicationCatalogController.showDialog(
+                    medicationTable.getScene().getWindow(),
+                    Session.getCurrentUser());
+            if (changed) {
+                NotificationHelper.showSuccess(statusLabel, "Medication catalog updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -290,6 +309,9 @@ public class MedicationOverviewController implements FxController {
     private void configureWriteButtons() {
         boolean canManage = PermissionHelper.canAddMedication(Session.getCurrentUser());
         boolean canGive = PermissionHelper.canGiveMedication(Session.getCurrentUser());
+        boolean canManageCatalog = PermissionHelper.canManageMedicationCatalog(Session.getCurrentUser());
+        registerCatalogButton.setVisible(canManageCatalog);
+        registerCatalogButton.setManaged(canManageCatalog);
         addMedicationButton.setVisible(canManage);
         addMedicationButton.setManaged(canManage);
         editMedicationButton.setVisible(canManage);
