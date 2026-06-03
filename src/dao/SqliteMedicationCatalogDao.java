@@ -112,15 +112,24 @@ public class SqliteMedicationCatalogDao {
 
     public long insertInteraction(MedicationInteractionRecord record) throws SQLException {
         MedicationPair pair = MedicationPair.of(record.getMedicationA(), record.getMedicationB());
-        String sql = "INSERT INTO medication_interactions(medication_a, medication_b, severity, message, active, updated_at) "
-                + "VALUES(?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        String sql = "INSERT INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, "
+                + "severity, min_wait_minutes, notes, message, active, updated_at) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) "
+                + "ON CONFLICT(medication_a, medication_b) DO UPDATE SET "
+                + "medication_a_id = excluded.medication_a_id, medication_b_id = excluded.medication_b_id, "
+                + "severity = excluded.severity, min_wait_minutes = excluded.min_wait_minutes, "
+                + "notes = excluded.notes, message = excluded.message, active = excluded.active, updated_at = CURRENT_TIMESTAMP";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, pair.first);
-            statement.setString(2, pair.second);
-            statement.setString(3, value(record.getSeverity()).toUpperCase());
-            statement.setString(4, value(record.getMessage()));
-            statement.setInt(5, record.isActive() ? 1 : 0);
+            setNullableLong(statement, 1, orderedMedicationId(record, pair.first));
+            setNullableLong(statement, 2, orderedMedicationId(record, pair.second));
+            statement.setString(3, pair.first);
+            statement.setString(4, pair.second);
+            statement.setString(5, value(record.getSeverity()).toUpperCase());
+            statement.setInt(6, Math.max(0, record.getMinWaitMinutes()));
+            statement.setString(7, value(record.getNotes()));
+            statement.setString(8, value(record.getMessage()));
+            statement.setInt(9, record.isActive() ? 1 : 0);
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 return keys.next() ? keys.getLong(1) : -1L;
@@ -130,16 +139,74 @@ public class SqliteMedicationCatalogDao {
 
     public void updateInteraction(MedicationInteractionRecord record) throws SQLException {
         MedicationPair pair = MedicationPair.of(record.getMedicationA(), record.getMedicationB());
-        String sql = "UPDATE medication_interactions SET medication_a = ?, medication_b = ?, severity = ?, "
-                + "message = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        String sql = "UPDATE medication_interactions SET medication_a_id = ?, medication_b_id = ?, medication_a = ?, medication_b = ?, severity = ?, "
+                + "min_wait_minutes = ?, notes = ?, message = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, pair.first);
-            statement.setString(2, pair.second);
-            statement.setString(3, value(record.getSeverity()).toUpperCase());
-            statement.setString(4, value(record.getMessage()));
-            statement.setInt(5, record.isActive() ? 1 : 0);
-            statement.setLong(6, record.getId());
+            setNullableLong(statement, 1, orderedMedicationId(record, pair.first));
+            setNullableLong(statement, 2, orderedMedicationId(record, pair.second));
+            statement.setString(3, pair.first);
+            statement.setString(4, pair.second);
+            statement.setString(5, value(record.getSeverity()).toUpperCase());
+            statement.setInt(6, Math.max(0, record.getMinWaitMinutes()));
+            statement.setString(7, value(record.getNotes()));
+            statement.setString(8, value(record.getMessage()));
+            statement.setInt(9, record.isActive() ? 1 : 0);
+            statement.setLong(10, record.getId());
+            statement.executeUpdate();
+        }
+    }
+
+    public List<MedicationInteractionRecord> findInteractionsForMedication(long catalogMedicationId) throws SQLException {
+        ArrayList<MedicationInteractionRecord> rows = new ArrayList<>();
+        String sql = interactionSelect() + " WHERE active = 1 AND (medication_a_id = ? OR medication_b_id = ?) "
+                + "ORDER BY severity DESC, medication_a COLLATE NOCASE, medication_b COLLATE NOCASE";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, catalogMedicationId);
+            statement.setLong(2, catalogMedicationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rows.add(mapInteraction(resultSet));
+                }
+            }
+        }
+        return rows;
+    }
+
+    public Optional<MedicationInteractionRecord> findActiveInteractionBetween(long medicationAId, long medicationBId) throws SQLException {
+        String sql = interactionSelect() + " WHERE active = 1 AND ((medication_a_id = ? AND medication_b_id = ?) "
+                + "OR (medication_a_id = ? AND medication_b_id = ?)) LIMIT 1";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, medicationAId);
+            statement.setLong(2, medicationBId);
+            statement.setLong(3, medicationBId);
+            statement.setLong(4, medicationAId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? Optional.of(mapInteraction(resultSet)) : Optional.empty();
+            }
+        }
+    }
+
+    public List<MedicationInteractionRecord> listActiveInteractions() throws SQLException {
+        ArrayList<MedicationInteractionRecord> rows = new ArrayList<>();
+        String sql = interactionSelect() + " WHERE active = 1 ORDER BY medication_a COLLATE NOCASE, medication_b COLLATE NOCASE";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                rows.add(mapInteraction(resultSet));
+            }
+        }
+        return rows;
+    }
+
+    public void deactivateInteraction(long interactionId) throws SQLException {
+        String sql = "UPDATE medication_interactions SET active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, interactionId);
             statement.executeUpdate();
         }
     }
@@ -212,7 +279,7 @@ public class SqliteMedicationCatalogDao {
     }
 
     private String interactionSelect() {
-        return "SELECT id, medication_a, medication_b, severity, message, active, created_at, updated_at "
+        return "SELECT id, medication_a_id, medication_b_id, medication_a, medication_b, severity, min_wait_minutes, notes, message, active, created_at, updated_at "
                 + "FROM medication_interactions";
     }
 
@@ -262,9 +329,13 @@ public class SqliteMedicationCatalogDao {
     private MedicationInteractionRecord mapInteraction(ResultSet resultSet) throws SQLException {
         return new MedicationInteractionRecord(
                 resultSet.getLong("id"),
+                nullableLong(resultSet, "medication_a_id"),
+                nullableLong(resultSet, "medication_b_id"),
                 resultSet.getString("medication_a"),
                 resultSet.getString("medication_b"),
                 resultSet.getString("severity"),
+                resultSet.getInt("min_wait_minutes"),
+                resultSet.getString("notes"),
                 resultSet.getString("message"),
                 resultSet.getInt("active") == 1,
                 resultSet.getString("created_at"),
@@ -280,9 +351,41 @@ public class SqliteMedicationCatalogDao {
         }
     }
 
+    private void setNullableLong(PreparedStatement statement, int index, Long value) throws SQLException {
+        if (value == null || value <= 0) {
+            statement.setNull(index, java.sql.Types.INTEGER);
+        } else {
+            statement.setLong(index, value);
+        }
+    }
+
     private Double nullableDouble(ResultSet resultSet, String column) throws SQLException {
         double value = resultSet.getDouble(column);
         return resultSet.wasNull() ? null : value;
+    }
+
+    private Long nullableLong(ResultSet resultSet, String column) throws SQLException {
+        long value = resultSet.getLong(column);
+        return resultSet.wasNull() ? null : value;
+    }
+
+    private Long orderedMedicationId(MedicationInteractionRecord record, String orderedName) {
+        if (orderedName == null) {
+            return null;
+        }
+        if (orderedName.equals(record.getMedicationA())) {
+            return record.getMedicationAId();
+        }
+        if (orderedName.equals(record.getMedicationB())) {
+            return record.getMedicationBId();
+        }
+        if (orderedName.equalsIgnoreCase(record.getMedicationA())) {
+            return record.getMedicationAId();
+        }
+        if (orderedName.equalsIgnoreCase(record.getMedicationB())) {
+            return record.getMedicationBId();
+        }
+        return null;
     }
 
     private String normalizeName(String value) {
@@ -395,9 +498,13 @@ public class SqliteMedicationCatalogDao {
 
     public static class MedicationInteractionRecord {
         private final long id;
+        private final Long medicationAId;
+        private final Long medicationBId;
         private final String medicationA;
         private final String medicationB;
         private final String severity;
+        private final int minWaitMinutes;
+        private final String notes;
         private final String message;
         private final boolean active;
         private final String createdAt;
@@ -405,10 +512,20 @@ public class SqliteMedicationCatalogDao {
 
         public MedicationInteractionRecord(long id, String medicationA, String medicationB, String severity,
                                            String message, boolean active, String createdAt, String updatedAt) {
+            this(id, null, null, medicationA, medicationB, severity, 0, message, message, active, createdAt, updatedAt);
+        }
+
+        public MedicationInteractionRecord(long id, Long medicationAId, Long medicationBId, String medicationA, String medicationB,
+                                           String severity, int minWaitMinutes, String notes, String message,
+                                           boolean active, String createdAt, String updatedAt) {
             this.id = id;
+            this.medicationAId = medicationAId;
+            this.medicationBId = medicationBId;
             this.medicationA = medicationA;
             this.medicationB = medicationB;
             this.severity = severity;
+            this.minWaitMinutes = minWaitMinutes;
+            this.notes = notes;
             this.message = message;
             this.active = active;
             this.createdAt = createdAt;
@@ -416,9 +533,13 @@ public class SqliteMedicationCatalogDao {
         }
 
         public long getId() { return id; }
+        public Long getMedicationAId() { return medicationAId; }
+        public Long getMedicationBId() { return medicationBId; }
         public String getMedicationA() { return medicationA; }
         public String getMedicationB() { return medicationB; }
         public String getSeverity() { return severity; }
+        public int getMinWaitMinutes() { return minWaitMinutes; }
+        public String getNotes() { return notes; }
         public String getMessage() { return message; }
         public boolean isActive() { return active; }
         public String getCreatedAt() { return createdAt; }

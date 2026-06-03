@@ -91,6 +91,55 @@
                                           prefRowCount="5" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10" styleClass="control-input" />
                             </GridPane>
 
+                            <Separator />
+
+                            <VBox spacing="10.0">
+                                <Label text="Manage Interaction Rule" styleClass="section-title" />
+                                <GridPane hgap="10.0" vgap="9.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints minWidth="150.0" percentWidth="34.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="66.0" />
+                                    </columnConstraints>
+
+                                    <Label text="Medication A" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="field-label" />
+                                    <ComboBox fx:id="interactionMedicationABox" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity" styleClass="control-input" />
+
+                                    <Label text="Medication B" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="field-label" />
+                                    <ComboBox fx:id="interactionMedicationBBox" GridPane.columnIndex="1" GridPane.rowIndex="1" maxWidth="Infinity" styleClass="control-input" />
+
+                                    <Label text="Severity" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="field-label" />
+                                    <ComboBox fx:id="interactionSeverityBox" GridPane.columnIndex="1" GridPane.rowIndex="2" maxWidth="Infinity" styleClass="control-input" />
+
+                                    <Label text="Minimum Wait" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="field-label" />
+                                    <TextField fx:id="interactionWaitMinutesField" promptText="Minutes, 0 if always relevant"
+                                               GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="control-input" />
+
+                                    <Label text="Notes" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="field-label" />
+                                    <TextArea fx:id="interactionNotesArea" prefRowCount="3" wrapText="true"
+                                              promptText="Interaction warning text"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="control-input" />
+
+                                    <Label text="Active" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="field-label" />
+                                    <CheckBox fx:id="interactionActiveCheck" text="Active interaction rule"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="body-text" />
+                                </GridPane>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                                    <Button text="Save Interaction Rule" onAction="#saveInteractionRule" styleClass="secondary-button" />
+                                    <Button fx:id="deactivateInteractionButton" text="Deactivate Selected Rule"
+                                            onAction="#deactivateSelectedInteraction" styleClass="danger-button" />
+                                </HBox>
+
+                                <TableView fx:id="interactionTable" prefHeight="150.0" styleClass="dialog-card">
+                                    <columns>
+                                        <TableColumn fx:id="interactionAColumn" text="Medication A" prefWidth="130.0" />
+                                        <TableColumn fx:id="interactionBColumn" text="Medication B" prefWidth="130.0" />
+                                        <TableColumn fx:id="interactionSeverityColumn" text="Severity" prefWidth="95.0" />
+                                        <TableColumn fx:id="interactionWaitColumn" text="Wait" prefWidth="70.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+
                             <Label fx:id="statusLabel" text="Medication catalog form ready." wrapText="true" styleClass="status-info" />
                         </VBox>
                     </content>

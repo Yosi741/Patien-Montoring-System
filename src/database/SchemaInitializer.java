@@ -22,6 +22,7 @@ public class SchemaInitializer {
             migrateAlerts(statement);
             createMedicationCatalog(statement);
             createMedicationInteractions(statement);
+            seedDemoMedicationInteractions(statement);
             createMedications(statement);
             createMedicationEvents(statement);
             createAppointments(statement);
@@ -215,21 +216,56 @@ public class SchemaInitializer {
     private static void createMedicationInteractions(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS medication_interactions ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "medication_a_id INTEGER,"
+                + "medication_b_id INTEGER,"
                 + "medication_a TEXT NOT NULL,"
                 + "medication_b TEXT NOT NULL,"
                 + "severity TEXT NOT NULL DEFAULT 'WARNING',"
+                + "min_wait_minutes INTEGER NOT NULL DEFAULT 0,"
+                + "notes TEXT,"
                 + "message TEXT NOT NULL,"
                 + "active INTEGER NOT NULL DEFAULT 1,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "UNIQUE(medication_a, medication_b)"
                 + ")");
+        addColumnIfMissing(statement, "medication_interactions", "medication_a_id", "INTEGER");
+        addColumnIfMissing(statement, "medication_interactions", "medication_b_id", "INTEGER");
         addColumnIfMissing(statement, "medication_interactions", "severity", "TEXT NOT NULL DEFAULT 'WARNING'");
+        addColumnIfMissing(statement, "medication_interactions", "min_wait_minutes", "INTEGER NOT NULL DEFAULT 0");
+        addColumnIfMissing(statement, "medication_interactions", "notes", "TEXT");
         addColumnIfMissing(statement, "medication_interactions", "message", "TEXT NOT NULL DEFAULT ''");
         addColumnIfMissing(statement, "medication_interactions", "active", "INTEGER NOT NULL DEFAULT 1");
         addColumnIfMissing(statement, "medication_interactions", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
         addColumnIfMissing(statement, "medication_interactions", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
         statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_interactions_pair ON medication_interactions(medication_a, medication_b)");
+        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_interactions_pair_ids ON medication_interactions(medication_a_id, medication_b_id)");
+    }
+
+    private static void seedDemoMedicationInteractions(Statement statement) throws SQLException {
+        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
+                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
+                + "VALUES('Ibuprofen', 'TABLET', 'Oral', 'mg', 'mg, tablet', 'Oral', 100, 800, 3200, 360, "
+                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
+        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
+                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
+                + "VALUES('Aspirin', 'TABLET', 'Oral', 'mg', 'mg, tablet', 'Oral', 75, 650, 4000, 360, "
+                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
+        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
+                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
+                + "VALUES('Norepinephrine', 'INJECTION', 'IV', 'mcg', 'mcg, mL', 'IV', 1, 50, 500, 30, "
+                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
+        statement.execute("INSERT OR IGNORE INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, "
+                + "severity, min_wait_minutes, notes, message, active, updated_at) "
+                + "SELECT a.id, b.id, 'Ibuprofen', 'Aspirin', 'WARNING', 0, "
+                + "'Increased bleeding risk in demo rule.', 'Increased bleeding risk in demo rule.', 1, CURRENT_TIMESTAMP "
+                + "FROM medication_catalog a, medication_catalog b WHERE a.name = 'Ibuprofen' AND b.name = 'Aspirin'");
+        statement.execute("INSERT OR IGNORE INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, "
+                + "severity, min_wait_minutes, notes, message, active, updated_at) "
+                + "SELECT a.id, b.id, 'Aspirin', 'Norepinephrine', 'DANGEROUS', 0, "
+                + "'Dangerous interaction demo rule requiring doctor override.', "
+                + "'Dangerous interaction demo rule requiring doctor override.', 1, CURRENT_TIMESTAMP "
+                + "FROM medication_catalog a, medication_catalog b WHERE a.name = 'Aspirin' AND b.name = 'Norepinephrine'");
     }
 
     private static void createMedicationEvents(Statement statement) throws SQLException {

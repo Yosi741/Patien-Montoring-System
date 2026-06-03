@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import services.MedicationWriteService;
+import services.MedicationCatalogService;
 import ui.javafx.AppNavigator;
 import ui.javafx.SessionContext;
 import ui.javafx.helpers.NotificationHelper;
@@ -36,6 +37,7 @@ public class MedicationGivenController {
     private static final List<String> DEFAULT_ROUTES = List.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Eye drops", "Ear drops", "Other");
 
     private final MedicationWriteService medicationWriteService = new MedicationWriteService();
+    private final MedicationCatalogService medicationCatalogService = new MedicationCatalogService();
     private User currentUser;
     private String patientId;
     private boolean saved;
@@ -178,10 +180,22 @@ public class MedicationGivenController {
         String maxDaily = context.getMaxDailyDose() == null ? "not set" : formatNumber(context.getMaxDailyDose()) + " " + unit;
         String minInterval = context.getMinimumIntervalMinutes() == null ? "not set" : formatNumber(context.getMinimumIntervalMinutes()) + " minutes";
         String lastGiven = context.getLastGivenAt() == null || context.getLastGivenAt().isBlank() ? "none recorded" : context.getLastGivenAt();
+        String interactionText = "";
+        if (context.getCatalog() != null) {
+            try {
+                int interactionCount = medicationCatalogService.getInteractionsForMedication(context.getCatalog().getId()).size();
+                if (interactionCount > 0) {
+                    interactionText = " | active interaction rules: " + interactionCount;
+                }
+            } catch (Exception ignored) {
+                interactionText = "";
+            }
+        }
         return "Safety guidance: max single dose " + maxSingle
                 + " | max daily dose " + maxDaily
                 + " | minimum interval " + minInterval
-                + " | last given " + lastGiven;
+                + " | last given " + lastGiven
+                + interactionText;
     }
 
     private List<String> csvValues(String csv, List<String> fallback) {

@@ -186,6 +186,22 @@ public class SqliteMedicationDao implements MedicationDao {
         return rows;
     }
 
+    public List<MedicationEventRecord> findRecentMedicationEventsForPatient(String patientId, int limit) throws SQLException {
+        ArrayList<MedicationEventRecord> rows = new ArrayList<>();
+        String sql = eventSelect() + " WHERE patient_id = ? ORDER BY id DESC LIMIT ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            statement.setInt(2, Math.max(1, limit));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rows.add(mapMedicationEvent(resultSet));
+                }
+            }
+        }
+        return rows;
+    }
+
     public Optional<MedicationRecord> findMedicationById(long medicationId) throws SQLException {
         String sql = medicationSelect() + " WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();

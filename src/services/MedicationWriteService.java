@@ -30,6 +30,7 @@ public class MedicationWriteService {
     private final SqliteMedicationDao medicationDao;
     private final SqlitePatientDao patientDao;
     private final SqliteMedicationCatalogDao catalogDao;
+    private final MedicationCatalogService catalogService;
 
     public MedicationWriteService() {
         this(new SqliteMedicationDao(), new SqlitePatientDao(), new SqliteMedicationCatalogDao());
@@ -43,6 +44,7 @@ public class MedicationWriteService {
         this.medicationDao = medicationDao;
         this.patientDao = patientDao;
         this.catalogDao = catalogDao;
+        this.catalogService = new MedicationCatalogService(catalogDao, medicationDao);
     }
 
     public long addMedication(User currentUser, MedicationRequest request) throws SQLException {
@@ -83,11 +85,10 @@ public class MedicationWriteService {
         if (!medication.isActive()) {
             throw new IllegalArgumentException("Cannot record administration for inactive/discontinued medication.");
         }
-        validateMedicationEvent(request, medication, currentUser);
+        String safetyStatus = validateMedicationEvent(request, medication, currentUser);
 
         String status = normalizeEventStatus(request.status);
         Double givenAmount = parsePositiveDoseAmount(request.givenAmount);
-        String safetyStatus = request.overrideUsed ? "OVERRIDE" : "OK";
         String notes = "Status: " + status + (hasText(request.notes) ? " | " + request.notes.trim() : "");
         medicationDao.insertMedicationEvent(new SqliteMedicationDao.MedicationEventRecord(
                 0,
@@ -198,8 +199,8 @@ public class MedicationWriteService {
         }
     }
 
-    private void validateMedicationEvent(MedicationEventRequest request, SqliteMedicationDao.MedicationRecord medication,
-                                         User currentUser) throws SQLException {
+    private String validateMedicationEvent(MedicationEventRequest request, SqliteMedicationDao.MedicationRecord medication,
+                                           User currentUser) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Medication", String.valueOf(request.medicationId)),
                 FormValidationHelper.validateDateTime("Given time", request.givenAt),
@@ -246,7 +247,7 @@ public class MedicationWriteService {
 
         ArrayList<SafetyViolation> violations = evaluateSafetyViolations(request, medication, catalogItem, givenAt, givenAmount);
         if (violations.isEmpty()) {
-            return;
+            return evaluateInteractionSafety(request, medication, currentUser, givenAt);
         }
         boolean canOverride = PermissionHelper.canAddMedication(currentUser);
         if (!request.overrideUsed || !canOverride || !hasText(request.overrideReason)) {
@@ -258,6 +259,8 @@ public class MedicationWriteService {
         for (SafetyViolation violation : violations) {
             auditSafetyDecision(currentUser, medication, request, violation, true);
         }
+        evaluateInteractionSafety(request, medication, currentUser, givenAt);
+        return "OVERRIDE";
     }
 
     private SqliteMedicationDao.MedicationRecord clean(MedicationRequest request, long id) {
@@ -470,6 +473,58 @@ public class MedicationWriteService {
                 + ", medication=" + medication.getName()
                 + ", given=" + formatDose(parsePositiveDoseAmount(request.givenAmount), request.givenUnit)
                 + (override ? ", reason=" + trim(request.overrideReason) : "");
+        AuditWriteHelper.write(username(currentUser), action, truncate(detail, 220));
+    }
+
+    private String evaluateInteractionSafety(MedicationEventRequest request,
+                                             SqliteMedicationDao.MedicationRecord medication,
+                                             User currentUser,
+                                             LocalDateTime givenAt) throws SQLException {
+        List<MedicationCatalogService.InteractionCheckResult> interactions =
+                catalogService.checkMedicationInteractions(medication.getPatientId(), medication, givenAt);
+        if (interactions.isEmpty()) {
+            return request.overrideUsed ? "OVERRIDE" : "OK";
+        }
+
+        boolean hasWarning = false;
+        for (MedicationCatalogService.InteractionCheckResult interaction : interactions) {
+            if (!interaction.isDangerous()) {
+                hasWarning = true;
+                auditInteractionDecision(currentUser, medication, request, interaction, AuditAction.MEDICATION_INTERACTION_WARNING);
+            }
+        }
+
+        MedicationCatalogService.InteractionCheckResult dangerous = null;
+        for (MedicationCatalogService.InteractionCheckResult interaction : interactions) {
+            if (interaction.isDangerous()) {
+                dangerous = interaction;
+                break;
+            }
+        }
+        if (dangerous == null) {
+            return hasWarning ? "WARNING" : (request.overrideUsed ? "OVERRIDE" : "OK");
+        }
+
+        boolean canOverride = PermissionHelper.canAddMedication(currentUser);
+        if (!request.overrideUsed || !canOverride || !hasText(request.overrideReason)) {
+            auditInteractionDecision(currentUser, medication, request, dangerous, AuditAction.MEDICATION_INTERACTION_BLOCKED);
+            throw new IllegalArgumentException(dangerous.getMessage());
+        }
+        auditInteractionDecision(currentUser, medication, request, dangerous, AuditAction.MEDICATION_INTERACTION_OVERRIDE);
+        return "OVERRIDE";
+    }
+
+    private void auditInteractionDecision(User currentUser,
+                                          SqliteMedicationDao.MedicationRecord medication,
+                                          MedicationEventRequest request,
+                                          MedicationCatalogService.InteractionCheckResult interaction,
+                                          String action) throws SQLException {
+        String detail = "patient_id=" + medication.getPatientId()
+                + ", medication=" + medication.getName()
+                + ", interacting=" + interaction.getInteractingMedication().getName()
+                + ", severity=" + interaction.getInteraction().getSeverity()
+                + ", wait=" + interaction.getInteraction().getMinWaitMinutes()
+                + (AuditAction.MEDICATION_INTERACTION_OVERRIDE.equals(action) ? ", reason=" + trim(request.overrideReason) : "");
         AuditWriteHelper.write(username(currentUser), action, truncate(detail, 220));
     }
 

@@ -33,6 +33,8 @@ public class MedicationCatalogController {
     private final MedicationCatalogService catalogService = new MedicationCatalogService();
     private final ObservableList<SqliteMedicationCatalogDao.MedicationCatalogRecord> catalogRows =
             FXCollections.observableArrayList();
+    private final ObservableList<SqliteMedicationCatalogDao.MedicationInteractionRecord> interactionRows =
+            FXCollections.observableArrayList();
 
     private User currentUser;
     private SqliteMedicationCatalogDao.MedicationCatalogRecord selectedRecord;
@@ -58,6 +60,18 @@ public class MedicationCatalogController {
     @FXML private TextArea dangerNotesArea;
     @FXML private CheckBox activeCheck;
     @FXML private Button deactivateButton;
+    @FXML private ComboBox<SqliteMedicationCatalogDao.MedicationCatalogRecord> interactionMedicationABox;
+    @FXML private ComboBox<SqliteMedicationCatalogDao.MedicationCatalogRecord> interactionMedicationBBox;
+    @FXML private ComboBox<String> interactionSeverityBox;
+    @FXML private TextField interactionWaitMinutesField;
+    @FXML private TextArea interactionNotesArea;
+    @FXML private CheckBox interactionActiveCheck;
+    @FXML private TableView<SqliteMedicationCatalogDao.MedicationInteractionRecord> interactionTable;
+    @FXML private TableColumn<SqliteMedicationCatalogDao.MedicationInteractionRecord, String> interactionAColumn;
+    @FXML private TableColumn<SqliteMedicationCatalogDao.MedicationInteractionRecord, String> interactionBColumn;
+    @FXML private TableColumn<SqliteMedicationCatalogDao.MedicationInteractionRecord, String> interactionSeverityColumn;
+    @FXML private TableColumn<SqliteMedicationCatalogDao.MedicationInteractionRecord, Number> interactionWaitColumn;
+    @FXML private Button deactivateInteractionButton;
     @FXML private Label statusLabel;
 
     public static boolean showDialog(Window owner, User currentUser) {
@@ -92,10 +106,18 @@ public class MedicationCatalogController {
         defaultUnitColumn.setCellValueFactory(new PropertyValueFactory<>("defaultUnit"));
         activeColumn.setCellValueFactory(new PropertyValueFactory<>("active"));
         catalogTable.setItems(catalogRows);
+        interactionAColumn.setCellValueFactory(new PropertyValueFactory<>("medicationA"));
+        interactionBColumn.setCellValueFactory(new PropertyValueFactory<>("medicationB"));
+        interactionSeverityColumn.setCellValueFactory(new PropertyValueFactory<>("severity"));
+        interactionWaitColumn.setCellValueFactory(new PropertyValueFactory<>("minWaitMinutes"));
+        interactionTable.setItems(interactionRows);
 
         formTypeBox.getItems().setAll("TABLET", "CAPSULE", "LIQUID", "INJECTION", "INHALER", "CREAM", "DROPS", "OTHER");
+        interactionSeverityBox.getItems().setAll("WARNING", "DANGEROUS");
+        interactionSeverityBox.getSelectionModel().select("WARNING");
         formTypeBox.getSelectionModel().select("TABLET");
         activeCheck.setSelected(true);
+        interactionActiveCheck.setSelected(true);
         refreshSuggestedUnitsAndRoutes("TABLET");
 
         formTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshSuggestedUnitsAndRoutes(newValue));
@@ -108,7 +130,10 @@ public class MedicationCatalogController {
         boolean canManage = PermissionHelper.canManageMedicationCatalog(currentUser);
         deactivateButton.setVisible(canManage);
         deactivateButton.setManaged(canManage);
+        deactivateInteractionButton.setVisible(canManage);
+        deactivateInteractionButton.setManaged(canManage);
         loadCatalog();
+        loadInteractions();
         resetForm();
         NotificationHelper.showInfo(statusLabel, canManage
                 ? "Register or update medication catalog entries for ordering safety checks."
@@ -193,9 +218,77 @@ public class MedicationCatalogController {
     private void loadCatalog() {
         try {
             catalogRows.setAll(catalogService.searchMedicationsByName(catalogSearchField == null ? "" : catalogSearchField.getText()));
+            interactionMedicationABox.setItems(FXCollections.observableArrayList(catalogRows));
+            interactionMedicationBBox.setItems(FXCollections.observableArrayList(catalogRows));
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load catalog: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void saveInteractionRule() {
+        if (!PermissionHelper.canManageMedicationCatalog(currentUser)) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        try {
+            SqliteMedicationCatalogDao.MedicationCatalogRecord medicationA = interactionMedicationABox.getValue();
+            SqliteMedicationCatalogDao.MedicationCatalogRecord medicationB = interactionMedicationBBox.getValue();
+            int waitMinutes = parseWaitMinutes(interactionWaitMinutesField.getText());
+            catalogService.createInteractionRule(currentUser, new MedicationCatalogService.InteractionRuleRequest(
+                    medicationA == null ? 0 : medicationA.getId(),
+                    medicationB == null ? 0 : medicationB.getId(),
+                    interactionSeverityBox.getValue(),
+                    waitMinutes,
+                    interactionNotesArea.getText(),
+                    interactionActiveCheck.isSelected()
+            ));
+            changed = true;
+            loadInteractions();
+            NotificationHelper.showSuccess(statusLabel, "Interaction rule saved.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void deactivateSelectedInteraction() {
+        if (!PermissionHelper.canManageMedicationCatalog(currentUser)) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        SqliteMedicationCatalogDao.MedicationInteractionRecord selected = interactionTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            NotificationHelper.showError(statusLabel, "Select an interaction rule first.");
+            return;
+        }
+        try {
+            catalogService.deactivateInteractionRule(currentUser, selected.getId());
+            changed = true;
+            loadInteractions();
+            NotificationHelper.showSuccess(statusLabel, "Interaction rule deactivated.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private void loadInteractions() {
+        try {
+            interactionRows.setAll(catalogService.listActiveInteractions());
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Could not load interaction rules: " + e.getMessage());
+        }
+    }
+
+    private int parseWaitMinutes(String value) {
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
+        int parsed = Integer.parseInt(value.trim());
+        if (parsed < 0) {
+            throw new IllegalArgumentException("Minimum wait minutes cannot be negative.");
+        }
+        return parsed;
     }
 
     private void populateForm(SqliteMedicationCatalogDao.MedicationCatalogRecord record) {

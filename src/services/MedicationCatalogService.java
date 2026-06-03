@@ -1,6 +1,7 @@
 package services;
 
 import dao.SqliteMedicationCatalogDao;
+import dao.SqliteMedicationDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;
@@ -8,19 +9,32 @@ import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class MedicationCatalogService {
 
     private final SqliteMedicationCatalogDao catalogDao;
+    private final SqliteMedicationDao medicationDao;
 
     public MedicationCatalogService() {
-        this(new SqliteMedicationCatalogDao());
+        this(new SqliteMedicationCatalogDao(), new SqliteMedicationDao());
     }
 
     public MedicationCatalogService(SqliteMedicationCatalogDao catalogDao) {
+        this(catalogDao, new SqliteMedicationDao());
+    }
+
+    public MedicationCatalogService(SqliteMedicationCatalogDao catalogDao, SqliteMedicationDao medicationDao) {
         this.catalogDao = catalogDao;
+        this.medicationDao = medicationDao;
     }
 
     public List<SqliteMedicationCatalogDao.MedicationCatalogRecord> searchMedicationsByName(String text) throws SQLException {
@@ -127,6 +141,86 @@ public class MedicationCatalogService {
         return List.of("Oral", "IV", "IM", "SC", "Inhalation", "Topical", "Other");
     }
 
+    public long createInteractionRule(User currentUser, InteractionRuleRequest request) throws SQLException {
+        requireManagePermission(currentUser);
+        validateInteractionRule(request);
+        SqliteMedicationCatalogDao.MedicationCatalogRecord medicationA = getMedicationCatalogItem(request.medicationAId);
+        SqliteMedicationCatalogDao.MedicationCatalogRecord medicationB = getMedicationCatalogItem(request.medicationBId);
+        long id = catalogDao.insertInteraction(new SqliteMedicationCatalogDao.MedicationInteractionRecord(
+                0,
+                medicationA.getId(),
+                medicationB.getId(),
+                medicationA.getName(),
+                medicationB.getName(),
+                normalizeSeverity(request.severity),
+                Math.max(0, request.minWaitMinutes),
+                trim(request.notes),
+                trim(request.notes),
+                request.active,
+                "",
+                ""
+        ));
+        return id;
+    }
+
+    public void deactivateInteractionRule(User currentUser, long interactionId) throws SQLException {
+        requireManagePermission(currentUser);
+        catalogDao.deactivateInteraction(interactionId);
+    }
+
+    public List<SqliteMedicationCatalogDao.MedicationInteractionRecord> getInteractionsForMedication(long catalogMedicationId) throws SQLException {
+        return catalogDao.findInteractionsForMedication(catalogMedicationId);
+    }
+
+    public List<SqliteMedicationCatalogDao.MedicationInteractionRecord> listActiveInteractions() throws SQLException {
+        return catalogDao.listActiveInteractions();
+    }
+
+    public List<InteractionCheckResult> checkMedicationInteractions(String patientId,
+                                                                    SqliteMedicationDao.MedicationRecord selectedMedication) throws SQLException {
+        return checkMedicationInteractions(patientId, selectedMedication, LocalDateTime.now());
+    }
+
+    public List<InteractionCheckResult> checkMedicationInteractions(String patientId,
+                                                                    SqliteMedicationDao.MedicationRecord selectedMedication,
+                                                                    LocalDateTime givenAt) throws SQLException {
+        ArrayList<InteractionCheckResult> results = new ArrayList<>();
+        if (selectedMedication == null || selectedMedication.getCatalogMedicationId() == null
+                || selectedMedication.getCatalogMedicationId() <= 0) {
+            return results;
+        }
+        Set<Long> seenInteractionIds = new HashSet<>();
+        for (SqliteMedicationDao.MedicationEventRecord event : medicationDao.findRecentMedicationEventsForPatient(patientId, 100)) {
+            if (!"GIVEN".equalsIgnoreCase(trim(event.getStatus())) || event.getMedicationId() == selectedMedication.getId()) {
+                continue;
+            }
+            SqliteMedicationDao.MedicationRecord otherMedication = medicationDao.findMedicationById(event.getMedicationId()).orElse(null);
+            if (otherMedication == null || otherMedication.getCatalogMedicationId() == null || otherMedication.getCatalogMedicationId() <= 0) {
+                continue;
+            }
+            SqliteMedicationCatalogDao.MedicationInteractionRecord interaction = catalogDao
+                    .findActiveInteractionBetween(selectedMedication.getCatalogMedicationId(), otherMedication.getCatalogMedicationId())
+                    .orElse(null);
+            if (interaction == null || seenInteractionIds.contains(interaction.getId())) {
+                continue;
+            }
+            LocalDateTime eventTime = parseDateTime(event.getGivenAt());
+            long elapsed = Math.max(0, Duration.between(eventTime, givenAt).toMinutes());
+            if (interaction.getMinWaitMinutes() > 0 && elapsed >= interaction.getMinWaitMinutes()) {
+                continue;
+            }
+            seenInteractionIds.add(interaction.getId());
+            results.add(new InteractionCheckResult(
+                    interaction,
+                    otherMedication,
+                    event.getGivenAt(),
+                    elapsed,
+                    interactionMessage(interaction, otherMedication, event.getGivenAt(), elapsed)
+            ));
+        }
+        return results;
+    }
+
     public void validateCatalogMedication(CatalogMedicationRequest request, long excludeId) throws SQLException {
         if (request == null) {
             throw new IllegalArgumentException("Medication catalog request is required.");
@@ -192,6 +286,59 @@ public class MedicationCatalogService {
                 "",
                 ""
         );
+    }
+
+    private void validateInteractionRule(InteractionRuleRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Interaction rule request is required.");
+        }
+        if (request.medicationAId <= 0 || request.medicationBId <= 0) {
+            throw new IllegalArgumentException("Both medications are required for an interaction rule.");
+        }
+        if (request.medicationAId == request.medicationBId) {
+            throw new IllegalArgumentException("Interaction rule medications must be different.");
+        }
+        normalizeSeverity(request.severity);
+        if (request.minWaitMinutes < 0) {
+            throw new IllegalArgumentException("Minimum wait minutes cannot be negative.");
+        }
+        if (!hasText(request.notes)) {
+            throw new IllegalArgumentException("Interaction notes are required.");
+        }
+    }
+
+    private String normalizeSeverity(String severity) {
+        String normalized = hasText(severity) ? severity.trim().toUpperCase(Locale.ROOT) : "WARNING";
+        if (!"WARNING".equals(normalized) && !"DANGEROUS".equals(normalized)) {
+            throw new IllegalArgumentException("Interaction severity must be WARNING or DANGEROUS.");
+        }
+        return normalized;
+    }
+
+    private String interactionMessage(SqliteMedicationCatalogDao.MedicationInteractionRecord interaction,
+                                      SqliteMedicationDao.MedicationRecord otherMedication,
+                                      String lastGivenAt,
+                                      long elapsedMinutes) {
+        String waitText = interaction.getMinWaitMinutes() > 0
+                ? " Minimum wait: " + interaction.getMinWaitMinutes() + " minutes; elapsed: " + elapsedMinutes + " minutes."
+                : "";
+        return interaction.getSeverity() + " interaction with " + otherMedication.getName()
+                + " last given at " + lastGivenAt + "." + waitText + " " + interaction.getMessage();
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (!hasText(value)) {
+            return LocalDateTime.MIN;
+        }
+        try {
+            return LocalDateTime.parse(value.trim(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDateTime.parse(value.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            } catch (DateTimeParseException ignored) {
+                return LocalDateTime.parse(value.trim().replace(" ", "T"));
+            }
+        }
     }
 
     private void requireManagePermission(User currentUser) {
@@ -283,5 +430,49 @@ public class MedicationCatalogService {
             this.dangerNotes = dangerNotes;
             this.active = active;
         }
+    }
+
+    public static class InteractionRuleRequest {
+        private final long medicationAId;
+        private final long medicationBId;
+        private final String severity;
+        private final int minWaitMinutes;
+        private final String notes;
+        private final boolean active;
+
+        public InteractionRuleRequest(long medicationAId, long medicationBId, String severity,
+                                      int minWaitMinutes, String notes, boolean active) {
+            this.medicationAId = medicationAId;
+            this.medicationBId = medicationBId;
+            this.severity = severity;
+            this.minWaitMinutes = minWaitMinutes;
+            this.notes = notes;
+            this.active = active;
+        }
+    }
+
+    public static class InteractionCheckResult {
+        private final SqliteMedicationCatalogDao.MedicationInteractionRecord interaction;
+        private final SqliteMedicationDao.MedicationRecord interactingMedication;
+        private final String lastGivenAt;
+        private final long elapsedMinutes;
+        private final String message;
+
+        public InteractionCheckResult(SqliteMedicationCatalogDao.MedicationInteractionRecord interaction,
+                                      SqliteMedicationDao.MedicationRecord interactingMedication,
+                                      String lastGivenAt, long elapsedMinutes, String message) {
+            this.interaction = interaction;
+            this.interactingMedication = interactingMedication;
+            this.lastGivenAt = lastGivenAt;
+            this.elapsedMinutes = elapsedMinutes;
+            this.message = message;
+        }
+
+        public SqliteMedicationCatalogDao.MedicationInteractionRecord getInteraction() { return interaction; }
+        public SqliteMedicationDao.MedicationRecord getInteractingMedication() { return interactingMedication; }
+        public String getLastGivenAt() { return lastGivenAt; }
+        public long getElapsedMinutes() { return elapsedMinutes; }
+        public String getMessage() { return message; }
+        public boolean isDangerous() { return "DANGEROUS".equalsIgnoreCase(interaction.getSeverity()); }
     }
 }
