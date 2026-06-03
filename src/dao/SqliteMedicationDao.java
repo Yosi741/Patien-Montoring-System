@@ -112,16 +112,78 @@ public class SqliteMedicationDao implements MedicationDao {
     }
 
     public boolean insertMedicationEvent(long medicationId, String patientId, String givenBy, String givenAt, String notes) throws SQLException {
-        String sql = "INSERT INTO medication_events(medication_id, patient_id, given_by, given_at, notes) VALUES(?, ?, ?, ?, ?)";
+        return insertMedicationEvent(new MedicationEventRecord(
+                0,
+                medicationId,
+                patientId,
+                givenBy,
+                givenAt,
+                notes,
+                "GIVEN",
+                null,
+                "",
+                "",
+                false,
+                "",
+                "",
+                ""
+        ));
+    }
+
+    public boolean insertMedicationEvent(MedicationEventRecord event) throws SQLException {
+        String sql = "INSERT INTO medication_events(medication_id, patient_id, given_by, given_at, notes, status, "
+                + "given_amount, given_unit, route, override_used, override_reason, safety_status) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, medicationId);
-            statement.setString(2, patientId);
-            statement.setString(3, value(givenBy));
-            statement.setString(4, value(givenAt));
-            statement.setString(5, value(notes));
+            statement.setLong(1, event.getMedicationId());
+            statement.setString(2, event.getPatientId());
+            statement.setString(3, value(event.getGivenBy()));
+            statement.setString(4, value(event.getGivenAt()));
+            statement.setString(5, value(event.getNotes()));
+            statement.setString(6, value(event.getStatus()).isBlank() ? "GIVEN" : value(event.getStatus()));
+            setNullableDouble(statement, 7, event.getGivenAmount());
+            statement.setString(8, value(event.getGivenUnit()));
+            statement.setString(9, value(event.getRoute()));
+            statement.setInt(10, event.isOverrideUsed() ? 1 : 0);
+            statement.setString(11, value(event.getOverrideReason()));
+            statement.setString(12, value(event.getSafetyStatus()));
             return statement.executeUpdate() > 0;
         }
+    }
+
+    public List<MedicationEventRecord> findRecentMedicationEvents(String patientId, long medicationId, int limit) throws SQLException {
+        ArrayList<MedicationEventRecord> rows = new ArrayList<>();
+        String sql = eventSelect() + " WHERE patient_id = ? AND COALESCE(medication_id, -1) = ? "
+                + "ORDER BY id DESC LIMIT ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            statement.setLong(2, medicationId);
+            statement.setInt(3, Math.max(1, limit));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rows.add(mapMedicationEvent(resultSet));
+                }
+            }
+        }
+        return rows;
+    }
+
+    public List<MedicationEventRecord> findMedicationEventsForPatientMedication(String patientId, long medicationId) throws SQLException {
+        ArrayList<MedicationEventRecord> rows = new ArrayList<>();
+        String sql = eventSelect() + " WHERE patient_id = ? AND COALESCE(medication_id, -1) = ? ORDER BY id DESC";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            statement.setLong(2, medicationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rows.add(mapMedicationEvent(resultSet));
+                }
+            }
+        }
+        return rows;
     }
 
     public Optional<MedicationRecord> findMedicationById(long medicationId) throws SQLException {
@@ -232,6 +294,30 @@ public class SqliteMedicationDao implements MedicationDao {
 
     private String medicationSelect() {
         return "SELECT id, patient_id, catalog_medication_id, name, dose, dose_amount, dose_unit, route, frequency, active FROM medications ";
+    }
+
+    private String eventSelect() {
+        return "SELECT id, medication_id, patient_id, given_by, given_at, notes, status, given_amount, given_unit, "
+                + "route, override_used, override_reason, safety_status FROM medication_events";
+    }
+
+    private MedicationEventRecord mapMedicationEvent(ResultSet resultSet) throws SQLException {
+        return new MedicationEventRecord(
+                resultSet.getLong("id"),
+                resultSet.getLong("medication_id"),
+                resultSet.getString("patient_id"),
+                resultSet.getString("given_by"),
+                resultSet.getString("given_at"),
+                resultSet.getString("notes"),
+                resultSet.getString("status"),
+                nullableDouble(resultSet, "given_amount"),
+                resultSet.getString("given_unit"),
+                resultSet.getString("route"),
+                resultSet.getInt("override_used") == 1,
+                resultSet.getString("override_reason"),
+                resultSet.getString("safety_status"),
+                ""
+        );
     }
 
     private int count(String tableName) throws SQLException {
@@ -355,5 +441,56 @@ public class SqliteMedicationDao implements MedicationDao {
             int firstSpace = trimmed.indexOf(' ');
             return firstSpace < 0 ? "" : trimmed.substring(firstSpace + 1).trim();
         }
+    }
+
+    public static class MedicationEventRecord {
+        private final long id;
+        private final long medicationId;
+        private final String patientId;
+        private final String givenBy;
+        private final String givenAt;
+        private final String notes;
+        private final String status;
+        private final Double givenAmount;
+        private final String givenUnit;
+        private final String route;
+        private final boolean overrideUsed;
+        private final String overrideReason;
+        private final String safetyStatus;
+        private final String createdAt;
+
+        public MedicationEventRecord(long id, long medicationId, String patientId, String givenBy, String givenAt,
+                                     String notes, String status, Double givenAmount, String givenUnit, String route,
+                                     boolean overrideUsed, String overrideReason, String safetyStatus, String createdAt) {
+            this.id = id;
+            this.medicationId = medicationId;
+            this.patientId = patientId;
+            this.givenBy = givenBy;
+            this.givenAt = givenAt;
+            this.notes = notes;
+            this.status = status;
+            this.givenAmount = givenAmount;
+            this.givenUnit = givenUnit;
+            this.route = route;
+            this.overrideUsed = overrideUsed;
+            this.overrideReason = overrideReason;
+            this.safetyStatus = safetyStatus;
+            this.createdAt = createdAt;
+        }
+
+        public long getId() { return id; }
+        public long getMedicationId() { return medicationId; }
+        public String getPatientId() { return patientId; }
+        public String getGivenBy() { return givenBy; }
+        public String getGivenAt() { return givenAt; }
+        public String getNotes() { return notes; }
+        public String getStatus() { return status; }
+        public Double getGivenAmount() { return givenAmount; }
+        public String getGivenUnit() { return givenUnit; }
+        public String getRoute() { return route; }
+        public boolean isOverrideUsed() { return overrideUsed; }
+        public String getOverrideReason() { return overrideReason; }
+        public String getSafetyStatus() { return safetyStatus; }
+        public String getCreatedAt() { return createdAt; }
     }
 }

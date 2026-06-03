@@ -240,9 +240,23 @@ public class SchemaInitializer {
                 + "given_by TEXT NOT NULL,"
                 + "given_at TEXT NOT NULL,"
                 + "notes TEXT,"
+                + "status TEXT NOT NULL DEFAULT 'GIVEN',"
+                + "given_amount REAL,"
+                + "given_unit TEXT,"
+                + "route TEXT,"
+                + "override_used INTEGER NOT NULL DEFAULT 0,"
+                + "override_reason TEXT,"
+                + "safety_status TEXT,"
                 + "FOREIGN KEY(medication_id) REFERENCES medications(id),"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
+        addColumnIfMissing(statement, "medication_events", "status", "TEXT NOT NULL DEFAULT 'GIVEN'");
+        addColumnIfMissing(statement, "medication_events", "given_amount", "REAL");
+        addColumnIfMissing(statement, "medication_events", "given_unit", "TEXT");
+        addColumnIfMissing(statement, "medication_events", "route", "TEXT");
+        addColumnIfMissing(statement, "medication_events", "override_used", "INTEGER NOT NULL DEFAULT 0");
+        addColumnIfMissing(statement, "medication_events", "override_reason", "TEXT");
+        addColumnIfMissing(statement, "medication_events", "safety_status", "TEXT");
     }
 
     private static void createAppointments(Statement statement) throws SQLException {

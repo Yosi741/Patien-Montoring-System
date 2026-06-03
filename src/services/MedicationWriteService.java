@@ -10,9 +10,11 @@ import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -76,25 +78,36 @@ public class MedicationWriteService {
         if (!PermissionHelper.canGiveMedication(currentUser)) {
             throw new SecurityException("Only Admin, Doctor, and Nurse users can record medication administration.");
         }
-        validateMedicationEvent(request);
         SqliteMedicationDao.MedicationRecord medication = medicationDao.findMedicationById(request.medicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Medication not found in SQLite: " + request.medicationId));
         if (!medication.isActive()) {
             throw new IllegalArgumentException("Cannot record administration for inactive/discontinued medication.");
         }
+        validateMedicationEvent(request, medication, currentUser);
 
         String status = normalizeEventStatus(request.status);
+        Double givenAmount = parsePositiveDoseAmount(request.givenAmount);
+        String safetyStatus = request.overrideUsed ? "OVERRIDE" : "OK";
         String notes = "Status: " + status + (hasText(request.notes) ? " | " + request.notes.trim() : "");
-        medicationDao.insertMedicationEvent(
+        medicationDao.insertMedicationEvent(new SqliteMedicationDao.MedicationEventRecord(
+                0,
                 request.medicationId,
                 medication.getPatientId(),
                 username(currentUser),
                 parseDateTime(request.givenAt).format(DISPLAY_DATE_TIME),
-                notes
-        );
+                notes,
+                status,
+                givenAmount,
+                trim(request.givenUnit),
+                trim(request.route),
+                request.overrideUsed,
+                trim(request.overrideReason),
+                safetyStatus,
+                ""
+        ));
         AuditWriteHelper.write(username(currentUser), AuditAction.GIVE_MEDICATION,
                 "patient_id=" + medication.getPatientId() + ", medication=" + medication.getName()
-                        + ", dose=" + medication.getDose() + ", status=" + status);
+                        + ", given=" + formatDose(givenAmount, request.givenUnit) + ", status=" + status);
     }
 
     public List<SqliteMedicationDao.MedicationRecord> findActiveMedicationsForPatient(String patientId) throws SQLException {
@@ -103,6 +116,23 @@ public class MedicationWriteService {
 
     public Optional<SqliteMedicationDao.MedicationRecord> findMedicationById(long medicationId) throws SQLException {
         return medicationDao.findMedicationById(medicationId);
+    }
+
+    public MedicationSafetyContext getMedicationSafetyContext(long medicationId) throws SQLException {
+        SqliteMedicationDao.MedicationRecord medication = medicationDao.findMedicationById(medicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Medication not found in SQLite: " + medicationId));
+        SqliteMedicationCatalogDao.MedicationCatalogRecord catalog = findCatalogItemOrNull(medication.getCatalogMedicationId());
+        List<SqliteMedicationDao.MedicationEventRecord> recent =
+                medicationDao.findRecentMedicationEvents(medication.getPatientId(), medicationId, 1);
+        SqliteMedicationDao.MedicationEventRecord latest = recent.isEmpty() ? null : recent.get(0);
+        return new MedicationSafetyContext(
+                medication,
+                catalog,
+                latest == null ? "" : latest.getGivenAt(),
+                catalog == null ? null : catalog.getMaxSingleDose(),
+                catalog == null ? null : catalog.getMaxDailyDose(),
+                catalog == null ? null : catalog.getMinIntervalMinutes()
+        );
     }
 
     private void requireMedicationManagePermission(User currentUser) {
@@ -168,20 +198,66 @@ public class MedicationWriteService {
         }
     }
 
-    private void validateMedicationEvent(MedicationEventRequest request) {
+    private void validateMedicationEvent(MedicationEventRequest request, SqliteMedicationDao.MedicationRecord medication,
+                                         User currentUser) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Medication", String.valueOf(request.medicationId)),
                 FormValidationHelper.validateDateTime("Given time", request.givenAt),
+                FormValidationHelper.validateRequired("Given amount", request.givenAmount),
+                FormValidationHelper.validateRequired("Given unit", request.givenUnit),
+                FormValidationHelper.validateRequired("Route", request.route),
                 FormValidationHelper.validateMaxLength("Notes", request.notes, 300)
         );
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
+        }
+        SqlitePatientDao.PatientDetail patient = patientDao.findDetailById(medication.getPatientId())
+                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + medication.getPatientId()));
+        if ("DECEASED".equalsIgnoreCase(trim(patient.getStatus()))) {
+            throw new IllegalArgumentException("Cannot record medication administration for a deceased patient.");
         }
         LocalDateTime givenAt = parseDateTime(request.givenAt);
         if (givenAt.isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Given time cannot be in the future.");
         }
         normalizeEventStatus(request.status);
+        if (!ROUTES.contains(trim(request.route))) {
+            throw new IllegalArgumentException("Route must be selected from the approved route list.");
+        }
+        Double givenAmount = parsePositiveDoseAmount(request.givenAmount);
+        if (givenAmount == null) {
+            throw new IllegalArgumentException("Given amount is required and must be a positive number.");
+        }
+        if (!hasText(request.givenUnit)) {
+            throw new IllegalArgumentException("Given unit is required.");
+        }
+
+        SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem = findCatalogItemOrNull(medication.getCatalogMedicationId());
+        if (catalogItem != null) {
+            if (!csvContains(catalogItem.getAllowedUnits(), request.givenUnit)) {
+                throw new IllegalArgumentException("Given unit is not allowed for this medication catalog item.");
+            }
+            if (!csvContains(catalogItem.getAllowedRoutes(), request.route)) {
+                throw new IllegalArgumentException("Route is not allowed for this medication catalog item.");
+            }
+        } else if (hasText(medication.getDoseUnit()) && !trim(medication.getDoseUnit()).equalsIgnoreCase(trim(request.givenUnit))) {
+            throw new IllegalArgumentException("Given unit must match the medication order unit.");
+        }
+
+        ArrayList<SafetyViolation> violations = evaluateSafetyViolations(request, medication, catalogItem, givenAt, givenAmount);
+        if (violations.isEmpty()) {
+            return;
+        }
+        boolean canOverride = PermissionHelper.canAddMedication(currentUser);
+        if (!request.overrideUsed || !canOverride || !hasText(request.overrideReason)) {
+            for (SafetyViolation violation : violations) {
+                auditSafetyDecision(currentUser, medication, request, violation, false);
+            }
+            throw new IllegalArgumentException(violations.get(0).message);
+        }
+        for (SafetyViolation violation : violations) {
+            auditSafetyDecision(currentUser, medication, request, violation, true);
+        }
     }
 
     private SqliteMedicationDao.MedicationRecord clean(MedicationRequest request, long id) {
@@ -208,7 +284,11 @@ public class MedicationWriteService {
         try {
             return LocalDateTime.parse(value.trim(), DISPLAY_DATE_TIME);
         } catch (DateTimeParseException e) {
-            return LocalDateTime.parse(value.trim().replace(" ", "T"));
+            try {
+                return LocalDateTime.parse(value.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            } catch (DateTimeParseException ignored) {
+                return LocalDateTime.parse(value.trim().replace(" ", "T"));
+            }
         }
     }
 
@@ -278,6 +358,143 @@ public class MedicationWriteService {
         return false;
     }
 
+    private ArrayList<SafetyViolation> evaluateSafetyViolations(MedicationEventRequest request,
+                                                                SqliteMedicationDao.MedicationRecord medication,
+                                                                SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem,
+                                                                LocalDateTime givenAt,
+                                                                Double givenAmount) throws SQLException {
+        ArrayList<SafetyViolation> violations = new ArrayList<>();
+        if (catalogItem == null) {
+            return violations;
+        }
+        String unit = trim(request.givenUnit);
+        if (catalogItem.getMaxSingleDose() != null && givenAmount > catalogItem.getMaxSingleDose()) {
+            violations.add(new SafetyViolation(
+                    SafetyType.DOSE,
+                    "Given dose exceeds max single dose. Ordered medication: " + medication.getName()
+                            + ". Given: " + formatDose(givenAmount, unit)
+                            + ". Max single dose: " + formatDose(catalogItem.getMaxSingleDose(), unit) + "."
+            ));
+        }
+        if (catalogItem.getMaxDailyDose() != null) {
+            double todayTotal = todayAdministeredTotal(medication, givenAt, unit);
+            double projectedTotal = todayTotal + givenAmount;
+            if (projectedTotal > catalogItem.getMaxDailyDose()) {
+                violations.add(new SafetyViolation(
+                        SafetyType.DOSE,
+                        "Given dose exceeds max daily dose. Today so far: " + formatDose(todayTotal, unit)
+                                + ". New dose: " + formatDose(givenAmount, unit)
+                                + ". Projected total: " + formatDose(projectedTotal, unit)
+                                + ". Max daily dose: " + formatDose(catalogItem.getMaxDailyDose(), unit) + "."
+                ));
+            }
+        }
+        if (catalogItem.getMinIntervalMinutes() != null && catalogItem.getMinIntervalMinutes() > 0) {
+            SqliteMedicationDao.MedicationEventRecord latest = latestGivenEventBefore(medication, givenAt);
+            if (latest != null) {
+                LocalDateTime latestTime = parseDateTime(latest.getGivenAt());
+                long elapsed = Duration.between(latestTime, givenAt).toMinutes();
+                long required = Math.round(catalogItem.getMinIntervalMinutes());
+                if (elapsed < required) {
+                    long remaining = Math.max(0, required - elapsed);
+                    violations.add(new SafetyViolation(
+                            SafetyType.INTERVAL,
+                            "Medication was given too recently. Last given: " + latest.getGivenAt()
+                                    + ". Minimum interval: " + required + " minutes. Remaining wait time: "
+                                    + remaining + " minutes."
+                    ));
+                }
+            }
+        }
+        return violations;
+    }
+
+    private double todayAdministeredTotal(SqliteMedicationDao.MedicationRecord medication, LocalDateTime givenAt, String unit) throws SQLException {
+        double total = 0;
+        for (SqliteMedicationDao.MedicationEventRecord event :
+                medicationDao.findMedicationEventsForPatientMedication(medication.getPatientId(), medication.getId())) {
+            if (!"GIVEN".equalsIgnoreCase(trim(event.getStatus()))) {
+                continue;
+            }
+            if (!trim(event.getGivenUnit()).equalsIgnoreCase(unit)) {
+                continue;
+            }
+            LocalDateTime eventTime;
+            try {
+                eventTime = parseDateTime(event.getGivenAt());
+            } catch (Exception e) {
+                continue;
+            }
+            if (eventTime.toLocalDate().equals(givenAt.toLocalDate()) && event.getGivenAmount() != null) {
+                total += event.getGivenAmount();
+            }
+        }
+        return total;
+    }
+
+    private SqliteMedicationDao.MedicationEventRecord latestGivenEventBefore(SqliteMedicationDao.MedicationRecord medication,
+                                                                             LocalDateTime givenAt) throws SQLException {
+        SqliteMedicationDao.MedicationEventRecord latest = null;
+        LocalDateTime latestTime = null;
+        for (SqliteMedicationDao.MedicationEventRecord event :
+                medicationDao.findMedicationEventsForPatientMedication(medication.getPatientId(), medication.getId())) {
+            if (!"GIVEN".equalsIgnoreCase(trim(event.getStatus()))) {
+                continue;
+            }
+            LocalDateTime eventTime;
+            try {
+                eventTime = parseDateTime(event.getGivenAt());
+            } catch (Exception e) {
+                continue;
+            }
+            if (eventTime.isAfter(givenAt)) {
+                continue;
+            }
+            if (latestTime == null || eventTime.isAfter(latestTime)) {
+                latestTime = eventTime;
+                latest = event;
+            }
+        }
+        return latest;
+    }
+
+    private void auditSafetyDecision(User currentUser, SqliteMedicationDao.MedicationRecord medication,
+                                     MedicationEventRequest request, SafetyViolation violation, boolean override) throws SQLException {
+        String action;
+        if (violation.type == SafetyType.INTERVAL) {
+            action = override ? AuditAction.MEDICATION_INTERVAL_OVERRIDE : AuditAction.MEDICATION_INTERVAL_BLOCKED;
+        } else {
+            action = override ? AuditAction.MEDICATION_DOSE_OVERRIDE : AuditAction.MEDICATION_DOSE_BLOCKED;
+        }
+        String detail = "patient_id=" + medication.getPatientId()
+                + ", medication=" + medication.getName()
+                + ", given=" + formatDose(parsePositiveDoseAmount(request.givenAmount), request.givenUnit)
+                + (override ? ", reason=" + trim(request.overrideReason) : "");
+        AuditWriteHelper.write(username(currentUser), action, truncate(detail, 220));
+    }
+
+    private enum SafetyType {
+        DOSE,
+        INTERVAL
+    }
+
+    private static class SafetyViolation {
+        private final SafetyType type;
+        private final String message;
+
+        private SafetyViolation(SafetyType type, String message) {
+            this.type = type;
+            this.message = message;
+        }
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
     public static class MedicationRequest {
         private final long id;
         private final String patientId;
@@ -330,12 +547,56 @@ public class MedicationWriteService {
         private final String givenAt;
         private final String status;
         private final String notes;
+        private final String givenAmount;
+        private final String givenUnit;
+        private final String route;
+        private final boolean overrideUsed;
+        private final String overrideReason;
 
         public MedicationEventRequest(long medicationId, String givenAt, String status, String notes) {
+            this(medicationId, givenAt, status, notes, "", "", "", false, "");
+        }
+
+        public MedicationEventRequest(long medicationId, String givenAt, String status, String notes,
+                                      String givenAmount, String givenUnit, String route,
+                                      boolean overrideUsed, String overrideReason) {
             this.medicationId = medicationId;
             this.givenAt = givenAt;
             this.status = status;
             this.notes = notes;
+            this.givenAmount = givenAmount;
+            this.givenUnit = givenUnit;
+            this.route = route;
+            this.overrideUsed = overrideUsed;
+            this.overrideReason = overrideReason;
         }
+    }
+
+    public static class MedicationSafetyContext {
+        private final SqliteMedicationDao.MedicationRecord medication;
+        private final SqliteMedicationCatalogDao.MedicationCatalogRecord catalog;
+        private final String lastGivenAt;
+        private final Double maxSingleDose;
+        private final Double maxDailyDose;
+        private final Double minimumIntervalMinutes;
+
+        public MedicationSafetyContext(SqliteMedicationDao.MedicationRecord medication,
+                                       SqliteMedicationCatalogDao.MedicationCatalogRecord catalog,
+                                       String lastGivenAt, Double maxSingleDose, Double maxDailyDose,
+                                       Double minimumIntervalMinutes) {
+            this.medication = medication;
+            this.catalog = catalog;
+            this.lastGivenAt = lastGivenAt;
+            this.maxSingleDose = maxSingleDose;
+            this.maxDailyDose = maxDailyDose;
+            this.minimumIntervalMinutes = minimumIntervalMinutes;
+        }
+
+        public SqliteMedicationDao.MedicationRecord getMedication() { return medication; }
+        public SqliteMedicationCatalogDao.MedicationCatalogRecord getCatalog() { return catalog; }
+        public String getLastGivenAt() { return lastGivenAt; }
+        public Double getMaxSingleDose() { return maxSingleDose; }
+        public Double getMaxDailyDose() { return maxDailyDose; }
+        public Double getMinimumIntervalMinutes() { return minimumIntervalMinutes; }
     }
 }

@@ -11,6 +11,10 @@ public final class AuditAction {
     public static final String UPDATE_MEDICATION = "UPDATE_MEDICATION";
     public static final String DISCONTINUE_MEDICATION = "DISCONTINUE_MEDICATION";
     public static final String GIVE_MEDICATION = "GIVE_MEDICATION";
+    public static final String MEDICATION_DOSE_BLOCKED = "MEDICATION_DOSE_BLOCKED";
+    public static final String MEDICATION_DOSE_OVERRIDE = "MEDICATION_DOSE_OVERRIDE";
+    public static final String MEDICATION_INTERVAL_BLOCKED = "MEDICATION_INTERVAL_BLOCKED";
+    public static final String MEDICATION_INTERVAL_OVERRIDE = "MEDICATION_INTERVAL_OVERRIDE";
     public static final String CREATE_CATALOG_MEDICATION = "CREATE_CATALOG_MEDICATION";
     public static final String UPDATE_CATALOG_MEDICATION = "UPDATE_CATALOG_MEDICATION";
     public static final String DEACTIVATE_CATALOG_MEDICATION = "DEACTIVATE_CATALOG_MEDICATION";
