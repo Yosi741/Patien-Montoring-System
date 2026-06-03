@@ -43,6 +43,7 @@ public class AppShell extends Application {
     private Stage primaryStage;
     private AppNavigator navigator;
     private AppLayoutController layoutController;
+    private FxController currentContentController;
     private boolean darkMode;
     private String databaseStatus = "Local database not initialized";
 
@@ -101,7 +102,7 @@ public class AppShell extends Application {
         if (alertCenter.getController() instanceof AlertCenterController) {
             ((AlertCenterController) alertCenter.getController()).openWithAlert(alertId);
         }
-        layoutController.setContent(alertCenter.getParent());
+        setShellLoadedContent(alertCenter);
         primaryStage.setTitle("Smart Patient Monitoring System - Alert Center");
     }
 
@@ -111,7 +112,7 @@ public class AppShell extends Application {
         if (alertCenter.getController() instanceof AlertCenterController) {
             ((AlertCenterController) alertCenter.getController()).openForPatient(patientId);
         }
-        layoutController.setContent(alertCenter.getParent());
+        setShellLoadedContent(alertCenter);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Alerts");
     }
 
@@ -122,7 +123,7 @@ public class AppShell extends Application {
             ((PatientDetailController) detail.getController()).loadPatient(patientId);
         }
         logAudit("JavaFX PATIENT opened detail for " + patientId);
-        layoutController.setContent(detail.getParent());
+        setShellLoadedContent(detail);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Detail");
     }
 
@@ -132,7 +133,7 @@ public class AppShell extends Application {
         if (timeline.getController() instanceof ClinicalTimelineController) {
             ((ClinicalTimelineController) timeline.getController()).loadPatient(patientId);
         }
-        layoutController.setContent(timeline.getParent());
+        setShellLoadedContent(timeline);
         primaryStage.setTitle("Smart Patient Monitoring System - Clinical Timeline");
     }
 
@@ -142,7 +143,7 @@ public class AppShell extends Application {
         if (placeholder.getController() instanceof PlaceholderController) {
             ((PlaceholderController) placeholder.getController()).setContent(title, subtitle, body);
         }
-        layoutController.setContent(placeholder.getParent());
+        setShellLoadedContent(placeholder);
         primaryStage.setTitle("Smart Patient Monitoring System - " + title);
     }
 
@@ -172,7 +173,7 @@ public class AppShell extends Application {
         if (medicationOverview.getController() instanceof MedicationOverviewController) {
             ((MedicationOverviewController) medicationOverview.getController()).openForPatient(patientId);
         }
-        layoutController.setContent(medicationOverview.getParent());
+        setShellLoadedContent(medicationOverview);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Medications");
     }
 
@@ -190,7 +191,7 @@ public class AppShell extends Application {
         if (deceasedRecords.getController() instanceof DeceasedRecordsController) {
             ((DeceasedRecordsController) deceasedRecords.getController()).openWithRecord(recordId);
         }
-        layoutController.setContent(deceasedRecords.getParent());
+        setShellLoadedContent(deceasedRecords);
         primaryStage.setTitle("Smart Patient Monitoring System - Deceased Record");
     }
 
@@ -204,7 +205,7 @@ public class AppShell extends Application {
         if (newborns.getController() instanceof NewbornRecordsController) {
             ((NewbornRecordsController) newborns.getController()).openWithRecord(recordId);
         }
-        layoutController.setContent(newborns.getParent());
+        setShellLoadedContent(newborns);
         primaryStage.setTitle("Smart Patient Monitoring System - Newborn Record");
     }
 
@@ -214,7 +215,7 @@ public class AppShell extends Application {
         if (newborns.getController() instanceof NewbornRecordsController) {
             ((NewbornRecordsController) newborns.getController()).openForMother(motherPatientId);
         }
-        layoutController.setContent(newborns.getParent());
+        setShellLoadedContent(newborns);
         primaryStage.setTitle("Smart Patient Monitoring System - Newborn Records");
     }
 
@@ -248,7 +249,7 @@ public class AppShell extends Application {
         if (devices.getController() instanceof MedicalDevicesController) {
             ((MedicalDevicesController) devices.getController()).openForPatient(patientId);
         }
-        layoutController.setContent(devices.getParent());
+        setShellLoadedContent(devices);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Devices");
     }
 
@@ -262,7 +263,7 @@ public class AppShell extends Application {
         if (scheduling.getController() instanceof SchedulingController) {
             ((SchedulingController) scheduling.getController()).openForPatient(patientId);
         }
-        layoutController.setContent(scheduling.getParent());
+        setShellLoadedContent(scheduling);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Scheduling");
     }
 
@@ -284,7 +285,7 @@ public class AppShell extends Application {
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForPatient(patientId);
         }
-        layoutController.setContent(files.getParent());
+        setShellLoadedContent(files);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Medical Files");
     }
 
@@ -294,7 +295,7 @@ public class AppShell extends Application {
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
         }
-        layoutController.setContent(files.getParent());
+        setShellLoadedContent(files);
         primaryStage.setTitle("Smart Patient Monitoring System - Medical File Details");
     }
 
@@ -331,6 +332,8 @@ public class AppShell extends Application {
         } catch (Exception e) {
             System.out.println("SQLite logout audit skipped: " + e.getMessage());
         }
+        disposeCurrentContent();
+        disposeLayout();
         SessionContext.clear();
         Session.setCurrentUser(null);
         showLogin();
@@ -368,6 +371,8 @@ public class AppShell extends Application {
     }
 
     private void setView(String fxmlPath, String title) {
+        disposeCurrentContent();
+        disposeLayout();
         Parent root = navigator.load(fxmlPath);
         Scene scene = new Scene(root, 1180, 760);
         applyTheme(scene);
@@ -379,7 +384,8 @@ public class AppShell extends Application {
 
     private void setShellContent(String fxmlPath, String title) {
         ensureShell(title);
-        layoutController.setContent(navigator.load(fxmlPath));
+        AppNavigator.LoadedView loaded = navigator.loadView(fxmlPath);
+        setShellLoadedContent(loaded);
         primaryStage.setTitle(title);
     }
 
@@ -396,6 +402,38 @@ public class AppShell extends Application {
         primaryStage.setMinWidth(1040);
         primaryStage.setMinHeight(680);
         primaryStage.setScene(scene);
+    }
+
+    private void setShellLoadedContent(AppNavigator.LoadedView loaded) {
+        disposeCurrentContent();
+        if (loaded.getController() instanceof FxController) {
+            currentContentController = (FxController) loaded.getController();
+        } else {
+            currentContentController = null;
+        }
+        layoutController.setContent(loaded.getParent());
+    }
+
+    private void disposeCurrentContent() {
+        if (currentContentController != null) {
+            try {
+                currentContentController.dispose();
+            } catch (Exception e) {
+                System.out.println("JavaFX content dispose skipped: " + e.getMessage());
+            }
+            currentContentController = null;
+        }
+    }
+
+    private void disposeLayout() {
+        if (layoutController != null) {
+            try {
+                layoutController.dispose();
+            } catch (Exception e) {
+                System.out.println("JavaFX shell dispose skipped: " + e.getMessage());
+            }
+            layoutController = null;
+        }
     }
 
     private void openCertificateSourceRecord(String sourceType, String sourceId, String auditAction) {

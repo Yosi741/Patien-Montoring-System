@@ -18,6 +18,7 @@ import services.StaffActivityService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDateTime;
@@ -162,6 +163,7 @@ public class StaffActivityController implements FxController {
             }
         }
 
+        SelectionHelper.safeClearSelection(activityTable);
         rows.setAll(overview.getActivities());
         activityTable.setItems(rows);
 

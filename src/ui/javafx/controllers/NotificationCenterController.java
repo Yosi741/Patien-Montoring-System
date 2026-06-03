@@ -21,6 +21,7 @@ import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDate;
@@ -86,6 +87,7 @@ public class NotificationCenterController implements FxController {
                     patientSearchField.getText(),
                     dateRangeFilter.getValue()
             );
+            SelectionHelper.safeClearSelection(notificationList);
             rows.setAll(applyQuickFilter(loaded));
             notificationList.setItems(rows);
             renderCounters(rows);
@@ -94,9 +96,10 @@ public class NotificationCenterController implements FxController {
                 return;
             }
             if (!rows.isEmpty() && notificationList.getSelectionModel().isEmpty()) {
-                notificationList.getSelectionModel().selectFirst();
+                SelectionHelper.safeSelectFirst(notificationList);
                 showDetail(rows.get(0));
             } else if (rows.isEmpty()) {
+                SelectionHelper.safeClearSelection(notificationList);
                 clearDetail();
             }
             appShell.refreshNotificationCount();
@@ -311,9 +314,20 @@ public class NotificationCenterController implements FxController {
     }
 
     private void startAutoRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+        }
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(25), event -> loadNotifications()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
+    }
+
+    @Override
+    public void dispose() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
     }
 
     private String nullTo(String value, String fallback) {
@@ -399,8 +413,9 @@ public class NotificationCenterController implements FxController {
     private boolean selectById(long id) {
         for (int i = 0; i < rows.size(); i++) {
             if (rows.get(i).getId() == id) {
-                notificationList.getSelectionModel().select(i);
-                notificationList.scrollTo(i);
+                if (!SelectionHelper.safeSelectIndex(notificationList, i)) {
+                    return false;
+                }
                 showDetail(rows.get(i));
                 return true;
             }

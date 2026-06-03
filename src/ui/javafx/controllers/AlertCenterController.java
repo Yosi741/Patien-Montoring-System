@@ -23,6 +23,7 @@ import javafx.util.Duration;
 import services.AlertSoundService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 public class AlertCenterController implements FxController {
@@ -89,6 +90,7 @@ public class AlertCenterController implements FxController {
             if (selectedId == null && currentSelection != null) {
                 selectedId = currentSelection.getId();
             }
+            SelectionHelper.safeClearSelection(alertTable);
             alerts.setAll(alertDao.findAlertRows(severityFilter.getValue(), statusFilter.getValue(), searchField.getText(), patientIdFilter));
             alertTable.setItems(alerts);
             renderPatientFilterChip();
@@ -100,9 +102,10 @@ public class AlertCenterController implements FxController {
                 return;
             }
             if (!alerts.isEmpty()) {
-                alertTable.getSelectionModel().selectFirst();
+                SelectionHelper.safeSelectFirst(alertTable);
                 showDetail(alerts.get(0));
             } else {
+                SelectionHelper.safeClearSelection(alertTable);
                 clearDetail();
             }
             updateActionButtons();
@@ -307,8 +310,9 @@ public class AlertCenterController implements FxController {
     private boolean selectAlertById(long alertId) {
         for (int i = 0; i < alerts.size(); i++) {
             if (alerts.get(i).getId() == alertId) {
-                alertTable.getSelectionModel().select(i);
-                alertTable.scrollTo(i);
+                if (!SelectionHelper.safeSelectIndex(alertTable, i)) {
+                    return false;
+                }
                 showDetail(alerts.get(i));
                 return true;
             }
@@ -397,9 +401,20 @@ public class AlertCenterController implements FxController {
     }
 
     private void startAutoRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+        }
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(15), event -> loadAlerts()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
+    }
+
+    @Override
+    public void dispose() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
     }
 
     private String recommendedAction(SqliteAlertDao.AlertRow alert) {

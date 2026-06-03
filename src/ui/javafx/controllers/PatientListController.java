@@ -29,6 +29,7 @@ import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.util.ArrayList;
@@ -193,6 +194,8 @@ public class PatientListController implements FxController {
                 return;
             }
             showPatientTable();
+            SelectionHelper.safeClearSelection(patientTable);
+            SelectionHelper.safeClearSelection(newbornTable);
             patients.setAll(patientDao.findPatientListRows(buildFilter()));
             loadDeathContextIfNeeded();
             patientTable.setItems(patients);
@@ -207,6 +210,8 @@ public class PatientListController implements FxController {
     private void loadNewborns() {
         try {
             showNewbornTable();
+            SelectionHelper.safeClearSelection(patientTable);
+            SelectionHelper.safeClearSelection(newbornTable);
             SqliteNewbornRecordDao.RecordFilter filter = new SqliteNewbornRecordDao.RecordFilter();
             filter.setSearch(searchField.getText());
             filter.setSection(value(sectionFilter));

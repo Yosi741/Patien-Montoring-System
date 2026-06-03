@@ -19,6 +19,7 @@ import ui.javafx.FxController;
 import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 public class SchedulingController implements FxController {
@@ -113,6 +114,8 @@ public class SchedulingController implements FxController {
             overdueRemindersLabel.setText(String.valueOf(overview.getOverdueReminders()));
             medicationRemindersTodayLabel.setText(String.valueOf(overview.getMedicationRemindersToday()));
             cancelledMissedLabel.setText(String.valueOf(overview.getCancelledMissedItems()));
+            SelectionHelper.safeClearSelection(appointmentTable);
+            SelectionHelper.safeClearSelection(reminderTable);
             appointments.setAll(overview.getAppointments());
             appointmentTable.setItems(appointments);
             reminders.setAll(overview.getReminders());

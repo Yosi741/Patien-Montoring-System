@@ -2033,3 +2033,376 @@
 .nav-button-blue, .nav-button-blue-active, .primary-button, .secondary-button, .danger-button {
     -fx-font-weight: 700;
 }
+
+/* Phase 49 Slice 6 accessibility and calmer hospital colors */
+.warning-value {
+    -fx-text-fill: #9a5b00;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.danger-value,
+.critical-value {
+    -fx-text-fill: #9f2f2f;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.priority-high,
+.severity-warning,
+.notification-badge-warning,
+.patient-filter-chip-warning,
+.trend-warning {
+    -fx-text-fill: #7a4300;
+    -fx-background-color: #fff5d7;
+    -fx-border-color: #e8b95b;
+    -fx-border-radius: 999;
+}
+
+.priority-critical,
+.severity-critical,
+.notification-badge-critical,
+.patient-file-chip-danger,
+.trend-critical {
+    -fx-text-fill: #8a3218;
+    -fx-background-color: #fff0e6;
+    -fx-border-color: #e3a06d;
+    -fx-border-radius: 999;
+}
+
+.priority-emergency,
+.severity-emergency,
+.patient-status-deceased {
+    -fx-text-fill: #7f1d1d;
+    -fx-background-color: #fde8e8;
+    -fx-border-color: #d98a8a;
+    -fx-border-radius: 999;
+}
+
+.alert-active,
+.notification-card-critical,
+.active-alert-row,
+.work-queue-alert-row {
+    -fx-background-color: #fff7ed;
+    -fx-border-color: #f3c99f;
+}
+
+.work-queue-overdue-row {
+    -fx-background-color: #fff1f2;
+    -fx-border-color: #e8a7af;
+}
+
+.danger-button,
+.alert-action-danger,
+.notification-action-danger,
+.patient-action-danger,
+.patient-file-danger-button,
+.dashboard-action-danger {
+    -fx-background-color: #b63f3f;
+    -fx-text-fill: #ffffff;
+}
+
+.danger-button:hover,
+.alert-action-danger:hover,
+.notification-action-danger:hover,
+.patient-action-danger:hover,
+.patient-file-danger-button:hover,
+.dashboard-action-danger:hover {
+    -fx-background-color: #9f3434;
+}
+
+.button:disabled,
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled {
+    -fx-opacity: 1.0;
+    -fx-background-color: #d8e0e8;
+    -fx-text-fill: #5d6b7a;
+    -fx-border-color: #c6d0da;
+}
+
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7e1eb;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #eaf3fb;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #12324f;
+    -fx-font-weight: 900;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f8fbfe;
+}
+
+.table-row-cell:hover,
+.patient-table .table-row-cell:hover,
+.alert-table .table-row-cell:hover,
+.patient-file-table .table-row-cell:hover {
+    -fx-background-color: #edf6ff;
+}
+
+.table-row-cell:selected,
+.patient-table .table-row-cell:selected,
+.alert-table .table-row-cell:selected,
+.patient-file-table .table-row-cell:selected {
+    -fx-background-color: #cfe7ff;
+}
+
+.table-row-cell:selected .table-cell,
+.patient-table .table-row-cell:selected .table-cell,
+.alert-table .table-row-cell:selected .table-cell,
+.patient-file-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: #0f253d;
+}
+
+.table-cell {
+    -fx-text-fill: #172b49;
+    -fx-border-color: transparent #edf1f5 transparent transparent;
+}
+
+.table-view .placeholder .label,
+.list-view .placeholder .label {
+    -fx-text-fill: #52677f;
+}
+
+.combo-box,
+.choice-box,
+.text-field,
+.text-area,
+.control-input,
+.date-picker {
+    -fx-background-color: #fbfdff;
+    -fx-text-fill: #172b49;
+    -fx-prompt-text-fill: #7b8b9d;
+    -fx-border-color: #cbd8e5;
+}
+
+.combo-box .list-cell,
+.choice-box .label,
+.date-picker .text-field {
+    -fx-text-fill: #172b49;
+}
+
+.combo-box-popup .list-view,
+.choice-box .context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd8e5;
+}
+
+.combo-box-popup .list-cell,
+.context-menu .menu-item .label {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #172b49;
+}
+
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:selected,
+.context-menu .menu-item:focused {
+    -fx-background-color: #e5f2ff;
+    -fx-text-fill: #0f253d;
+}
+
+.warning-panel,
+.status-warning {
+    -fx-background-color: #fff8e6;
+    -fx-border-color: #e8c56d;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-text-fill: #7a4300;
+}
+
+.status-error,
+.error-text {
+    -fx-background-color: #fff0f0;
+    -fx-text-fill: #8f2d2d;
+    -fx-border-color: #e3aaaa;
+}
+
+.status-success {
+    -fx-background-color: #eaf8ef;
+    -fx-text-fill: #146c38;
+    -fx-border-color: #9cd8af;
+}
+
+.status-info,
+.safety-panel,
+.medication-safety-panel,
+.certificate-preview,
+.notification-detail-text,
+.notification-detail-text .content {
+    -fx-background-color: #fbfdff;
+    -fx-text-fill: #172b49;
+    -fx-border-color: #d7e1eb;
+}
+
+.app-sidebar {
+    -fx-background-color: linear-gradient(to bottom, #124e86, #0f3f71);
+}
+
+.sidebar-nav-button,
+.nav-button {
+    -fx-text-fill: #f8fbff;
+}
+
+.sidebar-nav-button:hover,
+.nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-nav-button-active,
+.nav-button-blue-active {
+    -fx-background-color: #1f73d8;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: rgba(255, 255, 255, 0.24);
+}
+
+.shell-top-bar,
+.top-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #d7e1eb transparent;
+}
+
+.notification-unread-dot,
+.shell-notification-badge,
+.notification-badge-unread {
+    -fx-background-color: #1f6fd1;
+    -fx-text-fill: #ffffff;
+}
+
+.root,
+.app-root,
+.app-shell,
+.content-root,
+.content-page,
+.page-root,
+.page-container,
+.dashboard-root,
+.dashboard-page,
+.scroll-pane,
+.scroll-pane > .viewport,
+.split-pane,
+.split-pane *.split-pane-divider,
+.tab-pane,
+.tab-pane .tab-content-area,
+.list-view {
+    -fx-background-color: #f3f7fb;
+    -fx-background: #f3f7fb;
+}
+
+.scroll-pane {
+    -fx-border-color: transparent;
+}
+
+.split-pane *.split-pane-divider {
+    -fx-padding: 0 1 0 1;
+    -fx-background-color: #d7e1eb;
+}
+
+.tab-pane .tab-header-area,
+.tab-pane .tab-header-background {
+    -fx-background-color: #eef5fb;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #ddebf7;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #ffffff;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #12324f;
+    -fx-font-weight: 800;
+}
+
+.list-view {
+    -fx-border-color: #d7e1eb;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #172b49;
+}
+
+.list-cell:odd {
+    -fx-background-color: #f8fbfe;
+}
+
+.list-cell:hover,
+.list-cell:selected {
+    -fx-background-color: #cfe7ff;
+    -fx-text-fill: #0f253d;
+}
+
+.context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd8e5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 6;
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 8 14;
+}
+
+.menu-item .label {
+    -fx-text-fill: #172b49;
+    -fx-font-weight: 700;
+}
+
+.menu-item:focused,
+.menu-item:hover {
+    -fx-background-color: #e5f2ff;
+    -fx-background-radius: 8;
+}
+
+.menu-item:focused .label,
+.menu-item:hover .label {
+    -fx-text-fill: #0f253d;
+}
+
+.menu-button,
+.shell-profile-menu {
+    -fx-background-color: #f8fbfe;
+    -fx-border-color: #d7e1eb;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #172b49;
+}
+
+.menu-button .label,
+.shell-profile-menu .label {
+    -fx-text-fill: #172b49;
+    -fx-font-weight: 800;
+}
+
+.menu-button .arrow,
+.shell-profile-menu .arrow {
+    -fx-background-color: #52677f;
+}
+
+.button {
+    -fx-text-fill: #172b49;
+}
+
+.sidebar .button,
+.app-sidebar .button,
+.app-sidebar .nav-button-blue,
+.app-sidebar .nav-button-blue-active {
+    -fx-text-fill: #ffffff;
+}

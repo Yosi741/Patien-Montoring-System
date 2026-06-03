@@ -226,6 +226,14 @@ public class DashboardController implements FxController {
         refreshTimeline.play();
     }
 
+    @Override
+    public void dispose() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
+    }
+
     private String priorityStyle(String priority) {
         if ("EMERGENCY".equalsIgnoreCase(priority)) {
             return "priority-emergency";

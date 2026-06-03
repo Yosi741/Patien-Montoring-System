@@ -27,6 +27,7 @@ import ui.javafx.SessionContext;
 import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDateTime;
@@ -389,6 +390,7 @@ public class RoomBedOccupancyController implements FxController {
         renderSectionBox(activePatientsBySectionBox, overview.getActivePatientsBySection(), "No active patient section counts for this filter.", false);
         renderSectionBox(criticalPatientsBySectionBox, overview.getCriticalEmergencyBySection(), "No critical/emergency patients for this filter.", true);
 
+        SelectionHelper.safeClearSelection(roomTable);
         rows.setAll(overview.getRooms());
         roomTable.setItems(rows);
     }

@@ -21,6 +21,7 @@ import ui.javafx.SessionContext;
 import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDateTime;
@@ -370,6 +371,8 @@ public class MedicationOverviewController implements FxController {
         patientsWithMedicationsLabel.setText(String.valueOf(overview.getPatientsWithActiveMedications()));
         latestEventTimeLabel.setText(overview.getLatestMedicationEventTime());
 
+        SelectionHelper.safeClearSelection(medicationTable);
+        SelectionHelper.safeClearSelection(eventTable);
         medicationRows.setAll(overview.getMedications());
         medicationTable.setItems(medicationRows);
         eventRows.setAll(overview.getEvents());

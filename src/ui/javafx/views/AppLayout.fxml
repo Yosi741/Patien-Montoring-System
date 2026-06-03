@@ -12,7 +12,7 @@
         prefHeight="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.AppLayoutController" styleClass="content-page">
+        fx:controller="ui.javafx.controllers.AppLayoutController" styleClass="app-shell content-page">
 
     <left>
         <VBox
@@ -144,7 +144,7 @@
             </top>
 
             <center>
-                <BorderPane fx:id="contentPane" />
+                <BorderPane fx:id="contentPane" styleClass="content-root" />
             </center>
         </BorderPane>
     </center>

@@ -20,6 +20,7 @@ import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 import users.User;
 
@@ -86,10 +87,15 @@ public class MessagingController implements FxController {
         }
         try {
             User user = Session.getCurrentUser();
+            SelectionHelper.safeClearSelection(inboxTable);
+            SelectionHelper.safeClearSelection(sentTable);
             inboxRows.setAll(messagingService.inbox(user, searchField.getText(), statusFilter.getValue()));
             sentRows.setAll(messagingService.sent(user, searchField.getText(), statusFilter.getValue()));
             inboxTable.setItems(inboxRows);
             sentTable.setItems(sentRows);
+            if (inboxRows.isEmpty() && sentRows.isEmpty()) {
+                clearDetail();
+            }
             NotificationHelper.showInfo(statusLabel, "Messages loaded. Inbox: " + inboxRows.size() + " | Sent: " + sentRows.size());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load messages: " + e.getMessage());
@@ -235,6 +241,8 @@ public class MessagingController implements FxController {
         }
         if (!targetUserBox.getItems().isEmpty()) {
             targetUserBox.getSelectionModel().selectFirst();
+        } else {
+            targetUserBox.getSelectionModel().clearSelection();
         }
     }
 

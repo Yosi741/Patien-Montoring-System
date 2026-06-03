@@ -24,6 +24,7 @@ import services.MedicationCatalogService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.User;
 
 import java.util.List;
@@ -217,9 +218,13 @@ public class MedicationCatalogController {
 
     private void loadCatalog() {
         try {
+            SelectionHelper.safeClearSelection(catalogTable);
             catalogRows.setAll(catalogService.searchMedicationsByName(catalogSearchField == null ? "" : catalogSearchField.getText()));
             interactionMedicationABox.setItems(FXCollections.observableArrayList(catalogRows));
             interactionMedicationBBox.setItems(FXCollections.observableArrayList(catalogRows));
+            if (catalogRows.isEmpty()) {
+                selectedRecord = null;
+            }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load catalog: " + e.getMessage());
         }
@@ -274,6 +279,7 @@ public class MedicationCatalogController {
 
     private void loadInteractions() {
         try {
+            SelectionHelper.safeClearSelection(interactionTable);
             interactionRows.setAll(catalogService.listActiveInteractions());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load interaction rules: " + e.getMessage());

@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
+import ui.javafx.helpers.SelectionHelper;
 
 public class AuditLogController implements FxController {
 
@@ -51,6 +52,7 @@ public class AuditLogController implements FxController {
             return;
         }
         try {
+            SelectionHelper.safeClearSelection(auditTable);
             rows.setAll(auditLogDao.findRows(searchField.getText(), dateRangeFilter.getValue(), actionTypeFilter.getValue()));
             auditTable.setItems(rows);
             statusLabel.setText(rows.isEmpty() ? "No audit logs match the selected filters." : "Audit logs loaded: " + rows.size());

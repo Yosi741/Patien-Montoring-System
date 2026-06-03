@@ -240,9 +240,20 @@ public class NurseWorkQueueController implements FxController {
     }
 
     private void startAutoRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+        }
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(30), event -> refreshQueue()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
+    }
+
+    @Override
+    public void dispose() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
     }
 
     private NurseWorkQueueService.WorkQueueTask selectedTask() {

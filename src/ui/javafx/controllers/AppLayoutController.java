@@ -287,6 +287,14 @@ public class AppLayoutController implements FxController {
         appShell.logout();
     }
 
+    @Override
+    public void dispose() {
+        if (notificationRefreshTimeline != null) {
+            notificationRefreshTimeline.stop();
+            notificationRefreshTimeline = null;
+        }
+    }
+
     public void refreshNotificationCount() {
         int count = new NotificationCenterService().unreadCount(Session.getCurrentUser());
         unreadCountLabel.setText(String.valueOf(count));
