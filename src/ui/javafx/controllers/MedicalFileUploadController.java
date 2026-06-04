@@ -25,6 +25,7 @@ public class MedicalFileUploadController {
     private final MedicalFileUploadService uploadService = new MedicalFileUploadService();
     private User currentUser;
     private boolean saved;
+    private boolean lockedPatientContext;
 
     @FXML private TextField patientIdField;
     @FXML private TextField filePathField;
@@ -85,12 +86,22 @@ public class MedicalFileUploadController {
 
     private void prepare(User currentUser, String patientId) {
         this.currentUser = currentUser;
+        this.lockedPatientContext = patientId != null && !patientId.isBlank();
         patientIdField.setText(patientId == null ? "" : patientId);
+        patientIdField.setEditable(!lockedPatientContext);
+        patientIdField.setFocusTraversable(!lockedPatientContext);
+        if (lockedPatientContext) {
+            patientIdField.getStyleClass().add("locked-context-field");
+            patientIdField.setPromptText("Selected patient");
+        }
         uploadedByLabel.setText(currentUser == null ? "Unknown" : currentUser.getUsername());
     }
 
     private boolean upload() {
         try {
+            if (lockedPatientContext && !patientIdField.getText().trim().matches("\\d{9}")) {
+                throw new IllegalArgumentException("This patient uses an old demo ID format. Please update the patient ID to 9 digits or use the cleaned demo database.");
+            }
             MedicalFileUploadService.UploadResult result = uploadService.uploadMedicalFile(currentUser,
                     new MedicalFileUploadService.UploadRequest(
                             patientIdField.getText(),

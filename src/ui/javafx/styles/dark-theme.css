@@ -2835,3 +2835,9 @@
     -fx-background-color: #2563EB;
     -fx-text-fill: #FFFFFF;
 }
+.locked-context-field {
+    -fx-background-color: #16243A;
+    -fx-border-color: #38BDF8;
+    -fx-text-fill: #F8FAFC;
+    -fx-opacity: 1.0;
+}

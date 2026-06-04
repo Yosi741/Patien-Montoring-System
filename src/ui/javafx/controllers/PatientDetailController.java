@@ -283,9 +283,9 @@ public class PatientDetailController implements FxController {
             return;
         }
         try {
-            boolean saved = ReminderFormController.showCreateDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId, null, "");
+            boolean saved = ReminderFormController.showOrderCheckupDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Reminder saved. Open Scheduling to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Checkup order saved. Open Scheduling or Nurse Work Queue to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
