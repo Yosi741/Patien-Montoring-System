@@ -30,15 +30,16 @@ bin/
 .DS_Store
 sources.txt
 # Runtime/generated data
+data/uploads/
+data/generated/
+data/backups/
 data/certificates/
 data/files/
-data/smart_patient_monitoring.db*
-data/ai_notes.txt
-data/messages.txt
-data/notifications.txt
-data/vitals_history.txt
-data/devices.txt
-data/medical_files.txt
-data/newborns.txt
-data/mothers.txt
-data/rooms.txt
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+
+# Archived prototype text storage is documentation-only, not runtime data.
+data/archive/legacy-text-storage/*.txt
+!data/archive/legacy-text-storage/README.md

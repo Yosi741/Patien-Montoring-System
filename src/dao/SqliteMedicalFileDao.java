@@ -117,7 +117,7 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
             params.add(like);
             params.add(like);
         }
-        sql.append("ORDER BY datetime(mf.uploaded_at) DESC, mf.id DESC");
+        sql.append("ORDER BY datetime(").append(uploadedAtSqlExpression()).append(") DESC, mf.id DESC");
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
@@ -141,7 +141,7 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         String sql = "SELECT mf.id, mf.file_id, mf.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
                 + "mf.original_name, mf.stored_path, mf.file_type, mf.uploaded_by, mf.uploaded_at, mf.extracted_summary, mf.file_size, mf.notes "
                 + "FROM medical_files mf LEFT JOIN patients p ON p.patient_id = mf.patient_id "
-                + "ORDER BY datetime(mf.uploaded_at) DESC, mf.id DESC LIMIT ?";
+                + "ORDER BY datetime(" + uploadedAtSqlExpression() + ") DESC, mf.id DESC LIMIT ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, Math.max(1, limit));
@@ -206,12 +206,17 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         String displayDate = today.minusDays(days).format(DISPLAY_DATE);
         String iso = today.minusDays(days).format(ISO_DATE);
         if (days == 0) {
-            sql.append("AND (mf.uploaded_at LIKE '").append(today.format(DISPLAY_DATE)).append("%' OR mf.uploaded_at LIKE '")
-                    .append(today.format(ISO_DATE)).append("%') ");
+            sql.append("AND date(").append(uploadedAtSqlExpression()).append(") = date('").append(today.format(ISO_DATE)).append("') ");
         } else {
-            sql.append("AND (datetime(mf.uploaded_at) >= datetime('").append(iso).append(" 00:00:00') ")
-                    .append("OR mf.uploaded_at >= '").append(displayDate).append("') ");
+            sql.append("AND date(").append(uploadedAtSqlExpression()).append(") >= date('").append(iso).append("') ");
         }
+    }
+
+    private String uploadedAtSqlExpression() {
+        return "CASE "
+                + "WHEN length(mf.uploaded_at) >= 10 AND substr(mf.uploaded_at, 3, 1) = '-' "
+                + "THEN substr(mf.uploaded_at, 7, 4) || '-' || substr(mf.uploaded_at, 4, 2) || '-' || substr(mf.uploaded_at, 1, 2) || substr(mf.uploaded_at, 11) "
+                + "ELSE mf.uploaded_at END";
     }
 
     private MedicalFileRecord mapRecord(ResultSet resultSet) throws SQLException {

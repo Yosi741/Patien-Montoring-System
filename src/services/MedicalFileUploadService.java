@@ -69,31 +69,43 @@ public class MedicalFileUploadService {
         Files.copy(sourceFile.toPath(), destination, StandardCopyOption.COPY_ATTRIBUTES);
 
         String summary = extractSummary(destination.toFile(), extension, request.category);
-        MedicalFile medicalFile = new MedicalFile(
-                fileId,
-                request.patientId.trim(),
-                sourceFile.getName(),
-                destination.toString(),
-                normalizeCategory(request.category),
-                username(currentUser),
-                uploadedAt
-        );
-        medicalFileDao.insertUploadedFile(new SqliteMedicalFileDao.MedicalFileRecord(
-                0,
-                fileId,
-                medicalFile.getPatientId(),
-                "",
-                medicalFile.getOriginalName(),
-                medicalFile.getStoredPath(),
-                medicalFile.getFileType(),
-                medicalFile.getUploadedBy(),
-                medicalFile.getUploadedAt(),
-                summary,
-                fileSize,
-                trim(request.notes)
-        ));
-        AuditWriteHelper.write(username(currentUser), AuditAction.UPLOAD_MEDICAL_FILE,
-                "patient_id=" + request.patientId + ", file_id=" + fileId + ", name=" + sourceFile.getName());
+        try {
+            MedicalFile medicalFile = new MedicalFile(
+                    fileId,
+                    request.patientId.trim(),
+                    sourceFile.getName(),
+                    destination.toString(),
+                    normalizeCategory(request.category),
+                    username(currentUser),
+                    uploadedAt
+            );
+            boolean inserted = medicalFileDao.insertUploadedFile(new SqliteMedicalFileDao.MedicalFileRecord(
+                    0,
+                    fileId,
+                    medicalFile.getPatientId(),
+                    "",
+                    medicalFile.getOriginalName(),
+                    medicalFile.getStoredPath(),
+                    medicalFile.getFileType(),
+                    medicalFile.getUploadedBy(),
+                    medicalFile.getUploadedAt(),
+                    summary,
+                    fileSize,
+                    trim(request.notes)
+            ));
+            if (!inserted) {
+                throw new SQLException("SQLite did not insert the medical file record.");
+            }
+        } catch (SQLException e) {
+            cleanupCopiedFile(destination);
+            throw new SQLException("File copy completed, but SQLite record insert failed. The copied file was removed to prevent an orphan upload. " + e.getMessage(), e);
+        }
+        try {
+            AuditWriteHelper.write(username(currentUser), AuditAction.UPLOAD_MEDICAL_FILE,
+                    "patient_id=" + request.patientId + ", file_id=" + fileId + ", name=" + sourceFile.getName());
+        } catch (Exception e) {
+            System.out.println("SQLite medical file upload audit skipped: " + e.getMessage());
+        }
         return new UploadResult(fileId, destination.toString(), summary);
     }
 
@@ -150,6 +162,14 @@ public class MedicalFileUploadService {
         String safeName = safeFilename(originalName);
         String stamp = LocalDateTime.now().format(FILE_STAMP);
         return Path.of("data", "uploads", patientId, stamp + "_" + fileId.substring(0, 8) + "_" + safeName);
+    }
+
+    private void cleanupCopiedFile(Path destination) {
+        try {
+            Files.deleteIfExists(destination);
+        } catch (IOException cleanupError) {
+            System.out.println("Orphan upload cleanup needed for " + destination + ": " + cleanupError.getMessage());
+        }
     }
 
     private String extractSummary(File file, String extension, String category) {

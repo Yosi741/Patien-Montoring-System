@@ -20,6 +20,88 @@ Smart Patient Monitoring System is a JavaFX + SQLite hospital patient monitoring
 12. Open Notifications for alerts and system events.
 13. As admin, open Staff / Users and Audit Logs.
 
+## Demo Accounts
+
+Use these local SQLite demo accounts:
+
+| Username | Password | Role | Section |
+| --- | --- | --- | --- |
+| `yasen` | `demo123` | ADMIN | All |
+| `doctor_demo` | `demo123` | DOCTOR | ER |
+| `nurse_demo` | `demo123` | NURSE | Maternity |
+
+These accounts are presentation-only. Passwords are stored with the app password hashing utility.
+
+## Clean Demo Departments And Rooms
+
+Departments:
+
+- ER
+- Surgery
+- Internal Medicine
+- Maternity
+- Pediatrics
+- Cardiology
+
+Rooms:
+
+- ER-101
+- SUR-201
+- INT-301
+- MAT-401
+- PED-501
+- CAR-601
+
+## Demo Patient IDs
+
+All demo patient and newborn IDs are exactly 9 digits.
+
+| ID | Person | Workflow |
+| --- | --- | --- |
+| `100000001` | John Carter | Normal adult patient |
+| `100000002` | Sara Haddad | Critical patient with active alert |
+| `100000003` | Omar Nasser | Emergency patient with active alert |
+| `100000004` | Lina Mansour | Surgery patient and medication demo |
+| `100000005` | Mariam Saleh | Mother patient in Maternity |
+| `100000006` | Adam Saleh | Newborn record linked to mother |
+| `100000007` | Nabil Khoury | Deceased patient with death certificate |
+
+## Demo Medication Rules
+
+The clean demo catalog includes:
+
+- Aspirin
+- Ibuprofen
+- Amoxicillin
+- Metoprolol
+- Vancomycin
+- Norepinephrine
+
+Interaction rules:
+
+- Ibuprofen + Aspirin = WARNING
+- Aspirin + Norepinephrine = DANGEROUS
+
+These are demo decision-support rules only, not medical diagnosis or real prescribing guidance.
+
+## Clean Demo Reminders And Notifications
+
+Seeded reminders:
+
+- Checkup: Heart Rate, Blood Pressure, CBC, CRP
+- Medication review reminder
+- Nurse follow-up task
+
+Seeded notifications:
+
+- Critical vital alert notification
+- Pending checkup notification
+- Certificate generated notification
+
+## Medical Files Demo State
+
+Medical file records are clean and currently empty. Old physical upload files were archived before the reset. The Medical Files page should open normally and will show new uploads after a fresh upload creates a SQLite metadata row.
+
 ## Disabled Features And Why
 
 - AI recommendations are disabled because they add complexity that is not needed for a 15-minute board presentation.
@@ -48,11 +130,11 @@ The project started as a simpler Swing and text-file prototype. It was migrated 
 ## Suggested 15-Minute Flow
 
 - 0:00-2:00: Login, architecture, and Dashboard.
-- 2:00-5:00: Patient Board, Patient File, and vitals alert.
-- 5:00-8:00: Medication catalog and medication safety checks.
-- 8:00-10:00: Scheduling and Nurse Work Queue.
-- 10:00-12:00: Rooms / Beds and department workflow.
-- 12:00-14:00: Newborn/deceased certificate workflows and Notifications.
+- 2:00-5:00: Patient Board, Patient File, and vitals alert using Sara Haddad (`100000002`) or Omar Nasser (`100000003`).
+- 5:00-8:00: Medication catalog and medication safety checks using Lina Mansour (`100000004`).
+- 8:00-10:00: Scheduling and Nurse Work Queue using the checkup reminder for Sara Haddad.
+- 10:00-12:00: Rooms / Beds and department workflow with the clean six-room layout.
+- 12:00-14:00: Newborn/deceased certificate workflows using Adam Saleh (`100000006`) and Nabil Khoury (`100000007`).
 - 14:00-15:00: Audit Logs, limitations, and future extensions.
 
 ## Demo Notes
