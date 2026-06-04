@@ -1,5 +1,6 @@
 package services;
 
+import dao.SqliteAlertDao;
 import dao.SqlitePatientDao;
 import dao.SqliteVitalReadingDao;
 import models.VitalRecord;
@@ -11,25 +12,36 @@ import users.User;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Locale;
 
 public class VitalsWriteService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final int STABLE_READINGS_REQUIRED = 2;
+    private static final int STABLE_MINUTES_REQUIRED = 30;
 
     private final SqliteVitalReadingDao vitalReadingDao;
     private final SqlitePatientDao patientDao;
+    private final SqliteAlertDao alertDao;
     private final VitalThresholdService thresholdService;
 
     public VitalsWriteService() {
-        this(new SqliteVitalReadingDao(), new SqlitePatientDao(), new VitalThresholdService());
+        this(new SqliteVitalReadingDao(), new SqlitePatientDao(), new SqliteAlertDao(), new VitalThresholdService());
     }
 
     public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, SqlitePatientDao patientDao, VitalThresholdService thresholdService) {
+        this(vitalReadingDao, patientDao, new SqliteAlertDao(), thresholdService);
+    }
+
+    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, SqlitePatientDao patientDao,
+                              SqliteAlertDao alertDao, VitalThresholdService thresholdService) {
         this.vitalReadingDao = vitalReadingDao;
         this.patientDao = patientDao;
+        this.alertDao = alertDao;
         this.thresholdService = thresholdService;
     }
 
@@ -44,24 +56,27 @@ public class VitalsWriteService {
         String recordedAtText = recordedAt.format(DISPLAY_DATE_TIME);
         String normalizedType = VitalTypeCatalog.normalize(request.vitalType);
         String unit = VitalTypeCatalog.expectedUnit(normalizedType);
+        SqlitePatientDao.PatientDetail patient = patientDao.findDetailById(request.patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId));
+        String birthDate = patient.getBirthDate();
 
         VitalThresholdService.VitalStatus status;
         if (VitalTypeCatalog.BLOOD_PRESSURE.equals(normalizedType)) {
             double systolic = parseNumber(request.value);
             double diastolic = parseNumber(request.secondValue);
-            VitalThresholdService.VitalStatus systolicStatus = thresholdService.evaluate(VitalTypeCatalog.SYSTOLIC_PRESSURE, systolic);
-            VitalThresholdService.VitalStatus diastolicStatus = thresholdService.evaluate(VitalTypeCatalog.DIASTOLIC_PRESSURE, diastolic);
+            VitalThresholdService.VitalStatus systolicStatus = thresholdService.evaluate(VitalTypeCatalog.SYSTOLIC_PRESSURE, systolic, birthDate);
+            VitalThresholdService.VitalStatus diastolicStatus = thresholdService.evaluate(VitalTypeCatalog.DIASTOLIC_PRESSURE, diastolic, birthDate);
             status = worse(systolicStatus, diastolicStatus);
             vitalReadingDao.insertVitalReading(record(request.patientId, VitalTypeCatalog.SYSTOLIC_PRESSURE, request.value, unit, recordedAtText, staffUser));
             vitalReadingDao.insertVitalReading(record(request.patientId, VitalTypeCatalog.DIASTOLIC_PRESSURE, request.secondValue, unit, recordedAtText, staffUser));
         } else {
             double value = parseNumber(request.value);
-            status = thresholdService.evaluate(normalizedType, value);
+            status = thresholdService.evaluate(normalizedType, value, birthDate);
             vitalReadingDao.insertVitalReading(record(request.patientId, normalizedType, request.value, unit, recordedAtText, staffUser));
         }
 
-        if (status == VitalThresholdService.VitalStatus.WARNING || status == VitalThresholdService.VitalStatus.CRITICAL) {
-            String severity = status == VitalThresholdService.VitalStatus.CRITICAL ? "CRITICAL" : "WARNING";
+        if (isAbnormal(status)) {
+            String severity = status.name();
             AlertPersistenceService.persistAlert(
                     request.patientId,
                     severity,
@@ -76,6 +91,9 @@ public class VitalsWriteService {
                             + " = " + displayValue(request) + " " + unit,
                     ""
             );
+            syncPatientPriority(staffUser, request.patientId, severity, normalizedType, displayValue(request), unit);
+        } else {
+            attemptStablePriorityDowngrade(staffUser, patient, birthDate);
         }
 
         AuditWriteHelper.write(
@@ -176,13 +194,128 @@ public class VitalsWriteService {
     }
 
     private VitalThresholdService.VitalStatus worse(VitalThresholdService.VitalStatus first, VitalThresholdService.VitalStatus second) {
-        if (first == VitalThresholdService.VitalStatus.CRITICAL || second == VitalThresholdService.VitalStatus.CRITICAL) {
-            return VitalThresholdService.VitalStatus.CRITICAL;
+        return statusRank(first) >= statusRank(second) ? first : second;
+    }
+
+    private boolean isAbnormal(VitalThresholdService.VitalStatus status) {
+        return status != VitalThresholdService.VitalStatus.NORMAL;
+    }
+
+    private int statusRank(VitalThresholdService.VitalStatus status) {
+        if (status == VitalThresholdService.VitalStatus.EMERGENCY) {
+            return 3;
         }
-        if (first == VitalThresholdService.VitalStatus.WARNING || second == VitalThresholdService.VitalStatus.WARNING) {
+        if (status == VitalThresholdService.VitalStatus.CRITICAL) {
+            return 2;
+        }
+        if (status == VitalThresholdService.VitalStatus.WARNING) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private void syncPatientPriority(String staffUser, String patientId, String severity, String vitalType, String value, String unit) throws SQLException {
+        String priority = priorityForSeverity(severity);
+        if (patientDao.updatePriorityIfHigher(patientId, priority)) {
+            AuditWriteHelper.write(
+                    staffUser,
+                    AuditAction.UPDATE_PATIENT,
+                    "patient_id=" + patientId + ", priority=" + priority + ", source=vital_alert"
+                            + ", vital=" + vitalType + ", value=" + value + " " + unit
+            );
+        }
+    }
+
+    private String priorityForSeverity(String severity) {
+        if ("EMERGENCY".equalsIgnoreCase(severity)) {
+            return "EMERGENCY";
+        }
+        if ("CRITICAL".equalsIgnoreCase(severity)) {
+            return "CRITICAL";
+        }
+        if ("WARNING".equalsIgnoreCase(severity)) {
+            return "HIGH";
+        }
+        return "NORMAL";
+    }
+
+    private void attemptStablePriorityDowngrade(String staffUser, SqlitePatientDao.PatientDetail patient, String birthDate) throws SQLException {
+        if (patient == null || patient.getPatientId() == null || patient.getPatientId().isBlank()) {
+            return;
+        }
+        if (alertDao.countActiveCriticalEmergencyForPatient(patient.getPatientId()) > 0) {
+            return;
+        }
+
+        List<VitalRecord> recentReadings = vitalReadingDao.findRecentByPatientId(patient.getPatientId(), 12);
+        LocalDateTime firstNormalTime = null;
+        LocalDateTime secondNormalTime = null;
+        int normalGroups = 0;
+        String lastTimestamp = "";
+
+        for (VitalRecord reading : recentReadings) {
+            LocalDateTime readingTime = parseDateTime(reading.getDateTime());
+            String timestamp = reading.getDateTime() == null ? "" : reading.getDateTime().trim();
+            VitalThresholdService.VitalStatus readingStatus = evaluateExistingReading(reading, birthDate);
+            if (readingStatus != VitalThresholdService.VitalStatus.NORMAL) {
+                return;
+            }
+            if (!timestamp.equals(lastTimestamp)) {
+                normalGroups++;
+                if (firstNormalTime == null) {
+                    firstNormalTime = readingTime;
+                } else if (secondNormalTime == null) {
+                    secondNormalTime = readingTime;
+                }
+                lastTimestamp = timestamp;
+            }
+            if (normalGroups >= STABLE_READINGS_REQUIRED) {
+                break;
+            }
+        }
+
+        if (normalGroups < STABLE_READINGS_REQUIRED || firstNormalTime == null || secondNormalTime == null) {
+            return;
+        }
+        long minutes = Math.abs(ChronoUnit.MINUTES.between(firstNormalTime, secondNormalTime));
+        if (minutes < STABLE_MINUTES_REQUIRED) {
+            return;
+        }
+
+        String nextPriority = nextLowerPriority(patient.getPriority());
+        if (nextPriority.isBlank()) {
+            return;
+        }
+        // Demo decision-support rule. Real hospitals use local clinical protocols.
+        if (patientDao.updatePriorityIfLower(patient.getPatientId(), nextPriority)) {
+            AuditWriteHelper.write(
+                    staffUser,
+                    AuditAction.UPDATE_PATIENT,
+                    "patient_id=" + patient.getPatientId() + ", priority=" + nextPriority
+                            + ", source=stable_vitals_demo_rule"
+            );
+        }
+    }
+
+    private VitalThresholdService.VitalStatus evaluateExistingReading(VitalRecord reading, String birthDate) {
+        try {
+            return thresholdService.evaluate(reading.getVitalType(), parseNumber(reading.getValue()), birthDate);
+        } catch (Exception e) {
             return VitalThresholdService.VitalStatus.WARNING;
         }
-        return VitalThresholdService.VitalStatus.NORMAL;
+    }
+
+    private String nextLowerPriority(String priority) {
+        if ("EMERGENCY".equalsIgnoreCase(priority)) {
+            return "CRITICAL";
+        }
+        if ("CRITICAL".equalsIgnoreCase(priority)) {
+            return "HIGH";
+        }
+        if ("HIGH".equalsIgnoreCase(priority) || "WARNING".equalsIgnoreCase(priority)) {
+            return "NORMAL";
+        }
+        return "";
     }
 
     private String displayValue(VitalsEntryRequest request) {

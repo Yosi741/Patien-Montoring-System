@@ -1,11 +1,11 @@
 # Smart Patient Monitoring System
 
-A JavaFX desktop hospital management and patient monitoring system. The application uses a local SQLite database, JavaFX screens, service-layer business logic, DAO persistence classes, audit logging, alerts, patient files, scheduling, notifications, certificates, and backup/export tools.
+A JavaFX desktop hospital patient monitoring prototype for a local presentation/demo environment. The application uses a local SQLite database, JavaFX screens, service-layer business logic, DAO persistence classes, audit logging, alerts, patient files, scheduling, notifications, certificates, and medication safety workflows.
 
 ## Current Stack
 
 - Java 11+ source code
-- JavaFX UI with FXML and shared light/dark theme styles
+- JavaFX UI with FXML and a forced Hospital Navy presentation theme
 - SQLite local database at `data/smart_patient_monitoring.db`
 - Plain Java project structure with dependencies in `lib/`
 - Controller -> Service -> DAO architecture
@@ -15,20 +15,18 @@ A JavaFX desktop hospital management and patient monitoring system. The applicat
 - Staff login, profile, session context, and role-based UI access
 - Dashboard with hospital metrics, alert summaries, reminders, and patient counters
 - Patient Board with active, deceased, and newborn subsections
-- Patient File with demographics, vitals, alerts, clinical timeline, medical files, medications, scheduling, and room actions
+- Patient File with demographics, vitals, alerts, clinical timeline, medications, scheduling, and room actions
 - Manual vitals entry with rule-based thresholds, JavaFX alerts, notifications, and local alarm sound
 - Alert notifications and clinical alert follow-up through the Notification Center and patient workflows
 - Notification Center and internal messaging
 - Room, bed, and section management
 - Medication administration overview and write workflows
 - Appointment and reminder scheduling with Nurse Work Queue
-- Medical file upload, safe local preview, and basic text extraction
 - Deceased patient records with local HTML death certificate generation
 - Newborn records with local HTML birth certificate generation
 - Unified certificate registry and review workflow
 - Staff/user directory and admin user management
 - Audit log viewer
-- Local ZIP backup and CSV export tools
 
 ## Demo Presentation Mode
 
@@ -37,8 +35,28 @@ The project currently starts in a simplified 15-minute demo configuration:
 - `DEMO_MODE=true`
 - `APP_FEATURE_AI=false`
 - `APP_FEATURE_DEVICES=false`
+- `APP_FEATURE_BACKUP_EXPORT=false`
+- `APP_FEATURE_STAFF_ACTIVITY=false`
+- `APP_FEATURE_MEDICAL_FILES=false`
+- `APP_FEATURE_MESSAGES=true`
+- `APP_FEATURE_NOTIFICATIONS=true`
+- `APP_FEATURE_ALERT_CENTER_PAGE=false`
 
-AI recommendation and medical-device screens are hidden for the presentation, but their code and database tables remain in the project for later phases. Core hospital workflows stay active: patients, vitals, medications, rooms/beds, scheduling, Nurse Work Queue, medical files, certificates, notifications, profile, and admin tools.
+AI recommendation, medical-device, backup/export, staff-activity, and medical-file sidebar entries are hidden for the presentation, but their code and database tables remain in the project for later phases. Core hospital workflows stay active: patients, vitals, medications, rooms/beds, scheduling, Nurse Work Queue, certificates, notifications, profile, and admin tools.
+
+The visible presentation sidebar focuses on:
+
+- Dashboard
+- Patients
+- Medications
+- Scheduling
+- Nurse Work Queue
+- Rooms / Beds
+- Certificates
+- Notifications
+- Staff / Users, admin only
+- Audit Logs, admin only
+- Profile / Settings
 
 ## How To Run
 
@@ -115,7 +133,7 @@ Birth and death certificates currently generate safe local HTML files:
 - Birth: `data/generated/birth-certificates/`
 - Death: `data/generated/death-certificates/`
 
-Certificate files are opened only after path validation. PDF/template overlay support can be reintroduced later as a dedicated certificate output phase.
+Certificate files are opened only after path validation. They are prototype-generated local certificates based on SQLite records, not official legal or government certificates. PDF/template overlay support can be reintroduced later as a dedicated certificate output phase.
 
 ## Backup And Export
 
@@ -127,13 +145,19 @@ The Backup / Export screen can:
 
 Restore is intentionally preview-only; it does not overwrite the live database.
 
+In the current presentation demo configuration, Backup / Export is hidden to keep the 15-minute flow focused. The code remains available for future use.
+
 ## Notes And Limitations
 
 - This is a local desktop application, not a networked hospital deployment.
 - Rule-based AI recommendation code is retained but hidden in the current demo configuration.
-- Real device, smart watch, external email/SMS, and hospital paging integrations are future work.
-- HTML certificates are presentation-ready foundations, not official legal certification.
+- Real device, smart watch, external email/SMS, cloud backup, and hospital paging integrations are future extensions.
+- HTML certificates are local prototype documents, not official legal certification.
 - Passwords are hashed for SQLite users; raw passwords are not displayed or logged.
+
+## Presentation Guide
+
+Use [docs/presentation-demo-guide.md](docs/presentation-demo-guide.md) for the recommended 15-minute college board demo flow.
 
 ## Smoke Testing
 

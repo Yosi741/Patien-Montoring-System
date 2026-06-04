@@ -22,7 +22,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Newborn ID" styleClass="field-label" />
-            <TextField fx:id="newbornIdField" promptText="NB-001" styleClass="control-input" />
+            <TextField fx:id="newbornIdField" promptText="9 digit baby ID" styleClass="control-input" />
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label text="Baby Name" styleClass="field-label" />
@@ -65,11 +65,11 @@
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
             <Label text="Room" styleClass="field-label" />
-            <TextField fx:id="roomField" promptText="Room" styleClass="control-input" />
+            <ComboBox fx:id="roomBox" maxWidth="Infinity" promptText="Room" styleClass="control-input" />
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
             <Label text="Section" styleClass="field-label" />
-            <TextField fx:id="sectionField" promptText="Maternity" styleClass="control-input" />
+            <ComboBox fx:id="sectionBox" maxWidth="Infinity" promptText="Maternity" styleClass="control-input" />
         </VBox>
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
             <Label text="Doctor / Midwife" styleClass="field-label" />

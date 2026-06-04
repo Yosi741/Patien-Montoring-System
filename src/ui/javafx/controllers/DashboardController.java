@@ -44,6 +44,10 @@ public class DashboardController implements FxController {
     @FXML private Label resolvedTodayLabel;
     @FXML private Label medicalFilesLabel;
     @FXML private Label aiNotesLabel;
+    @FXML private VBox newbornRecordsCard;
+    @FXML private VBox acknowledgedAlertsCard;
+    @FXML private VBox resolvedAlertsCard;
+    @FXML private VBox medicalFilesCard;
     @FXML private VBox aiNotesCard;
     @FXML private Label recentVitalsTodayLabel;
     @FXML private Label appointmentsTodayLabel;
@@ -127,10 +131,11 @@ public class DashboardController implements FxController {
         resolvedTodayLabel.setText(String.valueOf(metrics.getResolvedAlertsToday()));
         medicalFilesLabel.setText(String.valueOf(metrics.getImportedMedicalFiles()));
         aiNotesLabel.setText(String.valueOf(metrics.getAiNotes()));
-        if (aiNotesCard != null) {
-            aiNotesCard.setVisible(AppFeatures.aiEnabled());
-            aiNotesCard.setManaged(AppFeatures.aiEnabled());
-        }
+        setCardVisible(newbornRecordsCard, !AppFeatures.DEMO_MODE);
+        setCardVisible(acknowledgedAlertsCard, !AppFeatures.DEMO_MODE);
+        setCardVisible(resolvedAlertsCard, !AppFeatures.DEMO_MODE);
+        setCardVisible(medicalFilesCard, AppFeatures.medicalFilesEnabled());
+        setCardVisible(aiNotesCard, AppFeatures.aiEnabled());
         recentVitalsTodayLabel.setText(String.valueOf(metrics.getRecentVitalsToday()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
         pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));
@@ -218,6 +223,13 @@ public class DashboardController implements FxController {
         HBox row = new HBox(label);
         row.getStyleClass().add("dashboard-list-row");
         return row;
+    }
+
+    private void setCardVisible(VBox card, boolean visible) {
+        if (card != null) {
+            card.setVisible(visible);
+            card.setManaged(visible);
+        }
     }
 
     private void startAutoRefresh() {

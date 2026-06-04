@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import dao.SqliteNewbornRecordDao;
 import dao.SqlitePatientDao;
+import dao.SqliteRoomDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,12 +16,16 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import services.NewbornService;
+import services.SectionService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class NewbornFormController {
 
@@ -28,6 +33,8 @@ public class NewbornFormController {
 
     private final NewbornService newbornService = new NewbornService();
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
+    private final SectionService sectionService = new SectionService();
+    private final SqliteRoomDao roomDao = new SqliteRoomDao();
     private User currentUser;
     private SqliteNewbornRecordDao.NewbornRecord existingRecord;
     private String motherPatientId;
@@ -44,8 +51,8 @@ public class NewbornFormController {
     @FXML private TextField motherNameField;
     @FXML private TextField fatherNameField;
     @FXML private ComboBox<String> deliveryTypeBox;
-    @FXML private TextField roomField;
-    @FXML private TextField sectionField;
+    @FXML private ComboBox<String> roomBox;
+    @FXML private ComboBox<String> sectionBox;
     @FXML private TextField doctorField;
     @FXML private TextArea notesArea;
     @FXML private Label statusLabel;
@@ -68,6 +75,7 @@ public class NewbornFormController {
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(record == null ? "Create Newborn Record" : "Update Newborn Record");
+            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);
@@ -90,6 +98,9 @@ public class NewbornFormController {
         deliveryTypeBox.getItems().setAll("NATURAL", "C_SECTION", "ASSISTED", "UNKNOWN");
         deliveryTypeBox.getSelectionModel().select("UNKNOWN");
         birthTimeField.setText(LocalDateTime.now().format(SQLITE_DATE_TIME));
+        loadSections();
+        sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> loadRoomsForSection(newValue));
+        loadRoomsForSection(sectionBox.getValue());
         NotificationHelper.showInfo(statusLabel, "Newborn record workflow. System data is stored in the local database.");
     }
 
@@ -104,6 +115,7 @@ public class NewbornFormController {
         if (record == null) {
             titleLabel.setText("Create Newborn Record");
             doctorField.setText(currentUser == null ? "" : currentUser.getUsername());
+            selectPreferredSection();
             return;
         }
         titleLabel.setText("Update Newborn Record");
@@ -118,8 +130,9 @@ public class NewbornFormController {
         motherNameField.setText(record.getMotherName());
         fatherNameField.setText(record.getFatherName());
         deliveryTypeBox.getSelectionModel().select(record.getDeliveryType());
-        roomField.setText(record.getRoom());
-        sectionField.setText(record.getSection());
+        selectOrSet(sectionBox, record.getSection());
+        loadRoomsForSection(record.getSection());
+        selectOrSet(roomBox, record.getRoom());
         doctorField.setText(record.getDoctorOrMidwife());
         notesArea.setText(record.getNotes());
     }
@@ -137,8 +150,8 @@ public class NewbornFormController {
                     motherNameField.getText(),
                     fatherNameField.getText(),
                     deliveryTypeBox.getValue(),
-                    roomField.getText(),
-                    sectionField.getText(),
+                    comboValue(roomBox),
+                    comboValue(sectionBox),
                     doctorField.getText(),
                     notesArea.getText()
             );
@@ -166,15 +179,71 @@ public class NewbornFormController {
             SqlitePatientDao.PatientDetail mother = patientDao.findDetailById(motherId)
                     .orElseThrow(() -> new IllegalArgumentException("Mother patient ID not found in SQLite: " + motherId));
             motherNameField.setText(mother.getName());
-            if (sectionField.getText() == null || sectionField.getText().isBlank()) {
-                sectionField.setText(mother.getSection());
-            }
-            if (roomField.getText() == null || roomField.getText().isBlank()) {
-                roomField.setText(mother.getRoom());
-            }
-            NotificationHelper.showSuccess(statusLabel, "Mother linked: " + mother.getName());
+            NotificationHelper.showSuccess(statusLabel, "Mother linked: " + mother.getName()
+                    + ". Newborn section remains your selected birth section.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
+    }
+
+    private void loadSections() {
+        LinkedHashSet<String> sections = new LinkedHashSet<>();
+        try {
+            sections.addAll(sectionService.findActiveSectionNames());
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Active section list unavailable: " + e.getMessage());
+        }
+        sectionBox.getItems().setAll(sections);
+        selectPreferredSection();
+    }
+
+    private void selectPreferredSection() {
+        if (sectionBox == null || sectionBox.getItems().isEmpty()) {
+            return;
+        }
+        if (sectionBox.getItems().contains("Maternity")) {
+            sectionBox.getSelectionModel().select("Maternity");
+        } else {
+            sectionBox.getSelectionModel().selectFirst();
+        }
+    }
+
+    private void loadRoomsForSection(String section) {
+        String selected = comboValue(roomBox);
+        List<String> rooms = new ArrayList<>();
+        if (section != null && !section.isBlank()) {
+            try {
+                rooms.addAll(roomDao.findActiveRoomsForSection(section));
+            } catch (Exception e) {
+                NotificationHelper.showInfo(statusLabel, "Room choices unavailable for section: " + e.getMessage());
+            }
+        }
+        roomBox.getItems().setAll(rooms);
+        if (rooms.isEmpty()) {
+            NotificationHelper.showInfo(statusLabel, "No active rooms found for the selected section.");
+        } else if (selected != null && !selected.isBlank() && rooms.contains(selected)) {
+            roomBox.getSelectionModel().select(selected);
+        } else {
+            roomBox.getSelectionModel().selectFirst();
+        }
+    }
+
+    private void selectOrSet(ComboBox<String> comboBox, String value) {
+        String safeValue = value == null ? "" : value.trim();
+        if (safeValue.isBlank()) {
+            comboBox.getSelectionModel().clearSelection();
+            return;
+        }
+        if (!comboBox.getItems().contains(safeValue)) {
+            comboBox.getItems().add(safeValue);
+        }
+        comboBox.getSelectionModel().select(safeValue);
+    }
+
+    private String comboValue(ComboBox<String> comboBox) {
+        if (comboBox == null || comboBox.getValue() == null) {
+            return "";
+        }
+        return comboBox.getValue().trim();
     }
 }

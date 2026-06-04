@@ -72,9 +72,9 @@ public class PatientWriteService {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Patient ID", patient.getPatientId()),
                 FormValidationHelper.validatePatientId(patient.getPatientId()),
+                FormValidationHelper.validateRequired("Birth date", patient.getBirthDate()),
                 FormValidationHelper.validateRequired("First name", patient.getFirstName()),
                 FormValidationHelper.validateRequired("Last name", patient.getLastName()),
-                FormValidationHelper.validateMaxLength("Patient ID", patient.getPatientId(), 32),
                 FormValidationHelper.validateMaxLength("First name", patient.getFirstName(), 60),
                 FormValidationHelper.validateMaxLength("Last name", patient.getLastName(), 60),
                 FormValidationHelper.validateMaxLength("Gender", patient.getGender(), 40),
@@ -100,6 +100,12 @@ public class PatientWriteService {
         LocalDate date = parseBirthDate(value);
         if (date.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Birth date cannot be in the future.");
+        }
+        if (date.getYear() < 1900) {
+            throw new IllegalArgumentException("Birth year cannot be before 1900.");
+        }
+        if (date.isBefore(LocalDate.now().minusYears(130))) {
+            throw new IllegalArgumentException("Patient age cannot exceed 130 years.");
         }
     }
 

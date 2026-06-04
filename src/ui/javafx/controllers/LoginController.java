@@ -67,6 +67,7 @@ public class LoginController implements FxController {
     private void forgotPassword() {
         Dialog<ButtonType> requestDialog = new Dialog<>();
         requestDialog.setTitle("Forgot Password");
+        ui.javafx.helpers.DialogThemeHelper.apply(requestDialog);
         requestDialog.initOwner(usernameField.getScene().getWindow());
         TextField resetUsername = new TextField(usernameField.getText());
         resetUsername.setPromptText("Username");
@@ -94,6 +95,7 @@ public class LoginController implements FxController {
     private void showResetPasswordDialog(PasswordResetService.ResetTokenResult token) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Reset Password");
+        ui.javafx.helpers.DialogThemeHelper.apply(dialog);
         dialog.initOwner(usernameField.getScene().getWindow());
 
         Label tokenLabel = new Label("Local demo token: " + token.getToken() + "\nExpires: " + token.getExpiresAt());

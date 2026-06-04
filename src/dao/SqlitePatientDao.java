@@ -277,6 +277,56 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
+    public boolean updatePriorityIfHigher(String patientId, String requestedPriority) throws SQLException {
+        Optional<PatientDetail> detail = findDetailById(patientId);
+        if (detail.isEmpty()) {
+            return false;
+        }
+
+        PatientDetail patient = detail.get();
+        if (isTerminalStatus(patient.getStatus())) {
+            return false;
+        }
+
+        String normalizedPriority = normalizePriority(requestedPriority);
+        if (priorityRank(normalizedPriority) <= priorityRank(patient.getPriority())) {
+            return false;
+        }
+
+        String sql = "UPDATE patients SET priority = ?, updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, normalizedPriority);
+            statement.setString(2, patientId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updatePriorityIfLower(String patientId, String requestedPriority) throws SQLException {
+        Optional<PatientDetail> detail = findDetailById(patientId);
+        if (detail.isEmpty()) {
+            return false;
+        }
+
+        PatientDetail patient = detail.get();
+        if (isTerminalStatus(patient.getStatus())) {
+            return false;
+        }
+
+        String normalizedPriority = normalizePriority(requestedPriority);
+        if (priorityRank(normalizedPriority) >= priorityRank(patient.getPriority())) {
+            return false;
+        }
+
+        String sql = "UPDATE patients SET priority = ?, updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, normalizedPriority);
+            statement.setString(2, patientId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
     public void updatePatientsRoom(String oldSection, String oldRoom, String newSection, String newRoom) throws SQLException {
         String sql = "UPDATE patients SET section = ?, room = ?, updated_at = CURRENT_TIMESTAMP "
                 + "WHERE UPPER(COALESCE(section, '')) = ? AND UPPER(COALESCE(room, '')) = ?";
@@ -378,6 +428,48 @@ public class SqlitePatientDao implements PatientDao {
 
     private String value(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private boolean isTerminalStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+        String normalized = status.trim().toUpperCase();
+        return "DECEASED".equals(normalized)
+                || "DISCHARGED".equals(normalized)
+                || "INACTIVE".equals(normalized)
+                || "DEACTIVATED".equals(normalized);
+    }
+
+    private String normalizePriority(String priority) {
+        if (priority == null || priority.isBlank()) {
+            return "NORMAL";
+        }
+        String normalized = priority.trim().toUpperCase();
+        if ("WARNING".equals(normalized)) {
+            return "HIGH";
+        }
+        if ("EMERGENCY".equals(normalized)
+                || "CRITICAL".equals(normalized)
+                || "HIGH".equals(normalized)
+                || "NORMAL".equals(normalized)) {
+            return normalized;
+        }
+        return "NORMAL";
+    }
+
+    private int priorityRank(String priority) {
+        String normalized = normalizePriority(priority);
+        switch (normalized) {
+            case "EMERGENCY":
+                return 4;
+            case "CRITICAL":
+                return 3;
+            case "HIGH":
+                return 2;
+            default:
+                return 1;
+        }
     }
 
     private Patient mapPatient(ResultSet resultSet) throws SQLException {

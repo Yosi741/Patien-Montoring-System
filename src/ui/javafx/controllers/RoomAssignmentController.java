@@ -72,6 +72,7 @@ public class RoomAssignmentController {
             ButtonType saveButtonType = new ButtonType(action == AssignmentAction.REMOVE ? "Remove" : "Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(titleFor(action));
+            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

@@ -136,6 +136,22 @@ public class SqliteVitalReadingDao implements VitalReadingDao {
         return Optional.empty();
     }
 
+    public List<VitalRecord> findRecentByPatientId(String patientId, int limit) throws SQLException {
+        ArrayList<VitalRecord> records = new ArrayList<>();
+        String sql = "SELECT * FROM vital_readings WHERE patient_id = ? ORDER BY id DESC LIMIT ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            statement.setInt(2, Math.max(1, limit));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    records.add(mapRecord(resultSet));
+                }
+            }
+        }
+        return records;
+    }
+
     @Override
     public void deleteById(String recordId) throws SQLException {
         String sql = "DELETE FROM vital_readings WHERE id = ?";

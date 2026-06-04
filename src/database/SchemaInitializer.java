@@ -404,6 +404,13 @@ public class SchemaInitializer {
     }
 
     private static void seedSections(Statement statement) throws SQLException {
+        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) VALUES "
+                + "('ER', 'ACTIVE', 'Presentation demo department'),"
+                + "('Surgery', 'ACTIVE', 'Presentation demo department'),"
+                + "('Internal Medicine', 'ACTIVE', 'Presentation demo department'),"
+                + "('Maternity', 'ACTIVE', 'Presentation demo department'),"
+                + "('Pediatrics', 'ACTIVE', 'Presentation demo department'),"
+                + "('Cardiology', 'ACTIVE', 'Presentation demo department')");
         statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) "
                 + "SELECT DISTINCT TRIM(section), 'ACTIVE', 'Imported from patient locations' FROM patients "
                 + "WHERE section IS NOT NULL AND TRIM(section) <> ''");

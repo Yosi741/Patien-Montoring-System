@@ -77,7 +77,8 @@ public class VitalsTrendService {
             result.max = Math.max(result.max, reading.getNumericValue());
             if (reading.getStatus() == VitalThresholdService.VitalStatus.WARNING) {
                 result.warningCount++;
-            } else if (reading.getStatus() == VitalThresholdService.VitalStatus.CRITICAL) {
+            } else if (reading.getStatus() == VitalThresholdService.VitalStatus.CRITICAL
+                    || reading.getStatus() == VitalThresholdService.VitalStatus.EMERGENCY) {
                 result.criticalCount++;
             } else {
                 result.normalCount++;

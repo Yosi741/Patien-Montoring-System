@@ -35,8 +35,9 @@ import java.util.prefs.Preferences;
 
 public class AppShell extends Application {
 
+    public static final String PRESENTATION_THEME = "/ui/javafx/styles/dark-theme.css";
     private static final String LIGHT_THEME = "/ui/javafx/styles/light-theme.css";
-    private static final String DARK_THEME = "/ui/javafx/styles/dark-theme.css";
+    private static final String DARK_THEME = PRESENTATION_THEME;
     private static final String THEME_PREF_KEY = "darkMode";
     private static final Preferences PREFS = Preferences.userNodeForPackage(AppShell.class);
 
@@ -55,7 +56,8 @@ public class AppShell extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         this.navigator = new AppNavigator(this);
-        this.darkMode = PREFS.getBoolean(THEME_PREF_KEY, false);
+        this.darkMode = true;
+        PREFS.putBoolean(THEME_PREF_KEY, true);
         FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
@@ -340,8 +342,8 @@ public class AppShell extends Application {
     }
 
     public void toggleTheme() {
-        darkMode = !darkMode;
-        PREFS.putBoolean(THEME_PREF_KEY, darkMode);
+        darkMode = true;
+        PREFS.putBoolean(THEME_PREF_KEY, true);
         applyTheme(primaryStage.getScene());
     }
 
@@ -511,7 +513,7 @@ public class AppShell extends Application {
             return;
         }
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(AppNavigator.resolve(darkMode ? DARK_THEME : LIGHT_THEME).toExternalForm());
+        scene.getStylesheets().add(AppNavigator.resolve(PRESENTATION_THEME).toExternalForm());
     }
 
     private void logAudit(String action) {

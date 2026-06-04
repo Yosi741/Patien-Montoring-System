@@ -135,8 +135,6 @@
                         <items>
                             <MenuItem text="Profile" onAction="#showSettings" />
                             <MenuItem text="Messages" onAction="#showMessages" />
-                            <MenuItem fx:id="darkModeMenuItem" text="Dark Mode" onAction="#toggleTheme" />
-                            <SeparatorMenuItem />
                             <MenuItem text="Logout" onAction="#logout" />
                         </items>
                     </MenuButton>

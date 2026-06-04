@@ -7,7 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import services.NotificationCenterService;
@@ -106,9 +105,6 @@ public class AppLayoutController implements FxController {
     @FXML
     private MenuButton profileMenuButton;
 
-    @FXML
-    private MenuItem darkModeMenuItem;
-
     private Timeline notificationRefreshTimeline;
 
     @Override
@@ -118,7 +114,6 @@ public class AppLayoutController implements FxController {
         roleLabel.setText(SessionContext.role() + " | " + SessionContext.section());
         topUserLabel.setText(SessionContext.username() + " | " + SessionContext.section());
         profileMenuButton.setText(avatarText(SessionContext.username()) + " " + SessionContext.username());
-        darkModeMenuItem.setText(appShell.isDarkMode() ? "Switch to Light Mode" : "Switch to Dark Mode");
         roleBadgeLabel.setText(roleGroup(SessionContext.role()));
         roleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
         roleBadgeLabel.getStyleClass().add(roleStyle(SessionContext.role()));
@@ -126,14 +121,13 @@ public class AppLayoutController implements FxController {
         boolean clinical = isClinical();
         boolean loggedIn = Session.getCurrentUser() != null;
         setButtonVisible(messagesButton, false);
-        setButtonVisible(notificationsButton, false);
-        setButtonVisible(alertsButton, false);
+        setButtonVisible(notificationsButton, AppFeatures.notificationsEnabled() && loggedIn);
+        setButtonVisible(alertsButton, AppFeatures.alertCenterPageEnabled() && (admin || clinical));
         topNotificationButton.setVisible(loggedIn);
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
         unreadCountLabel.setManaged(loggedIn);
-        staffActivityButton.setVisible(admin || clinical);
-        staffActivityButton.setManaged(admin || clinical);
+        setButtonVisible(staffActivityButton, AppFeatures.staffActivityEnabled() && admin);
         medicationOverviewButton.setVisible(admin || clinical);
         medicationOverviewButton.setManaged(admin || clinical);
         setButtonVisible(medicalDevicesButton, AppFeatures.devicesEnabled() && (admin || clinical));
@@ -141,8 +135,7 @@ public class AppLayoutController implements FxController {
         schedulingButton.setManaged(admin || clinical);
         workQueueButton.setVisible(admin || clinical);
         workQueueButton.setManaged(admin || clinical);
-        medicalFilesButton.setVisible(admin || clinical);
-        medicalFilesButton.setManaged(admin || clinical);
+        setButtonVisible(medicalFilesButton, AppFeatures.medicalFilesEnabled() && (admin || clinical));
         roomOccupancyButton.setVisible(admin || clinical);
         roomOccupancyButton.setManaged(admin || clinical);
         deceasedRecordsButton.setVisible(false);
@@ -152,9 +145,8 @@ public class AppLayoutController implements FxController {
         certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         setButtonVisible(aiRecommendationsButton, AppFeatures.aiEnabled() && (admin || clinical));
-        boolean backupTools = PermissionHelper.canViewBackupTools(Session.getCurrentUser());
-        backupExportButton.setVisible(backupTools);
-        backupExportButton.setManaged(backupTools);
+        setButtonVisible(backupExportButton, AppFeatures.backupExportEnabled()
+                && PermissionHelper.canViewBackupTools(Session.getCurrentUser()));
         auditLogsButton.setVisible(admin);
         auditLogsButton.setManaged(admin);
         userDirectoryButton.setVisible(admin);
@@ -180,16 +172,28 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showMessages() {
+        if (!AppFeatures.messagesEnabled()) {
+            appShell.showUserProfile();
+            return;
+        }
         appShell.showMessaging();
     }
 
     @FXML
     private void showNotifications() {
+        if (!AppFeatures.notificationsEnabled()) {
+            appShell.showDashboard(Session.getCurrentUser());
+            return;
+        }
         appShell.showNotificationCenter();
     }
 
     @FXML
     private void showAlerts() {
+        if (!AppFeatures.alertCenterPageEnabled()) {
+            appShell.showNotificationCenter();
+            return;
+        }
         appShell.showAlertCenter();
     }
 
@@ -210,6 +214,10 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showStaffActivity() {
+        if (!AppFeatures.staffActivityEnabled()) {
+            appShell.showDashboard(Session.getCurrentUser());
+            return;
+        }
         appShell.showStaffActivity();
     }
 
@@ -239,6 +247,10 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showMedicalFiles() {
+        if (!AppFeatures.medicalFilesEnabled()) {
+            appShell.showPatientList();
+            return;
+        }
         appShell.showMedicalFiles();
     }
 
@@ -273,13 +285,11 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private void showBackupExport() {
+        if (!AppFeatures.backupExportEnabled()) {
+            appShell.showDashboard(Session.getCurrentUser());
+            return;
+        }
         appShell.showBackupExport();
-    }
-
-    @FXML
-    private void toggleTheme() {
-        appShell.toggleTheme();
-        darkModeMenuItem.setText(appShell.isDarkMode() ? "Switch to Light Mode" : "Switch to Dark Mode");
     }
 
     @FXML

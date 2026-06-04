@@ -20,7 +20,7 @@
             <TextField fx:id="patientIdField" promptText="PAT-001" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <VBox fx:id="medicationIdBox" spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label styleClass="field-label" text="Medication ID (optional)" />
             <TextField fx:id="medicationIdField" promptText="SQLite medication ID" styleClass="control-input" />
         </VBox>

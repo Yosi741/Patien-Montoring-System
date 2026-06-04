@@ -56,6 +56,7 @@ public class DeathRecordFormController {
             ButtonType saveButtonType = new ButtonType(record == null ? "Mark Deceased" : "Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(record == null ? "Mark Patient Deceased" : "Update Death Record");
+            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

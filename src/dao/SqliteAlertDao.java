@@ -210,6 +210,18 @@ public class SqliteAlertDao implements AlertDao {
         }
     }
 
+    public int countActiveCriticalEmergencyForPatient(String patientId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM alerts WHERE patient_id = ? AND UPPER(status) = 'ACTIVE' "
+                + "AND UPPER(severity) IN ('CRITICAL', 'EMERGENCY')";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt(1) : 0;
+            }
+        }
+    }
+
     public Optional<AlertRow> findLatestByPatientId(String patientId) throws SQLException {
         String sql = "SELECT a.id, a.patient_id, "
                 + "COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "

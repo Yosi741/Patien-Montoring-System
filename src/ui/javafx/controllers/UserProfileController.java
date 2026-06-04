@@ -111,6 +111,7 @@ public class UserProfileController implements FxController {
     private void changePassword() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Change Password");
+        ui.javafx.helpers.DialogThemeHelper.apply(dialog);
         dialog.initOwner(usernameLabel.getScene().getWindow());
 
         PasswordField currentPassword = new PasswordField();

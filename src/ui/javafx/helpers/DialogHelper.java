@@ -27,6 +27,7 @@ public final class DialogHelper {
         alert.setTitle(title);
         alert.setHeaderText(title);
         alert.setContentText(message);
+        DialogThemeHelper.apply(alert);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
     }
@@ -36,6 +37,7 @@ public final class DialogHelper {
         alert.setTitle(title);
         alert.setHeaderText(title);
         alert.setContentText(message);
+        DialogThemeHelper.apply(alert);
         alert.showAndWait();
     }
 }

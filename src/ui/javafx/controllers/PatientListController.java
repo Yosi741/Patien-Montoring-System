@@ -754,16 +754,16 @@ public class PatientListController implements FxController {
     }
 
     private void showVitalAlertPopupIfNeeded(SqlitePatientDao.PatientListRow selected, VitalsWriteService.VitalsWriteResult result) {
-        if (result.getStatus() != VitalThresholdService.VitalStatus.CRITICAL
-                && result.getStatus() != VitalThresholdService.VitalStatus.WARNING) {
+        if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;
         }
 
-        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.CRITICAL
-                ? Alert.AlertType.ERROR
-                : Alert.AlertType.WARNING;
+        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.WARNING
+                ? Alert.AlertType.WARNING
+                : Alert.AlertType.ERROR;
         Alert alert = new Alert(alertType);
         alert.setTitle(result.getStatus() + " Vital Alert");
+        ui.javafx.helpers.DialogThemeHelper.apply(alert);
         alert.setHeaderText(result.getStatus() + " vital reading detected");
         alert.setContentText(
                 "Patient: " + selected.getName()

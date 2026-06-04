@@ -28,6 +28,8 @@ public class AppNavigator {
             if (controller instanceof FxController) {
                 ((FxController) controller).setAppShell(appShell);
             }
+            parent.getStylesheets().clear();
+            parent.getStylesheets().add(resolve(AppShell.PRESENTATION_THEME).toExternalForm());
             appShell.applyThemeTo(parent);
             return new LoadedView(parent, controller);
         } catch (IOException e) {

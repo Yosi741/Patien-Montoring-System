@@ -61,12 +61,16 @@ public final class FormValidationHelper {
     }
 
     public static ValidationResult validatePatientId(String value) {
+        return validateNineDigitId("Patient ID", value);
+    }
+
+    public static ValidationResult validateNineDigitId(String label, String value) {
         if (!hasText(value)) {
-            return ValidationResult.error("Patient ID is required.");
+            return ValidationResult.error(label + " is required.");
         }
-        return value.trim().matches("[A-Za-z0-9_-]{3,32}")
+        return value.trim().matches("\\d{9}")
                 ? ValidationResult.ok()
-                : ValidationResult.error("Patient ID must be 3-32 letters, numbers, dashes, or underscores.");
+                : ValidationResult.error(label + " must contain exactly 9 digits.");
     }
 
     public static ValidationResult validateMaxLength(String label, String value, int maxLength) {

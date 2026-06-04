@@ -67,7 +67,7 @@
                     </TilePane>
 
                     <TilePane hgap="14.0" vgap="14.0" prefColumns="6" tileAlignment="TOP_LEFT">
-                        <VBox fx:id="aiNotesCard" spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="newbornRecordsCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Newborn Records" styleClass="dashboard-mini-label" />
                             <Label fx:id="newbornRecordsLabel" text="0" styleClass="dashboard-mini-value accent-value" />
                             <Label text="Total" styleClass="dashboard-mini-caption" />
@@ -79,25 +79,25 @@
                             <Label text="Today" styleClass="dashboard-mini-caption" />
                         </VBox>
 
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="acknowledgedAlertsCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Acknowledged Alerts" styleClass="dashboard-mini-label" />
                             <Label fx:id="acknowledgedTodayLabel" text="0" styleClass="dashboard-mini-value" />
                             <Label text="Today" styleClass="dashboard-mini-caption" />
                         </VBox>
 
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="resolvedAlertsCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Resolved Alerts" styleClass="dashboard-mini-label" />
                             <Label fx:id="resolvedTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
                             <Label text="Today" styleClass="dashboard-mini-caption" />
                         </VBox>
 
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="medicalFilesCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Imported Files" styleClass="dashboard-mini-label" />
                             <Label fx:id="medicalFilesLabel" text="0" styleClass="dashboard-mini-value accent-value" />
                             <Label text="Stored" styleClass="dashboard-mini-caption" />
                         </VBox>
 
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                        <VBox fx:id="aiNotesCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="AI Notes" styleClass="dashboard-mini-label" />
                             <Label fx:id="aiNotesLabel" text="0" styleClass="dashboard-mini-value" />
                             <Label text="Generated" styleClass="dashboard-mini-caption" />
