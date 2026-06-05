@@ -132,17 +132,32 @@ public class SqliteSectionDao {
         }
     }
 
+    public int countActiveUsers(String sectionName) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE UPPER(COALESCE(section, '')) = ? AND active = 1";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(sectionName).toUpperCase());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt(1) : 0;
+            }
+        }
+    }
+
     public void renameRoomsAndPatients(String oldName, String newName) throws SQLException {
         try (Connection connection = DatabaseManager.getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement rooms = connection.prepareStatement("UPDATE rooms SET section = ?, updated_at = CURRENT_TIMESTAMP WHERE UPPER(section) = ?");
-                 PreparedStatement patients = connection.prepareStatement("UPDATE patients SET section = ?, updated_at = CURRENT_TIMESTAMP WHERE UPPER(COALESCE(section, '')) = ?")) {
+                 PreparedStatement patients = connection.prepareStatement("UPDATE patients SET section = ?, updated_at = CURRENT_TIMESTAMP WHERE UPPER(COALESCE(section, '')) = ?");
+                 PreparedStatement users = connection.prepareStatement("UPDATE users SET section = ? WHERE UPPER(COALESCE(section, '')) = ?")) {
                 rooms.setString(1, value(newName));
                 rooms.setString(2, value(oldName).toUpperCase());
                 rooms.executeUpdate();
                 patients.setString(1, value(newName));
                 patients.setString(2, value(oldName).toUpperCase());
                 patients.executeUpdate();
+                users.setString(1, value(newName));
+                users.setString(2, value(oldName).toUpperCase());
+                users.executeUpdate();
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();

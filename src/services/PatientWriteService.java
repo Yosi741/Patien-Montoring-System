@@ -80,6 +80,8 @@ public class PatientWriteService {
                 FormValidationHelper.validateMaxLength("Gender", patient.getGender(), 40),
                 FormValidationHelper.validateMaxLength("Section", patient.getSection(), 80),
                 FormValidationHelper.validateMaxLength("Room", patient.getRoom(), 30),
+                FormValidationHelper.validateMaxLength("Assigned doctor", patient.getAssignedDoctorUsername(), 64),
+                FormValidationHelper.validateMaxLength("Assigned nurse/staff", patient.getAssignedStaffUsername(), 64),
                 FormValidationHelper.validateMaxLength("Diagnosis", patient.getDiagnosis(), 500)
         );
         if (!validation.isValid()) {
@@ -126,7 +128,9 @@ public class PatientWriteService {
                 trim(patient.getRoom()),
                 normalize(patient.getStatus()),
                 normalize(patient.getPriority()),
-                trim(patient.getDiagnosis())
+                trim(patient.getDiagnosis()),
+                trim(patient.getAssignedDoctorUsername()),
+                trim(patient.getAssignedStaffUsername())
         );
     }
 

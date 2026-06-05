@@ -62,12 +62,14 @@ public class SectionService {
         SqliteSectionDao.SectionRecord section = findSection(id);
         int activeRooms = sectionDao.countActiveRooms(section.getName());
         int activePatients = sectionDao.countActivePatients(section.getName());
-        if ((activeRooms > 0 || activePatients > 0) && !confirmedWithActiveRecords) {
-            throw new IllegalArgumentException("Section has active rooms or patients and requires Admin confirmation.");
+        int activeUsers = sectionDao.countActiveUsers(section.getName());
+        if (activeRooms > 0 || activePatients > 0 || activeUsers > 0) {
+            throw new IllegalArgumentException("Section is in use. Move users, patients, and rooms before deactivating.");
         }
         sectionDao.updateSection(id, new SqliteSectionDao.SectionRecord(section.getName(), "INACTIVE", section.getNotes()));
         AuditWriteHelper.write(username(currentUser), AuditAction.DEACTIVATE_SECTION,
-                "section=" + section.getName() + ", active_rooms=" + activeRooms + ", active_patients=" + activePatients);
+                "section=" + section.getName() + ", active_rooms=" + activeRooms
+                        + ", active_patients=" + activePatients + ", active_users=" + activeUsers);
     }
 
     public List<SqliteSectionDao.SectionRecord> findSections() throws SQLException {
@@ -110,7 +112,7 @@ public class SectionService {
 
     public boolean confirmDeactivateWithActiveRecords(String sectionName) {
         return DialogHelper.confirm("Deactivate section",
-                "This section may have active rooms or active patients. Deactivate it anyway?");
+                "Deactivate section '" + sectionName + "'? Sections in use are blocked for safety.");
     }
 
     private void requireAdmin(User currentUser) {

@@ -67,7 +67,17 @@
             <ComboBox fx:id="priorityBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Assigned Doctor" styleClass="field-label" />
+            <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected section" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <Label text="Assigned Nurse / Staff" styleClass="field-label" />
+            <ComboBox fx:id="assignedStaffBox" promptText="Nurse or staff in selected section" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
             <Label text="Diagnosis" styleClass="field-label" />
             <TextArea fx:id="diagnosisArea" promptText="Short diagnosis or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
         </VBox>

@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import services.RolePermissionService;
+import services.SectionService;
 import services.UserWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
@@ -31,6 +32,7 @@ public class UserDirectoryController implements FxController {
     private final SqliteUserDao userDao = new SqliteUserDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final UserWriteService userWriteService = new UserWriteService();
+    private final SectionService sectionService = new SectionService();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
     private AppShell appShell;
 
@@ -147,7 +149,7 @@ public class UserDirectoryController implements FxController {
         ArrayList<String> sections = new ArrayList<>();
         sections.add("All");
         try {
-            sections.addAll(userDao.findDistinctSections());
+            sections.addAll(sectionService.findActiveSectionNames());
         } catch (Exception e) {
             statusLabel.setText("Section filters unavailable: " + e.getMessage());
         }
@@ -265,14 +267,14 @@ public class UserDirectoryController implements FxController {
         permissionListBox.getChildren().clear();
         User user = new User(row.getUsername(), "", row.getRole(), row.getSection());
         boolean adminRole = "ADMIN".equals(group);
-        addPermission("View patients", true, "Read-only JavaFX patient board");
-        addPermission("View alerts", true, "Alerts are surfaced through Notifications");
-        addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
-        addPermission("View clinical timeline", true, "Read-only patient history preview");
-        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Admin-only SQLite create/edit/deactivate/reset workflow");
-        addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user), "Admin audit viewer");
-        addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "local database patient workflow");
-        addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "local database vitals workflow");
+        addPermission("View patients", true);
+        addPermission("Enter vitals", PermissionHelper.canEnterVitals(user));
+        addPermission("Record medication administration", "ADMIN".equals(group) || "DOCTOR".equals(group) || "NURSE".equals(group));
+        addPermission("Manage medication orders", "ADMIN".equals(group) || "DOCTOR".equals(group));
+        addPermission("Review alerts through Notifications", true);
+        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user));
+        addPermission("Manage rooms and sections", adminRole);
+        addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user));
     }
 
     private void clearDetail() {
@@ -293,8 +295,8 @@ public class UserDirectoryController implements FxController {
         permissionListBox.getChildren().add(empty);
     }
 
-    private void addPermission(String label, boolean allowed, String note) {
-        Label row = new Label((allowed ? "Allowed: " : "Preview/Future: ") + label + " - " + note);
+    private void addPermission(String label, boolean allowed) {
+        Label row = new Label((allowed ? "Allowed: " : "Restricted: ") + label);
         row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
         row.setWrapText(true);
         permissionListBox.getChildren().add(row);
@@ -334,7 +336,7 @@ public class UserDirectoryController implements FxController {
         ArrayList<String> sections = new ArrayList<>();
         sections.add("All");
         try {
-            sections.addAll(userDao.findDistinctSections());
+            sections.addAll(sectionService.findActiveSectionNames());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Section filters unavailable: " + e.getMessage());
         }

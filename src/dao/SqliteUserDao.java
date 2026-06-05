@@ -47,6 +47,18 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    public boolean usernameExistsExcept(String username, String excludedUsername) throws SQLException {
+        String sql = "SELECT 1 FROM users WHERE LOWER(username) = LOWER(?) AND LOWER(username) <> LOWER(?)";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.setString(2, excludedUsername);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
     @Override
     public List<User> findAll() throws SQLException {
         ArrayList<User> users = new ArrayList<>();
@@ -194,6 +206,32 @@ public class SqliteUserDao implements UserDao {
         return targets;
     }
 
+    public List<String> findActiveUsernamesByRoleGroupAndSection(String roleGroup, String section) throws SQLException {
+        ArrayList<String> usernames = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT username FROM users WHERE active = 1 ");
+        ArrayList<String> params = new ArrayList<>();
+        if (roleGroup != null && !roleGroup.isBlank() && !"All".equalsIgnoreCase(roleGroup)) {
+            appendRoleGroupFilter(sql, params, roleGroup);
+        }
+        if (section != null && !section.isBlank() && !"All".equalsIgnoreCase(section)) {
+            sql.append("AND section = ? ");
+            params.add(section);
+        }
+        sql.append("ORDER BY username COLLATE NOCASE");
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setString(i + 1, params.get(i));
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    usernames.add(resultSet.getString("username"));
+                }
+            }
+        }
+        return usernames;
+    }
+
     public Optional<UserDirectoryRow> findDirectoryRowByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, role, section, active, created_at FROM users WHERE username = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -229,15 +267,49 @@ public class SqliteUserDao implements UserDao {
     }
 
     public void updateUser(UserWriteRecord record) throws SQLException {
-        String sql = "UPDATE users SET role = ?, section = ?, active = ? WHERE username = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, record.getRole());
-            statement.setString(2, blankToAll(record.getSection()));
-            statement.setInt(3, record.isActive() ? 1 : 0);
-            statement.setString(4, record.getUsername());
-            statement.executeUpdate();
+        updateUser(record.getUsername(), record);
+    }
+
+    public void updateUser(String originalUsername, UserWriteRecord record) throws SQLException {
+        String oldUsername = originalUsername == null ? "" : originalUsername.trim();
+        String newUsername = record.getUsername();
+        try (Connection connection = DatabaseManager.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement users = connection.prepareStatement(
+                    "UPDATE users SET username = ?, role = ?, section = ?, active = ? WHERE LOWER(username) = LOWER(?)");
+                 PreparedStatement profiles = connection.prepareStatement(
+                         "UPDATE user_profiles SET username = ? WHERE LOWER(username) = LOWER(?)");
+                 PreparedStatement messagesSender = connection.prepareStatement(
+                         "UPDATE messages SET sender_username = ? WHERE LOWER(sender_username) = LOWER(?)");
+                 PreparedStatement messagesRecipient = connection.prepareStatement(
+                         "UPDATE messages SET recipient_username = ? WHERE LOWER(recipient_username) = LOWER(?)");
+                 PreparedStatement notifications = connection.prepareStatement(
+                         "UPDATE notifications SET username = ? WHERE LOWER(username) = LOWER(?)")) {
+                users.setString(1, newUsername);
+                users.setString(2, record.getRole());
+                users.setString(3, blankToAll(record.getSection()));
+                users.setInt(4, record.isActive() ? 1 : 0);
+                users.setString(5, oldUsername);
+                users.executeUpdate();
+
+                updateUsernameReference(profiles, newUsername, oldUsername);
+                updateUsernameReference(messagesSender, newUsername, oldUsername);
+                updateUsernameReference(messagesRecipient, newUsername, oldUsername);
+                updateUsernameReference(notifications, newUsername, oldUsername);
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
         }
+    }
+
+    private void updateUsernameReference(PreparedStatement statement, String newUsername, String oldUsername) throws SQLException {
+        statement.setString(1, newUsername);
+        statement.setString(2, oldUsername);
+        statement.executeUpdate();
     }
 
     public void deactivateUser(String username) throws SQLException {

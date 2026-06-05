@@ -14,8 +14,8 @@
     <top>
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
             <VBox spacing="4.0">
-                <Label text="Room / Bed Occupancy" styleClass="screen-title" />
-                <Label text="Room, bed, capacity, section, and patient assignment management" styleClass="muted-text" />
+                <Label text="Sections / Rooms" styleClass="screen-title" />
+                <Label text="Manage hospital sections, rooms, capacity, and patient room assignments." styleClass="muted-text" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
@@ -42,22 +42,22 @@
 
                         <GridPane hgap="14.0" vgap="14.0">
                             <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Total Rooms" styleClass="metric-label" />
-                                <Label fx:id="totalRoomsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                                <Label text="Total Sections" styleClass="metric-label" />
+                                <Label fx:id="totalSectionsLabel" text="0" styleClass="metric-value compact-metric-value" />
                             </VBox>
 
                             <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
+                                <Label text="Total Rooms" styleClass="metric-label" />
+                                <Label fx:id="totalRoomsLabel" text="0" styleClass="accent-value" />
+                            </VBox>
+
+                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
                                 <Label text="Occupied Rooms" styleClass="metric-label" />
                                 <Label fx:id="occupiedRoomsLabel" text="0" styleClass="success-value" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Occupied Beds" styleClass="metric-label" />
-                                <Label fx:id="occupiedBedsLabel" text="0" styleClass="warning-value" />
-                            </VBox>
-
                             <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Available Capacity" styleClass="metric-label" />
+                                <Label text="Available Beds" styleClass="metric-label" />
                                 <Label fx:id="availableCapacityLabel" text="0" styleClass="accent-value" />
                             </VBox>
                         </GridPane>

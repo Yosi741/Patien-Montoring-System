@@ -1,5 +1,6 @@
 package services;
 
+import dao.SqliteSectionDao;
 import dao.SqliteUserDao;
 import security.PasswordHasher;
 import ui.javafx.helpers.AuditAction;
@@ -16,6 +17,7 @@ public class UserWriteService {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private final SqliteUserDao userDao;
+    private final SqliteSectionDao sectionDao = new SqliteSectionDao();
 
     public UserWriteService() {
         this(new SqliteUserDao());
@@ -44,13 +46,22 @@ public class UserWriteService {
     }
 
     public void updateUser(User admin, SqliteUserDao.UserWriteRecord record) throws SQLException {
+        updateUser(admin, record == null ? "" : record.getUsername(), record);
+    }
+
+    public void updateUser(User admin, String originalUsername, SqliteUserDao.UserWriteRecord record) throws SQLException {
         require(PermissionHelper.canUpdateUser(admin), "Only ADMIN users can update staff accounts.");
         FormValidationHelper.ValidationResult validation = validateRecord(record, false);
         requireValid(validation);
-        require(userDao.usernameExists(record.getUsername()), "User does not exist: " + record.getUsername());
+        String original = originalUsername == null ? "" : originalUsername.trim();
+        require(userDao.usernameExists(original), "User does not exist: " + original);
+        if (!record.getUsername().equalsIgnoreCase(original)) {
+            require(!userDao.usernameExistsExcept(record.getUsername(), original), "Username already exists.");
+        }
 
-        userDao.updateUser(record);
-        audit(admin, AuditAction.UPDATE_USER, "Admin " + username(admin) + " updated user " + record.getUsername());
+        userDao.updateUser(original, record);
+        audit(admin, AuditAction.UPDATE_USER,
+                "Admin " + username(admin) + " updated user " + original + " -> " + record.getUsername());
     }
 
     public void deactivateUser(User admin, String affectedUsername, boolean confirmedSelfDeactivation) throws SQLException {
@@ -103,8 +114,19 @@ public class UserWriteService {
             return base;
         }
         String role = normalizeRole(record.getRole());
-        if (("DOCTOR".equals(role) || "NURSE".equals(role)) && !hasText(record.getSection())) {
-            return FormValidationHelper.ValidationResult.error("Section/department is required for Doctor and Nurse users.");
+        if ("ADMIN".equals(role)) {
+            return FormValidationHelper.ValidationResult.ok();
+        }
+        if (!hasText(record.getSection()) || "All".equalsIgnoreCase(record.getSection())) {
+            return FormValidationHelper.ValidationResult.error("A real active section is required for Doctor, Nurse, and Staff users.");
+        }
+        try {
+            SqliteSectionDao.SectionRecord section = sectionDao.findByName(record.getSection()).orElse(null);
+            if (section == null || !"ACTIVE".equalsIgnoreCase(section.getStatus())) {
+                return FormValidationHelper.ValidationResult.error("Select an active section for this role.");
+            }
+        } catch (SQLException e) {
+            return FormValidationHelper.ValidationResult.error("Could not validate section: " + e.getMessage());
         }
         return FormValidationHelper.ValidationResult.ok();
     }

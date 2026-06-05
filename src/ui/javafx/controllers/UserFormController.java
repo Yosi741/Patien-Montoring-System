@@ -13,11 +13,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.stage.Window;
+import services.SectionService;
 import services.UserWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.SessionContext;
 import users.User;
 
 public class UserFormController {
@@ -29,6 +30,7 @@ public class UserFormController {
     }
 
     private final UserWriteService userWriteService = new UserWriteService();
+    private final SectionService sectionService = new SectionService();
     private User currentUser;
     private SqliteUserDao.UserDirectoryRow existingUser;
     private Mode mode;
@@ -36,9 +38,9 @@ public class UserFormController {
 
     @FXML private Label titleLabel;
     @FXML private Label helpLabel;
-    @FXML private TextField usernameField;
+    @FXML private javafx.scene.control.TextField usernameField;
     @FXML private ComboBox<String> roleBox;
-    @FXML private TextField sectionField;
+    @FXML private ComboBox<String> sectionBox;
     @FXML private CheckBox activeCheckBox;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
@@ -88,8 +90,10 @@ public class UserFormController {
     private void initialize() {
         roleBox.setItems(FXCollections.observableArrayList("ADMIN", "DOCTOR", "NURSE", "STAFF"));
         roleBox.getSelectionModel().select("STAFF");
+        loadSectionsForRole("STAFF");
+        roleBox.valueProperty().addListener((observable, oldValue, newValue) -> loadSectionsForRole(newValue));
         activeCheckBox.setSelected(true);
-        NotificationHelper.showInfo(statusLabel, "Staff account form. System data is stored in the local database.");
+        NotificationHelper.showInfo(statusLabel, "Staff account form. Passwords are not displayed.");
     }
 
     private void prepare(User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
@@ -99,8 +103,8 @@ public class UserFormController {
 
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add User");
-            helpLabel.setText("Create a staff account with a hashed password.");
-            passwordHelpLabel.setText("Password is required and will be stored only as a PBKDF2 hash.");
+            helpLabel.setText("Create a staff account with role and section access.");
+            passwordHelpLabel.setText("Password is stored safely and not displayed.");
             return;
         }
 
@@ -109,26 +113,27 @@ public class UserFormController {
         }
 
         usernameField.setText(user.getUsername());
-        usernameField.setDisable(true);
+        usernameField.setDisable(mode == Mode.RESET_PASSWORD);
         roleBox.getSelectionModel().select(normalizeRole(user.getRole()));
-        sectionField.setText(user.getSection());
+        loadSectionsForRole(roleBox.getValue());
+        selectSection(user.getSection());
         activeCheckBox.setSelected(user.isActive());
 
         if (mode == Mode.EDIT) {
             titleLabel.setText("Edit User");
-            helpLabel.setText("Update SQLite role, section, and active status. Password hash is never displayed.");
+            helpLabel.setText("Update username, role, section, and active status.");
             passwordField.setVisible(false);
             passwordField.setManaged(false);
             confirmPasswordField.setVisible(false);
             confirmPasswordField.setManaged(false);
-            passwordHelpLabel.setText("Use Reset Password to change credentials.");
+            passwordHelpLabel.setText("Password is stored safely and not displayed. Use Reset Password to change it.");
             return;
         }
 
         titleLabel.setText("Reset Password");
-        helpLabel.setText("Set a new hashed SQLite password. Raw passwords are not logged.");
+        helpLabel.setText("Set a new password for this staff account.");
         roleBox.setDisable(true);
-        sectionField.setDisable(true);
+        sectionBox.setDisable(true);
         activeCheckBox.setDisable(true);
         passwordHelpLabel.setText("Enter the new password twice. Minimum length is 8 characters.");
     }
@@ -154,7 +159,12 @@ public class UserFormController {
                     }
                     userWriteService.createUser(currentUser, record, password);
                 } else {
-                    userWriteService.updateUser(currentUser, record);
+                    userWriteService.updateUser(currentUser, existingUser == null ? record.getUsername() : existingUser.getUsername(), record);
+                    if (existingUser != null
+                            && existingUser.getUsername().equalsIgnoreCase(SessionContext.username())
+                            && !existingUser.getUsername().equalsIgnoreCase(record.getUsername())) {
+                        NotificationHelper.showInfo(statusLabel, "Current session display updates after logout/login.");
+                    }
                 }
             }
             saved = true;
@@ -169,9 +179,45 @@ public class UserFormController {
         return new SqliteUserDao.UserWriteRecord(
                 usernameField.getText(),
                 roleBox.getValue(),
-                sectionField.getText(),
+                sectionValue(),
                 activeCheckBox.isSelected()
         );
+    }
+
+    private void loadSectionsForRole(String role) {
+        String current = sectionValue();
+        java.util.LinkedHashSet<String> sections = new java.util.LinkedHashSet<>();
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            sections.add("All");
+        }
+        try {
+            sections.addAll(sectionService.findActiveSectionNames());
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Active sections unavailable: " + e.getMessage());
+        }
+        sectionBox.setItems(FXCollections.observableArrayList(sections));
+        if (current != null && !current.isBlank() && sections.contains(current)) {
+            sectionBox.getSelectionModel().select(current);
+        } else if ("ADMIN".equalsIgnoreCase(role)) {
+            sectionBox.getSelectionModel().select("All");
+        } else {
+            sectionBox.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void selectSection(String section) {
+        String value = section == null || section.isBlank() ? "" : section.trim();
+        if (!value.isBlank() && !sectionBox.getItems().contains(value)) {
+            sectionBox.getItems().add(value);
+        }
+        if (!value.isBlank()) {
+            sectionBox.getSelectionModel().select(value);
+        }
+    }
+
+    private String sectionValue() {
+        String value = sectionBox == null ? "" : sectionBox.getValue();
+        return value == null ? "" : value.trim();
     }
 
     private char[] passwordChars() {

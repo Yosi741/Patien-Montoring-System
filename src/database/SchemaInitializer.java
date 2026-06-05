@@ -17,6 +17,7 @@ public class SchemaInitializer {
             createUserProfiles(statement);
             createPasswordResetTokens(statement);
             createPatients(statement);
+            migratePatients(statement);
             createVitalReadings(statement);
             createAlerts(statement);
             migrateAlerts(statement);
@@ -98,9 +99,16 @@ public class SchemaInitializer {
                 + "status TEXT NOT NULL DEFAULT 'Active',"
                 + "priority TEXT NOT NULL DEFAULT 'NORMAL',"
                 + "diagnosis TEXT,"
+                + "assigned_doctor_username TEXT,"
+                + "assigned_staff_username TEXT,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
                 + ")");
+    }
+
+    private static void migratePatients(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "patients", "assigned_doctor_username", "TEXT");
+        addColumnIfMissing(statement, "patients", "assigned_staff_username", "TEXT");
     }
 
     private static void createVitalReadings(Statement statement) throws SQLException {

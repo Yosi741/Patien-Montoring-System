@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import dao.SqlitePatientDao;
 import dao.SqliteRoomDao;
+import dao.SqliteUserDao;
 import services.SectionService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,6 +36,7 @@ public class PatientFormController {
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final SectionService sectionService = new SectionService();
     private final SqliteRoomDao roomDao = new SqliteRoomDao();
+    private final SqliteUserDao userDao = new SqliteUserDao();
     private User currentUser;
     private SqlitePatientDao.PatientDetail existingPatient;
     private boolean saved;
@@ -50,6 +52,8 @@ public class PatientFormController {
     @FXML private ComboBox<String> roomBox;
     @FXML private ComboBox<String> statusBox;
     @FXML private ComboBox<String> priorityBox;
+    @FXML private ComboBox<String> assignedDoctorBox;
+    @FXML private ComboBox<String> assignedStaffBox;
     @FXML private TextArea diagnosisArea;
     @FXML private Label statusLabel;
 
@@ -96,7 +100,10 @@ public class PatientFormController {
         statusBox.getSelectionModel().select("ACTIVE");
         priorityBox.getSelectionModel().select("NORMAL");
         loadSections();
-        sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> loadRoomsForSection(newValue));
+        sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            loadRoomsForSection(newValue);
+            loadAssignedStaffForSection(newValue);
+        });
         NotificationHelper.showInfo(statusLabel, "Patient record form. System data is stored in the local database.");
     }
 
@@ -120,6 +127,9 @@ public class PatientFormController {
         selectOrSet(sectionBox, patient.getSection());
         loadRoomsForSection(patient.getSection());
         selectOrSet(roomBox, patient.getRoom());
+        loadAssignedStaffForSection(patient.getSection());
+        selectOrSet(assignedDoctorBox, patient.getAssignedDoctorUsername());
+        selectOrSet(assignedStaffBox, patient.getAssignedStaffUsername());
         statusBox.getSelectionModel().select(normalizeStatus(patient.getStatus()));
         priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
         diagnosisArea.setText(patient.getDiagnosis());
@@ -152,7 +162,9 @@ public class PatientFormController {
                 comboValue(roomBox),
                 statusBox.getValue(),
                 priorityBox.getValue(),
-                diagnosisArea.getText()
+                diagnosisArea.getText(),
+                comboValue(assignedDoctorBox),
+                comboValue(assignedStaffBox)
         );
     }
 
@@ -187,6 +199,37 @@ public class PatientFormController {
         }
     }
 
+    private void loadAssignedStaffForSection(String section) {
+        String selectedDoctor = comboValue(assignedDoctorBox);
+        String selectedStaff = comboValue(assignedStaffBox);
+        List<String> doctors = new ArrayList<>();
+        List<String> nursesAndStaff = new ArrayList<>();
+        if (section != null && !section.isBlank()) {
+            try {
+                doctors.addAll(userDao.findActiveUsernamesByRoleGroupAndSection("DOCTOR", section));
+                nursesAndStaff.addAll(userDao.findActiveUsernamesByRoleGroupAndSection("NURSE", section));
+                for (String username : userDao.findActiveUsernamesByRoleGroupAndSection("STAFF", section)) {
+                    if (!nursesAndStaff.contains(username)) {
+                        nursesAndStaff.add(username);
+                    }
+                }
+            } catch (Exception e) {
+                NotificationHelper.showInfo(statusLabel, "Assigned staff choices unavailable: " + e.getMessage());
+            }
+        }
+        assignedDoctorBox.getItems().setAll(doctors);
+        assignedStaffBox.getItems().setAll(nursesAndStaff);
+        if (selectedDoctor != null && !selectedDoctor.isBlank()) {
+            selectOrSet(assignedDoctorBox, selectedDoctor);
+        }
+        if (selectedStaff != null && !selectedStaff.isBlank()) {
+            selectOrSet(assignedStaffBox, selectedStaff);
+        }
+        if (doctors.isEmpty() && nursesAndStaff.isEmpty() && section != null && !section.isBlank()) {
+            NotificationHelper.showInfo(statusLabel, "No active doctor, nurse, or staff accounts found for " + section + ".");
+        }
+    }
+
     private void selectOrSet(ComboBox<String> comboBox, String value) {
         String safeValue = value == null ? "" : value.trim();
         if (safeValue.isBlank()) {
@@ -198,7 +241,9 @@ public class PatientFormController {
             comboBox.getItems().add(safeValue);
         }
         comboBox.getSelectionModel().select(safeValue);
-        comboBox.getEditor().setText(safeValue);
+        if (comboBox.isEditable() && comboBox.getEditor() != null) {
+            comboBox.getEditor().setText(safeValue);
+        }
     }
 
     private String comboValue(ComboBox<String> comboBox) {

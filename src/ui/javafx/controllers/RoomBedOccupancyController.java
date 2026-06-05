@@ -54,9 +54,9 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private TextField roomSearchField;
     @FXML private ComboBox<String> statusFilter;
     @FXML private ComboBox<String> priorityFilter;
+    @FXML private Label totalSectionsLabel;
     @FXML private Label totalRoomsLabel;
     @FXML private Label occupiedRoomsLabel;
-    @FXML private Label occupiedBedsLabel;
     @FXML private Label availableCapacityLabel;
     @FXML private Label occupancySourceLabel;
     @FXML private VBox activePatientsBySectionBox;
@@ -114,8 +114,8 @@ public class RoomBedOccupancyController implements FxController {
                     priorityFilter.getValue()
             );
             RoomBedOccupancyService.OccupancyOverview overview = occupancyService.loadOverview(filter);
-            renderOverview(overview);
             loadSections();
+            renderOverview(overview);
             statusLabel.setText("Room/bed occupancy refreshed from the local database at "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         } catch (Exception e) {
@@ -196,8 +196,7 @@ public class RoomBedOccupancyController implements FxController {
             return;
         }
         try {
-            boolean confirmed = sectionService.confirmDeactivateWithActiveRecords(section.getName());
-            sectionService.deactivateSection(Session.getCurrentUser(), section.getId(), confirmed);
+            sectionService.deactivateSection(Session.getCurrentUser(), section.getId(), false);
             reloadSectionChoices();
             refreshAfterWrite("Section deactivated.");
         } catch (Exception e) {
@@ -379,9 +378,11 @@ public class RoomBedOccupancyController implements FxController {
     }
 
     private void renderOverview(RoomBedOccupancyService.OccupancyOverview overview) {
+        totalSectionsLabel.setText(String.valueOf(sections.isEmpty()
+                ? overview.getActivePatientsBySection().size()
+                : sections.size()));
         totalRoomsLabel.setText(String.valueOf(overview.getTotalRooms()));
         occupiedRoomsLabel.setText(String.valueOf(overview.getOccupiedRooms()));
-        occupiedBedsLabel.setText(String.valueOf(overview.getOccupiedBeds()));
         availableCapacityLabel.setText(String.valueOf(overview.getAvailableCapacity()));
         occupancySourceLabel.setText(overview.isDerivedFromPatients()
                 ? "Room rows are derived from current patient section/room assignments because no room records are configured yet."
