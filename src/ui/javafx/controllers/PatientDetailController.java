@@ -18,12 +18,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import models.VitalRecord;
 import dao.SqliteAuditLogDao;
-import services.AiRecommendationService;
 import services.AlertSoundService;
 import services.VitalThresholdService;
 import services.VitalTypeCatalog;
 import services.VitalsTrendService;
-import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -46,7 +44,6 @@ public class PatientDetailController implements FxController {
     private final SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final VitalsTrendService vitalsTrendService = new VitalsTrendService();
-    private final AiRecommendationService aiRecommendationService = new AiRecommendationService();
     private final ObservableList<VitalRecord> vitals = FXCollections.observableArrayList();
     private AppShell appShell;
     private String patientId;
@@ -71,10 +68,6 @@ public class PatientDetailController implements FxController {
     @FXML private Label latestMetaLabel;
     @FXML private Label trendStatsLabel;
     @FXML private Label trendCountsLabel;
-    @FXML private Label aiRiskLabel;
-    @FXML private Label aiRecommendationLabel;
-    @FXML private Label aiRecommendationTimeLabel;
-    @FXML private Label aiRecommendationStatusLabel;
     @FXML private Label babiesCountLabel;
     @FXML private Label babiesListLabel;
     @FXML private ComboBox<String> vitalTypeFilter;
@@ -102,9 +95,7 @@ public class PatientDetailController implements FxController {
     @FXML private Button markDeceasedButton;
     @FXML private Button viewNewbornsButton;
     @FXML private Button viewBabiesButton;
-    @FXML private Button generateAiButton;
     @FXML private VBox babiesCard;
-    @FXML private VBox aiRecommendationCard;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -115,7 +106,6 @@ public class PatientDetailController implements FxController {
         vitalTypeFilter.getSelectionModel().select("All");
         vitalTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadVitals());
         configureTrendControls();
-        configureDemoFeatures();
     }
 
     public void loadPatient(String patientId) {
@@ -141,7 +131,6 @@ public class PatientDetailController implements FxController {
             loadVitals();
             loadTrendChart();
             loadAlertSummary();
-            loadAiRecommendation();
             loadLinkedNewborns();
         } catch (Exception e) {
             nameLabel.setText("Patient unavailable");
@@ -179,19 +168,6 @@ public class PatientDetailController implements FxController {
             return;
         }
         appShell.showMedicationOverviewForPatient(patientId);
-    }
-
-    @FXML
-    private void viewPatientDevices() {
-        if (!AppFeatures.devicesEnabled()) {
-            timelineStatusLabel.setText("Device workflows are hidden for this demo.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for device view.");
-            return;
-        }
-        appShell.showMedicalDevicesForPatient(patientId);
     }
 
     @FXML
@@ -290,23 +266,6 @@ public class PatientDetailController implements FxController {
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
         }
-    }
-
-    @FXML
-    private void assignPatientDevice() {
-        if (!AppFeatures.devicesEnabled()) {
-            timelineStatusLabel.setText("Device workflows are hidden for this demo.");
-            return;
-        }
-        if (!PermissionHelper.canAssignDevice(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for device assignment.");
-            return;
-        }
-        appShell.showMedicalDevicesForPatient(patientId);
     }
 
     @FXML
@@ -469,26 +428,6 @@ public class PatientDetailController implements FxController {
 
 
     @FXML
-    private void generateAiRecommendation() {
-        if (!AppFeatures.aiEnabled()) {
-            aiRecommendationStatusLabel.setText("AI recommendations are disabled for this demo.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            aiRecommendationStatusLabel.setText("No patient selected for AI recommendation.");
-            return;
-        }
-        try {
-            AiRecommendationService.RecommendationResult result = aiRecommendationService.generateAndSave(patientId);
-            auditLogDao.log(SessionContext.username(), "JavaFX AI_RECOMMENDATION generated for patient " + patientId);
-            renderAiRecommendation(result.getRiskScore(), result.getRiskLevel(), result.getRecommendation(), result.getCreatedAt());
-            aiRecommendationStatusLabel.setText("Generated and saved rule-based recommendation. It will appear in Clinical Timeline as an AI Note.");
-        } catch (Exception e) {
-            aiRecommendationStatusLabel.setText("Could not generate AI recommendation: " + e.getMessage());
-        }
-    }
-
-    @FXML
     private void loadVitals() {
         if (patientId == null || patientId.isBlank()) {
             return;
@@ -543,38 +482,6 @@ public class PatientDetailController implements FxController {
         }
     }
 
-    private void loadAiRecommendation() {
-        if (!AppFeatures.aiEnabled()) {
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            return;
-        }
-        try {
-            aiRecommendationService.findLatestRecommendation(patientId).ifPresentOrElse(note -> {
-                renderAiRecommendation(note.getRiskScore(), note.getRiskLevel(), note.getNote(), note.getCreatedAt());
-                aiRecommendationStatusLabel.setText("Latest AI note loaded from the local database.");
-            }, () -> {
-                aiRiskLabel.setText("Not generated");
-                aiRecommendationLabel.setText("No AI recommendation has been generated for this patient yet.");
-                aiRecommendationTimeLabel.setText("-");
-                aiRecommendationStatusLabel.setText("Rule-based decision support only. Not a medical diagnosis.");
-            });
-        } catch (Exception e) {
-            aiRiskLabel.setText("-");
-            aiRecommendationLabel.setText("Could not load latest AI recommendation.");
-            aiRecommendationTimeLabel.setText(e.getMessage());
-        }
-    }
-
-    private void renderAiRecommendation(int riskScore, String riskLevel, String recommendation, String createdAt) {
-        aiRiskLabel.setText(riskScore + " / 100 | " + riskLevel);
-        aiRiskLabel.getStyleClass().removeAll("trend-normal", "trend-warning", "trend-critical");
-        aiRiskLabel.getStyleClass().add(aiRiskStyle(riskScore));
-        aiRecommendationLabel.setText(recommendation);
-        aiRecommendationTimeLabel.setText(createdAt);
-    }
-
     private void configureTable() {
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("vitalType"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
@@ -583,18 +490,6 @@ public class PatientDetailController implements FxController {
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("sourceType"));
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("staffName"));
         deviceColumn.setCellValueFactory(new PropertyValueFactory<>("deviceId"));
-    }
-
-    private void configureDemoFeatures() {
-        boolean aiVisible = AppFeatures.aiEnabled();
-        if (aiRecommendationCard != null) {
-            aiRecommendationCard.setVisible(aiVisible);
-            aiRecommendationCard.setManaged(aiVisible);
-        }
-        if (generateAiButton != null) {
-            generateAiButton.setVisible(aiVisible);
-            generateAiButton.setManaged(aiVisible);
-        }
     }
 
     private void configureTrendControls() {
@@ -773,15 +668,6 @@ public class PatientDetailController implements FxController {
         return "severity-warning";
     }
 
-    private String aiRiskStyle(int riskScore) {
-        if (riskScore >= 80) {
-            return "trend-critical";
-        }
-        if (riskScore >= 25) {
-            return "trend-warning";
-        }
-        return "trend-normal";
-    }
     private void showVitalAlertPopupIfNeeded(services.VitalsWriteService.VitalsWriteResult result) {
         if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;

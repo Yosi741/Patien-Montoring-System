@@ -77,7 +77,7 @@
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient ID, patient name, or medication" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField" promptText="Patient No., patient name, or medication" HBox.hgrow="ALWAYS" styleClass="control-input" />
                                 <Label text="Active" styleClass="field-label" />
                                 <ComboBox fx:id="activeFilter" prefWidth="125.0" styleClass="control-input" />
                                 <Label text="Route" styleClass="field-label" />
@@ -102,7 +102,7 @@
                             <Label text="Active Medication Orders" styleClass="section-title" />
                             <TableView fx:id="medicationTable" prefHeight="300.0" styleClass="dialog-card">
                                 <columns>
-                                    <TableColumn fx:id="medPatientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                    <TableColumn fx:id="medPatientIdColumn" text="Patient No." prefWidth="120.0" />
                                     <TableColumn fx:id="medPatientNameColumn" text="Patient Name" prefWidth="190.0" />
                                     <TableColumn fx:id="medNameColumn" text="Medication Name" prefWidth="220.0" />
                                     <TableColumn fx:id="doseColumn" text="Dose" prefWidth="120.0" />
@@ -117,7 +117,7 @@
                             <Label text="Medication Administration Events" styleClass="section-title" />
                             <TableView fx:id="eventTable" prefHeight="320.0" styleClass="dialog-card">
                                 <columns>
-                                    <TableColumn fx:id="eventPatientIdColumn" text="Patient ID" prefWidth="120.0" />
+                                    <TableColumn fx:id="eventPatientIdColumn" text="Patient No." prefWidth="120.0" />
                                     <TableColumn fx:id="eventMedicationColumn" text="Medication Name" prefWidth="230.0" />
                                     <TableColumn fx:id="givenByColumn" text="Given By" prefWidth="160.0" />
                                     <TableColumn fx:id="givenAtColumn" text="Given At" prefWidth="180.0" />

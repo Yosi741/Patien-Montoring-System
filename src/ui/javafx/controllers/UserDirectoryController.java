@@ -266,7 +266,7 @@ public class UserDirectoryController implements FxController {
         User user = new User(row.getUsername(), "", row.getRole(), row.getSection());
         boolean adminRole = "ADMIN".equals(group);
         addPermission("View patients", true, "Read-only JavaFX patient board");
-        addPermission("View alerts", true, "Read-only JavaFX Alert Center");
+        addPermission("View alerts", true, "Alerts are surfaced through Notifications");
         addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
         addPermission("View clinical timeline", true, "Read-only patient history preview");
         addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user), "Admin-only SQLite create/edit/deactivate/reset workflow");

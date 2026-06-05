@@ -43,12 +43,10 @@ public class DashboardController implements FxController {
     @FXML private Label acknowledgedTodayLabel;
     @FXML private Label resolvedTodayLabel;
     @FXML private Label medicalFilesLabel;
-    @FXML private Label aiNotesLabel;
     @FXML private VBox newbornRecordsCard;
     @FXML private VBox acknowledgedAlertsCard;
     @FXML private VBox resolvedAlertsCard;
     @FXML private VBox medicalFilesCard;
-    @FXML private VBox aiNotesCard;
     @FXML private Label recentVitalsTodayLabel;
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label pendingRemindersLabel;
@@ -130,12 +128,10 @@ public class DashboardController implements FxController {
         acknowledgedTodayLabel.setText(String.valueOf(metrics.getAcknowledgedAlertsToday()));
         resolvedTodayLabel.setText(String.valueOf(metrics.getResolvedAlertsToday()));
         medicalFilesLabel.setText(String.valueOf(metrics.getImportedMedicalFiles()));
-        aiNotesLabel.setText(String.valueOf(metrics.getAiNotes()));
         setCardVisible(newbornRecordsCard, !AppFeatures.DEMO_MODE);
         setCardVisible(acknowledgedAlertsCard, !AppFeatures.DEMO_MODE);
         setCardVisible(resolvedAlertsCard, !AppFeatures.DEMO_MODE);
         setCardVisible(medicalFilesCard, AppFeatures.medicalFilesEnabled());
-        setCardVisible(aiNotesCard, AppFeatures.aiEnabled());
         recentVitalsTodayLabel.setText(String.valueOf(metrics.getRecentVitalsToday()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
         pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));

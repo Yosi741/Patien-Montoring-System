@@ -33,13 +33,7 @@ sources.txt
 data/uploads/
 data/generated/
 data/backups/
-data/certificates/
-data/files/
 data/*.db
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
-
-# Archived prototype text storage is documentation-only, not runtime data.
-data/archive/legacy-text-storage/*.txt
-!data/archive/legacy-text-storage/README.md

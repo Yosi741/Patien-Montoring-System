@@ -85,7 +85,7 @@
 
                                 <Button fx:id="scheduleButton" text="Open Schedule" onAction="#openScheduling" styleClass="secondary-button" />
 
-                                <Button fx:id="alertButton" text="Open Alert Center" onAction="#openAlertCenter" styleClass="danger-button" />
+                                <Button fx:id="alertButton" text="Open Notifications" onAction="#openAlertCenter" styleClass="danger-button" />
 
                                 <Button text="Refresh" onAction="#refreshQueue" styleClass="secondary-button" />
                             </HBox>
@@ -94,7 +94,7 @@
                                 <columns>
                                     <TableColumn fx:id="statusColumn" text="Status" prefWidth="115.0" />
                                     <TableColumn fx:id="typeColumn" text="Task Type" prefWidth="140.0" />
-                                    <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="115.0" />
+                                    <TableColumn fx:id="patientIdColumn" text="Patient No." prefWidth="115.0" />
                                     <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
                                     <TableColumn fx:id="sectionColumn" text="Section" prefWidth="120.0" />
                                     <TableColumn fx:id="roomColumn" text="Room" prefWidth="90.0" />

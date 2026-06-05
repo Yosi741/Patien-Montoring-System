@@ -374,7 +374,7 @@ public class NotificationCenterController implements FxController {
             return sourceContains(row, "MESSAGE");
         }
         if ("System".equals(quickFilter)) {
-            return sourceContains(row, "SYSTEM") || sourceContains(row, "AI") || isCertificateSource(row);
+            return sourceContains(row, "SYSTEM") || isCertificateSource(row);
         }
         return true;
     }
@@ -474,9 +474,6 @@ public class NotificationCenterController implements FxController {
         }
         if (source.contains("CERTIFICATE")) {
             return "CERT";
-        }
-        if (source.contains("AI")) {
-            return "AI";
         }
         return "SYS";
     }

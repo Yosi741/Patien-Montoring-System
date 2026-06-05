@@ -377,11 +377,6 @@
     -fx-text-fill: #fee2e2;
 }
 
-.timeline-type-ai {
-    -fx-background-color: #4c1d95;
-    -fx-text-fill: #ede9fe;
-}
-
 .timeline-type-file {
     -fx-background-color: #0c4a6e;
     -fx-text-fill: #e0f2fe;

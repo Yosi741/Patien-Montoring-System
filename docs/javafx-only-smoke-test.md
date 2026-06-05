@@ -8,7 +8,6 @@ Use this checklist after compile or UI cleanup changes.
 - Copy `src/ui` into the compiled output folder.
 - Run `Main`.
 - Confirm the JavaFX Login screen opens.
-- Confirm no Swing window opens.
 
 ## Login And Shell
 
@@ -16,14 +15,13 @@ Use this checklist after compile or UI cleanup changes.
 - Confirm Dashboard opens.
 - Confirm sidebar navigation works.
 - Confirm top notification count/profile menu render correctly.
-- Toggle dark mode and return to light mode.
+- Confirm the Hospital Navy presentation theme is applied.
 
 ## Dashboard
 
 - Confirm metric cards load.
 - Confirm alert/reminder/patient counters display.
 - Use quick links to open Patients, Notifications, and Nurse Work Queue.
-- Confirm AI Recommendations and Medical Devices are hidden in demo mode.
 
 ## Patients
 
@@ -47,7 +45,7 @@ Use this checklist after compile or UI cleanup changes.
 - Enter a warning or critical vital.
 - Confirm the vital saves, a JavaFX alert appears, notification count updates, and alarm sound stops after acknowledgement.
 
-## Alerts
+## Alerts And Notifications
 
 - Open Notification Center from the top-bar bell.
 - Confirm alert notifications are visible in the notification feed.
@@ -120,17 +118,10 @@ Use this checklist after compile or UI cleanup changes.
 - Mark a reminder done or missed.
 - Open linked patient/scheduling/alert screens.
 
-## Backup / Export
-
-- Open Backup / Export as Admin.
-- Create a backup ZIP.
-- Export patients, alerts, audit logs, medications, and scheduling CSVs.
-- Preview a backup ZIP and confirm restore remains preview-only.
-
 ## Audit Logs
 
 - Open Audit Logs as Admin.
-- Confirm login, logout, alerts, patient writes, room/section writes, certificate actions, and backup/export actions appear.
+- Confirm login, logout, alerts, patient writes, room/section writes, and certificate actions appear.
 
 ## Final Check
 

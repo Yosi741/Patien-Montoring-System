@@ -58,8 +58,8 @@
                             onAction="#loadTimeline" styleClass="secondary-button" />
                 </HBox>
 
-                <Label
-                        text="Read-only local database timeline combining vitals, alerts, AI notes, files, medical history, medication events, and handover notes."
+                    <Label
+                    text="Read-only local database timeline combining vitals, alerts, files, medical history, medication events, and handover notes."
                         wrapText="true" styleClass="muted-text" />
             </VBox>
 

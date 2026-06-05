@@ -1,6 +1,5 @@
 package dao;
 
-import ai_Prototype.AIAnalysis;
 import database.DatabaseManager;
 import models.Patient;
 import models.VitalSign;
@@ -490,14 +489,6 @@ public class SqlitePatientDao implements PatientDao {
     private String priorityFor(Patient patient) {
         if (patient.isDeceased()) {
             return "DECEASED";
-        }
-        VitalSign vitalSign = patient.getVitalSign();
-        String risk = AIAnalysis.analyzeRisk(vitalSign);
-        if ("Critical".equals(risk)) {
-            return "CRITICAL";
-        }
-        if ("Warning".equals(risk)) {
-            return "WARNING";
         }
         return "NORMAL";
     }

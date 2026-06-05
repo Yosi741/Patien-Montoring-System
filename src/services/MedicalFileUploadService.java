@@ -1,6 +1,5 @@
 package services;
 
-import dao.SqliteAiNoteDao;
 import dao.SqliteMedicalFileDao;
 import dao.SqlitePatientDao;
 import models.MedicalFile;
@@ -37,16 +36,14 @@ public class MedicalFileUploadService {
 
     private final SqliteMedicalFileDao medicalFileDao;
     private final SqlitePatientDao patientDao;
-    private final SqliteAiNoteDao aiNoteDao;
 
     public MedicalFileUploadService() {
-        this(new SqliteMedicalFileDao(), new SqlitePatientDao(), new SqliteAiNoteDao());
+        this(new SqliteMedicalFileDao(), new SqlitePatientDao());
     }
 
-    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao, SqlitePatientDao patientDao, SqliteAiNoteDao aiNoteDao) {
+    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao, SqlitePatientDao patientDao) {
         this.medicalFileDao = medicalFileDao;
         this.patientDao = patientDao;
-        this.aiNoteDao = aiNoteDao;
     }
 
     public UploadResult uploadMedicalFile(User currentUser, UploadRequest request) throws IOException, SQLException {
@@ -107,23 +104,6 @@ public class MedicalFileUploadService {
             System.out.println("SQLite medical file upload audit skipped: " + e.getMessage());
         }
         return new UploadResult(fileId, destination.toString(), summary);
-    }
-
-    public void generateAiSummaryNote(User currentUser, String fileId) throws SQLException {
-        if (!PermissionHelper.canViewMedicalFiles(currentUser)) {
-            throw new SecurityException("Only Admin, Doctor, and Nurse users can generate file summary notes.");
-        }
-        SqliteMedicalFileDao.MedicalFileRecord file = medicalFileDao.findByFileId(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("Medical file not found in SQLite: " + fileId));
-        if (file.getExtractedSummary() == null || file.getExtractedSummary().isBlank()) {
-            throw new IllegalArgumentException("No extracted summary is available for this file.");
-        }
-        String createdAt = LocalDateTime.now().format(DISPLAY_DATE_TIME);
-        String note = "Rule-based file summary only. Not a medical diagnosis. "
-                + file.getOriginalName() + ": " + file.getExtractedSummary();
-        aiNoteDao.saveNote(file.getPatientId(), "File Summary: " + file.getOriginalName(), note, createdAt, 0);
-        AuditWriteHelper.write(username(currentUser), AuditAction.GENERATE_FILE_AI_SUMMARY,
-                "patient_id=" + file.getPatientId() + ", file_id=" + fileId);
     }
 
     private void validateRequest(UploadRequest request) throws SQLException {

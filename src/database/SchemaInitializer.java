@@ -28,8 +28,6 @@ public class SchemaInitializer {
             createAppointments(statement);
             createReminders(statement);
             createMedicalHistory(statement);
-            createAiNotes(statement);
-            migrateAiNotes(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
             createSections(statement);
@@ -41,11 +39,10 @@ public class SchemaInitializer {
             migrateCertificateReviewColumns(statement);
             createShiftHandoverNotes(statement);
             createAuditLogs(statement);
-            createDevices(statement);
-            migrateDevices(statement);
             createMessages(statement);
             createNotifications(statement);
             migrateNotifications(statement);
+            dropInactivePresentationTables(statement);
         }
     }
 
@@ -346,22 +343,6 @@ public class SchemaInitializer {
                 + ")");
     }
 
-    private static void createAiNotes(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS ai_notes ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT NOT NULL,"
-                + "risk_score INTEGER NOT NULL DEFAULT 0,"
-                + "note TEXT NOT NULL,"
-                + "source_title TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-    }
-
-    private static void migrateAiNotes(Statement statement) throws SQLException {
-        addColumnIfMissing(statement, "ai_notes", "source_title", "TEXT");
-    }
-
     private static void createMedicalFiles(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS medical_files ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -501,23 +482,6 @@ public class SchemaInitializer {
                 + ")");
     }
 
-    private static void createDevices(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS devices ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "device_id TEXT NOT NULL UNIQUE,"
-                + "name TEXT NOT NULL,"
-                + "type TEXT NOT NULL,"
-                + "serial TEXT,"
-                + "status TEXT NOT NULL,"
-                + "patient_id TEXT"
-                + ")");
-    }
-
-    private static void migrateDevices(Statement statement) throws SQLException {
-        addColumnIfMissing(statement, "devices", "notes", "TEXT");
-        addColumnIfMissing(statement, "devices", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
-    }
-
     private static void createNotifications(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS notifications ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -558,5 +522,10 @@ public class SchemaInitializer {
         statement.execute("UPDATE notifications SET title = severity || ' notification' WHERE title IS NULL OR TRIM(title) = ''");
         statement.execute("UPDATE notifications SET status = CASE WHEN read = 1 THEN 'READ' ELSE 'UNREAD' END "
                 + "WHERE status IS NULL OR TRIM(status) = ''");
+    }
+
+    private static void dropInactivePresentationTables(Statement statement) throws SQLException {
+        statement.execute("DROP TABLE IF EXISTS ai_notes");
+        statement.execute("DROP TABLE IF EXISTS devices");
     }
 }

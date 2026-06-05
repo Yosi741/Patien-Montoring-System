@@ -28,7 +28,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label
-                    text="Patient ID" styleClass="field-label" />
+                    text="Patient No." styleClass="field-label" />
 
             <TextField
                     fx:id="patientIdField"

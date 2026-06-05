@@ -1,6 +1,5 @@
 package services;
 
-import ai_Prototype.MedicalFileAnalyzer;
 import models.MedicalFile;
 
 import java.util.ArrayList;
@@ -8,10 +7,22 @@ import java.util.ArrayList;
 public class FileAnalysisService {
 
     public static ArrayList<String> analyzeAdvice(MedicalFile medicalFile) {
-        return MedicalFileAnalyzer.analyze(medicalFile);
+        ArrayList<String> advice = new ArrayList<>();
+        if (medicalFile == null) {
+            return advice;
+        }
+        advice.add("Review uploaded file metadata and extracted text in Medical Files.");
+        return advice;
     }
 
     public static ArrayList<String> extractPatientRecordItems(MedicalFile medicalFile) {
-        return MedicalFileAnalyzer.extractStructuredInfo(medicalFile);
+        ArrayList<String> items = new ArrayList<>();
+        if (medicalFile == null) {
+            return items;
+        }
+        items.add("Original file: " + medicalFile.getOriginalName());
+        items.add("Category: " + medicalFile.getFileType());
+        items.add("Uploaded by: " + medicalFile.getUploadedBy());
+        return items;
     }
 }

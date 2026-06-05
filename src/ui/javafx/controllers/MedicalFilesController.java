@@ -44,7 +44,6 @@ public class MedicalFilesController implements FxController {
     @FXML private Label patientFilterChip;
     @FXML private Button clearPatientFilterButton;
     @FXML private Button uploadButton;
-    @FXML private Button aiSummaryButton;
     @FXML private Button copySummaryButton;
     @FXML private Button openFileButton;
     @FXML private TextField searchField;
@@ -150,20 +149,6 @@ public class MedicalFilesController implements FxController {
     }
 
     @FXML
-    private void generateAiSummaryNote() {
-        SqliteMedicalFileDao.MedicalFileRecord selected = selectedFile();
-        if (selected == null) {
-            return;
-        }
-        try {
-            uploadService.generateAiSummaryNote(Session.getCurrentUser(), selected.getFileId());
-            NotificationHelper.showSuccess(statusLabel, "Rule-based AI summary note saved.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
     private void copySummary() {
         SqliteMedicalFileDao.MedicalFileRecord selected = selectedFile();
         if (selected == null) {
@@ -258,8 +243,6 @@ public class MedicalFilesController implements FxController {
         boolean canUpload = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         uploadButton.setVisible(canUpload);
         uploadButton.setManaged(canUpload);
-        aiSummaryButton.setVisible(canUpload);
-        aiSummaryButton.setManaged(canUpload);
         updatePatientFilterChip();
     }
 
@@ -276,7 +259,6 @@ public class MedicalFilesController implements FxController {
             fileSizeLabel.setText("-");
             summaryArea.setText("");
             notesArea.setText("");
-            aiSummaryButton.setDisable(true);
             copySummaryButton.setDisable(true);
             openFileButton.setDisable(true);
             previewTypeLabel.setText("-");
@@ -297,7 +279,6 @@ public class MedicalFilesController implements FxController {
         fileSizeLabel.setText(file.getFileSizeText());
         summaryArea.setText(file.getExtractedSummary() == null ? "" : file.getExtractedSummary());
         notesArea.setText(file.getNotes() == null ? "" : file.getNotes());
-        aiSummaryButton.setDisable(file.getExtractedSummary() == null || file.getExtractedSummary().isBlank());
         copySummaryButton.setDisable(false);
         openFileButton.setDisable(false);
         loadPreview(file);

@@ -112,8 +112,8 @@
 
                             <TableView fx:id="appointmentTable" prefHeight="300.0" styleClass="dialog-card">
                                 <columns>
-                                    <TableColumn fx:id="appointmentIdColumn" text="ID" prefWidth="70.0" />
-                                    <TableColumn fx:id="appointmentPatientIdColumn" text="Patient ID" prefWidth="115.0" />
+                                    <TableColumn fx:id="appointmentIdColumn" text="ID" prefWidth="70.0" visible="false" />
+                                    <TableColumn fx:id="appointmentPatientIdColumn" text="Patient No." prefWidth="115.0" />
                                     <TableColumn fx:id="appointmentPatientNameColumn" text="Patient Name" prefWidth="180.0" />
                                     <TableColumn fx:id="appointmentTitleColumn" text="Title" prefWidth="210.0" />
                                     <TableColumn fx:id="appointmentTypeColumn" text="Type" prefWidth="140.0" />
@@ -138,8 +138,8 @@
 
                             <TableView fx:id="reminderTable" prefHeight="300.0" styleClass="dialog-card">
                                 <columns>
-                                    <TableColumn fx:id="reminderIdColumn" text="ID" prefWidth="70.0" />
-                                    <TableColumn fx:id="reminderPatientIdColumn" text="Patient ID" prefWidth="115.0" />
+                                    <TableColumn fx:id="reminderIdColumn" text="ID" prefWidth="70.0" visible="false" />
+                                    <TableColumn fx:id="reminderPatientIdColumn" text="Patient No." prefWidth="115.0" />
                                     <TableColumn fx:id="reminderPatientNameColumn" text="Patient Name" prefWidth="180.0" />
                                     <TableColumn fx:id="reminderMedicationColumn" text="Medication" prefWidth="180.0" />
                                     <TableColumn fx:id="reminderTypeColumn" text="Type" prefWidth="130.0" />

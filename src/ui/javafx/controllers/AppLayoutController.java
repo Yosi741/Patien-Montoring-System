@@ -49,9 +49,6 @@ public class AppLayoutController implements FxController {
     private Button notificationsButton;
 
     @FXML
-    private Button alertsButton;
-
-    @FXML
     private Button settingsButton;
 
     @FXML
@@ -61,13 +58,7 @@ public class AppLayoutController implements FxController {
     private Button userDirectoryButton;
 
     @FXML
-    private Button staffActivityButton;
-
-    @FXML
     private Button medicationOverviewButton;
-
-    @FXML
-    private Button medicalDevicesButton;
 
     @FXML
     private Button schedulingButton;
@@ -89,12 +80,6 @@ public class AppLayoutController implements FxController {
 
     @FXML
     private Button certificateRegistryButton;
-
-    @FXML
-    private Button aiRecommendationsButton;
-
-    @FXML
-    private Button backupExportButton;
 
     @FXML
     private Button topNotificationButton;
@@ -122,15 +107,12 @@ public class AppLayoutController implements FxController {
         boolean loggedIn = Session.getCurrentUser() != null;
         setButtonVisible(messagesButton, false);
         setButtonVisible(notificationsButton, AppFeatures.notificationsEnabled() && loggedIn);
-        setButtonVisible(alertsButton, AppFeatures.alertCenterPageEnabled() && (admin || clinical));
         topNotificationButton.setVisible(loggedIn);
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
         unreadCountLabel.setManaged(loggedIn);
-        setButtonVisible(staffActivityButton, AppFeatures.staffActivityEnabled() && admin);
         medicationOverviewButton.setVisible(admin || clinical);
         medicationOverviewButton.setManaged(admin || clinical);
-        setButtonVisible(medicalDevicesButton, AppFeatures.devicesEnabled() && (admin || clinical));
         schedulingButton.setVisible(admin || clinical);
         schedulingButton.setManaged(admin || clinical);
         workQueueButton.setVisible(admin || clinical);
@@ -144,9 +126,6 @@ public class AppLayoutController implements FxController {
         newbornRecordsButton.setManaged(false);
         certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
-        setButtonVisible(aiRecommendationsButton, AppFeatures.aiEnabled() && (admin || clinical));
-        setButtonVisible(backupExportButton, AppFeatures.backupExportEnabled()
-                && PermissionHelper.canViewBackupTools(Session.getCurrentUser()));
         auditLogsButton.setVisible(admin);
         auditLogsButton.setManaged(admin);
         userDirectoryButton.setVisible(admin);
@@ -189,15 +168,6 @@ public class AppLayoutController implements FxController {
     }
 
     @FXML
-    private void showAlerts() {
-        if (!AppFeatures.alertCenterPageEnabled()) {
-            appShell.showNotificationCenter();
-            return;
-        }
-        appShell.showAlertCenter();
-    }
-
-    @FXML
     private void showSettings() {
         appShell.showUserProfile();
     }
@@ -213,26 +183,8 @@ public class AppLayoutController implements FxController {
     }
 
     @FXML
-    private void showStaffActivity() {
-        if (!AppFeatures.staffActivityEnabled()) {
-            appShell.showDashboard(Session.getCurrentUser());
-            return;
-        }
-        appShell.showStaffActivity();
-    }
-
-    @FXML
     private void showMedicationOverview() {
         appShell.showMedicationOverview();
-    }
-
-    @FXML
-    private void showMedicalDevices() {
-        if (!AppFeatures.devicesEnabled()) {
-            appShell.showNotificationCenter();
-            return;
-        }
-        appShell.showMedicalDevices();
     }
 
     @FXML
@@ -272,24 +224,6 @@ public class AppLayoutController implements FxController {
     @FXML
     private void showCertificateRegistry() {
         appShell.showCertificateRegistry();
-    }
-
-    @FXML
-    private void showAiRecommendations() {
-        if (!AppFeatures.aiEnabled()) {
-            appShell.showDashboard(Session.getCurrentUser());
-            return;
-        }
-        appShell.showAiRecommendations();
-    }
-
-    @FXML
-    private void showBackupExport() {
-        if (!AppFeatures.backupExportEnabled()) {
-            appShell.showDashboard(Session.getCurrentUser());
-            return;
-        }
-        appShell.showBackupExport();
     }
 
     @FXML

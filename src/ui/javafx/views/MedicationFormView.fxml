@@ -23,7 +23,7 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient ID" styleClass="field-label" />
+            <Label text="Patient No." styleClass="field-label" />
             <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 

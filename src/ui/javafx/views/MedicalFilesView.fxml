@@ -40,7 +40,7 @@
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="Local database upload. No OCR, no external AI, no external writeback." styleClass="status-info metric-value compact-metric-value" />
+                            <Label text="Local database upload. Preview extracts text where possible; no external services." styleClass="status-info metric-value compact-metric-value" />
                             <Label fx:id="patientFilterChip" text="" managed="false" visible="false" styleClass="status-success success-value" />
                             <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter"
                                     managed="false" visible="false" styleClass="transparent-pane secondary-button" />
@@ -49,7 +49,7 @@
                         <VBox spacing="12.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient ID, patient name, original filename, uploaded by" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField" promptText="Patient No., patient name, original filename, uploaded by" HBox.hgrow="ALWAYS" styleClass="control-input" />
                                 <Label text="Category" styleClass="field-label" />
                                 <ComboBox fx:id="categoryFilter" prefWidth="180.0" styleClass="control-input" />
                                 <Label text="Date" styleClass="field-label" />
@@ -71,7 +71,7 @@
                                 <Label text="Uploaded Files" styleClass="section-title" />
                                 <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" styleClass="dialog-card">
                                     <columns>
-                                        <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="110.0" />
+                                        <TableColumn fx:id="patientIdColumn" text="Patient No." prefWidth="110.0" />
                                         <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="165.0" />
                                         <TableColumn fx:id="originalNameColumn" text="Original Name" prefWidth="210.0" />
                                         <TableColumn fx:id="categoryColumn" text="Category" prefWidth="140.0" />
@@ -88,11 +88,10 @@
                                     <Region HBox.hgrow="ALWAYS" />
                                     <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary" disable="true" styleClass="secondary-button" />
                                     <Button fx:id="openFileButton" text="Open File" onAction="#openSelectedFile" disable="true" styleClass="secondary-button" />
-                                    <Button fx:id="aiSummaryButton" text="Generate AI Summary Note" onAction="#generateAiSummaryNote" disable="true" styleClass="secondary-button" />
                                 </HBox>
 
-                                <Label text="File ID" styleClass="metric-label" />
-                                <Label fx:id="fileIdLabel" text="-" wrapText="true" styleClass="muted-text" />
+                                <Label text="File ID" managed="false" visible="false" styleClass="metric-label" />
+                                <Label fx:id="fileIdLabel" text="-" managed="false" visible="false" wrapText="true" styleClass="muted-text" />
 
                                 <Label text="Patient" styleClass="metric-label" />
                                 <Label fx:id="patientLabel" text="-" wrapText="true" styleClass="muted-text" />

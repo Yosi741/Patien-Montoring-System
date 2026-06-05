@@ -3,7 +3,6 @@ package services;
 import alerts.CriticalAlertManager;
 import dao.SqliteAuditLogDao;
 import dao.SqliteVitalReadingDao;
-import models.MedicalDevice;
 import models.Patient;
 import models.VitalRecord;
 import models.VitalSign;
@@ -42,14 +41,6 @@ public class VitalService {
         saveVitalSet(patient, vitalSign, "Manual", Session.getUsername(), "", "", "", "");
         CriticalAlertManager.checkPatient(patient);
         logAudit(Session.getUsername(), "Added manual vital signs for: " + patient.getName());
-    }
-
-    public static void recordDeviceVitals(Patient patient, VitalSign vitalSign, MedicalDevice device) {
-        patient.setVitalSign(vitalSign);
-        saveVitalSet(patient, vitalSign, "Device", "", device.getDeviceId(), device.getSerialNumber(),
-                device.getDeviceName(), device.getDeviceType());
-        CriticalAlertManager.checkPatient(patient);
-        logAudit("Device:" + device.getDeviceId(), "Added device vital signs for: " + patient.getName());
     }
 
     private static void saveVitalSet(Patient patient, VitalSign vitalSign, String sourceType, String staffName,

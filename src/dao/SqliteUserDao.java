@@ -22,7 +22,7 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public Optional<User> findByUsername(String username) throws SQLException {
-        String sql = "SELECT username, password_hash, role, section FROM users WHERE username = ? AND active = 1";
+        String sql = "SELECT username, password_hash, role, section FROM users WHERE LOWER(username) = LOWER(?) AND active = 1";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
@@ -37,7 +37,7 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public boolean usernameExists(String username) throws SQLException {
-        String sql = "SELECT 1 FROM users WHERE username = ?";
+        String sql = "SELECT 1 FROM users WHERE LOWER(username) = LOWER(?)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);

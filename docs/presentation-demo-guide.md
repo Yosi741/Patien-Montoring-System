@@ -26,11 +26,14 @@ Use these local SQLite demo accounts:
 
 | Username | Password | Role | Section |
 | --- | --- | --- | --- |
-| `yasen` | `demo123` | ADMIN | All |
-| `doctor_demo` | `demo123` | DOCTOR | ER |
-| `nurse_demo` | `demo123` | NURSE | Maternity |
+| `admin` | `admin123` | ADMIN | All |
+| `doctor` | `doctor123` | DOCTOR | ER |
+| `nurse` | `nurse123` | NURSE | Maternity |
+| `staff` | `staff123` | STAFF | Front Desk |
 
 These accounts are presentation-only. Passwords are stored with the app password hashing utility.
+The project uses a local login system with role-based access. Passwords are not stored as plain text or shown in the app. The presentation focuses on workflow and architecture, not advanced cybersecurity.
+Usernames can be typed in any letter case during login; the account names above are the canonical lowercase names.
 
 ## Clean Demo Departments And Rooms
 
@@ -102,14 +105,25 @@ Seeded notifications:
 
 Medical file records are clean and currently empty. Old physical upload files were archived before the reset. The Medical Files page should open normally and will show new uploads after a fresh upload creates a SQLite metadata row.
 
-## Disabled Features And Why
+## Active Data Folder For Presentation
 
-- AI recommendations are disabled because they add complexity that is not needed for a 15-minute board presentation.
-- Bluetooth and medical device integration are disabled because no real hospital pilot or device integration is connected yet.
-- Backup/export is hidden in demo mode to keep the presentation focused on clinical workflow.
-- Medical file management is hidden from the sidebar in demo mode unless it is re-enabled for a dedicated file-management presentation.
+The presentation data folder is intentionally simple:
 
-The code and database tables for hidden modules are retained for future extension.
+```text
+data/
+  smart_patient_monitoring.db
+  uploads/
+  generated/
+    birth-certificates/
+    death-certificates/
+  backups/
+```
+
+Certificate templates and old text-file prototype storage are not part of the active demo data folder.
+
+## Removed Experimental Modules
+
+AI recommendations, medical-device/Bluetooth registry, Backup / Export, Staff Activity, and the separate Alert Center screen were removed from the active presentation build to keep the demo focused. Alerts still appear through vitals, dashboard counters, patient files, and Notification Center.
 
 ## Architecture
 
@@ -122,10 +136,6 @@ JavaFX UI
 ```
 
 Controllers handle UI events and validation display. Services contain workflow decisions. DAOs contain SQLite access. The runtime data source is the local SQLite database at `data/smart_patient_monitoring.db`.
-
-## Evolution
-
-The project started as a simpler Swing and text-file prototype. It was migrated to JavaFX and SQLite to provide a cleaner user interface, better separation of concerns, searchable records, stronger auditability, and safer local persistence.
 
 ## Suggested 15-Minute Flow
 
@@ -141,4 +151,4 @@ The project started as a simpler Swing and text-file prototype. It was migrated 
 
 - Medication safety rules are demo decision-support rules, not medical diagnosis.
 - Certificates are local prototype documents, not official legal or government certificates.
-- External email, SMS, cloud backup, real Bluetooth devices, and AI diagnosis are future extensions.
+- External email, SMS, cloud backup, and real device integrations are future extensions.

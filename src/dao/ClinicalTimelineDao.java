@@ -31,7 +31,6 @@ public class ClinicalTimelineDao {
         try (Connection connection = DatabaseManager.getConnection()) {
             addVitalEvents(connection, patientId, events);
             addAlertEvents(connection, patientId, events);
-            addAiNoteEvents(connection, patientId, events);
             addMedicalFileEvents(connection, patientId, events);
             addMedicalHistoryEvents(connection, patientId, events);
             addMedicationEvents(connection, patientId, events);
@@ -56,8 +55,6 @@ public class ClinicalTimelineDao {
                     return findVitalDetail(connection, event);
                 case "alerts":
                     return findAlertDetail(connection, event);
-                case "ai_notes":
-                    return findAiNoteDetail(connection, event);
                 case "medical_files":
                     return findMedicalFileDetail(connection, event);
                 case "medical_history":
@@ -113,30 +110,10 @@ public class ClinicalTimelineDao {
                 field(fields, "Acknowledged By", resultSet.getString("acknowledged_by"));
                 field(fields, "Acknowledged At", resultSet.getString("acknowledged_at"));
                 field(fields, "Updated At", resultSet.getString("updated_at"));
-                String action = "Review patient status and use JavaFX Alert Center acknowledgement or sound handling.";
+                String action = "Review patient status and use Notifications for alert follow-up.";
                 return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
                         resultSet.getString("created_at"), event.getSourceTable(), event.getSourceId(), resultSet.getString("message"),
                         resultSet.getString("severity"), action, fields));
-            }
-        }
-    }
-
-    private Optional<TimelineEventDetail> findAiNoteDetail(Connection connection, TimelineEvent event) throws SQLException {
-        String sql = "SELECT id, patient_id, risk_score, note, source_title, created_at FROM ai_notes WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, event.getSourceId());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    return Optional.empty();
-                }
-                LinkedHashMap<String, String> fields = baseFields(event, resultSet.getString("patient_id"), resultSet.getString("created_at"));
-                field(fields, "Risk Score", String.valueOf(resultSet.getInt("risk_score")));
-                field(fields, "Source Title", resultSet.getString("source_title"));
-                field(fields, "Note", resultSet.getString("note"));
-                String action = "Treat this as rule-based decision support only; clinical staff must review before acting.";
-                return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
-                        resultSet.getString("created_at"), event.getSourceTable(), event.getSourceId(), resultSet.getString("note"),
-                        String.valueOf(resultSet.getInt("risk_score")), action, fields));
             }
         }
     }
@@ -283,29 +260,6 @@ public class ClinicalTimelineDao {
                                     "Last updated: " + fallback(resultSet.getString("updated_at"), resultSet.getString("created_at"))),
                             severity,
                             "alerts",
-                            String.valueOf(resultSet.getLong("id"))
-                    ));
-                }
-            }
-        }
-    }
-
-    private void addAiNoteEvents(Connection connection, String patientId, List<TimelineEvent> events) throws SQLException {
-        String sql = "SELECT id, risk_score, note, created_at, source_title FROM ai_notes WHERE patient_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, patientId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    int riskScore = resultSet.getInt("risk_score");
-                    String sourceTitle = value(resultSet.getString("source_title"));
-                    events.add(new TimelineEvent(
-                            value(resultSet.getString("created_at")),
-                            "AI Notes",
-                            sourceTitle.isBlank() ? "AI note" : "Imported AI note: " + sourceTitle,
-                            joinDetails(riskScore > 0 ? "Risk score: " + riskScore : "",
-                                    value(resultSet.getString("note"))),
-                            riskScore >= 80 ? "CRITICAL" : riskScore >= 50 ? "WARNING" : "",
-                            "ai_notes",
                             String.valueOf(resultSet.getLong("id"))
                     ));
                 }

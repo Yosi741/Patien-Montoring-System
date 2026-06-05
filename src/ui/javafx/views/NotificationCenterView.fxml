@@ -94,7 +94,7 @@
                                 </VBox>
                                 <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
                                     <Label text="Patient" styleClass="field-label" />
-                                    <TextField fx:id="patientSearchField" promptText="Patient ID" styleClass="notification-input" />
+                                    <TextField fx:id="patientSearchField" promptText="Patient No." styleClass="notification-input" />
                                 </VBox>
                                 <Button text="Refresh" onAction="#loadNotifications" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="BOTTOM" maxWidth="Infinity" styleClass="notification-action-secondary" />
                             </GridPane>

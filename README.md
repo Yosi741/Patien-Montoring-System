@@ -30,19 +30,9 @@ A JavaFX desktop hospital patient monitoring prototype for a local presentation/
 
 ## Demo Presentation Mode
 
-The project currently starts in a simplified 15-minute demo configuration:
+The project is cleaned for a focused 15-minute JavaFX + SQLite presentation. Inactive experimental modules were removed from the active code path: AI recommendations, medical-device/Bluetooth registry, Backup / Export, Staff Activity, and the separate Alert Center page. Alerts remain part of vitals, patient files, dashboard metrics, and Notification Center.
 
-- `DEMO_MODE=true`
-- `APP_FEATURE_AI=false`
-- `APP_FEATURE_DEVICES=false`
-- `APP_FEATURE_BACKUP_EXPORT=false`
-- `APP_FEATURE_STAFF_ACTIVITY=false`
-- `APP_FEATURE_MEDICAL_FILES=false`
-- `APP_FEATURE_MESSAGES=true`
-- `APP_FEATURE_NOTIFICATIONS=true`
-- `APP_FEATURE_ALERT_CENTER_PAGE=false`
-
-AI recommendation, medical-device, backup/export, staff-activity, and medical-file sidebar entries are hidden for the presentation, but their code and database tables remain in the project for later phases. Core hospital workflows stay active: patients, vitals, medications, rooms/beds, scheduling, Nurse Work Queue, certificates, notifications, profile, and admin tools.
+Core hospital workflows stay active: patients, vitals, medications, rooms/beds, scheduling, Nurse Work Queue, certificates, notifications, profile, and admin tools.
 
 The visible presentation sidebar focuses on:
 
@@ -103,9 +93,10 @@ Runtime data is stored locally under `data/`.
 - Uploaded files: `data/uploads/`
 - Generated certificates: `data/generated/`
 - Backups: `data/backups/`
-- Certificate templates, if used later: `data/certificate_templates/`
 
 Older archive files may still exist in `data/` from earlier development phases, but the running application no longer reads or writes operational data from text files.
+
+Uploaded files and generated certificates are normal local files. The project uses a local SQLite database for records and metadata.
 
 ## SQLite-Only Runtime
 
@@ -113,12 +104,12 @@ The runtime data path is now:
 
 JavaFX UI -> Services -> SQLite DAOs -> `data/smart_patient_monitoring.db`
 
-Patient records, vitals, alerts, messages, notifications, rooms, medications, newborn/deceased records, certificates, audit logs, and staff accounts are stored in SQLite. Backup/export tools remain available for presentation and recovery workflows.
+Patient records, vitals, alerts, messages, notifications, rooms, medications, newborn/deceased records, certificates, audit logs, medical-file metadata, and staff accounts are stored in SQLite.
 
 ## Architecture
 
 - `src/ui/javafx/`: JavaFX shell, controllers, FXML views, and styles
-- `src/services/`: validation, business workflows, alerts, certificates, backups, scheduling, AI recommendations, and write services
+- `src/services/`: validation, business workflows, alerts, certificates, scheduling, medication safety, notifications, and write services
 - `src/dao/`: SQLite DAO classes and query models
 - `src/database/`: SQLite database manager and schema initializer
 - `src/models/`: core model objects
@@ -135,25 +126,14 @@ Birth and death certificates currently generate safe local HTML files:
 
 Certificate files are opened only after path validation. They are prototype-generated local certificates based on SQLite records, not official legal or government certificates. PDF/template overlay support can be reintroduced later as a dedicated certificate output phase.
 
-## Backup And Export
-
-The Backup / Export screen can:
-
-- Create a local ZIP backup containing the SQLite database and uploaded files
-- Export patient, alert, audit, medication, and scheduling summaries to CSV
-- Preview backup ZIP contents before a future restore workflow
-
-Restore is intentionally preview-only; it does not overwrite the live database.
-
-In the current presentation demo configuration, Backup / Export is hidden to keep the 15-minute flow focused. The code remains available for future use.
-
 ## Notes And Limitations
 
 - This is a local desktop application, not a networked hospital deployment.
-- Rule-based AI recommendation code is retained but hidden in the current demo configuration.
-- Real device, smart watch, external email/SMS, cloud backup, and hospital paging integrations are future extensions.
+- The project uses a local login system with role-based access for Admin, Doctor, Nurse, and Staff users.
+- Passwords are not stored as plain text and are not displayed in the app or documentation.
+- The presentation focuses on hospital workflow and layered architecture, not advanced cybersecurity.
+- Real device integration, external email/SMS, cloud backup, and hospital paging integrations are future extensions outside this demo build.
 - HTML certificates are local prototype documents, not official legal certification.
-- Passwords are hashed for SQLite users; raw passwords are not displayed or logged.
 
 ## Presentation Guide
 

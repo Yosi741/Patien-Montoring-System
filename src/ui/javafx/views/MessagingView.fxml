@@ -38,12 +38,12 @@
                             <Tab text="Inbox" closable="false">
                                 <TableView fx:id="inboxTable">
                                     <columns>
-                                        <TableColumn fx:id="inboxIdColumn" text="ID" prefWidth="70" />
+                                        <TableColumn fx:id="inboxIdColumn" text="ID" prefWidth="70" visible="false" />
                                         <TableColumn fx:id="inboxSenderColumn" text="Sender" prefWidth="140" />
                                         <TableColumn fx:id="inboxSubjectColumn" text="Subject" prefWidth="240" />
                                         <TableColumn fx:id="inboxPriorityColumn" text="Priority" prefWidth="100" />
                                         <TableColumn fx:id="inboxStatusColumn" text="Status" prefWidth="100" />
-                                        <TableColumn fx:id="inboxPatientColumn" text="Patient" prefWidth="110" />
+                                        <TableColumn fx:id="inboxPatientColumn" text="Patient No." prefWidth="110" />
                                         <TableColumn fx:id="inboxCreatedColumn" text="Created" prefWidth="170" />
                                     </columns>
                                 </TableView>
@@ -51,7 +51,7 @@
                             <Tab text="Sent" closable="false">
                                 <TableView fx:id="sentTable">
                                     <columns>
-                                        <TableColumn fx:id="sentIdColumn" text="ID" prefWidth="70" />
+                                        <TableColumn fx:id="sentIdColumn" text="ID" prefWidth="70" visible="false" />
                                         <TableColumn fx:id="sentTargetColumn" text="Target" prefWidth="180" />
                                         <TableColumn fx:id="sentSubjectColumn" text="Subject" prefWidth="260" />
                                         <TableColumn fx:id="sentPriorityColumn" text="Priority" prefWidth="100" />
@@ -73,7 +73,7 @@
                                             </HBox>
                                             <Label text="Choose the exact staff account. Free-text recipient names are disabled for safety." wrapText="true" styleClass="muted-text" />
                                             <HBox spacing="10">
-                                                <TextField fx:id="patientIdField" promptText="Optional patient ID" prefWidth="180" />
+                                                <TextField fx:id="patientIdField" promptText="Optional patient no." prefWidth="180" />
                                                 <ComboBox fx:id="priorityBox" prefWidth="140" />
                                                 <TextField fx:id="subjectField" promptText="Subject" HBox.hgrow="ALWAYS" />
                                             </HBox>

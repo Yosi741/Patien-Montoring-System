@@ -55,18 +55,6 @@ public final class PermissionHelper {
         return isAdmin(user);
     }
 
-    public static boolean canRegisterDevice(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canManageDevice(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canAssignDevice(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
     public static boolean canCreateAppointment(User user) {
         return isAdmin(user) || isDoctor(user);
     }
@@ -101,10 +89,6 @@ public final class PermissionHelper {
 
     public static boolean canViewMedicalFiles(User user) {
         return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canViewBackupTools(User user) {
-        return isAdmin(user) || isDoctor(user);
     }
 
     public static boolean canManageRooms(User user) {
@@ -169,22 +153,6 @@ public final class PermissionHelper {
 
     public static boolean canViewNotifications(User user) {
         return user != null;
-    }
-
-    public static boolean canCreateBackup(User user) {
-        return isAdmin(user);
-    }
-
-    public static boolean canPreviewRestore(User user) {
-        return isAdmin(user);
-    }
-
-    public static boolean canExportClinicalData(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canExportAuditLogs(User user) {
-        return isAdmin(user);
     }
 
     public static boolean canCreateTestAuditEvent(User user) {

@@ -51,7 +51,7 @@
 
                     <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                         <Label text="Search" styleClass="field-label" />
-                        <TextField fx:id="searchField" promptText="Patient ID or name" styleClass="patient-input" />
+                        <TextField fx:id="searchField" promptText="Patient No. or name" styleClass="patient-input" />
                     </VBox>
 
                     <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -108,7 +108,7 @@
 
                 <TableView fx:id="patientTable" prefHeight="420.0" VBox.vgrow="ALWAYS" styleClass="patient-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" text="Patient ID" prefWidth="130.0" />
+                        <TableColumn fx:id="idColumn" text="Patient No." prefWidth="130.0" />
                         <TableColumn fx:id="nameColumn" text="Name" prefWidth="210.0" />
                         <TableColumn fx:id="birthDateColumn" text="Birth Date" prefWidth="120.0" />
                         <TableColumn fx:id="genderColumn" text="Gender" prefWidth="100.0" />

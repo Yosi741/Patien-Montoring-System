@@ -59,3 +59,7 @@ Domain model classes such as patient, user, medication, alert, and medical file 
 ## Runtime Data
 
 Runtime data flows through SQLite DAOs. Uploaded files and generated certificates are stored on disk, but their metadata is tracked in SQLite.
+
+## Security Wording For Demo
+
+The presentation build uses a local login system with role-based access for Admin, Doctor, Nurse, and Staff users. Passwords are not stored as plain text. Uploaded files and generated certificates remain normal local files, and the presentation focuses on hospital workflow and layered architecture rather than advanced cybersecurity.

@@ -1,6 +1,5 @@
 package services;
 
-import ai_Prototype.AIAnalysis;
 import dao.SqliteAuditLogDao;
 import models.Patient;
 import users.Session;
@@ -27,9 +26,10 @@ public class AlarmService {
     private static String activePatientId = "";
 
     public static synchronized void checkPatient(Patient patient) {
-        String risk = AIAnalysis.analyzeRisk(patient.getVitalSign());
-
-        if (!risk.equals("Critical")) {
+        if (patient == null) {
+            return;
+        }
+        if (!isCritical(patient.getVitalSign())) {
             if (activePatientId.equals(patient.getPatientId())) {
                 resolveAlarm();
             }
@@ -84,6 +84,17 @@ public class AlarmService {
 
     public static synchronized AlarmState getState() {
         return state;
+    }
+
+    private static boolean isCritical(models.VitalSign vitalSign) {
+        if (vitalSign == null) {
+            return false;
+        }
+        return vitalSign.getTemperature() >= 39.0
+                || vitalSign.getHeartRate() >= 130
+                || vitalSign.getSystolicPressure() >= 180
+                || vitalSign.getDiastolicPressure() >= 120
+                || vitalSign.getOxygenLevel() <= 88;
     }
 
     private static synchronized void startAlarm() {

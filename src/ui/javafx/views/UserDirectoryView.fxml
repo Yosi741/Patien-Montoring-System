@@ -67,7 +67,7 @@
 
                         <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="dialog-card">
                             <columns>
-                                <TableColumn fx:id="idColumn" text="ID" prefWidth="75.0" />
+                                <TableColumn fx:id="idColumn" text="ID" prefWidth="75.0" visible="false" />
                                 <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
                                 <TableColumn fx:id="roleColumn" text="Role" prefWidth="190.0" />
                                 <TableColumn fx:id="sectionColumn" text="Section / Department" prefWidth="180.0" />

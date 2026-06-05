@@ -76,7 +76,7 @@ public class UserProfileController implements FxController {
 
         permissionListBox.getChildren().clear();
         addPermission("View patients", true, "Read-only JavaFX patient board");
-        addPermission("View alerts", true, "Read-only JavaFX Alert Center");
+        addPermission("View alerts", true, "Alerts are surfaced through Notifications");
         addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
         addPermission("View clinical timeline", true, "Read-only patient history preview");
         addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
@@ -84,7 +84,6 @@ public class UserProfileController implements FxController {
         addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
         addPermission("Add medications", PermissionHelper.canAddMedication(user), "Future JavaFX write workflow");
         addPermission("Give medications", PermissionHelper.canGiveMedication(user), "Future JavaFX write workflow");
-        addPermission("Register devices", PermissionHelper.canRegisterDevice(user), "Future JavaFX write workflow");
         addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
         addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
 

@@ -56,16 +56,7 @@
                 <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="alertsButton" text="Alerts" onAction="#showAlerts" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="staffActivityButton" text="Staff Activity" onAction="#showStaffActivity" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
                 <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="medicalDevicesButton" text="Medical Devices" onAction="#showMedicalDevices" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity"
@@ -87,12 +78,6 @@
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="certificateRegistryButton" text="Certificates" onAction="#showCertificateRegistry" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="aiRecommendationsButton" text="AI Recommendations" onAction="#showAiRecommendations" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="backupExportButton" text="Backup / Export" onAction="#showBackupExport" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity"

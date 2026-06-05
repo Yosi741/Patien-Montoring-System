@@ -72,7 +72,7 @@
                     <TableView fx:id="auditTable"
                                VBox.vgrow="ALWAYS" styleClass="dialog-card">
                         <columns>
-                            <TableColumn fx:id="idColumn" text="ID" prefWidth="80.0" />
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="80.0" visible="false" />
                             <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
                             <TableColumn fx:id="actionColumn" text="Action" prefWidth="540.0" />
                             <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="200.0" />

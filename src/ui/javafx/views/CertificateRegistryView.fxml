@@ -66,7 +66,7 @@
                                 <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
                                 <Label text="Section" styleClass="field-label" />
                                 <ComboBox fx:id="sectionFilter" prefWidth="160.0" />
-                                <TextField fx:id="searchField" promptText="Patient/newborn ID or name" HBox.hgrow="ALWAYS" />
+                                <TextField fx:id="searchField" promptText="Patient/newborn no. or name" HBox.hgrow="ALWAYS" />
                             </HBox>
                             <FlowPane alignment="CENTER_RIGHT" hgap="10.0" vgap="10.0">
                                 <Button text="Open Related Record" onAction="#openRelatedRecord" styleClass="secondary-button" />
@@ -90,8 +90,8 @@
                                 <TableView fx:id="certificateTable" prefHeight="500.0">
                                     <columns>
                                         <TableColumn fx:id="typeColumn" text="Type" prefWidth="85.0" />
-                                        <TableColumn fx:id="sourceRecordColumn" text="Source ID" prefWidth="95.0" />
-                                        <TableColumn fx:id="subjectIdColumn" text="Patient/Newborn ID" prefWidth="145.0" />
+                                        <TableColumn fx:id="sourceRecordColumn" text="Source ID" prefWidth="95.0" visible="false" />
+                                        <TableColumn fx:id="subjectIdColumn" text="Patient/Newborn No." prefWidth="145.0" />
                                         <TableColumn fx:id="nameColumn" text="Name" prefWidth="180.0" />
                                         <TableColumn fx:id="eventTimeColumn" text="Event Time" prefWidth="165.0" />
                                         <TableColumn fx:id="statusColumn" text="Status" prefWidth="110.0" />

@@ -46,8 +46,8 @@ public class DemoDatabaseReset {
 
     private static void clearOperationalData(Connection connection) throws Exception {
         String[] tables = {
-                "notifications", "messages", "devices", "audit_logs", "shift_handover_notes",
-                "medical_files", "ai_notes", "medical_history", "reminders", "appointments",
+                "notifications", "messages", "audit_logs", "shift_handover_notes",
+                "medical_files", "medical_history", "reminders", "appointments",
                 "medication_events", "medications", "medication_interactions", "medication_catalog",
                 "alerts", "vital_readings", "newborn_records", "deceased_records", "rooms", "sections",
                 "password_reset_tokens", "user_profiles", "users", "patients"
@@ -63,9 +63,10 @@ public class DemoDatabaseReset {
     }
 
     private static void seedUsers(Connection connection) throws Exception {
-        insertUser(connection, "yasen", "demo123", "ADMIN", "All", "yasen.demo@spms.local", "0590000001");
-        insertUser(connection, "doctor_demo", "demo123", "DOCTOR", "ER", "doctor.demo@spms.local", "0590000002");
-        insertUser(connection, "nurse_demo", "demo123", "NURSE", "Maternity", "nurse.demo@spms.local", "0590000003");
+        insertUser(connection, "admin", "admin123", "ADMIN", "All", "admin.demo@spms.local", "0590000001");
+        insertUser(connection, "doctor", "doctor123", "DOCTOR", "ER", "doctor.demo@spms.local", "0590000002");
+        insertUser(connection, "nurse", "nurse123", "NURSE", "Maternity", "nurse.demo@spms.local", "0590000003");
+        insertUser(connection, "staff", "staff123", "STAFF", "Front Desk", "staff.demo@spms.local", "0590000004");
     }
 
     private static void insertUser(Connection connection, String username, String password, String role,
@@ -177,7 +178,7 @@ public class DemoDatabaseReset {
     private static void insertVital(Connection connection, String patientId, String type, String value, String unit,
                                     LocalDateTime recordedAt) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO vital_readings(patient_id, vital_type, value, unit, recorded_at, source_type, staff_user, device_id) VALUES(?, ?, ?, ?, ?, 'Manual', 'nurse_demo', '')")) {
+                "INSERT INTO vital_readings(patient_id, vital_type, value, unit, recorded_at, source_type, staff_user, device_id) VALUES(?, ?, ?, ?, ?, 'Manual', 'nurse', '')")) {
             statement.setString(1, patientId);
             statement.setString(2, type);
             statement.setString(3, value);
@@ -201,7 +202,7 @@ public class DemoDatabaseReset {
             statement.setString(2, severity);
             statement.setString(3, message);
             statement.setString(4, status);
-            statement.setString(5, "ACKNOWLEDGED".equals(status) ? "doctor_demo" : "");
+            statement.setString(5, "ACKNOWLEDGED".equals(status) ? "doctor" : "");
             statement.setString(6, "ACKNOWLEDGED".equals(status) ? LocalDateTime.now().minusHours(1).format(DISPLAY_DATE_TIME) : "");
             statement.executeUpdate();
         }
@@ -294,7 +295,7 @@ public class DemoDatabaseReset {
     private static void insertMedicationEvent(Connection connection, long medicationId, String patientId, double amount, String unit, String route) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO medication_events(medication_id, patient_id, given_by, given_at, notes, status, given_amount, given_unit, route, override_used, override_reason, safety_status) "
-                        + "VALUES(?, ?, 'nurse_demo', ?, 'Clean demo administration record.', 'GIVEN', ?, ?, ?, 0, '', 'NORMAL')")) {
+                        + "VALUES(?, ?, 'nurse', ?, 'Clean demo administration record.', 'GIVEN', ?, ?, ?, 0, '', 'NORMAL')")) {
             statement.setLong(1, medicationId);
             statement.setString(2, patientId);
             statement.setString(3, LocalDateTime.now().minusHours(3).format(DISPLAY_DATE_TIME));
@@ -307,16 +308,16 @@ public class DemoDatabaseReset {
 
     private static void seedReminders(Connection connection) throws Exception {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
-        insertReminder(connection, "100000002", null, "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse_demo", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
-        insertReminder(connection, "100000004", medicationId(connection, "100000004", "Ibuprofen"), "MEDICATION", "Medication review reminder", now.plusHours(4), "PENDING", "doctor_demo", "Review post-operative pain medication plan.");
-        insertReminder(connection, "100000005", null, "CUSTOM", "Nurse follow-up task", now.plusHours(1), "PENDING", "nurse_demo", "Post-delivery follow-up and family education.");
+        insertReminder(connection, "100000002", null, "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
+        insertReminder(connection, "100000004", medicationId(connection, "100000004", "Ibuprofen"), "MEDICATION", "Medication review reminder", now.plusHours(4), "PENDING", "doctor", "Review post-operative pain medication plan.");
+        insertReminder(connection, "100000005", null, "CUSTOM", "Nurse follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
     }
 
     private static void insertReminder(Connection connection, String patientId, Long medicationId, String type, String title,
                                        LocalDateTime due, String status, String assignedTo, String notes) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO reminders(patient_id, medication_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, '', ?, ?, 'yasen', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                        + "VALUES(?, ?, ?, ?, ?, '', ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             statement.setString(1, patientId);
             if (medicationId == null) {
                 statement.setNull(2, java.sql.Types.INTEGER);
@@ -368,14 +369,14 @@ public class DemoDatabaseReset {
         Files.writeString(deathCertificate, certificateHtml("Death Certificate", "Nabil Khoury", "Patient ID: 100000007", "Cause: Cardiac arrest complications"), StandardCharsets.UTF_8);
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO newborn_records(newborn_id, mother_patient_id, father_name, mother_name, baby_name, gender, birth_time, birth_weight, birth_length, delivery_type, room, section, doctor_or_midwife, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                        + "VALUES('100000006', '100000005', 'Yousef Saleh', 'Mariam Saleh', 'Adam Saleh', 'Male', ?, 3.4, 51, 'NATURAL', 'MAT-401', 'Maternity', 'doctor_demo', 'Clean linked newborn demo record.', ?, 'yasen', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
+                        + "VALUES('100000006', '100000005', 'Yousef Saleh', 'Mariam Saleh', 'Adam Saleh', 'Male', ?, 3.4, 51, 'NATURAL', 'MAT-401', 'Maternity', 'doctor', 'Clean linked newborn demo record.', ?, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
             statement.setString(1, LocalDateTime.now().minusDays(1).format(ISO_DATE_TIME));
             statement.setString(2, birthCertificate.toString());
             statement.executeUpdate();
         }
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO deceased_records(patient_id, death_time, pronounced_by, cause_of_death, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                        + "VALUES('100000007', ?, 'Dr. Demo', 'Cardiac arrest complications', 'Clean deceased record for certificate workflow.', ?, 'yasen', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
+                        + "VALUES('100000007', ?, 'Dr. Demo', 'Cardiac arrest complications', 'Clean deceased record for certificate workflow.', ?, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
             statement.setString(1, LocalDateTime.now().minusDays(2).format(ISO_DATE_TIME));
             statement.setString(2, deathCertificate.toString());
             statement.executeUpdate();
@@ -391,11 +392,11 @@ public class DemoDatabaseReset {
     }
 
     private static void seedAuditLogs(Connection connection) throws Exception {
-        insertAudit(connection, "yasen", "LOGIN");
-        insertAudit(connection, "nurse_demo", "ENTER_VITALS patient_id=100000002 status=CRITICAL");
-        insertAudit(connection, "doctor_demo", "CREATE_REMINDER patient_id=100000002 title=Checkup order");
-        insertAudit(connection, "yasen", "GENERATE_BIRTH_CERTIFICATE newborn_id=100000006");
-        insertAudit(connection, "yasen", "GENERATE_DEATH_CERTIFICATE patient_id=100000007");
+        insertAudit(connection, "admin", "LOGIN");
+        insertAudit(connection, "nurse", "ENTER_VITALS patient_id=100000002 status=CRITICAL");
+        insertAudit(connection, "doctor", "CREATE_REMINDER patient_id=100000002 title=Checkup order");
+        insertAudit(connection, "admin", "GENERATE_BIRTH_CERTIFICATE newborn_id=100000006");
+        insertAudit(connection, "admin", "GENERATE_DEATH_CERTIFICATE patient_id=100000007");
     }
 
     private static void insertAudit(Connection connection, String username, String action) throws Exception {

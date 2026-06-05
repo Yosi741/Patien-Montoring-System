@@ -97,12 +97,6 @@
                             <Label text="Stored" styleClass="dashboard-mini-caption" />
                         </VBox>
 
-                        <VBox fx:id="aiNotesCard" spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="AI Notes" styleClass="dashboard-mini-label" />
-                            <Label fx:id="aiNotesLabel" text="0" styleClass="dashboard-mini-value" />
-                            <Label text="Generated" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
                         <VBox spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Deceased Patients" styleClass="dashboard-mini-label" />
                             <Label fx:id="deceasedPatientsLabel" text="0" styleClass="dashboard-mini-value neutral-value" />

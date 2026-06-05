@@ -52,7 +52,6 @@ public class DashboardMetricsService {
                     "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'RESOLVED' AND (updated_at LIKE ? OR updated_at LIKE ?)",
                     displayToday, isoToday);
             metrics.importedMedicalFiles = count(connection, "SELECT COUNT(*) FROM medical_files");
-            metrics.aiNotes = count(connection, "SELECT COUNT(*) FROM ai_notes");
             metrics.recentVitalsToday = countToday(connection,
                     "SELECT COUNT(*) FROM vital_readings WHERE recorded_at LIKE ? OR recorded_at LIKE ?",
                     displayToday, isoToday);
@@ -167,7 +166,6 @@ public class DashboardMetricsService {
         private int acknowledgedAlertsToday;
         private int resolvedAlertsToday;
         private int importedMedicalFiles;
-        private int aiNotes;
         private int recentVitalsToday;
         private int appointmentsToday;
         private int pendingReminders;
@@ -192,7 +190,6 @@ public class DashboardMetricsService {
         public int getAcknowledgedAlertsToday() { return acknowledgedAlertsToday; }
         public int getResolvedAlertsToday() { return resolvedAlertsToday; }
         public int getImportedMedicalFiles() { return importedMedicalFiles; }
-        public int getAiNotes() { return aiNotes; }
         public int getRecentVitalsToday() { return recentVitalsToday; }
         public int getAppointmentsToday() { return appointmentsToday; }
         public int getPendingReminders() { return pendingReminders; }

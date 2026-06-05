@@ -9,12 +9,10 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ui.javafx.controllers.AlertCenterController;
 import ui.javafx.controllers.AppLayoutController;
 import ui.javafx.controllers.ClinicalTimelineController;
 import ui.javafx.controllers.DeceasedRecordsController;
 import ui.javafx.controllers.MedicationOverviewController;
-import ui.javafx.controllers.MedicalDevicesController;
 import ui.javafx.controllers.MedicalFilesController;
 import ui.javafx.controllers.NewbornRecordsController;
 import ui.javafx.controllers.NurseWorkQueueController;
@@ -95,27 +93,15 @@ public class AppShell extends Application {
     }
 
     public void showAlertCenter() {
-        setShellContent("/ui/javafx/views/AlertCenterView.fxml", "Smart Patient Monitoring System - Alert Center");
+        showNotificationCenter();
     }
 
     public void showAlertCenterForAlert(long alertId) {
-        ensureShell("Smart Patient Monitoring System - Alert Center");
-        AppNavigator.LoadedView alertCenter = navigator.loadView("/ui/javafx/views/AlertCenterView.fxml");
-        if (alertCenter.getController() instanceof AlertCenterController) {
-            ((AlertCenterController) alertCenter.getController()).openWithAlert(alertId);
-        }
-        setShellLoadedContent(alertCenter);
-        primaryStage.setTitle("Smart Patient Monitoring System - Alert Center");
+        showNotificationCenter();
     }
 
     public void showAlertCenterForPatient(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Patient Alerts");
-        AppNavigator.LoadedView alertCenter = navigator.loadView("/ui/javafx/views/AlertCenterView.fxml");
-        if (alertCenter.getController() instanceof AlertCenterController) {
-            ((AlertCenterController) alertCenter.getController()).openForPatient(patientId);
-        }
-        setShellLoadedContent(alertCenter);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Alerts");
+        showNotificationCenter();
     }
 
     public void showPatientDetail(String patientId) {
@@ -159,10 +145,6 @@ public class AppShell extends Application {
 
     public void showUserDirectory() {
         setShellContent("/ui/javafx/views/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
-    }
-
-    public void showStaffActivity() {
-        setShellContent("/ui/javafx/views/StaffActivityView.fxml", "Smart Patient Monitoring System - Staff Activity");
     }
 
     public void showMedicationOverview() {
@@ -225,36 +207,6 @@ public class AppShell extends Application {
         setShellContent("/ui/javafx/views/CertificateRegistryView.fxml", "Smart Patient Monitoring System - Certificate Registry");
     }
 
-    public void showAiRecommendations() {
-        if (!AppFeatures.aiEnabled()) {
-            showDashboard(Session.getCurrentUser());
-            return;
-        }
-        setShellContent("/ui/javafx/views/AiRecommendationsView.fxml", "Smart Patient Monitoring System - AI Recommendations");
-    }
-
-    public void showMedicalDevices() {
-        if (!AppFeatures.devicesEnabled()) {
-            showNotificationCenter();
-            return;
-        }
-        setShellContent("/ui/javafx/views/MedicalDevicesView.fxml", "Smart Patient Monitoring System - Medical Devices");
-    }
-
-    public void showMedicalDevicesForPatient(String patientId) {
-        if (!AppFeatures.devicesEnabled()) {
-            showPatientDetail(patientId);
-            return;
-        }
-        ensureShell("Smart Patient Monitoring System - Patient Devices");
-        AppNavigator.LoadedView devices = navigator.loadView("/ui/javafx/views/MedicalDevicesView.fxml");
-        if (devices.getController() instanceof MedicalDevicesController) {
-            ((MedicalDevicesController) devices.getController()).openForPatient(patientId);
-        }
-        setShellLoadedContent(devices);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Devices");
-    }
-
     public void showScheduling() {
         setShellContent("/ui/javafx/views/SchedulingView.fxml", "Smart Patient Monitoring System - Appointments & Reminders");
     }
@@ -275,10 +227,6 @@ public class AppShell extends Application {
 
     public void showMedicalFiles() {
         setShellContent("/ui/javafx/views/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
-    }
-
-    public void showBackupExport() {
-        setShellContent("/ui/javafx/views/BackupExportView.fxml", "Smart Patient Monitoring System - Backup / Export");
     }
 
     public void showMedicalFilesForPatient(String patientId) {

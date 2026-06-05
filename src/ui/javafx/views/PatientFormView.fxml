@@ -23,7 +23,7 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient ID" styleClass="field-label" />
+            <Label text="Patient No." styleClass="field-label" />
             <TextField fx:id="patientIdField" promptText="ABC-123" styleClass="control-input" />
         </VBox>
 

@@ -9,6 +9,7 @@ public class DemoDatabaseVerify {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
             printCount(statement, "patients");
+            printCount(statement, "users");
             printCount(statement, "newborn_records");
             printCount(statement, "deceased_records");
             printCount(statement, "rooms");
@@ -18,6 +19,8 @@ public class DemoDatabaseVerify {
             printCount(statement, "reminders");
             printCount(statement, "notifications");
             printCount(statement, "medical_files");
+            query(statement, "Users",
+                    "SELECT username, role, section, COALESCE(email, '') AS email, active FROM users ORDER BY username");
             query(statement, "Patients",
                     "SELECT patient_id, first_name || ' ' || last_name AS name, section, room, status, priority FROM patients ORDER BY patient_id");
             query(statement, "Newborns",

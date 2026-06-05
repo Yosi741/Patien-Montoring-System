@@ -59,7 +59,7 @@
                         <VBox spacing="12.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient ID or name" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField" promptText="Patient No. or name" HBox.hgrow="ALWAYS" styleClass="control-input" />
                                 <Label text="Date" styleClass="field-label" />
                                 <ComboBox fx:id="dateRangeFilter" prefWidth="150.0" styleClass="control-input" />
                                 <Label text="Section" styleClass="field-label" />
@@ -83,7 +83,7 @@
                                 <Label text="Records" styleClass="section-title" />
                                 <TableView fx:id="deceasedTable" prefHeight="500.0" styleClass="dialog-card">
                                     <columns>
-                                        <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="110.0" />
+                                        <TableColumn fx:id="patientIdColumn" text="Patient No." prefWidth="110.0" />
                                         <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
                                         <TableColumn fx:id="deathTimeColumn" text="Death Time" prefWidth="170.0" />
                                         <TableColumn fx:id="pronouncedByColumn" text="Pronounced By" prefWidth="140.0" />

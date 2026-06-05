@@ -106,24 +106,6 @@ public class NotificationCenterService {
         }
     }
 
-    public void notifyHighAiRisk(String patientId, int riskScore, String noteId) {
-        try {
-            createNotification(new SqliteNotificationDao.NotificationWriteRecord(
-                    "",
-                    "DOCTOR",
-                    "",
-                    patientId,
-                    riskScore >= 80 ? "CRITICAL" : "WARNING",
-                    "High AI risk score",
-                    "Rule-based AI risk score is " + riskScore + " for patient " + patientId + ".",
-                    "AI_NOTE",
-                    noteId
-            ));
-        } catch (Exception e) {
-            System.out.println("SQLite AI risk notification skipped: " + e.getMessage());
-        }
-    }
-
     private void validate(SqliteNotificationDao.NotificationWriteRecord record) {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Severity", record.getSeverity()),

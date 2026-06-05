@@ -28,7 +28,7 @@
                                 <Label text="Patient File" styleClass="patient-file-title" />
                                 <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label text="ID" styleClass="patient-file-meta-label" />
+                                    <Label text="Patient No." styleClass="patient-file-meta-label" />
                                     <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
                                     <Label text="Section" styleClass="patient-file-meta-label" />
                                     <Label fx:id="sectionLabel" text="-" styleClass="patient-file-meta-value" />
@@ -90,7 +90,6 @@
                             <Label text="Clinical Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
                             <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
-                            <Button fx:id="generateAiButton" text="Generate AI Recommendation" onAction="#generateAiRecommendation" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -178,34 +177,6 @@
                             <Label fx:id="babiesListLabel" text="No babies linked to this patient yet" wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
                     </GridPane>
-
-                    <VBox fx:id="aiRecommendationCard" spacing="14.0" styleClass="patient-file-card">
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                <Label text="AI Recommendation" styleClass="patient-file-section-title" />
-                                <Label text="Rule-based decision support only. Not a medical diagnosis." wrapText="true" styleClass="patient-file-muted" />
-                            </VBox>
-                        </HBox>
-
-                        <GridPane hgap="14.0" vgap="10.0">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="22.0" />
-                                <ColumnConstraints percentWidth="78.0" />
-                            </columnConstraints>
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="5.0" styleClass="patient-file-soft-card">
-                                <Label text="Risk Score" styleClass="patient-file-field-label" />
-                                <Label fx:id="aiRiskLabel" text="Not generated" styleClass="patient-file-stat-value" />
-                                <Label fx:id="aiRecommendationTimeLabel" text="-" styleClass="patient-file-muted" />
-                            </VBox>
-
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="5.0" styleClass="patient-file-soft-card">
-                                <Label text="Latest Recommendation" styleClass="patient-file-field-label" />
-                                <Label fx:id="aiRecommendationLabel" text="No AI recommendation has been generated for this patient yet." wrapText="true" styleClass="patient-file-body" />
-                            </VBox>
-                        </GridPane>
-
-                        <Label fx:id="aiRecommendationStatusLabel" text="Rule-based decision support only. Not a medical diagnosis." wrapText="true" styleClass="status-info" />
-                    </VBox>
 
                     <HBox spacing="16.0" styleClass="patient-file-card">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
