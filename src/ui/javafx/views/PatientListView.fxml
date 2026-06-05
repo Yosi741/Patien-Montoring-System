@@ -108,7 +108,8 @@
 
                 <TableView fx:id="patientTable" prefHeight="420.0" VBox.vgrow="ALWAYS" styleClass="patient-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" text="Patient No." prefWidth="130.0" />
+                        <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="52.0" sortable="false" reorderable="false" />
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="130.0" />
                         <TableColumn fx:id="nameColumn" text="Name" prefWidth="210.0" />
                         <TableColumn fx:id="birthDateColumn" text="Birth Date" prefWidth="120.0" />
                         <TableColumn fx:id="genderColumn" text="Gender" prefWidth="100.0" />

@@ -2836,3 +2836,74 @@
     -fx-text-fill: #F8FAFC;
     -fx-opacity: 1.0;
 }
+
+/* Sections / Rooms presentation layout */
+.sections-rooms-root,
+.sections-rooms-page {
+    -fx-background-color: #0B1220;
+}
+
+.page-header-card,
+.management-panel,
+.summary-card,
+.actions-card,
+.filter-toolbar,
+.table-section {
+    -fx-background-color: #111C2E;
+    -fx-border-color: #26384F;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
+.page-header-card {
+    -fx-padding: 22 24;
+}
+
+.management-panel {
+    -fx-padding: 18;
+}
+
+.summary-card {
+    -fx-padding: 18;
+    -fx-min-height: 105;
+}
+
+.panel-header {
+    -fx-padding: 0 0 4 0;
+}
+
+.action-toolbar,
+.button-group {
+    -fx-spacing: 10;
+}
+
+.filter-toolbar,
+.actions-card,
+.table-section {
+    -fx-padding: 14;
+}
+
+.compact-actions-card {
+    -fx-padding: 10 12;
+}
+
+.panel-footer {
+    -fx-padding: 10 12;
+    -fx-background-color: #16243A;
+    -fx-border-color: #26384F;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.sections-table,
+.rooms-table {
+    -fx-background-color: #16243A;
+    -fx-border-color: #26384F;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.sections-table .table-row-cell,
+.rooms-table .table-row-cell {
+    -fx-cell-size: 38;
+}

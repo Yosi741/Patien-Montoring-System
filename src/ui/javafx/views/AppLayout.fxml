@@ -68,7 +68,7 @@
                 <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="roomOccupancyButton" text="Rooms / Beds" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
+                <Button fx:id="roomOccupancyButton" text="Sections / Rooms" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="deceasedRecordsButton" text="Deceased Records" onAction="#showDeceasedRecords" maxWidth="Infinity"
