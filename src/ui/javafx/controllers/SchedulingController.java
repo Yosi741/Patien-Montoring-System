@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import dao.SqliteAppointmentDao;
 import dao.SqliteReminderDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -53,6 +55,7 @@ public class SchedulingController implements FxController {
     @FXML private Button doneReminderButton;
     @FXML private Button cancelReminderButton;
     @FXML private TableView<SqliteAppointmentDao.AppointmentRow> appointmentTable;
+    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, Number> appointmentRowNumberColumn;
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, Long> appointmentIdColumn;
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentPatientIdColumn;
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentPatientNameColumn;
@@ -64,6 +67,7 @@ public class SchedulingController implements FxController {
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentStaffColumn;
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentStatusColumn;
     @FXML private TableView<SqliteReminderDao.ReminderRow> reminderTable;
+    @FXML private TableColumn<SqliteReminderDao.ReminderRow, Number> reminderRowNumberColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, Long> reminderIdColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientIdColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientNameColumn;
@@ -73,6 +77,17 @@ public class SchedulingController implements FxController {
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderDueColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderAssignedColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderStatusColumn;
+    @FXML private Label reminderDetailTitleLabel;
+    @FXML private Label reminderDetailIdLabel;
+    @FXML private Label reminderDetailPatientIdLabel;
+    @FXML private Label reminderDetailPatientNameLabel;
+    @FXML private Label reminderDetailMedicationLabel;
+    @FXML private Label reminderDetailTypeLabel;
+    @FXML private Label reminderDetailDueLabel;
+    @FXML private Label reminderDetailAssignedLabel;
+    @FXML private Label reminderDetailStatusLabel;
+    @FXML private Label reminderDetailRepeatRuleLabel;
+    @FXML private TextArea reminderDetailNotesArea;
     @FXML private Label statusLabel;
 
     @Override
@@ -120,6 +135,7 @@ public class SchedulingController implements FxController {
             appointmentTable.setItems(appointments);
             reminders.setAll(overview.getReminders());
             reminderTable.setItems(reminders);
+            showReminderDetail(null);
             NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from the local database. Appointments: "
                     + appointments.size() + ", reminders: " + reminders.size());
         } catch (Exception e) {
@@ -312,6 +328,10 @@ public class SchedulingController implements FxController {
     }
 
     private void configureTables() {
+        if (appointmentRowNumberColumn != null) {
+            appointmentRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    appointmentTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         appointmentIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         appointmentPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         appointmentPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
@@ -323,6 +343,10 @@ public class SchedulingController implements FxController {
         appointmentStaffColumn.setCellValueFactory(new PropertyValueFactory<>("assignedStaff"));
         appointmentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
+        if (reminderRowNumberColumn != null) {
+            reminderRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    reminderTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         reminderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         reminderPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         reminderPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
@@ -332,6 +356,9 @@ public class SchedulingController implements FxController {
         reminderDueColumn.setCellValueFactory(new PropertyValueFactory<>("dueTime"));
         reminderAssignedColumn.setCellValueFactory(new PropertyValueFactory<>("assignedTo"));
         reminderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        reminderTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> showReminderDetail(newValue));
+        showReminderDetail(null);
     }
 
     private void configureWriteButtons() {
@@ -386,5 +413,49 @@ public class SchedulingController implements FxController {
 
     private boolean isAuthorized() {
         return PermissionHelper.canViewScheduling(Session.getCurrentUser());
+    }
+
+    private void showReminderDetail(SqliteReminderDao.ReminderRow reminder) {
+        if (reminder == null) {
+            setLabel(reminderDetailTitleLabel, "Select a reminder");
+            setLabel(reminderDetailIdLabel, "-");
+            setLabel(reminderDetailPatientIdLabel, "-");
+            setLabel(reminderDetailPatientNameLabel, "-");
+            setLabel(reminderDetailMedicationLabel, "-");
+            setLabel(reminderDetailTypeLabel, "-");
+            setLabel(reminderDetailDueLabel, "-");
+            setLabel(reminderDetailAssignedLabel, "-");
+            setLabel(reminderDetailStatusLabel, "-");
+            setLabel(reminderDetailRepeatRuleLabel, "-");
+            setTextArea(reminderDetailNotesArea, "-");
+            return;
+        }
+        setLabel(reminderDetailTitleLabel, nullTo(reminder.getTitle(), "Reminder"));
+        setLabel(reminderDetailIdLabel, String.valueOf(reminder.getId()));
+        setLabel(reminderDetailPatientIdLabel, nullTo(reminder.getPatientId(), "-"));
+        setLabel(reminderDetailPatientNameLabel, nullTo(reminder.getPatientName(), "-"));
+        setLabel(reminderDetailMedicationLabel, nullTo(reminder.getMedicationName(), "-"));
+        setLabel(reminderDetailTypeLabel, nullTo(reminder.getReminderType(), "-"));
+        setLabel(reminderDetailDueLabel, nullTo(reminder.getDueTime(), "-"));
+        setLabel(reminderDetailAssignedLabel, nullTo(reminder.getAssignedTo(), "-"));
+        setLabel(reminderDetailStatusLabel, nullTo(reminder.getStatus(), "-"));
+        setLabel(reminderDetailRepeatRuleLabel, nullTo(reminder.getRepeatRule(), "-"));
+        setTextArea(reminderDetailNotesArea, nullTo(reminder.getNotes(), "-"));
+    }
+
+    private String nullTo(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private void setLabel(Label label, String value) {
+        if (label != null) {
+            label.setText(value);
+        }
+    }
+
+    private void setTextArea(TextArea textArea, String value) {
+        if (textArea != null) {
+            textArea.setText(value);
+        }
     }
 }
