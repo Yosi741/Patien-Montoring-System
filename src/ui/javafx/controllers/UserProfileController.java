@@ -54,44 +54,56 @@ public class UserProfileController implements FxController {
 
     private void renderProfile() {
         User user = Session.getCurrentUser();
-        usernameLabel.setText(SessionContext.username());
-        roleLabel.setText(SessionContext.role());
-        sectionLabel.setText(SessionContext.section());
-        accountStatusLabel.setText(user == null ? "Unknown" : "Active");
-        authSourceLabel.setText(SessionContext.authSource());
-        loginTimeLabel.setText(SessionContext.loginTimeText());
+        setLabel(usernameLabel, SessionContext.username());
+        setLabel(roleLabel, SessionContext.role());
+        setLabel(sectionLabel, SessionContext.section());
+        setLabel(accountStatusLabel, user == null ? "Unknown" : "Active");
+        setLabel(authSourceLabel, SessionContext.authSource());
+        setLabel(loginTimeLabel, SessionContext.loginTimeText());
         try {
             profileService.findProfile(SessionContext.username()).ifPresent(profile -> {
-                emailField.setText(profile.getEmail());
-                phoneField.setText(profile.getPhone());
+                if (emailField != null) {
+                    emailField.setText(safeText(profile.getEmail()));
+                }
+                if (phoneField != null) {
+                    phoneField.setText(safeText(profile.getPhone()));
+                }
             });
         } catch (Exception e) {
-            NotificationHelper.showError(profileStatusLabel, "Could not load profile contact fields: " + e.getMessage());
+            showError(profileStatusLabel, "Could not load profile contact fields: " + e.getMessage());
         }
 
         String group = PermissionHelper.roleGroup(SessionContext.role());
-        roleBadgeLabel.setText(group);
-        roleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
-        roleBadgeLabel.getStyleClass().add(roleStyle(group));
+        if (roleBadgeLabel != null) {
+            roleBadgeLabel.setText(group);
+            roleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
+            roleBadgeLabel.getStyleClass().add(roleStyle(group));
+        }
 
-        permissionListBox.getChildren().clear();
-        addPermission("View patients", true, "Read-only JavaFX patient board");
-        addPermission("View alerts", true, "Alerts are surfaced through Notifications");
-        addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
-        addPermission("View clinical timeline", true, "Read-only patient history preview");
-        addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
-        addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");
-        addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
-        addPermission("Add medications", PermissionHelper.canAddMedication(user), "Future JavaFX write workflow");
-        addPermission("Give medications", PermissionHelper.canGiveMedication(user), "Future JavaFX write workflow");
-        addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
-        addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
+        if (permissionListBox != null) {
+            permissionListBox.getChildren().clear();
+            addPermission("View patients", true, "Read-only JavaFX patient board");
+            addPermission("View alerts", true, "Alerts are surfaced through Notifications");
+            addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
+            addPermission("View clinical timeline", true, "Read-only patient history preview");
+            addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
+            addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");
+            addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
+            addPermission("Add medications", PermissionHelper.canAddMedication(user), "Future JavaFX write workflow");
+            addPermission("Give medications", PermissionHelper.canGiveMedication(user), "Future JavaFX write workflow");
+            addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
+            addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
+        }
 
         boolean canTestWrite = PermissionHelper.canCreateTestAuditEvent(user);
-        writeFoundationBox.setVisible(canTestWrite);
-        writeFoundationBox.setManaged(canTestWrite);
-        createTestAuditButton.setDisable(!canTestWrite);
-        if (canTestWrite) {
+        if (writeFoundationBox != null) {
+            writeFoundationBox.setVisible(canTestWrite);
+            writeFoundationBox.setManaged(canTestWrite);
+        }
+        if (createTestAuditButton != null) {
+            createTestAuditButton.setDisable(!canTestWrite);
+        }
+        if (canTestWrite && writeFoundationStatusLabel != null) {
             NotificationHelper.showInfo(writeFoundationStatusLabel, "Ready for an admin-only safe audit write.");
         }
     }
@@ -99,10 +111,12 @@ public class UserProfileController implements FxController {
     @FXML
     private void saveProfile() {
         try {
-            profileService.updateProfile(Session.getCurrentUser(), emailField.getText(), phoneField.getText());
-            NotificationHelper.showSuccess(profileStatusLabel, "Profile contact fields saved in SQLite.");
+            String email = emailField == null ? "" : emailField.getText();
+            String phone = phoneField == null ? "" : phoneField.getText();
+            profileService.updateProfile(Session.getCurrentUser(), email, phone);
+            showSuccess(profileStatusLabel, "Profile contact fields saved in SQLite.");
         } catch (Exception e) {
-            NotificationHelper.showError(profileStatusLabel, e.getMessage());
+            showError(profileStatusLabel, e.getMessage());
         }
     }
 
@@ -111,7 +125,9 @@ public class UserProfileController implements FxController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Change Password");
         ui.javafx.helpers.DialogThemeHelper.apply(dialog);
-        dialog.initOwner(usernameLabel.getScene().getWindow());
+        if (usernameLabel != null && usernameLabel.getScene() != null) {
+            dialog.initOwner(usernameLabel.getScene().getWindow());
+        }
 
         PasswordField currentPassword = new PasswordField();
         currentPassword.setPromptText("Current password");
@@ -135,7 +151,7 @@ public class UserProfileController implements FxController {
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveType);
         dialog.getDialogPane().lookupButton(saveType).addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             if (!newPassword.getText().equals(confirmPassword.getText())) {
-                NotificationHelper.showError(profileStatusLabel, "New password and confirmation do not match.");
+                showError(profileStatusLabel, "New password and confirmation do not match.");
                 event.consume();
                 return;
             }
@@ -143,9 +159,9 @@ public class UserProfileController implements FxController {
                 profileService.changeOwnPassword(Session.getCurrentUser(),
                         currentPassword.getText().toCharArray(),
                         newPassword.getText().toCharArray());
-                NotificationHelper.showSuccess(profileStatusLabel, "Password changed. Raw passwords were not displayed or logged.");
+                showSuccess(profileStatusLabel, "Password changed. Raw passwords were not displayed or logged.");
             } catch (Exception e) {
-                NotificationHelper.showError(profileStatusLabel, e.getMessage());
+                showError(profileStatusLabel, e.getMessage());
                 event.consume();
             }
         });
@@ -156,7 +172,7 @@ public class UserProfileController implements FxController {
     private void createTestAuditEvent() {
         User user = Session.getCurrentUser();
         if (!PermissionHelper.canCreateTestAuditEvent(user)) {
-            NotificationHelper.showError(writeFoundationStatusLabel, "Access denied. Admin role is required.");
+            showError(writeFoundationStatusLabel, "Access denied. Admin role is required.");
             return;
         }
 
@@ -166,17 +182,42 @@ public class UserProfileController implements FxController {
                     AuditAction.CREATE_TEST_AUDIT_EVENT,
                     "JavaFX Profile/Settings write foundation smoke test"
             );
-            NotificationHelper.showSuccess(writeFoundationStatusLabel, "Test audit event created. Check Audit Logs.");
+            showSuccess(writeFoundationStatusLabel, "Test audit event created. Check Audit Logs.");
         } catch (Exception e) {
-            NotificationHelper.showError(writeFoundationStatusLabel, "Could not create audit event: " + e.getMessage());
+            showError(writeFoundationStatusLabel, "Could not create audit event: " + e.getMessage());
         }
     }
 
     private void addPermission(String label, boolean allowed, String note) {
+        if (permissionListBox == null) {
+            return;
+        }
         Label row = new Label((allowed ? "Allowed: " : "Preview/Future: ") + label + " - " + note);
         row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
         row.setWrapText(true);
         permissionListBox.getChildren().add(row);
+    }
+
+    private void setLabel(Label label, String value) {
+        if (label != null) {
+            label.setText(safeText(value));
+        }
+    }
+
+    private String safeText(String value) {
+        return value == null || value.trim().isEmpty() ? "-" : value;
+    }
+
+    private void showSuccess(Label target, String message) {
+        if (target != null) {
+            NotificationHelper.showSuccess(target, message);
+        }
+    }
+
+    private void showError(Label target, String message) {
+        if (target != null) {
+            NotificationHelper.showError(target, message);
+        }
     }
 
     private String roleStyle(String group) {
