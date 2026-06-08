@@ -690,6 +690,10 @@
     -fx-alignment: center;
 }
 
+.login-logo-image {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.28), 18, 0.16, 0, 8);
+}
+
 .login-logo-mark {
     -fx-min-width: 104;
     -fx-min-height: 104;
@@ -903,6 +907,10 @@
     -fx-alignment: center;
 }
 
+.sidebar-logo-image {
+    -fx-opacity: 1.0;
+}
+
 .shell-brand-logo-text {
     -fx-text-fill: white;
     -fx-font-size: 34px;
@@ -1084,6 +1092,22 @@
     -fx-min-height: 132;
 }
 
+.dashboard-kpi-blue {
+    -fx-border-color: #2563eb;
+}
+
+.dashboard-kpi-green {
+    -fx-border-color: #22c55e;
+}
+
+.dashboard-kpi-orange {
+    -fx-border-color: #f59e0b;
+}
+
+.dashboard-kpi-red {
+    -fx-border-color: #ef4444;
+}
+
 .dashboard-mini-card {
     -fx-pref-width: 178;
     -fx-min-height: 104;
@@ -1138,6 +1162,10 @@
     -fx-text-fill: #dbeafe;
 }
 
+.dashboard-action-row {
+    -fx-alignment: center-right;
+}
+
 .dashboard-summary-row,
 .dashboard-list-row {
     -fx-background-color: #0b1220;
@@ -1149,6 +1177,10 @@
 
 .dashboard-list-row:hover {
     -fx-background-color: #0f3455;
+}
+
+.dashboard-vitals-card {
+    -fx-min-width: 250;
 }
 
 .patient-board-page,
@@ -1372,6 +1404,27 @@
 
 .clinical-table .placeholder .label {
     -fx-text-fill: #b6c2d1;
+}
+
+.dialog-card {
+    -fx-background-color: #111827;
+    -fx-border-color: #25364d;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
+.compact-detail-value {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.compact-top-bar {
+    -fx-padding: 14 18;
+}
+
+.patient-quick-filter-row {
+    -fx-padding: 2 0 4 0;
 }
 
 .patient-status-active,
@@ -2319,9 +2372,14 @@
 
 .notification-unread-dot,
 .shell-notification-badge,
+.notification-badge,
 .notification-badge-unread {
     -fx-background-color: #3b82f6;
     -fx-text-fill: #ffffff;
+    -fx-background-radius: 999;
+    -fx-padding: 4 9;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
 }
 
 .root,

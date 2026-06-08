@@ -59,7 +59,11 @@ public class LoginController implements FxController {
 
         try {
             if (sqliteUserDao.verifyPassword(username, password)) {
-                User user = sqliteUserDao.findByUsername(username).get();
+                User user = sqliteUserDao.findByUsername(username).orElse(null);
+                if (user == null) {
+                    statusLabel.setText("Invalid username or password.");
+                    return;
+                }
                 logLogin(user.getUsername(), "Local database");
                 appShell.showDashboard(user, "Local database");
                 return;

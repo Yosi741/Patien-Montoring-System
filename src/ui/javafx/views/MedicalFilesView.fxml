@@ -64,7 +64,7 @@
                                 <Label styleClass="section-title" text="Uploaded Files" />
                                 <TableView fx:id="filesTable" styleClass="dialog-card clinical-table" VBox.vgrow="ALWAYS">
                                     <columns>
-                              <TableColumn fx:id="patientIdColumn1" prefWidth="66.0" sortable="false" text="#" />
+                                        <TableColumn fx:id="rowNumberColumn" prefWidth="66.0" sortable="false" text="#" />
                                         <TableColumn fx:id="patientIdColumn" prefWidth="154.0" text="Patient ID" />
                                         <TableColumn fx:id="patientNameColumn" prefWidth="165.0" text="Patient Name" />
                                         <TableColumn fx:id="originalNameColumn" prefWidth="210.0" text="Original Name" />

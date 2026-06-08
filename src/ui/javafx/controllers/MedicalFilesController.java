@@ -1,6 +1,7 @@
 package ui.javafx.controllers;
 
 import dao.SqliteMedicalFileDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -51,6 +52,7 @@ public class MedicalFilesController implements FxController {
     @FXML private ComboBox<String> dateRangeFilter;
     @FXML private TextField uploadedByFilter;
     @FXML private TableView<SqliteMedicalFileDao.MedicalFileRecord> filesTable;
+    @FXML private TableColumn<SqliteMedicalFileDao.MedicalFileRecord, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteMedicalFileDao.MedicalFileRecord, String> patientIdColumn;
     @FXML private TableColumn<SqliteMedicalFileDao.MedicalFileRecord, String> patientNameColumn;
     @FXML private TableColumn<SqliteMedicalFileDao.MedicalFileRecord, String> originalNameColumn;
@@ -229,6 +231,11 @@ public class MedicalFilesController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    filesTable.getItems().indexOf(cell.getValue()) + 1
+            ));
+        }
         patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         patientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         originalNameColumn.setCellValueFactory(new PropertyValueFactory<>("originalName"));

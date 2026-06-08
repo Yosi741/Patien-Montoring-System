@@ -109,8 +109,9 @@ public class SqliteUserDao implements UserDao {
     }
 
     public boolean verifyPassword(String username, char[] password) throws SQLException {
-        Optional<User> user = findByUsername(username);
-        return user.isPresent() && PasswordHasher.verify(password, user.get().getPassword());
+        return findByUsername(username)
+                .map(user -> PasswordHasher.verify(password, user.getPassword()))
+                .orElse(false);
     }
 
     public int count() throws SQLException {
