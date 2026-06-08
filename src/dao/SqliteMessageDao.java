@@ -45,7 +45,7 @@ public class SqliteMessageDao {
     public List<MessageRow> findInbox(String username, String roleGroup, String section, String search, String status) throws SQLException {
         ArrayList<MessageRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
-        sql.append("WHERE (recipient_username = ? OR recipient_role = ? OR recipient_section = ?) ");
+        sql.append("WHERE (LOWER(recipient_username) = LOWER(?) OR LOWER(recipient_role) = LOWER(?) OR LOWER(recipient_section) = LOWER(?)) ");
         ArrayList<String> params = new ArrayList<>();
         params.add(username);
         params.add(roleGroup);
@@ -59,7 +59,7 @@ public class SqliteMessageDao {
     public List<MessageRow> findSent(String senderUsername, String search, String status) throws SQLException {
         ArrayList<MessageRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
-        sql.append("WHERE sender_username = ? ");
+        sql.append("WHERE LOWER(sender_username) = LOWER(?) ");
         ArrayList<String> params = new ArrayList<>();
         params.add(senderUsername);
         appendFilters(sql, params, search, status);
@@ -78,7 +78,7 @@ public class SqliteMessageDao {
 
     public boolean markRead(long id, String username) throws SQLException {
         String sql = "UPDATE messages SET status = 'READ', read_at = CURRENT_TIMESTAMP "
-                + "WHERE id = ? AND status <> 'ARCHIVED' AND (recipient_username = ? OR recipient_username IS NULL)";
+                + "WHERE id = ? AND status <> 'ARCHIVED' AND (LOWER(recipient_username) = LOWER(?) OR recipient_username IS NULL)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, id);
@@ -89,7 +89,7 @@ public class SqliteMessageDao {
 
     public boolean archive(long id, String username) throws SQLException {
         String sql = "UPDATE messages SET status = 'ARCHIVED' "
-                + "WHERE id = ? AND (sender_username = ? OR recipient_username = ? OR recipient_username IS NULL)";
+                + "WHERE id = ? AND (LOWER(sender_username) = LOWER(?) OR LOWER(recipient_username) = LOWER(?) OR recipient_username IS NULL)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, id);
@@ -102,6 +102,20 @@ public class SqliteMessageDao {
     private StringBuilder baseSelect() {
         return new StringBuilder("SELECT id, sender_username, recipient_username, recipient_role, recipient_section, patient_id, "
                 + "subject, body, priority, status, created_at, read_at FROM messages ");
+    }
+
+    public int unreadInboxCount(String username, String roleGroup, String section) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM messages WHERE status = 'SENT' "
+                + "AND (LOWER(recipient_username) = LOWER(?) OR LOWER(recipient_role) = LOWER(?) OR LOWER(recipient_section) = LOWER(?))";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.setString(2, roleGroup);
+            statement.setString(3, section);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt(1) : 0;
+            }
+        }
     }
 
     private void appendFilters(StringBuilder sql, ArrayList<String> params, String search, String status) {

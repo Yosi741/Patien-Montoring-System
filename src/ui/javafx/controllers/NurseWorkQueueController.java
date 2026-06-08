@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -49,6 +50,7 @@ public class NurseWorkQueueController implements FxController {
     @FXML private Button scheduleButton;
     @FXML private Button alertButton;
     @FXML private TableView<NurseWorkQueueService.WorkQueueTask> queueTable;
+    @FXML private TableColumn<NurseWorkQueueService.WorkQueueTask, Number> rowNumberColumn;
     @FXML private TableColumn<NurseWorkQueueService.WorkQueueTask, String> statusColumn;
     @FXML private TableColumn<NurseWorkQueueService.WorkQueueTask, String> typeColumn;
     @FXML private TableColumn<NurseWorkQueueService.WorkQueueTask, String> patientIdColumn;
@@ -175,6 +177,10 @@ public class NurseWorkQueueController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    queueTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("actionStatus"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("taskType"));
         patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));

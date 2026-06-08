@@ -87,11 +87,6 @@ public class DashboardController implements FxController {
     }
 
     @FXML
-    private void toggleTheme() {
-        appShell.toggleTheme();
-    }
-
-    @FXML
     private void openPatientList() {
         appShell.showPatientList();
     }

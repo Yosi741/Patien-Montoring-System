@@ -2,6 +2,7 @@ package ui.javafx.controllers;
 
 import dao.SqliteAuditLogDao;
 import dao.SqliteUserDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,6 +48,7 @@ public class UserDirectoryController implements FxController {
     @FXML private Button deactivateUserButton;
     @FXML private Button resetPasswordButton;
     @FXML private TableView<SqliteUserDao.UserDirectoryRow> userTable;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Long> idColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> usernameColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> roleColumn;
@@ -121,17 +123,17 @@ public class UserDirectoryController implements FxController {
         accessDeniedPane.setManaged(!admin);
         directoryContentPane.setVisible(admin);
         directoryContentPane.setManaged(admin);
-        addUserButton.setVisible(admin);
-        addUserButton.setManaged(admin);
-        editUserButton.setVisible(admin);
-        editUserButton.setManaged(admin);
-        deactivateUserButton.setVisible(admin);
-        deactivateUserButton.setManaged(admin);
-        resetPasswordButton.setVisible(admin);
-        resetPasswordButton.setManaged(admin);
+        setButtonVisible(addUserButton, admin);
+        setButtonVisible(editUserButton, admin);
+        setButtonVisible(deactivateUserButton, admin);
+        setButtonVisible(resetPasswordButton, admin);
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    userTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
@@ -350,6 +352,14 @@ public class UserDirectoryController implements FxController {
 
     private boolean isAdmin() {
         return "ADMIN".equals(roleGroup(SessionContext.role()));
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        if (button == null) {
+            return;
+        }
+        button.setVisible(visible);
+        button.setManaged(visible);
     }
 
     private String roleGroup(String role) {

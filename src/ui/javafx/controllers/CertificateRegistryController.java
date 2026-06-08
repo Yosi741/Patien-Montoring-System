@@ -4,6 +4,7 @@ import dao.SqliteDeceasedRecordDao;
 import dao.SqliteMessageDao;
 import dao.SqliteNewbornRecordDao;
 import dao.SqlitePatientDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -64,6 +65,7 @@ public class CertificateRegistryController implements FxController {
     @FXML private Label birthCertificatesLabel;
     @FXML private Label deathCertificatesLabel;
     @FXML private TableView<CertificateRegistryService.CertificateRow> certificateTable;
+    @FXML private TableColumn<CertificateRegistryService.CertificateRow, Number> rowNumberColumn;
     @FXML private TableColumn<CertificateRegistryService.CertificateRow, String> typeColumn;
     @FXML private TableColumn<CertificateRegistryService.CertificateRow, Long> sourceRecordColumn;
     @FXML private TableColumn<CertificateRegistryService.CertificateRow, String> subjectIdColumn;
@@ -385,6 +387,10 @@ public class CertificateRegistryController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    certificateTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("certificateType"));
         sourceRecordColumn.setCellValueFactory(new PropertyValueFactory<>("sourceRecordId"));
         subjectIdColumn.setCellValueFactory(new PropertyValueFactory<>("subjectId"));

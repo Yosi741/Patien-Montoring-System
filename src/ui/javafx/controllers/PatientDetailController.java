@@ -58,6 +58,7 @@ public class PatientDetailController implements FxController {
     @FXML private Label roomLabel;
     @FXML private Label statusLabel;
     @FXML private Label priorityLabel;
+    @FXML private Label bloodTypeLabel;
     @FXML private Label diagnosisLabel;
     @FXML private Label timelineStatusLabel;
     @FXML private Label trendStatusLabel;
@@ -87,6 +88,7 @@ public class PatientDetailController implements FxController {
     @FXML private Button editPatientButton;
     @FXML private Button enterVitalsButton;
     @FXML private Button addMedicationButton;
+    @FXML private Button clinicalAddMedicationButton;
     @FXML private Button recordMedicationButton;
     @FXML private Button createAppointmentButton;
     @FXML private Button createReminderButton;
@@ -122,6 +124,7 @@ public class PatientDetailController implements FxController {
             roomLabel.setText(detail.getRoom());
             statusLabel.setText(detail.getStatus());
             priorityLabel.setText(detail.getPriority());
+            bloodTypeLabel.setText(detail.getBloodType());
             priorityLabel.getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
@@ -515,6 +518,7 @@ public class PatientDetailController implements FxController {
         setButtonVisible(enterVitalsButton, canEnterVitals);
         boolean canAddMedication = PermissionHelper.canAddMedication(Session.getCurrentUser());
         setButtonVisible(addMedicationButton, canAddMedication);
+        setButtonVisible(clinicalAddMedicationButton, canAddMedication);
         boolean canGiveMedication = PermissionHelper.canGiveMedication(Session.getCurrentUser());
         setButtonVisible(recordMedicationButton, canGiveMedication);
         boolean canAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
@@ -541,6 +545,7 @@ public class PatientDetailController implements FxController {
         }
         setButtonVisible(enterVitalsButton, false);
         setButtonVisible(addMedicationButton, false);
+        setButtonVisible(clinicalAddMedicationButton, false);
         setButtonVisible(recordMedicationButton, false);
         setButtonVisible(createAppointmentButton, false);
         setButtonVisible(createReminderButton, false);

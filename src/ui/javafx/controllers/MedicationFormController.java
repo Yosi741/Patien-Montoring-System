@@ -19,6 +19,7 @@ import services.MedicationCatalogService;
 import services.MedicationWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.User;
 
 import java.util.ArrayList;
@@ -106,9 +107,9 @@ public class MedicationFormController {
         doseUnitField.getItems().setAll(DEFAULT_UNITS);
         routeField.getItems().setAll(DEFAULT_ROUTES);
         frequencyField.getItems().setAll(DEFAULT_FREQUENCIES);
-        doseUnitField.getSelectionModel().select("mg");
-        routeField.getSelectionModel().select("Oral");
-        frequencyField.getSelectionModel().select("Once daily");
+        safeSelectValue(doseUnitField, "mg");
+        safeSelectValue(routeField, "Oral");
+        safeSelectValue(frequencyField, "Once daily");
         activeCheckBox.setSelected(true);
 
         catalogMedicationBox.getSelectionModel().selectedItemProperty()
@@ -140,11 +141,11 @@ public class MedicationFormController {
                         medicationCatalogService.getMedicationCatalogItem(medication.getCatalogMedicationId());
                 selectCatalogItem(catalogItem);
             } catch (Exception e) {
-                catalogMedicationBox.getEditor().setText(medication.getName());
+                setCatalogEditorTextOnly(medication.getName());
                 safetyInfoLabel.setText("Original catalog item is unavailable. The saved medication name is shown.");
             }
         } else {
-            catalogMedicationBox.getEditor().setText(medication.getName());
+            setCatalogEditorTextOnly(medication.getName());
         }
         doseAmountField.setText(formatNumber(medication.getDoseAmount()));
         selectOrFallback(doseUnitField, medication.getDoseUnit(), DEFAULT_UNITS);
@@ -199,7 +200,16 @@ public class MedicationFormController {
         try {
             loadingCatalog = true;
             String typed = searchText == null ? "" : searchText;
-            catalogMedicationBox.getItems().setAll(medicationCatalogService.searchMedicationsByName(typed));
+            List<SqliteMedicationCatalogDao.MedicationCatalogRecord> matches =
+                    medicationCatalogService.searchMedicationsByName(typed);
+            catalogMedicationBox.hide();
+            SelectionHelper.safeClearSelection(catalogMedicationBox);
+            catalogMedicationBox.getItems().clear();
+            if (matches.isEmpty()) {
+                safetyInfoLabel.setText("No catalog medication selected.");
+            } else {
+                catalogMedicationBox.getItems().setAll(matches);
+            }
             catalogMedicationBox.getEditor().setText(typed);
             catalogMedicationBox.getEditor().positionCaret(typed.length());
         } catch (Exception e) {
@@ -213,6 +223,8 @@ public class MedicationFormController {
         if (catalogItem == null) {
             doseUnitField.getItems().setAll(DEFAULT_UNITS);
             routeField.getItems().setAll(DEFAULT_ROUTES);
+            safeSelectValue(doseUnitField, "mg");
+            safeSelectValue(routeField, "Oral");
             safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
             return;
         }
@@ -224,13 +236,15 @@ public class MedicationFormController {
         if (catalogItem.getDefaultRoute() != null && !catalogItem.getDefaultRoute().isBlank()) {
             selectOrFallback(routeField, catalogItem.getDefaultRoute(), allowedRoutes);
         } else if (!allowedRoutes.isEmpty()) {
-            routeField.getSelectionModel().selectFirst();
+            SelectionHelper.safeSelectFirst(routeField);
         }
         safetyInfoLabel.setText(safetySummary(catalogItem));
     }
 
     private void selectCatalogItem(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
         loadingCatalog = true;
+        catalogMedicationBox.hide();
+        SelectionHelper.safeClearSelection(catalogMedicationBox);
         if (!catalogMedicationBox.getItems().contains(catalogItem)) {
             catalogMedicationBox.getItems().add(catalogItem);
         }
@@ -238,6 +252,15 @@ public class MedicationFormController {
         catalogMedicationBox.getEditor().setText(catalogItem.getName());
         loadingCatalog = false;
         applyCatalogSelection(catalogItem);
+    }
+
+    private void setCatalogEditorTextOnly(String text) {
+        loadingCatalog = true;
+        catalogMedicationBox.hide();
+        SelectionHelper.safeClearSelection(catalogMedicationBox);
+        catalogMedicationBox.getEditor().setText(text == null ? "" : text);
+        catalogMedicationBox.getEditor().positionCaret(catalogMedicationBox.getEditor().getText().length());
+        loadingCatalog = false;
     }
 
     private List<String> csvValues(String csv, List<String> fallback) {
@@ -276,9 +299,19 @@ public class MedicationFormController {
             comboBox.getSelectionModel().select(value);
         } else {
             comboBox.getItems().setAll(fallback);
-            if (!comboBox.getItems().isEmpty()) {
-                comboBox.getSelectionModel().selectFirst();
-            }
+            SelectionHelper.safeSelectFirst(comboBox);
+        }
+    }
+
+    private void safeSelectValue(ComboBox<String> comboBox, String value) {
+        if (comboBox == null || comboBox.getItems() == null || comboBox.getItems().isEmpty()) {
+            SelectionHelper.safeClearSelection(comboBox);
+            return;
+        }
+        if (value != null && comboBox.getItems().contains(value)) {
+            comboBox.getSelectionModel().select(value);
+        } else {
+            SelectionHelper.safeSelectFirst(comboBox);
         }
     }
 

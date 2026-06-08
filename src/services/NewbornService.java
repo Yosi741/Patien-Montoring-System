@@ -149,12 +149,17 @@ public class NewbornService {
                         ? FormValidationHelper.ValidationResult.ok()
                         : FormValidationHelper.validatePatientId(motherPatientId),
                 FormValidationHelper.validateRequired("Baby name", babyName),
+                FormValidationHelper.validatePersonName("Baby name", babyName),
                 FormValidationHelper.validateMaxLength("Baby name", babyName, 120),
                 FormValidationHelper.validateRequired("Mother name", motherName),
+                FormValidationHelper.validatePersonName("Mother name", motherName),
                 FormValidationHelper.validateMaxLength("Mother name", motherName, 120),
                 FormValidationHelper.validateRequired("Gender", gender),
                 FormValidationHelper.validateDateTime("Birth time", birthTime),
                 FormValidationHelper.validateRequired("Section", section),
+                fatherName.isBlank()
+                        ? FormValidationHelper.ValidationResult.ok()
+                        : FormValidationHelper.validatePersonName("Father name", fatherName),
                 FormValidationHelper.validateMaxLength("Father name", fatherName, 120),
                 FormValidationHelper.validateMaxLength("Room", room, 40),
                 FormValidationHelper.validateMaxLength("Section", section, 80),

@@ -3,17 +3,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox
-        spacing="16.0"
-        prefWidth="680.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.RoomFormController" styleClass="panel-card">
+<VBox prefWidth="680.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.RoomFormController">
 
-    <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="Room" styleClass="screen-title" />
-        <Label text="Create and maintain SQLite room capacity records for the JavaFX room/bed board."
-               wrapText="true" styleClass="muted-text" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Manage Room" />
+        <Label styleClass="muted-text dialog-subtitle" text="Update room capacity, status, and maintenance notes." wrapText="true" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -23,30 +17,35 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Section / Department" styleClass="field-label" />
-            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type section" maxWidth="Infinity" styleClass="control-input" />
+            <Label styleClass="field-label" text="Section / Department" />
+            <ComboBox fx:id="sectionBox" editable="true" maxWidth="Infinity" promptText="Search or type section" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Room Number" styleClass="field-label" />
+            <Label styleClass="field-label" text="Room Number" />
             <TextField fx:id="roomNumberField" promptText="101" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="Capacity" styleClass="field-label" />
+            <Label styleClass="field-label" text="Capacity / Beds" />
             <TextField fx:id="capacityField" promptText="1" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Status" styleClass="field-label" />
+            <Label styleClass="field-label" text="Status" />
             <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-            <Label text="Notes" styleClass="field-label" />
-            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional room notes" styleClass="control-input" />
+            <Label styleClass="field-label" text="Notes" />
+            <TextArea fx:id="notesArea" prefRowCount="4" promptText="Optional room notes" styleClass="control-input" wrapText="true" />
         </VBox>
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
     </GridPane>
 
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+    <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="-" wrapText="true" />
 </VBox>

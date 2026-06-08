@@ -63,6 +63,7 @@ public final class AuditAction {
     public static final String CREATE_ROOM = "CREATE_ROOM";
     public static final String UPDATE_ROOM = "UPDATE_ROOM";
     public static final String DEACTIVATE_ROOM = "DEACTIVATE_ROOM";
+    public static final String GENERATE_ROOMS = "GENERATE_ROOMS";
     public static final String ASSIGN_PATIENT_ROOM = "ASSIGN_PATIENT_ROOM";
     public static final String MOVE_PATIENT_ROOM = "MOVE_PATIENT_ROOM";
     public static final String REMOVE_PATIENT_ROOM = "REMOVE_PATIENT_ROOM";

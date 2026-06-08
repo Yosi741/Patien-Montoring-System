@@ -29,6 +29,7 @@ public class AppointmentFormController {
     private User currentUser;
     private SqliteAppointmentDao.AppointmentRecord existingAppointment;
     private boolean saved;
+    private boolean lockedPatientContext;
 
     @FXML private Label titleLabel;
     @FXML private TextField patientIdField;
@@ -85,6 +86,7 @@ public class AppointmentFormController {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
         startTimeField.setText(now.format(DATE_TIME));
         endTimeField.setText(now.plusHours(1).format(DATE_TIME));
+        installNineDigitFilter(patientIdField);
     }
 
     private void prepare(User currentUser, String patientId, SqliteAppointmentDao.AppointmentRecord appointment) {
@@ -95,6 +97,10 @@ public class AppointmentFormController {
         }
         if (patientId != null && !patientId.isBlank()) {
             patientIdField.setText(patientId);
+            lockedPatientContext = true;
+            patientIdField.setEditable(false);
+            patientIdField.setFocusTraversable(false);
+            patientIdField.getStyleClass().add("locked-context-field");
         }
         if (appointment == null) {
             titleLabel.setText("Create Appointment");
@@ -115,6 +121,9 @@ public class AppointmentFormController {
 
     private boolean save() {
         try {
+            if (lockedPatientContext && !patientIdField.getText().trim().matches("\\d{9}")) {
+                throw new IllegalArgumentException("Patient ID must contain exactly 9 digits.");
+            }
             SchedulingService.AppointmentRequest request = new SchedulingService.AppointmentRequest(
                     existingAppointment == null ? 0 : existingAppointment.getId(),
                     patientIdField.getText(),
@@ -138,5 +147,17 @@ public class AppointmentFormController {
             NotificationHelper.showError(statusLabel, e.getMessage());
             return false;
         }
+    }
+
+    private void installNineDigitFilter(TextField field) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = newValue == null ? "" : newValue.replaceAll("\\D", "");
+            if (clean.length() > 9) {
+                clean = clean.substring(0, 9);
+            }
+            if (!clean.equals(newValue)) {
+                field.setText(clean);
+            }
+        });
     }
 }

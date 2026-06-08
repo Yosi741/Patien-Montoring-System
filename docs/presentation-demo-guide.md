@@ -14,7 +14,7 @@ Smart Patient Monitoring System is a JavaFX + SQLite hospital patient monitoring
 6. Open Medications and demonstrate catalog-based medication safety rules.
 7. Record medication given and explain dose, interval, override, and interaction checks as demo decision support.
 8. Open Scheduling and Nurse Work Queue to show reminders and staff tasks.
-9. Open Rooms / Beds to explain departments, rooms, and patient assignment.
+9. Open Sections / Rooms to explain departments, room generation, capacity, status, and patient assignment.
 10. Open Newborns through Patient Board and show a newborn linked to a mother.
 11. Open Deceased Patients through Patient Board and generate a local certificate.
 12. Open Notifications for alerts and system events.
@@ -54,6 +54,8 @@ Rooms:
 - MAT-401
 - PED-501
 - CAR-601
+
+Sections represent hospital departments. Rooms belong to one section, have a capacity, and have a status of ACTIVE, MAINTENANCE, or INACTIVE. Admin users can add individual rooms or use Generate Rooms to create a range such as `CAR-1101` through `CAR-1103`. Rooms under maintenance or inactive status stay visible, but they cannot receive new patient assignments.
 
 ## Demo Patient IDs
 
@@ -143,7 +145,7 @@ Controllers handle UI events and validation display. Services contain workflow d
 - 2:00-5:00: Patient Board, Patient File, and vitals alert using Sara Haddad (`100000002`) or Omar Nasser (`100000003`).
 - 5:00-8:00: Medication catalog and medication safety checks using Lina Mansour (`100000004`).
 - 8:00-10:00: Scheduling and Nurse Work Queue using the checkup reminder for Sara Haddad.
-- 10:00-12:00: Rooms / Beds and department workflow with the clean six-room layout.
+- 10:00-12:00: Sections / Rooms workflow: departments, generated room ranges, capacity, maintenance status, and patient assignment.
 - 12:00-14:00: Newborn/deceased certificate workflows using Adam Saleh (`100000006`) and Nabil Khoury (`100000007`).
 - 14:00-15:00: Audit Logs, limitations, and future extensions.
 

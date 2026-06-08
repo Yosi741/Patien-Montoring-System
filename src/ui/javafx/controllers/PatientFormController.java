@@ -19,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import services.PatientWriteService;
 import ui.javafx.AppNavigator;
+import ui.javafx.helpers.DatePickerHelper;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;
 
@@ -52,6 +53,7 @@ public class PatientFormController {
     @FXML private ComboBox<String> roomBox;
     @FXML private ComboBox<String> statusBox;
     @FXML private ComboBox<String> priorityBox;
+    @FXML private ComboBox<String> bloodTypeBox;
     @FXML private ComboBox<String> assignedDoctorBox;
     @FXML private ComboBox<String> assignedStaffBox;
     @FXML private TextArea diagnosisArea;
@@ -96,10 +98,14 @@ public class PatientFormController {
         genderBox.getItems().setAll("Female", "Male", "Other", "Unknown");
         statusBox.getItems().setAll("ACTIVE", "DISCHARGED", "DECEASED");
         priorityBox.getItems().setAll("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
+        bloodTypeBox.getItems().setAll("Unknown", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
         genderBox.getSelectionModel().select("Unknown");
         statusBox.getSelectionModel().select("ACTIVE");
         priorityBox.getSelectionModel().select("NORMAL");
+        bloodTypeBox.getSelectionModel().select("Unknown");
         loadSections();
+        configureInputFilters();
+        DatePickerHelper.configureDdMmYyyy(birthDatePicker);
         sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             loadRoomsForSection(newValue);
             loadAssignedStaffForSection(newValue);
@@ -132,11 +138,13 @@ public class PatientFormController {
         selectOrSet(assignedStaffBox, patient.getAssignedStaffUsername());
         statusBox.getSelectionModel().select(normalizeStatus(patient.getStatus()));
         priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
+        bloodTypeBox.getSelectionModel().select(normalizeBloodType(patient.getBloodType()));
         diagnosisArea.setText(patient.getDiagnosis());
     }
 
     private boolean save() {
         try {
+            DatePickerHelper.commitEditorText(birthDatePicker);
             SqlitePatientDao.PatientWriteRecord record = buildRecord();
             if (existingPatient == null) {
                 patientWriteService.createPatient(currentUser, record);
@@ -162,10 +170,52 @@ public class PatientFormController {
                 comboValue(roomBox),
                 statusBox.getValue(),
                 priorityBox.getValue(),
+                bloodTypeBox.getValue(),
                 diagnosisArea.getText(),
                 comboValue(assignedDoctorBox),
                 comboValue(assignedStaffBox)
         );
+    }
+
+    private void configureInputFilters() {
+        patientIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = digitsOnly(newValue);
+            if (clean.length() > 9) {
+                clean = clean.substring(0, 9);
+            }
+            if (!clean.equals(newValue)) {
+                patientIdField.setText(clean);
+            }
+        });
+        installNameFilter(firstNameField);
+        installNameFilter(lastNameField);
+    }
+
+    private void installNameFilter(TextField field) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = cleanName(newValue);
+            if (!clean.equals(newValue)) {
+                field.setText(clean);
+            }
+        });
+    }
+
+    private String digitsOnly(String value) {
+        return value == null ? "" : value.replaceAll("\\D", "");
+    }
+
+    private String cleanName(String value) {
+        if (value == null) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            if (Character.isLetter(ch) || ch == ' ' || ch == '-' || ch == '\'' || ch == '\u2019') {
+                builder.append(ch);
+            }
+        }
+        return builder.toString();
     }
 
     private void loadSections() {
@@ -288,5 +338,13 @@ public class PatientFormController {
             return "NORMAL";
         }
         return "WARNING".equalsIgnoreCase(priority) ? "HIGH" : priority.toUpperCase();
+    }
+
+    private String normalizeBloodType(String bloodType) {
+        if (bloodType == null || bloodType.isBlank()) {
+            return "Unknown";
+        }
+        String normalized = bloodType.trim();
+        return "UNKNOWN".equalsIgnoreCase(normalized) ? "Unknown" : normalized.toUpperCase();
     }
 }

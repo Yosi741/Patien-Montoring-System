@@ -48,6 +48,7 @@ public class DeceasedRecordsController implements FxController {
     @FXML private Label pendingCertificatesLabel;
     @FXML private Label deathsThisMonthLabel;
     @FXML private TableView<SqliteDeceasedRecordDao.DeathRecord> deceasedTable;
+    @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, String> patientIdColumn;
     @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, String> patientNameColumn;
     @FXML private TableColumn<SqliteDeceasedRecordDao.DeathRecord, String> deathTimeColumn;
@@ -225,6 +226,9 @@ public class DeceasedRecordsController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new javafx.beans.property.ReadOnlyObjectWrapper<>(deceasedTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         patientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         deathTimeColumn.setCellValueFactory(new PropertyValueFactory<>("deathTime"));

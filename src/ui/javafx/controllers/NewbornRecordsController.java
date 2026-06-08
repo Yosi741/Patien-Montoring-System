@@ -51,6 +51,7 @@ public class NewbornRecordsController implements FxController {
     @FXML private Label certificatesGeneratedLabel;
     @FXML private Label pendingCertificatesLabel;
     @FXML private TableView<SqliteNewbornRecordDao.NewbornRecord> newbornTable;
+    @FXML private TableColumn<SqliteNewbornRecordDao.NewbornRecord, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornIdColumn;
     @FXML private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> babyNameColumn;
     @FXML private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> genderColumn;
@@ -265,6 +266,9 @@ public class NewbornRecordsController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new javafx.beans.property.ReadOnlyObjectWrapper<>(newbornTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         newbornIdColumn.setCellValueFactory(new PropertyValueFactory<>("newbornId"));
         babyNameColumn.setCellValueFactory(new PropertyValueFactory<>("babyName"));
         genderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));

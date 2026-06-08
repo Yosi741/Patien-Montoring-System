@@ -3,6 +3,7 @@ package ui.javafx.controllers;
 import dao.SqliteRoomDao;
 import dao.SqliteAuditLogDao;
 import dao.SqliteSectionDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -62,11 +63,13 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private VBox activePatientsBySectionBox;
     @FXML private VBox criticalPatientsBySectionBox;
     @FXML private TableView<SqliteSectionDao.SectionRecord> sectionTable;
+    @FXML private TableColumn<SqliteSectionDao.SectionRecord, Number> sectionRowNumberColumn;
     @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionNameColumn;
     @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionStatusColumn;
     @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionUpdatedColumn;
     @FXML private TableColumn<SqliteSectionDao.SectionRecord, String> sectionNotesColumn;
     @FXML private TableView<RoomBedOccupancyService.RoomRow> roomTable;
+    @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Number> roomRowNumberColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> sectionColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> roomColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> roomStatusColumn;
@@ -74,16 +77,11 @@ public class RoomBedOccupancyController implements FxController {
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Integer> occupiedColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, Integer> availableColumn;
     @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> patientsColumn;
-    @FXML private TableColumn<RoomBedOccupancyService.RoomRow, String> priorityColumn;
-    @FXML private Button addRoomButton;
     @FXML private Button editRoomButton;
     @FXML private Button deactivateRoomButton;
     @FXML private Button addSectionButton;
     @FXML private Button editSectionButton;
     @FXML private Button deactivateSectionButton;
-    @FXML private Button assignPatientButton;
-    @FXML private Button movePatientButton;
-    @FXML private Button removePatientRoomButton;
     @FXML private Label statusLabel;
 
     @Override
@@ -138,34 +136,12 @@ public class RoomBedOccupancyController implements FxController {
     }
 
     @FXML
-    private void openSelectedPatient() {
-        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
-        if (selected == null || selected.getSelectedPatientId().isBlank()) {
-            statusLabel.setText("Select an occupied room row to open the highest-priority assigned patient.");
-            return;
-        }
-        openPatient(selected);
-    }
-
-    @FXML
-    private void addRoom() {
-        try {
-            boolean saved = RoomFormController.showCreateDialog(roomTable.getScene().getWindow(), Session.getCurrentUser());
-            if (saved) {
-                refreshAfterWrite("Room created.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
     private void addSection() {
         try {
             boolean saved = SectionFormController.showCreateDialog(roomTable.getScene().getWindow(), Session.getCurrentUser());
             if (saved) {
                 reloadSectionChoices();
-                refreshAfterWrite("Section created.");
+                refreshAfterWrite("Section created. You can now generate or add rooms for this section.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -240,52 +216,6 @@ public class RoomBedOccupancyController implements FxController {
         }
     }
 
-    @FXML
-    private void assignPatientToRoom() {
-        RoomBedOccupancyService.RoomRow selected = selectedRealRoom();
-        if (selected == null) {
-            return;
-        }
-        try {
-            boolean saved = RoomAssignmentController.showAssignDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
-            if (saved) {
-                refreshAfterWrite("Patient assigned to room.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void movePatientToRoom() {
-        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
-        try {
-            boolean saved = RoomAssignmentController.showMoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
-            if (saved) {
-                refreshAfterWrite("Patient moved to room.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void removePatientFromRoom() {
-        RoomBedOccupancyService.RoomRow selected = roomTable.getSelectionModel().getSelectedItem();
-        if (selected == null || selected.getSelectedPatientId().isBlank()) {
-            NotificationHelper.showInfo(statusLabel, "Select an occupied room row first.");
-            return;
-        }
-        try {
-            boolean saved = RoomAssignmentController.showRemoveDialog(roomTable.getScene().getWindow(), Session.getCurrentUser(), selected);
-            if (saved) {
-                refreshAfterWrite("Patient removed from room.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
     private void configureAccess() {
         boolean authorized = isAuthorized();
         accessDeniedPane.setVisible(!authorized);
@@ -293,16 +223,11 @@ public class RoomBedOccupancyController implements FxController {
         occupancyContentPane.setVisible(authorized);
         occupancyContentPane.setManaged(authorized);
         boolean canManageRooms = PermissionHelper.canManageRooms(Session.getCurrentUser());
-        setButtonVisible(addRoomButton, canManageRooms);
         setButtonVisible(editRoomButton, canManageRooms);
         setButtonVisible(deactivateRoomButton, canManageRooms);
         setButtonVisible(addSectionButton, canManageRooms);
         setButtonVisible(editSectionButton, canManageRooms);
         setButtonVisible(deactivateSectionButton, canManageRooms);
-        boolean canAssign = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
-        setButtonVisible(assignPatientButton, canAssign);
-        setButtonVisible(movePatientButton, canAssign);
-        setButtonVisible(removePatientRoomButton, canAssign);
     }
 
     private void configureFilters() {
@@ -335,6 +260,9 @@ public class RoomBedOccupancyController implements FxController {
     }
 
     private void configureTable() {
+        if (roomRowNumberColumn != null) {
+            roomRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(roomTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
         roomColumn.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
         roomStatusColumn.setCellValueFactory(new PropertyValueFactory<>("roomStatus"));
@@ -342,7 +270,6 @@ public class RoomBedOccupancyController implements FxController {
         occupiedColumn.setCellValueFactory(new PropertyValueFactory<>("occupiedCount"));
         availableColumn.setCellValueFactory(new PropertyValueFactory<>("availableCount"));
         patientsColumn.setCellValueFactory(new PropertyValueFactory<>("patientsInRoom"));
-        priorityColumn.setCellValueFactory(new PropertyValueFactory<>("highestPatientPriority"));
 
         roomTable.setRowFactory(table -> {
             TableRow<RoomBedOccupancyService.RoomRow> row = new TableRow<>();
@@ -352,11 +279,6 @@ public class RoomBedOccupancyController implements FxController {
                     row.getStyleClass().add("active-alert-row");
                 }
             });
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    openPatient(row.getItem());
-                }
-            });
             return row;
         });
     }
@@ -364,6 +286,9 @@ public class RoomBedOccupancyController implements FxController {
     private void configureSectionTable() {
         if (sectionTable == null) {
             return;
+        }
+        if (sectionRowNumberColumn != null) {
+            sectionRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(sectionTable.getItems().indexOf(cell.getValue()) + 1));
         }
         sectionNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         sectionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
@@ -426,15 +351,6 @@ public class RoomBedOccupancyController implements FxController {
         HBox row = new HBox(label);
         row.getStyleClass().add("dashboard-list-row");
         return row;
-    }
-
-    private void openPatient(RoomBedOccupancyService.RoomRow row) {
-        if (row == null || row.getSelectedPatientId().isBlank()) {
-            statusLabel.setText("This room has no assigned patient to open.");
-            return;
-        }
-        logAudit("JavaFX ROOM_OCCUPANCY opened patient detail for " + row.getSelectedPatientId());
-        appShell.showPatientDetail(row.getSelectedPatientId());
     }
 
     private RoomBedOccupancyService.RoomRow selectedRealRoom() {

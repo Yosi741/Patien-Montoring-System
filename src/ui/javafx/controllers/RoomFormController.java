@@ -52,7 +52,7 @@ public class RoomFormController {
 
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setTitle(room == null ? "Add Room" : "Edit Room");
+            dialog.setTitle(room == null ? "Add Single Room" : "Manage Room");
             ui.javafx.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
@@ -86,10 +86,10 @@ public class RoomFormController {
         this.currentUser = currentUser;
         this.existingRoom = room;
         if (room == null) {
-            titleLabel.setText("Add Room");
+            titleLabel.setText("Add Single Room");
             return;
         }
-        titleLabel.setText("Edit Room");
+        titleLabel.setText("Manage Room");
         selectOrSet(sectionBox, room.getSection());
         roomNumberField.setText(room.getRoomNumber());
         capacityField.setText(String.valueOf(room.getCapacity()));

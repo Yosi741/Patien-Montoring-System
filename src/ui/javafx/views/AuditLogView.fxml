@@ -11,24 +11,21 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.AuditLogController" styleClass="content-page">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Audit Logs" styleClass="screen-title" />
-                <Label text="Read-only local database admin audit viewer" styleClass="muted-text" />
-            </VBox>
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
+    
 
     <center>
-        <VBox spacing="18.0">
+                <VBox spacing="18.0">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label text="Audit Logs" styleClass="screen-title" />
+                    <Label text="Read-only local database admin audit viewer" styleClass="muted-text" wrapText="true" />
+                </VBox>
+                <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+            </HBox>
 
             <VBox fx:id="accessDeniedPane"
                   managed="false"
@@ -69,9 +66,11 @@
 
                     <Label text="System Activity History" styleClass="section-title" />
 
-                    <TableView fx:id="auditTable"
-                               VBox.vgrow="ALWAYS" styleClass="dialog-card">
+                                        <TableView fx:id="auditTable"
+                               styleClass="clinical-table dialog-card"
+                               VBox.vgrow="ALWAYS">
                         <columns>
+                            <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
                             <TableColumn fx:id="idColumn" text="ID" prefWidth="80.0" visible="false" />
                             <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
                             <TableColumn fx:id="actionColumn" text="Action" prefWidth="540.0" />

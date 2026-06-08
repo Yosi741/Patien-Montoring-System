@@ -24,13 +24,13 @@
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
-                        <VBox spacing="16.0" styleClass="notification-hero">
-                            <HBox alignment="CENTER_LEFT" spacing="18.0">
+                                                <VBox spacing="16.0">
+                            <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Notification Center" styleClass="notification-page-title" />
-                                    <Label text="Unified hospital event inbox for alerts, reminders, messages, and system updates." styleClass="notification-subtitle" wrapText="true" />
+                                    <Label text="Notification Center" styleClass="screen-title" />
+                                    <Label text="Unified hospital event inbox for alerts, reminders, messages, and system updates." styleClass="muted-text" wrapText="true" />
                                 </VBox>
-                                <Button text="Dashboard" onAction="#showDashboard" styleClass="notification-action-ghost" />
+                                <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
                             </HBox>
 
                             <GridPane hgap="12.0" vgap="12.0">
@@ -94,7 +94,7 @@
                                 </VBox>
                                 <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
                                     <Label text="Patient" styleClass="field-label" />
-                                    <TextField fx:id="patientSearchField" promptText="Patient No." styleClass="notification-input" />
+                                    <TextField fx:id="patientSearchField" promptText="Patient ID" styleClass="notification-input" />
                                 </VBox>
                                 <Button text="Refresh" onAction="#loadNotifications" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="BOTTOM" maxWidth="Infinity" styleClass="notification-action-secondary" />
                             </GridPane>

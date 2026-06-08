@@ -9,22 +9,21 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.javafx.controllers.CertificateRegistryController" styleClass="content-page">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Certificate Registry" styleClass="screen-title" />
-                <Label text="Unified birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
+
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
                 <VBox spacing="18.0">
                     <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label text="Certificate Registry" styleClass="screen-title" />
+                            <Label text="Unified birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" wrapText="true" />
+                        </VBox>
+                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                    </HBox>
 
                     <Label fx:id="accessDeniedPane" managed="false" visible="false"
                            text="Access denied. Certificate Registry is available to authorized clinical users only."
@@ -87,11 +86,12 @@
                         <HBox spacing="18.0">
                             <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
                                 <Label text="Certificates" styleClass="section-title" />
-                                <TableView fx:id="certificateTable" prefHeight="500.0">
+                                <TableView fx:id="certificateTable" prefHeight="500.0" styleClass="clinical-table">
                                     <columns>
+                                        <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
                                         <TableColumn fx:id="typeColumn" text="Type" prefWidth="85.0" />
                                         <TableColumn fx:id="sourceRecordColumn" text="Source ID" prefWidth="95.0" visible="false" />
-                                        <TableColumn fx:id="subjectIdColumn" text="Patient/Newborn No." prefWidth="145.0" />
+                                        <TableColumn fx:id="subjectIdColumn" text="Patient/Newborn ID" prefWidth="145.0" />
                                         <TableColumn fx:id="nameColumn" text="Name" prefWidth="180.0" />
                                         <TableColumn fx:id="eventTimeColumn" text="Event Time" prefWidth="165.0" />
                                         <TableColumn fx:id="statusColumn" text="Status" prefWidth="110.0" />

@@ -5,22 +5,19 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.UserDirectoryController">
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Staff/User Directory" styleClass="screen-title" />
-                <Label text="Staff directory and Admin user management" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
-
     <center>
         <VBox spacing="18.0">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label text="Staff/User Directory" styleClass="screen-title" />
+                    <Label text="Staff directory and Admin user management" styleClass="muted-text" wrapText="true" />
+                </VBox>
+                <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+            </HBox>
 
             <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="panel-card">
                 <Label text="Access denied" styleClass="section-title" />
@@ -54,8 +51,9 @@
                 <SplitPane dividerPositions="0.66" VBox.vgrow="ALWAYS">
                     <VBox spacing="10.0" styleClass="panel-card">
                         <Label text="Staff Users" styleClass="section-title" />
-                        <TableView fx:id="userTable" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="clinical-table">
                             <columns>
+                                <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
                                 <TableColumn fx:id="idColumn" text="ID" prefWidth="75.0" visible="false" />
                                 <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
                                 <TableColumn fx:id="roleColumn" text="Role" prefWidth="180.0" />

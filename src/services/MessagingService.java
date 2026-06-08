@@ -10,8 +10,11 @@ import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MessagingService {
 
@@ -31,6 +34,10 @@ public class MessagingService {
 
     public long sendMessage(User sender, SqliteMessageDao.MessageWriteRecord record) throws SQLException {
         require(PermissionHelper.canComposeMessage(sender), "Only Admin, Doctor, and Nurse users can compose messages in JavaFX.");
+        if (record != null && !record.getRecipientUsername().isBlank()
+                && record.getRecipientUsername().equalsIgnoreCase(username(sender))) {
+            throw new IllegalArgumentException("You cannot send a message to yourself.");
+        }
         validate(record);
         validateTargetPermission(sender, record);
         long id = messageDao.insert(record);
@@ -40,11 +47,62 @@ public class MessagingService {
     }
 
     public List<SqliteMessageDao.MessageRow> inbox(User currentUser, String search, String status) throws SQLException {
-        return messageDao.findInbox(username(currentUser), PermissionHelper.roleGroup(currentUser), section(currentUser), search, status);
+        return messageDao.findInbox(username(currentUser), PermissionHelper.roleGroup(currentUser), section(currentUser), search, status)
+                .stream()
+                .filter(row -> !isRequestMessage(row))
+                .toList();
     }
 
     public List<SqliteMessageDao.MessageRow> sent(User currentUser, String search, String status) throws SQLException {
-        return messageDao.findSent(username(currentUser), search, status);
+        return messageDao.findSent(username(currentUser), search, status)
+                .stream()
+                .filter(row -> !isRequestMessage(row))
+                .toList();
+    }
+
+    public List<SqliteMessageDao.MessageRow> requests(User currentUser, String search, String requestFilter) throws SQLException {
+        Map<Long, SqliteMessageDao.MessageRow> byId = new LinkedHashMap<>();
+        for (SqliteMessageDao.MessageRow row : messageDao.findInbox(username(currentUser),
+                PermissionHelper.roleGroup(currentUser), section(currentUser), search, "All")) {
+            if (isRequestMessage(row) && matchesRequestFilter(row, requestFilter)) {
+                byId.put(row.getId(), row);
+            }
+        }
+        for (SqliteMessageDao.MessageRow row : messageDao.findSent(username(currentUser), search, "All")) {
+            if (isRequestMessage(row) && matchesRequestFilter(row, requestFilter)) {
+                byId.put(row.getId(), row);
+            }
+        }
+        return new ArrayList<>(byId.values());
+    }
+
+    public String requestType(SqliteMessageDao.MessageRow row) {
+        String text = messageText(row);
+        if (text.contains("[SPMS_CERTIFICATE]") || text.contains("certificate")) {
+            return "CERTIFICATE_NOTICE";
+        }
+        if (text.contains("checkup") || text.contains("check-up")) {
+            return "CHECKUP_REQUEST";
+        }
+        if (text.contains("medication review") || text.contains("medication")) {
+            return "MEDICATION_REVIEW";
+        }
+        if (text.contains("request")) {
+            return "REQUEST";
+        }
+        return "INTERNAL_REQUEST";
+    }
+
+    public boolean isRequestMessage(SqliteMessageDao.MessageRow row) {
+        String text = messageText(row);
+        return text.contains("[SPMS_CERTIFICATE]")
+                || text.contains("request")
+                || text.contains("certificate notice")
+                || text.contains("birth certificate")
+                || text.contains("death certificate")
+                || text.contains("checkup")
+                || text.contains("check-up")
+                || text.contains("medication review");
     }
 
     public void markRead(User currentUser, long messageId) throws SQLException {
@@ -109,6 +167,35 @@ public class MessagingService {
             return;
         }
         throw new SecurityException("This role cannot compose messages.");
+    }
+
+    private boolean matchesRequestFilter(SqliteMessageDao.MessageRow row, String requestFilter) {
+        String filter = requestFilter == null || requestFilter.isBlank() ? "All Requests" : requestFilter;
+        if ("All Requests".equalsIgnoreCase(filter)) {
+            return true;
+        }
+        if ("Pending".equalsIgnoreCase(filter)) {
+            return "SENT".equalsIgnoreCase(row.getStatus());
+        }
+        if ("Read".equalsIgnoreCase(filter)) {
+            return "READ".equalsIgnoreCase(row.getStatus());
+        }
+        if ("Archived".equalsIgnoreCase(filter)) {
+            return "ARCHIVED".equalsIgnoreCase(row.getStatus());
+        }
+        if ("High Priority".equalsIgnoreCase(filter)) {
+            return "HIGH".equalsIgnoreCase(row.getPriority()) || "URGENT".equalsIgnoreCase(row.getPriority());
+        }
+        return true;
+    }
+
+    private String messageText(SqliteMessageDao.MessageRow row) {
+        if (row == null) {
+            return "";
+        }
+        return ((row.getSubject() == null ? "" : row.getSubject()) + "\n"
+                + (row.getBody() == null ? "" : row.getBody()) + "\n"
+                + (row.getPriority() == null ? "" : row.getPriority())).toLowerCase(Locale.ROOT);
     }
 
     private FormValidationHelper.ValidationResult validatePriority(String priority) {

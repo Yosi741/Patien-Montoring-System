@@ -1,6 +1,7 @@
 package ui.javafx.controllers;
 
 import dao.SqliteAuditLogDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -59,6 +60,7 @@ public class MedicationOverviewController implements FxController {
     @FXML private Label patientsWithMedicationsLabel;
     @FXML private Label latestEventTimeLabel;
     @FXML private TableView<MedicationOverviewService.MedicationRow> medicationTable;
+    @FXML private TableColumn<MedicationOverviewService.MedicationRow, Number> medRowNumberColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationRow, String> medPatientIdColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationRow, String> medPatientNameColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationRow, String> medNameColumn;
@@ -67,6 +69,7 @@ public class MedicationOverviewController implements FxController {
     @FXML private TableColumn<MedicationOverviewService.MedicationRow, String> frequencyColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationRow, String> activeColumn;
     @FXML private TableView<MedicationOverviewService.MedicationEventRow> eventTable;
+    @FXML private TableColumn<MedicationOverviewService.MedicationEventRow, Number> eventRowNumberColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationEventRow, String> eventPatientIdColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationEventRow, String> eventMedicationColumn;
     @FXML private TableColumn<MedicationOverviewService.MedicationEventRow, String> givenByColumn;
@@ -349,6 +352,10 @@ public class MedicationOverviewController implements FxController {
     }
 
     private void configureTables() {
+        if (medRowNumberColumn != null) {
+            medRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    medicationTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         medPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         medPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         medNameColumn.setCellValueFactory(new PropertyValueFactory<>("medicationName"));
@@ -357,6 +364,10 @@ public class MedicationOverviewController implements FxController {
         frequencyColumn.setCellValueFactory(new PropertyValueFactory<>("frequency"));
         activeColumn.setCellValueFactory(new PropertyValueFactory<>("activeStatus"));
 
+        if (eventRowNumberColumn != null) {
+            eventRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    eventTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         eventPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         eventMedicationColumn.setCellValueFactory(new PropertyValueFactory<>("medicationName"));
         givenByColumn.setCellValueFactory(new PropertyValueFactory<>("givenBy"));

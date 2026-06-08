@@ -1,6 +1,7 @@
 package services;
 
 import dao.SqliteNotificationDao;
+import dao.SqliteMessageDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;
@@ -8,19 +9,31 @@ import ui.javafx.helpers.PermissionHelper;
 import users.User;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 public class NotificationCenterService {
 
     private final SqliteNotificationDao notificationDao;
+    private final SqliteMessageDao messageDao;
 
     public NotificationCenterService() {
-        this(new SqliteNotificationDao());
+        this(new SqliteNotificationDao(), new SqliteMessageDao());
     }
 
     public NotificationCenterService(SqliteNotificationDao notificationDao) {
+        this(notificationDao, new SqliteMessageDao());
+    }
+
+    public NotificationCenterService(SqliteNotificationDao notificationDao, SqliteMessageDao messageDao) {
         this.notificationDao = notificationDao;
+        this.messageDao = messageDao;
     }
 
     public long createNotification(SqliteNotificationDao.NotificationWriteRecord record) throws SQLException {
@@ -31,8 +44,14 @@ public class NotificationCenterService {
     public List<SqliteNotificationDao.NotificationRow> findForCurrentUser(User user, String severity, String status,
                                                                           String patientSearch, String dateRange) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to view notifications.");
-        return notificationDao.findForUser(username(user), PermissionHelper.roleGroup(user), section(user),
-                severity, status, patientSearch, dateRange);
+        ArrayList<SqliteNotificationDao.NotificationRow> rows = new ArrayList<>(notificationDao.findForUser(
+                username(user), PermissionHelper.roleGroup(user), section(user),
+                severity, status, patientSearch, dateRange));
+        rows.addAll(findMessageRows(user, severity, status, patientSearch, dateRange));
+        rows.sort(Comparator
+                .comparing((SqliteNotificationDao.NotificationRow row) -> parseDateTime(row.getCreatedAt()), Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(SqliteNotificationDao.NotificationRow::getId, Comparator.reverseOrder()));
+        return rows;
     }
 
     public int unreadCount(User user) {
@@ -40,7 +59,8 @@ public class NotificationCenterService {
             if (!PermissionHelper.canViewNotifications(user)) {
                 return 0;
             }
-            return notificationDao.unreadCountForUser(username(user), PermissionHelper.roleGroup(user), section(user));
+            return notificationDao.unreadCountForUser(username(user), PermissionHelper.roleGroup(user), section(user))
+                    + messageDao.unreadInboxCount(username(user), PermissionHelper.roleGroup(user), section(user));
         } catch (Exception e) {
             System.out.println("SQLite unread notification count failed: " + e.getMessage());
             return 0;
@@ -53,10 +73,32 @@ public class NotificationCenterService {
         AuditWriteHelper.write(username(user), AuditAction.MARK_NOTIFICATION_READ, "notification_id=" + id);
     }
 
+    public void markRead(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
+        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
+        if (isMessageRow(row)) {
+            long messageId = parseSourceId(row);
+            messageDao.markRead(messageId, username(user));
+            AuditWriteHelper.write(username(user), AuditAction.READ_MESSAGE, "message_id=" + messageId);
+            return;
+        }
+        markRead(user, row.getId());
+    }
+
     public void dismiss(User user, long id) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
         notificationDao.dismiss(id);
         AuditWriteHelper.write(username(user), AuditAction.DISMISS_NOTIFICATION, "notification_id=" + id);
+    }
+
+    public void dismiss(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
+        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
+        if (isMessageRow(row)) {
+            long messageId = parseSourceId(row);
+            messageDao.archive(messageId, username(user));
+            AuditWriteHelper.write(username(user), AuditAction.ARCHIVE_MESSAGE, "message_id=" + messageId);
+            return;
+        }
+        dismiss(user, row.getId());
     }
 
     public void notifyCriticalAlert(String patientId, String severity, String message, String sourceId) {
@@ -117,6 +159,131 @@ public class NotificationCenterService {
         );
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
+        }
+    }
+
+    private List<SqliteNotificationDao.NotificationRow> findMessageRows(User user, String severity, String status,
+                                                                        String patientSearch, String dateRange) throws SQLException {
+        ArrayList<SqliteNotificationDao.NotificationRow> rows = new ArrayList<>();
+        List<SqliteMessageDao.MessageRow> messages = messageDao.findInbox(
+                username(user),
+                PermissionHelper.roleGroup(user),
+                section(user),
+                "",
+                "All"
+        );
+        for (SqliteMessageDao.MessageRow message : messages) {
+            SqliteNotificationDao.NotificationRow row = toMessageNotificationRow(user, message);
+            if (matchesFilters(row, severity, status, patientSearch, dateRange)) {
+                rows.add(row);
+            }
+        }
+        return rows;
+    }
+
+    private SqliteNotificationDao.NotificationRow toMessageNotificationRow(User user, SqliteMessageDao.MessageRow message) {
+        return new SqliteNotificationDao.NotificationRow(
+                -message.getId(),
+                username(user),
+                "",
+                "",
+                nullTo(message.getPatientId(), ""),
+                prioritySeverity(message.getPriority()),
+                nullTo(message.getSubject(), "Message"),
+                "From " + nullTo(message.getSenderUsername(), "Unknown") + ": " + nullTo(message.getBody(), ""),
+                messageStatus(message.getStatus()),
+                "MESSAGE",
+                String.valueOf(message.getId()),
+                message.getCreatedAt(),
+                message.getReadAt()
+        );
+    }
+
+    private boolean matchesFilters(SqliteNotificationDao.NotificationRow row, String severity, String status,
+                                   String patientSearch, String dateRange) {
+        if (severity != null && !severity.isBlank() && !"All".equalsIgnoreCase(severity)
+                && !severity.equalsIgnoreCase(row.getSeverity())) {
+            return false;
+        }
+        if (status != null && !status.isBlank() && !"All".equalsIgnoreCase(status)
+                && !status.equalsIgnoreCase(row.getStatus())) {
+            return false;
+        }
+        if (patientSearch != null && !patientSearch.trim().isEmpty()) {
+            String patientId = nullTo(row.getPatientId(), "");
+            if (!patientId.contains(patientSearch.trim())) {
+                return false;
+            }
+        }
+        if (dateRange != null && !dateRange.isBlank() && !"All".equalsIgnoreCase(dateRange)) {
+            LocalDate date = parseDate(row.getCreatedAt());
+            if (date == null) {
+                return false;
+            }
+            LocalDate today = LocalDate.now();
+            if ("Today".equalsIgnoreCase(dateRange)) {
+                return date.equals(today);
+            }
+            if ("Last 7 days".equalsIgnoreCase(dateRange)) {
+                return !date.isBefore(today.minusDays(7));
+            }
+            return !date.isBefore(today.minusDays(30));
+        }
+        return true;
+    }
+
+    private String prioritySeverity(String priority) {
+        String value = priority == null ? "" : priority.trim().toUpperCase(Locale.ROOT);
+        if ("URGENT".equals(value) || "HIGH".equals(value)) {
+            return "WARNING";
+        }
+        return "INFO";
+    }
+
+    private String messageStatus(String status) {
+        if ("READ".equalsIgnoreCase(status)) {
+            return "READ";
+        }
+        if ("ARCHIVED".equalsIgnoreCase(status)) {
+            return "DISMISSED";
+        }
+        return "UNREAD";
+    }
+
+    private boolean isMessageRow(SqliteNotificationDao.NotificationRow row) {
+        return row != null && "MESSAGE".equalsIgnoreCase(row.getSourceType());
+    }
+
+    private long parseSourceId(SqliteNotificationDao.NotificationRow row) {
+        try {
+            return Long.parseLong(row.getSourceId());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Message source is missing or invalid.");
+        }
+    }
+
+    private LocalDate parseDate(String value) {
+        LocalDateTime dateTime = parseDateTime(value);
+        return dateTime == null ? null : dateTime.toLocalDate();
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        for (DateTimeFormatter formatter : List.of(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))) {
+            try {
+                return LocalDateTime.parse(value, formatter);
+            } catch (DateTimeParseException ignored) {
+                // Try the next known local format.
+            }
+        }
+        try {
+            return LocalDate.parse(value.substring(0, Math.min(10, value.length()))).atStartOfDay();
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

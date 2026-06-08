@@ -185,13 +185,26 @@ public class SqliteUserDao implements UserDao {
     }
 
     public List<UserTarget> findMessageTargets() throws SQLException {
+        return findMessageTargetsExcept("");
+    }
+
+    public List<UserTarget> findMessageTargetsExcept(String excludedUsername) throws SQLException {
         ArrayList<UserTarget> targets = new ArrayList<>();
-        String sql = "SELECT u.username, u.role, u.section, COALESCE(u.email, p.email, '') AS email "
+        StringBuilder sql = new StringBuilder("SELECT u.username, u.role, u.section, "
+                + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email "
                 + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username "
-                + "WHERE u.active = 1 ORDER BY u.username COLLATE NOCASE";
+                + "WHERE u.active = 1 ");
+        boolean exclude = excludedUsername != null && !excludedUsername.trim().isEmpty();
+        if (exclude) {
+            sql.append("AND LOWER(u.username) <> LOWER(?) ");
+        }
+        sql.append("ORDER BY u.username COLLATE NOCASE");
         try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            if (exclude) {
+                statement.setString(1, excludedUsername.trim());
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 String username = resultSet.getString("username");
                 targets.add(new UserTarget(
@@ -201,6 +214,7 @@ public class SqliteUserDao implements UserDao {
                         resultSet.getString("section"),
                         resultSet.getString("email")
                 ));
+            }
             }
         }
         return targets;
@@ -327,6 +341,16 @@ public class SqliteUserDao implements UserDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, passwordHash);
             statement.setString(2, username);
+            statement.executeUpdate();
+        }
+    }
+
+    public void updateEmail(String username, String email) throws SQLException {
+        String sql = "UPDATE users SET email = ? WHERE LOWER(username) = LOWER(?)";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email == null ? "" : email.trim());
+            statement.setString(2, username == null ? "" : username.trim());
             statement.executeUpdate();
         }
     }
@@ -468,7 +492,7 @@ public class SqliteUserDao implements UserDao {
 
         public String getDisplayText() {
             String mail = email.isBlank() ? "no email" : email;
-            return username + " | " + displayName + " | " + role + " | " + section + " | " + mail;
+            return username + " | " + role + " | " + section + " | " + mail;
         }
 
         @Override

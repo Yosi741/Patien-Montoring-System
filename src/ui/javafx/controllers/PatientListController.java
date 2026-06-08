@@ -124,6 +124,9 @@ public class PatientListController implements FxController {
     private TableColumn<SqlitePatientDao.PatientListRow, String> deathCertificateColumn;
 
     @FXML
+    private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornRowNumberColumn;
+
+    @FXML
     private TableColumn<SqliteNewbornRecordDao.NewbornRecord, String> newbornIdColumn;
 
     @FXML
@@ -548,6 +551,13 @@ public class PatientListController implements FxController {
             return row;
         });
 
+        newbornRowNumberColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.valueOf(getIndex() + 1));
+            }
+        });
         newbornIdColumn.setCellValueFactory(new PropertyValueFactory<>("newbornId"));
         babyNameColumn.setCellValueFactory(new PropertyValueFactory<>("babyName"));
         newbornGenderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));

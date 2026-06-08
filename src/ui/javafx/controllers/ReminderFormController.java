@@ -40,6 +40,7 @@ public class ReminderFormController {
     @FXML private TextField patientIdField;
     @FXML private TextField medicationIdField;
     @FXML private VBox medicationIdBox;
+    @FXML private VBox reminderTypeContainer;
     @FXML private ComboBox<String> reminderTypeBox;
     @FXML private TextField reminderTitleField;
     @FXML private TextField dueTimeField;
@@ -121,6 +122,7 @@ public class ReminderFormController {
         statusBox.getSelectionModel().select("PENDING");
         dueTimeField.setText(LocalDateTime.now().plusHours(4).withSecond(0).withNano(0).format(DATE_TIME));
         reminderTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> updateTypeVisibility());
+        installNineDigitFilter(patientIdField);
         updateTypeVisibility();
         NotificationHelper.showInfo(statusLabel, "Local database reminder. External calendar integration is future work.");
     }
@@ -149,6 +151,10 @@ public class ReminderFormController {
             titleLabel.setText("Order Checkup");
             reminderTypeBox.getSelectionModel().select("CHECKUP");
             reminderTitleField.setText("Checkup");
+            if (reminderTypeContainer != null) {
+                reminderTypeContainer.setVisible(false);
+                reminderTypeContainer.setManaged(false);
+            }
             NotificationHelper.showInfo(statusLabel, "Select one or more requested checkups/tests for this patient.");
             updateTypeVisibility();
         }
@@ -174,7 +180,7 @@ public class ReminderFormController {
     private boolean save() {
         try {
             if (lockedPatientContext && !patientIdField.getText().trim().matches("\\d{9}")) {
-                throw new IllegalArgumentException("This patient uses an old demo ID format. Please update the patient ID to 9 digits or use the cleaned demo database.");
+                throw new IllegalArgumentException("Patient ID must contain exactly 9 digits.");
             }
             applyCheckupSummaryIfNeeded();
             SchedulingService.ReminderRequest request = new SchedulingService.ReminderRequest(
@@ -215,6 +221,18 @@ public class ReminderFormController {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Medication ID must be a whole number when provided.");
         }
+    }
+
+    private void installNineDigitFilter(TextField field) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = newValue == null ? "" : newValue.replaceAll("\\D", "");
+            if (clean.length() > 9) {
+                clean = clean.substring(0, 9);
+            }
+            if (!clean.equals(newValue)) {
+                field.setText(clean);
+            }
+        });
     }
 
     private void updateTypeVisibility() {

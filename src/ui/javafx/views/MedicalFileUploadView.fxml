@@ -28,11 +28,11 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label
-                    text="Patient No." styleClass="field-label" />
+                    text="Patient ID" styleClass="field-label" />
 
             <TextField
                     fx:id="patientIdField"
-                    promptText="PAT-001" styleClass="control-input" />
+                    promptText="9-digit patient ID" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">

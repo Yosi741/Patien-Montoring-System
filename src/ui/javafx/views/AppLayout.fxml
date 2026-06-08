@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -21,7 +21,11 @@
 
             <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="shell-brand-block">
                 <StackPane styleClass="shell-brand-logo">
-                    <Label text="+" styleClass="shell-brand-logo-text" />
+                    <ImageView fx:id="sidebarLogoImage"
+                               fitWidth="38"
+                               fitHeight="38"
+                               preserveRatio="true"
+                               smooth="true" />
                 </StackPane>
 
                 <VBox spacing="2.0">
@@ -53,13 +57,7 @@
                 <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="notificationsButton" text="Notifications" onAction="#showNotifications" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
                 <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity"
@@ -69,12 +67,6 @@
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="roomOccupancyButton" text="Sections / Rooms" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="deceasedRecordsButton" text="Deceased Records" onAction="#showDeceasedRecords" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="newbornRecordsButton" text="Newborn Records" onAction="#showNewbornRecords" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
                 <Button fx:id="certificateRegistryButton" text="Certificates" onAction="#showCertificateRegistry" maxWidth="Infinity"

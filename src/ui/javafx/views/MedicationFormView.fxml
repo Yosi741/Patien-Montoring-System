@@ -10,10 +10,10 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.MedicationFormController" styleClass="panel-card">
 
-    <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="Medication" styleClass="screen-title" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" text="Medication" styleClass="screen-title dialog-title" />
         <Label text="Create or update a medication order using the medication catalog when available."
-               wrapText="true" styleClass="muted-text" />
+               wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -23,7 +23,7 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient No." styleClass="field-label" />
+            <Label text="Patient ID" styleClass="field-label" />
             <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 

@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane
-        prefWidth="1200.0"
-        prefHeight="760.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.RoomBedOccupancyController"
-        styleClass="content-page sections-rooms-root">
+<BorderPane prefHeight="760.0" prefWidth="1200.0" styleClass="content-page sections-rooms-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.RoomBedOccupancyController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
@@ -22,17 +16,15 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                            <Label text="Sections / Rooms" styleClass="screen-title" />
-                            <Label text="Manage hospital sections, rooms, capacity, and patient room assignments."
-                                   wrapText="true" styleClass="muted-text" />
+                            <Label styleClass="screen-title" text="Sections / Rooms" />
+                            <Label styleClass="muted-text" text="Manage hospital sections, rooms, capacity, and room status." wrapText="true" />
                         </VBox>
-                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                        <Button onAction="#showDashboard" styleClass="secondary-button" text="Back to Dashboard" />
                     </HBox>
 
-                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
-                        <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Sections / Rooms is available to Admin, Doctor, and Nurse roles."
-                               wrapText="true" styleClass="body-text" />
+                    <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
+                        <Label styleClass="warning-value" text="Access denied" />
+                        <Label styleClass="body-text" text="Sections / Rooms is available to Admin, Doctor, and Nurse roles." wrapText="true" />
                     </VBox>
 
                     <VBox fx:id="occupancyContentPane" spacing="18.0">
@@ -44,39 +36,38 @@
                                 <ColumnConstraints percentWidth="25.0" />
                             </columnConstraints>
 
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="7.0"
-                                  maxWidth="Infinity" styleClass="summary-card">
-                                <Label text="Total Sections" styleClass="metric-label" />
-                                <Label fx:id="totalSectionsLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            <VBox maxWidth="Infinity" spacing="7.0" styleClass="summary-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label" text="Total Sections" />
+                                <Label fx:id="totalSectionsLabel" styleClass="metric-value compact-metric-value" text="0" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="7.0"
-                                  maxWidth="Infinity" styleClass="summary-card">
-                                <Label text="Total Rooms" styleClass="metric-label" />
-                                <Label fx:id="totalRoomsLabel" text="0" styleClass="accent-value" />
+                            <VBox maxWidth="Infinity" spacing="7.0" styleClass="summary-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label" text="Total Rooms" />
+                                <Label fx:id="totalRoomsLabel" styleClass="accent-value" text="0" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="7.0"
-                                  maxWidth="Infinity" styleClass="summary-card">
-                                <Label text="Occupied Rooms" styleClass="metric-label" />
-                                <Label fx:id="occupiedRoomsLabel" text="0" styleClass="success-value" />
+                            <VBox maxWidth="Infinity" spacing="7.0" styleClass="summary-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label" text="Occupied Rooms" />
+                                <Label fx:id="occupiedRoomsLabel" styleClass="success-value" text="0" />
                             </VBox>
 
-                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="7.0"
-                                  maxWidth="Infinity" styleClass="summary-card">
-                                <Label text="Available Beds" styleClass="metric-label" />
-                                <Label fx:id="availableCapacityLabel" text="0" styleClass="accent-value" />
+                            <VBox maxWidth="Infinity" spacing="7.0" styleClass="summary-card" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label" text="Available Beds" />
+                                <Label fx:id="availableCapacityLabel" styleClass="accent-value" text="0" />
                             </VBox>
+                     <rowConstraints>
+                        <RowConstraints />
+                     </rowConstraints>
                         </GridPane>
 
-                        <HBox managed="false" visible="false" spacing="18.0">
-                            <VBox spacing="12.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Active Patients By Section" styleClass="section-title" />
+                        <HBox managed="false" spacing="18.0" visible="false">
+                            <VBox spacing="12.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="section-title" text="Active Patients By Section" />
                                 <VBox fx:id="activePatientsBySectionBox" spacing="8.0" />
                             </VBox>
 
-                            <VBox spacing="12.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Critical / Emergency By Section" styleClass="section-title" />
+                            <VBox spacing="12.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="section-title" text="Critical / Emergency By Section" />
                                 <VBox fx:id="criticalPatientsBySectionBox" spacing="8.0" />
                             </VBox>
                         </HBox>
@@ -84,23 +75,23 @@
                         <VBox spacing="14.0" styleClass="management-panel">
                             <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="panel-header">
                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Sections" styleClass="section-title" />
-                                    <Label text="Manage hospital departments used by users, patients, and rooms."
-                                           wrapText="true" styleClass="muted-text" />
+                                    <Label styleClass="section-title" text="Sections" />
+                                    <Label styleClass="muted-text" text="Manage hospital departments used by users, patients, and rooms." wrapText="true" />
                                 </VBox>
                                 <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="action-toolbar">
-                                    <Button fx:id="addSectionButton" text="Add Section" onAction="#addSection" styleClass="secondary-button" />
-                                    <Button fx:id="editSectionButton" text="Edit Section" onAction="#editSection" styleClass="secondary-button" />
-                                    <Button fx:id="deactivateSectionButton" text="Deactivate Section" onAction="#deactivateSection" styleClass="danger-button" />
+                                    <Button fx:id="addSectionButton" onAction="#addSection" styleClass="secondary-button" text="Add Section" />
+                                    <Button fx:id="editSectionButton" onAction="#editSection" styleClass="secondary-button" text="Edit Section" />
+                                    <Button fx:id="deactivateSectionButton" onAction="#deactivateSection" styleClass="danger-button" text="Deactivate Section" />
                                 </HBox>
                             </HBox>
 
-                            <TableView fx:id="sectionTable" prefHeight="210.0" styleClass="dialog-card sections-table">
+                                                        <TableView fx:id="sectionTable" prefHeight="210.0" styleClass="dialog-card sections-table clinical-table">
                                 <columns>
-                                    <TableColumn fx:id="sectionNameColumn" text="Section" prefWidth="210.0" />
-                                    <TableColumn fx:id="sectionStatusColumn" text="Status" prefWidth="130.0" />
-                                    <TableColumn fx:id="sectionUpdatedColumn" text="Updated" prefWidth="190.0" />
-                                    <TableColumn fx:id="sectionNotesColumn" text="Notes" prefWidth="560.0" />
+                                    <TableColumn fx:id="sectionRowNumberColumn" prefWidth="55.0" sortable="false" text="#" />
+                                    <TableColumn fx:id="sectionNameColumn" prefWidth="210.0" text="Section" />
+                                    <TableColumn fx:id="sectionStatusColumn" prefWidth="130.0" text="Status" />
+                                    <TableColumn fx:id="sectionUpdatedColumn" prefWidth="190.0" text="Updated" />
+                                    <TableColumn fx:id="sectionNotesColumn" prefWidth="560.0" text="Notes" />
                                 </columns>
                             </TableView>
                         </VBox>
@@ -108,13 +99,12 @@
                         <VBox spacing="14.0" styleClass="management-panel">
                             <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="panel-header">
                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Rooms &amp; Assignments" styleClass="section-title" />
-                                    <Label text="Manage rooms, capacity, and assigned patients."
-                                           wrapText="true" styleClass="muted-text" />
+                                    <Label styleClass="section-title" text="Rooms &amp; Assignments" />
+                                    <Label styleClass="muted-text" text="Manage rooms, capacity, and assigned patients." wrapText="true" />
                                 </VBox>
                             </HBox>
 
-                            <GridPane hgap="12.0" vgap="8.0" styleClass="filter-toolbar">
+                            <GridPane hgap="12.0" styleClass="filter-toolbar" vgap="8.0">
                                 <columnConstraints>
                                     <ColumnConstraints percentWidth="22.0" />
                                     <ColumnConstraints percentWidth="34.0" />
@@ -123,61 +113,55 @@
                                 </columnConstraints>
 
                                 <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label text="Section" styleClass="field-label" />
+                                    <Label styleClass="field-label" text="Section" />
                                     <ComboBox fx:id="sectionFilter" maxWidth="Infinity" styleClass="control-input" />
                                 </VBox>
 
                                 <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label text="Room Search" styleClass="field-label" />
+                                    <Label styleClass="field-label" text="Room Search" />
                                     <TextField fx:id="roomSearchField" promptText="Room number" styleClass="control-input" />
                                 </VBox>
 
                                 <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                    <Label text="Status" styleClass="field-label" />
+                                    <Label styleClass="field-label" text="Status" />
                                     <ComboBox fx:id="statusFilter" maxWidth="Infinity" styleClass="control-input" />
                                 </VBox>
 
                                 <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
-                                    <Label text="Priority" styleClass="field-label" />
+                                    <Label styleClass="field-label" text="Priority" />
                                     <ComboBox fx:id="priorityFilter" maxWidth="Infinity" styleClass="control-input" />
                                 </VBox>
+                        <rowConstraints>
+                           <RowConstraints />
+                        </rowConstraints>
                             </GridPane>
 
                             <VBox spacing="8.0" styleClass="actions-card compact-actions-card">
                                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="button-group">
-                                    <Button fx:id="addRoomButton" text="Add Room" onAction="#addRoom" styleClass="primary-button" />
-                                    <Button fx:id="editRoomButton" text="Edit Room" onAction="#editRoom" styleClass="secondary-button" />
-                                    <Button fx:id="deactivateRoomButton" text="Deactivate Room" onAction="#deactivateRoom" styleClass="danger-button" />
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="button-group">
-                                    <Button fx:id="assignPatientButton" text="Assign Patient" onAction="#assignPatientToRoom" styleClass="secondary-button" />
-                                    <Button fx:id="movePatientButton" text="Move Patient" onAction="#movePatientToRoom" styleClass="secondary-button" />
-                                    <Button fx:id="removePatientRoomButton" text="Remove From Room" onAction="#removePatientFromRoom" styleClass="secondary-button" />
-                                    <Button text="Open Patient File" onAction="#openSelectedPatient" styleClass="primary-button" />
-                                    <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-                                    <Button text="Refresh" onAction="#loadOccupancy" styleClass="secondary-button" />
+                                    <Button fx:id="editRoomButton" onAction="#editRoom" styleClass="secondary-button" text="Manage Room" />
+                                    <Button fx:id="deactivateRoomButton" onAction="#deactivateRoom" styleClass="danger-button" text="Deactivate Room" />
+                                    <Button onAction="#clearFilters" styleClass="secondary-button" text="Clear Filters" />
+                                    <Button onAction="#loadOccupancy" styleClass="secondary-button" text="Refresh" />
                                 </HBox>
                             </VBox>
 
-                            <TableView fx:id="roomTable" prefHeight="430.0" styleClass="dialog-card rooms-table">
+                            <TableView fx:id="roomTable" prefHeight="430.0" styleClass="dialog-card rooms-table clinical-table">
                                 <columns>
-                                    <TableColumn fx:id="sectionColumn" text="Section" prefWidth="150.0" />
-                                    <TableColumn fx:id="roomColumn" text="Room" prefWidth="120.0" />
-                                    <TableColumn fx:id="roomStatusColumn" text="Status" prefWidth="120.0" />
-                                    <TableColumn fx:id="capacityColumn" text="Capacity" prefWidth="90.0" />
-                                    <TableColumn fx:id="occupiedColumn" text="Occupied" prefWidth="90.0" />
-                                    <TableColumn fx:id="availableColumn" text="Available" prefWidth="90.0" />
-                                    <TableColumn fx:id="patientsColumn" text="Patients" prefWidth="540.0" />
-                                    <TableColumn fx:id="priorityColumn" text="Highest Priority" prefWidth="145.0" />
+                                    <TableColumn fx:id="roomRowNumberColumn" prefWidth="55.0" sortable="false" text="#" />
+                                    <TableColumn fx:id="sectionColumn" prefWidth="150.0" text="Section" />
+                                    <TableColumn fx:id="roomColumn" prefWidth="120.0" text="Room" />
+                                    <TableColumn fx:id="roomStatusColumn" prefWidth="120.0" text="Status" />
+                                    <TableColumn fx:id="capacityColumn" prefWidth="90.0" text="Beds" />
+                                    <TableColumn fx:id="occupiedColumn" prefWidth="90.0" text="Occupied" />
+                                    <TableColumn fx:id="availableColumn" prefWidth="90.0" text="Available" />
+                                    <TableColumn fx:id="patientsColumn" prefWidth="540.0" text="Patients" />
                                 </columns>
                             </TableView>
 
                             <VBox spacing="6.0" styleClass="panel-footer">
-                                <Label text="Double-click an occupied row to open the highest-priority assigned patient."
-                                       wrapText="true" styleClass="muted-text" />
-                                <Label fx:id="occupancySourceLabel" text="Room occupancy source not loaded yet." wrapText="true" styleClass="status-info warning-value" />
-                                <Label fx:id="statusLabel" text="Sections / Rooms not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+                                <Label styleClass="muted-text" text="Patient names are shown for occupancy context. Move patients from Patient Board or Patient File." wrapText="true" />
+                                <Label fx:id="occupancySourceLabel" styleClass="status-info warning-value" text="Room occupancy source not loaded yet." wrapText="true" />
+                                <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="Sections / Rooms not loaded yet." wrapText="true" />
                             </VBox>
                         </VBox>
                     </VBox>

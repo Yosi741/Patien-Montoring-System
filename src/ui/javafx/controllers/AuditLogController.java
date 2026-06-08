@@ -1,6 +1,7 @@
 package ui.javafx.controllers;
 
 import dao.SqliteAuditLogDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -28,6 +29,7 @@ public class AuditLogController implements FxController {
     @FXML private ComboBox<String> dateRangeFilter;
     @FXML private ComboBox<String> actionTypeFilter;
     @FXML private TableView<SqliteAuditLogDao.AuditLogRow> auditTable;
+    @FXML private TableColumn<SqliteAuditLogDao.AuditLogRow, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteAuditLogDao.AuditLogRow, Long> idColumn;
     @FXML private TableColumn<SqliteAuditLogDao.AuditLogRow, String> usernameColumn;
     @FXML private TableColumn<SqliteAuditLogDao.AuditLogRow, String> actionColumn;
@@ -93,6 +95,10 @@ public class AuditLogController implements FxController {
     }
 
     private void configureTable() {
+        if (rowNumberColumn != null) {
+            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    auditTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));

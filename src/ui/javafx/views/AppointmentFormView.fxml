@@ -16,17 +16,17 @@
         prefWidth="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.AppointmentFormController" styleClass="panel-card">
+        fx:controller="ui.javafx.controllers.AppointmentFormController" styleClass="panel-card dialog-root">
 
-    <HBox alignment="CENTER_LEFT" spacing="10.0">
+    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dialog-header-card">
         <VBox spacing="4.0">
             <Label
                     fx:id="titleLabel"
-                    text="Appointment" styleClass="screen-title" />
+                    text="Appointment" styleClass="screen-title dialog-title" />
 
             <Label
                     text="Local database appointment scheduling. No external calendar integration in this phase."
-                    wrapText="true" styleClass="muted-text" />
+                    wrapText="true" styleClass="muted-text dialog-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
     </HBox>
@@ -38,8 +38,8 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient No." styleClass="field-label" />
-            <TextField fx:id="patientIdField" promptText="PAT-001" styleClass="control-input" />
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -86,5 +86,6 @@
     <Label
             fx:id="statusLabel"
             text="-"
+            maxWidth="Infinity"
             wrapText="true" styleClass="status-info metric-value compact-metric-value" />
 </VBox>

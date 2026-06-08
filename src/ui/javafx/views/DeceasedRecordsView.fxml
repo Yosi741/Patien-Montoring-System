@@ -1,116 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane
-        prefWidth="1200.0"
-        prefHeight="760.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.DeceasedRecordsController" styleClass="content-page">
+<BorderPane prefHeight="760.0" prefWidth="1200.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.DeceasedRecordsController">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Deceased Records" styleClass="screen-title" />
-                <Label text="Death records, certificate status, and safe local certificate controls" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#backToDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
+    
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
-                <VBox spacing="18.0">
+                                <VBox spacing="18.0">
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
 
-                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
-                        <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Deceased records are available to Admin, Doctor, and Nurse roles."
-                               wrapText="true" styleClass="body-text" />
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label styleClass="screen-title" text="Deceased Records" />
+                            <Label styleClass="muted-text" text="Death records, certificate status, and safe local certificate controls" wrapText="true" />
+                        </VBox>
+                        <Button onAction="#backToDashboard" styleClass="secondary-button" text="Back to Dashboard" />
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card" />
+
+                    <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
+                        <Label styleClass="warning-value" text="Access denied" />
+                        <Label styleClass="body-text" text="Deceased records are available to Admin, Doctor, and Nurse roles." wrapText="true" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
                         <HBox spacing="14.0">
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Total Records" styleClass="metric-label" />
-                                <Label fx:id="totalRecordsLabel" text="0" styleClass="screen-title" />
+                            <VBox spacing="5.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="metric-label" text="Total Records" />
+                                <Label fx:id="totalRecordsLabel" styleClass="screen-title" text="0" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Certificates Generated" styleClass="metric-label" />
-                                <Label fx:id="certificatesGeneratedLabel" text="0" styleClass="success-value" />
+                            <VBox spacing="5.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="metric-label" text="Certificates Generated" />
+                                <Label fx:id="certificatesGeneratedLabel" styleClass="success-value" text="0" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Pending Certificates" styleClass="metric-label" />
-                                <Label fx:id="pendingCertificatesLabel" text="0" styleClass="warning-value" />
+                            <VBox spacing="5.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="metric-label" text="Pending Certificates" />
+                                <Label fx:id="pendingCertificatesLabel" styleClass="warning-value" text="0" />
                             </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Deaths This Month" styleClass="metric-label" />
-                                <Label fx:id="deathsThisMonthLabel" text="0" styleClass="body-text" />
+                            <VBox spacing="5.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="metric-label" text="Deaths This Month" />
+                                <Label fx:id="deathsThisMonthLabel" styleClass="body-text" text="0" />
                             </VBox>
                         </HBox>
 
                         <VBox spacing="12.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient No. or name" HBox.hgrow="ALWAYS" styleClass="control-input" />
-                                <Label text="Date" styleClass="field-label" />
+                                <Label styleClass="field-label" text="Search" />
+                                <TextField fx:id="searchField" promptText="Patient ID or name" styleClass="control-input" HBox.hgrow="ALWAYS" />
+                                <Label styleClass="field-label" text="Date" />
                                 <ComboBox fx:id="dateRangeFilter" prefWidth="150.0" styleClass="control-input" />
-                                <Label text="Section" styleClass="field-label" />
+                                <Label styleClass="field-label" text="Section" />
                                 <ComboBox fx:id="sectionFilter" prefWidth="170.0" styleClass="control-input" />
                             </HBox>
 
                             <FlowPane alignment="CENTER_RIGHT" hgap="10.0" vgap="10.0">
-                                <Button text="Open Patient Detail" onAction="#openPatientDetail" styleClass="secondary-button" />
-                                <Button fx:id="updateRecordButton" text="Update Record" onAction="#updateRecord" styleClass="secondary-button" />
-                                <Button fx:id="generateCertificateButton" text="Generate Certificate" onAction="#generateCertificate" styleClass="primary-button" />
-                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate" styleClass="secondary-button" />
-                                <Button fx:id="sendNoticeButton" text="Send Certificate Notice" onAction="#sendCertificateNotice" styleClass="secondary-button" />
-                                <Button fx:id="copySummaryButton" text="Copy Summary" onAction="#copySummary" styleClass="secondary-button" />
-                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-                                <Button text="Refresh" onAction="#loadRecords" styleClass="secondary-button" />
+                                <Button onAction="#openPatientDetail" styleClass="secondary-button" text="Open Patient Detail" />
+                                <Button fx:id="updateRecordButton" onAction="#updateRecord" styleClass="secondary-button" text="Update Record" />
+                                <Button fx:id="generateCertificateButton" onAction="#generateCertificate" styleClass="primary-button" text="Generate Certificate" />
+                                <Button fx:id="openCertificateButton" onAction="#openCertificate" styleClass="secondary-button" text="Open Certificate" />
+                                <Button fx:id="sendNoticeButton" onAction="#sendCertificateNotice" styleClass="secondary-button" text="Send Certificate Notice" />
+                                <Button fx:id="copySummaryButton" onAction="#copySummary" styleClass="secondary-button" text="Copy Summary" />
+                                <Button onAction="#clearFilters" styleClass="secondary-button" text="Clear Filters" />
+                                <Button onAction="#loadRecords" styleClass="secondary-button" text="Refresh" />
                             </FlowPane>
                         </VBox>
 
                         <HBox spacing="18.0">
-                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
-                                <Label text="Records" styleClass="section-title" />
-                                <TableView fx:id="deceasedTable" prefHeight="500.0" styleClass="dialog-card">
+                            <VBox spacing="10.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                <Label styleClass="section-title" text="Records" />
+                                                                <TableView fx:id="deceasedTable" prefHeight="500.0" styleClass="dialog-card clinical-table">
                                     <columns>
-                                        <TableColumn fx:id="patientIdColumn" text="Patient No." prefWidth="110.0" />
-                                        <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
-                                        <TableColumn fx:id="deathTimeColumn" text="Death Time" prefWidth="170.0" />
-                                        <TableColumn fx:id="pronouncedByColumn" text="Pronounced By" prefWidth="140.0" />
-                                        <TableColumn fx:id="causeColumn" text="Cause" prefWidth="220.0" />
-                                        <TableColumn fx:id="certificateColumn" text="Certificate" prefWidth="130.0" />
+                                        <TableColumn fx:id="rowNumberColumn" prefWidth="55.0" sortable="false" text="#" />
+                                        <TableColumn fx:id="patientIdColumn" prefWidth="110.0" text="Patient ID" />
+                                        <TableColumn fx:id="patientNameColumn" prefWidth="180.0" text="Patient Name" />
+                                        <TableColumn fx:id="deathTimeColumn" prefWidth="170.0" text="Death Time" />
+                                        <TableColumn fx:id="pronouncedByColumn" prefWidth="140.0" text="Pronounced By" />
+                                        <TableColumn fx:id="causeColumn" prefWidth="220.0" text="Cause" />
+                                        <TableColumn fx:id="certificateColumn" prefWidth="130.0" text="Certificate" />
                                     </columns>
                                 </TableView>
                             </VBox>
 
-                            <VBox spacing="12.0" prefWidth="360.0" styleClass="panel-card">
-                                <Label text="Record Detail" styleClass="section-title" />
-                                <Label text="Patient" styleClass="metric-label" />
+                            <VBox prefWidth="360.0" spacing="12.0" styleClass="panel-card">
+                                <Label styleClass="section-title" text="Record Detail" />
+                                <Label styleClass="metric-label" text="Patient" />
                                 <Label fx:id="detailPatientLabel" text="No record selected" wrapText="true" />
-                                <Label text="Death Time" styleClass="metric-label" />
+                                <Label styleClass="metric-label" text="Death Time" />
                                 <Label fx:id="detailDeathTimeLabel" text="-" wrapText="true" />
-                                <Label text="Pronounced By" styleClass="metric-label" />
+                                <Label styleClass="metric-label" text="Pronounced By" />
                                 <Label fx:id="detailPronouncedByLabel" text="-" wrapText="true" />
-                                <Label text="Cause" styleClass="metric-label" />
+                                <Label styleClass="metric-label" text="Cause" />
                                 <Label fx:id="detailCauseLabel" text="-" wrapText="true" />
-                                <Label text="Notes" styleClass="metric-label" />
+                                <Label styleClass="metric-label" text="Notes" />
                                 <Label fx:id="detailNotesLabel" text="Select a deceased record to view details." wrapText="true" />
-                                <Label text="Certificate Path" styleClass="metric-label" />
+                                <Label styleClass="metric-label" text="Certificate Path" />
                                 <Label fx:id="detailCertificateLabel" text="-" wrapText="true" />
                             </VBox>
                         </HBox>
 
-                        <Label fx:id="statusLabel" text="Deceased records not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+                        <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="Deceased records not loaded yet." wrapText="true" />
                     </VBox>
                 </VBox>
             </content>

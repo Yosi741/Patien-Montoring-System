@@ -70,7 +70,17 @@ public final class FormValidationHelper {
         }
         return value.trim().matches("\\d{9}")
                 ? ValidationResult.ok()
-                : ValidationResult.error(label + " must contain exactly 9 digits.");
+                : ValidationResult.error(label + " must contain only digits and exactly 9 digits.");
+    }
+
+    public static ValidationResult validatePersonName(String label, String value) {
+        if (!hasText(value)) {
+            return ValidationResult.ok();
+        }
+        String trimmed = value.trim();
+        return trimmed.matches("[\\p{L}][\\p{L} '\\-’]*")
+                ? ValidationResult.ok()
+                : ValidationResult.error("Name must contain letters only.");
     }
 
     public static ValidationResult validateMaxLength(String label, String value, int maxLength) {

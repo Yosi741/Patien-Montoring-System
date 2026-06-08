@@ -11,16 +11,7 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.NurseWorkQueueController" styleClass="content-page">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Nurse Work Queue" styleClass="screen-title" />
-                <Label text="Prioritized tasks from reminders, alerts, and missing vitals" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
+
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
@@ -29,6 +20,14 @@
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label text="Nurse Work Queue" styleClass="screen-title" />
+                            <Label text="Prioritized tasks from reminders, alerts, and missing vitals" styleClass="muted-text" wrapText="true" />
+                        </VBox>
+                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                    </HBox>
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
@@ -90,11 +89,12 @@
                                 <Button text="Refresh" onAction="#refreshQueue" styleClass="secondary-button" />
                             </HBox>
 
-                            <TableView fx:id="queueTable" prefHeight="520.0" styleClass="dialog-card">
+                            <TableView fx:id="queueTable" prefHeight="520.0" styleClass="dialog-card clinical-table">
                                 <columns>
+                                    <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
                                     <TableColumn fx:id="statusColumn" text="Status" prefWidth="115.0" />
                                     <TableColumn fx:id="typeColumn" text="Task Type" prefWidth="140.0" />
-                                    <TableColumn fx:id="patientIdColumn" text="Patient No." prefWidth="115.0" />
+                                    <TableColumn fx:id="patientIdColumn" text="Patient ID" prefWidth="115.0" />
                                     <TableColumn fx:id="patientNameColumn" text="Patient Name" prefWidth="180.0" />
                                     <TableColumn fx:id="sectionColumn" text="Section" prefWidth="120.0" />
                                     <TableColumn fx:id="roomColumn" text="Room" prefWidth="90.0" />

@@ -25,7 +25,7 @@
                     </padding>
                     <Label text="Catalog List" styleClass="section-title" />
                     <TextField fx:id="catalogSearchField" promptText="Search medication catalog" styleClass="control-input" />
-                    <TableView fx:id="catalogTable" prefHeight="480.0" styleClass="dialog-card">
+                    <TableView fx:id="catalogTable" prefHeight="480.0" styleClass="dialog-card clinical-table">
                         <columns>
                             <TableColumn fx:id="nameColumn" text="Medication" prefWidth="155.0" />
                             <TableColumn fx:id="formTypeColumn" text="Form" prefWidth="90.0" />
@@ -130,7 +130,7 @@
                                             onAction="#deactivateSelectedInteraction" styleClass="danger-button" />
                                 </HBox>
 
-                                <TableView fx:id="interactionTable" prefHeight="150.0" styleClass="dialog-card">
+                                <TableView fx:id="interactionTable" prefHeight="150.0" styleClass="dialog-card clinical-table">
                                     <columns>
                                         <TableColumn fx:id="interactionAColumn" text="Medication A" prefWidth="130.0" />
                                         <TableColumn fx:id="interactionBColumn" text="Medication B" prefWidth="130.0" />

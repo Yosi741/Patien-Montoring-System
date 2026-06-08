@@ -2,6 +2,7 @@ package ui.javafx.helpers;
 
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
 
 public final class NotificationHelper {
@@ -33,6 +34,8 @@ public final class NotificationHelper {
             return;
         }
         label.setText(message == null ? "" : message);
+        label.setWrapText(true);
+        label.setTooltip(message == null || message.isBlank() ? null : new Tooltip(message));
         label.getStyleClass().removeAll("status-success", "status-error", "status-info");
         label.getStyleClass().add(styleClass);
     }

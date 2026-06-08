@@ -8,12 +8,12 @@
         prefWidth="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.MedicationGivenController" styleClass="panel-card">
+        fx:controller="ui.javafx.controllers.MedicationGivenController" styleClass="panel-card dialog-root">
 
-    <VBox spacing="4.0">
-        <Label text="Record Medication Given" styleClass="screen-title" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label text="Record Medication Given" styleClass="screen-title dialog-title" />
         <Label text="Record the actual administered dose with rule-based safety checks. Not a medical diagnosis."
-               wrapText="true" styleClass="muted-text" />
+               wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -23,7 +23,7 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient No." styleClass="field-label" />
+            <Label text="Patient ID" styleClass="field-label" />
             <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 

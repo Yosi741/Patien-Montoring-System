@@ -7,6 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import services.NotificationCenterService;
@@ -16,6 +18,8 @@ import ui.javafx.FxController;
 import ui.javafx.SessionContext;
 import ui.javafx.helpers.PermissionHelper;
 import users.Session;
+
+import java.net.URL;
 
 public class AppLayoutController implements FxController {
 
@@ -46,9 +50,6 @@ public class AppLayoutController implements FxController {
     private Button messagesButton;
 
     @FXML
-    private Button notificationsButton;
-
-    @FXML
     private Button settingsButton;
 
     @FXML
@@ -67,16 +68,7 @@ public class AppLayoutController implements FxController {
     private Button workQueueButton;
 
     @FXML
-    private Button medicalFilesButton;
-
-    @FXML
     private Button roomOccupancyButton;
-
-    @FXML
-    private Button deceasedRecordsButton;
-
-    @FXML
-    private Button newbornRecordsButton;
 
     @FXML
     private Button certificateRegistryButton;
@@ -90,7 +82,15 @@ public class AppLayoutController implements FxController {
     @FXML
     private MenuButton profileMenuButton;
 
+    @FXML
+    private ImageView sidebarLogoImage;
+
     private Timeline notificationRefreshTimeline;
+
+    @FXML
+    private void initialize() {
+        loadSidebarLogoImage();
+    }
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -106,7 +106,6 @@ public class AppLayoutController implements FxController {
         boolean clinical = isClinical();
         boolean loggedIn = Session.getCurrentUser() != null;
         setButtonVisible(messagesButton, false);
-        setButtonVisible(notificationsButton, AppFeatures.notificationsEnabled() && loggedIn);
         topNotificationButton.setVisible(loggedIn);
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
@@ -117,13 +116,8 @@ public class AppLayoutController implements FxController {
         schedulingButton.setManaged(admin || clinical);
         workQueueButton.setVisible(admin || clinical);
         workQueueButton.setManaged(admin || clinical);
-        setButtonVisible(medicalFilesButton, AppFeatures.medicalFilesEnabled() && (admin || clinical));
         roomOccupancyButton.setVisible(admin || clinical);
         roomOccupancyButton.setManaged(admin || clinical);
-        deceasedRecordsButton.setVisible(false);
-        deceasedRecordsButton.setManaged(false);
-        newbornRecordsButton.setVisible(false);
-        newbornRecordsButton.setManaged(false);
         certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         auditLogsButton.setVisible(admin);
@@ -198,27 +192,8 @@ public class AppLayoutController implements FxController {
     }
 
     @FXML
-    private void showMedicalFiles() {
-        if (!AppFeatures.medicalFilesEnabled()) {
-            appShell.showPatientList();
-            return;
-        }
-        appShell.showMedicalFiles();
-    }
-
-    @FXML
     private void showRoomBedOccupancy() {
         appShell.showRoomBedOccupancy();
-    }
-
-    @FXML
-    private void showDeceasedRecords() {
-        appShell.showDeceasedRecords();
-    }
-
-    @FXML
-    private void showNewbornRecords() {
-        appShell.showNewbornRecords();
     }
 
     @FXML
@@ -308,5 +283,27 @@ public class AppLayoutController implements FxController {
     private void setButtonVisible(Button button, boolean visible) {
         button.setVisible(visible);
         button.setManaged(visible);
+    }
+
+    private void loadSidebarLogoImage() {
+        if (sidebarLogoImage == null) {
+            return;
+        }
+        String[] candidates = {
+                "/ui/javafx/assets/spms-logo.png",
+                "/ui/javafx/assets/spms-logo.png",
+                "/ui/javafx/assets/spms-logo.png"
+        };
+        for (String candidate : candidates) {
+            URL logoUrl = getClass().getResource(candidate);
+            if (logoUrl != null) {
+                sidebarLogoImage.setImage(new Image(logoUrl.toExternalForm()));
+                sidebarLogoImage.setVisible(true);
+                sidebarLogoImage.setManaged(true);
+                return;
+            }
+        }
+        sidebarLogoImage.setVisible(false);
+        sidebarLogoImage.setManaged(false);
     }
 }

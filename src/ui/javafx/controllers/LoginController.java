@@ -9,11 +9,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import services.PasswordResetService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import users.User;
+
+import java.net.URL;
 
 public class LoginController implements FxController {
 
@@ -30,6 +35,17 @@ public class LoginController implements FxController {
 
     @FXML
     private Label statusLabel;
+
+    @FXML
+    private ImageView loginLogoImage;
+
+    @FXML
+    private StackPane fallbackLogoMark;
+
+    @FXML
+    private void initialize() {
+        loadLogoImage();
+    }
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -144,6 +160,39 @@ public class LoginController implements FxController {
             auditLogDao.log(username, "JavaFX login via " + source);
         } catch (Exception e) {
             System.out.println("SQLite login audit skipped: " + e.getMessage());
+        }
+    }
+
+    private void loadLogoImage() {
+        if (loginLogoImage == null) {
+            return;
+        }
+        try {
+            URL logoUrl = getClass().getResource("/ui/javafx/assets/ICON-Logo.png");
+            if (logoUrl == null) {
+                showFallbackLogo();
+                return;
+            }
+            loginLogoImage.setImage(new Image(logoUrl.toExternalForm()));
+            loginLogoImage.setVisible(true);
+            loginLogoImage.setManaged(true);
+            if (fallbackLogoMark != null) {
+                fallbackLogoMark.setVisible(false);
+                fallbackLogoMark.setManaged(false);
+            }
+        } catch (Exception e) {
+            showFallbackLogo();
+        }
+    }
+
+    private void showFallbackLogo() {
+        if (loginLogoImage != null) {
+            loginLogoImage.setVisible(false);
+            loginLogoImage.setManaged(false);
+        }
+        if (fallbackLogoMark != null) {
+            fallbackLogoMark.setVisible(true);
+            fallbackLogoMark.setManaged(true);
         }
     }
 }

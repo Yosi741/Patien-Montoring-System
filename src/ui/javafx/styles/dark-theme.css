@@ -679,35 +679,43 @@
     -fx-background-color: linear-gradient(to bottom right, #0f3455, #111827);
     -fx-background-radius: 26 0 0 26;
     -fx-border-color: transparent #25364d transparent transparent;
-    -fx-padding: 54 42;
+    -fx-padding: 62 44 52 44;
+}
+
+.login-brand-box {
+    -fx-padding: 8 0 0 0;
+}
+
+.login-logo-zone {
+    -fx-alignment: center;
 }
 
 .login-logo-mark {
-    -fx-min-width: 132;
-    -fx-min-height: 132;
-    -fx-max-width: 132;
-    -fx-max-height: 132;
+    -fx-min-width: 104;
+    -fx-min-height: 104;
+    -fx-max-width: 104;
+    -fx-max-height: 104;
     -fx-background-color: linear-gradient(to bottom right, #2563eb, #0f3455);
-    -fx-background-radius: 26;
+    -fx-background-radius: 24;
     -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.22), 18, 0.18, 0, 8);
 }
 
 .login-logo-cross {
     -fx-text-fill: white;
-    -fx-font-size: 78px;
+    -fx-font-size: 60px;
     -fx-font-weight: 900;
 }
 
 .login-logo-pulse {
     -fx-stroke: white;
-    -fx-stroke-width: 6;
+    -fx-stroke-width: 5;
     -fx-stroke-line-cap: round;
     -fx-fill: transparent;
 }
 
 .login-brand-title {
     -fx-text-fill: #dbeafe;
-    -fx-font-size: 58px;
+    -fx-font-size: 48px;
     -fx-font-weight: 900;
     -fx-letter-spacing: 1px;
 }
@@ -720,7 +728,7 @@
 
 .login-brand-message {
     -fx-text-fill: #dbeafe;
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-line-spacing: 4;
 }
 
@@ -886,10 +894,13 @@
 .shell-brand-logo {
     -fx-min-width: 52;
     -fx-min-height: 52;
+    -fx-pref-width: 52;
+    -fx-pref-height: 52;
     -fx-max-width: 52;
     -fx-max-height: 52;
-    -fx-background-color: rgba(255, 255, 255, 0.12);
-    -fx-background-radius: 16;
+    -fx-background-color: rgba(37, 99, 235, 0.20);
+    -fx-background-radius: 14;
+    -fx-alignment: center;
 }
 
 .shell-brand-logo-text {
@@ -1303,6 +1314,64 @@
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 10;
     -fx-text-fill: #f8fafc;
+}
+
+.clinical-table {
+    -fx-background-color: #111827;
+    -fx-border-color: #25364d;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-font-size: 13px;
+    -fx-table-cell-border-color: #25364d;
+}
+
+.clinical-table .column-header-background {
+    -fx-background-color: #0f3455;
+    -fx-background-radius: 14 14 0 0;
+}
+
+.clinical-table .column-header,
+.clinical-table .filler {
+    -fx-background-color: #0f3455;
+}
+
+.clinical-table .column-header .label {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+}
+
+.clinical-table .table-row-cell {
+    -fx-cell-size: 42px;
+    -fx-background-color: #111827;
+    -fx-border-color: transparent transparent #25364d transparent;
+}
+
+.clinical-table .table-row-cell:odd {
+    -fx-background-color: #142136;
+}
+
+.clinical-table .table-row-cell:hover {
+    -fx-background-color: #0f3455;
+}
+
+.clinical-table .table-row-cell:selected {
+    -fx-background-color: #1e3a8a;
+}
+
+.clinical-table .table-cell {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10;
+    -fx-text-fill: #f8fafc;
+}
+
+.clinical-table .table-row-cell:selected .table-cell,
+.clinical-table .table-row-cell:selected .text {
+    -fx-text-fill: #f8fafc;
+}
+
+.clinical-table .placeholder .label {
+    -fx-text-fill: #b6c2d1;
 }
 
 .patient-status-active,
@@ -2835,6 +2904,32 @@
     -fx-border-color: #38BDF8;
     -fx-text-fill: #F8FAFC;
     -fx-opacity: 1.0;
+}
+
+.dialog-root {
+    -fx-background-color: #111C2E;
+    -fx-border-color: #26384F;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-padding: 18;
+}
+
+.dialog-header-card {
+    -fx-background-color: #111C2E;
+    -fx-border-color: #26384F;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 16 18;
+}
+
+.dialog-title,
+.page-title {
+    -fx-text-fill: #F8FAFC;
+}
+
+.dialog-subtitle,
+.page-subtitle {
+    -fx-text-fill: #B6C2D1;
 }
 
 /* Sections / Rooms presentation layout */

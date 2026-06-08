@@ -28,7 +28,7 @@
                                 <Label text="Patient File" styleClass="patient-file-title" />
                                 <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label text="Patient No." styleClass="patient-file-meta-label" />
+                                    <Label text="Patient ID" styleClass="patient-file-meta-label" />
                                     <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
                                     <Label text="Section" styleClass="patient-file-meta-label" />
                                     <Label fx:id="sectionLabel" text="-" styleClass="patient-file-meta-value" />
@@ -74,7 +74,7 @@
                             </VBox>
                             <VBox spacing="5.0" GridPane.columnIndex="5" GridPane.rowIndex="0" styleClass="patient-file-stat">
                                 <Label text="Blood Type" styleClass="patient-file-stat-label" />
-                                <Label text="Not recorded" styleClass="patient-file-empty-inline" />
+                                <Label fx:id="bloodTypeLabel" text="Unknown" styleClass="patient-file-stat-value" />
                             </VBox>
                         </GridPane>
                     </VBox>
@@ -90,6 +90,7 @@
                             <Label text="Clinical Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
                             <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="clinicalAddMedicationButton" text="Add Medication" onAction="#addPatientMedication" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -249,7 +250,7 @@
                             <Button text="Refresh" onAction="#loadVitals" styleClass="patient-file-secondary-button" />
                         </HBox>
 
-                        <TableView fx:id="vitalsTable" prefHeight="360.0" VBox.vgrow="ALWAYS" styleClass="patient-file-table">
+                        <TableView fx:id="vitalsTable" prefHeight="360.0" VBox.vgrow="ALWAYS" styleClass="patient-file-table clinical-table">
                             <columns>
                                 <TableColumn fx:id="typeColumn" text="Type" prefWidth="150.0" />
                                 <TableColumn fx:id="valueColumn" text="Value" prefWidth="110.0" />

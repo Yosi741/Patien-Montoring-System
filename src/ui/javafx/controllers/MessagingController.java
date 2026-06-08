@@ -2,6 +2,8 @@ package ui.javafx.controllers;
 
 import dao.SqliteMessageDao;
 import dao.SqliteUserDao;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,30 +20,42 @@ import javafx.scene.layout.VBox;
 import services.MessagingService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
+import ui.javafx.helpers.AuditAction;
+import ui.javafx.helpers.AuditWriteHelper;
+import ui.javafx.helpers.FxFileOpenHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 import users.User;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessagingController implements FxController {
 
+    private static final Path DEATH_CERTIFICATE_DIR = Path.of("data", "generated", "death-certificates").toAbsolutePath().normalize();
+    private static final Path BIRTH_CERTIFICATE_DIR = Path.of("data", "generated", "birth-certificates").toAbsolutePath().normalize();
+
     private final MessagingService messagingService = new MessagingService();
     private final SqliteUserDao userDao = new SqliteUserDao();
     private final ObservableList<SqliteMessageDao.MessageRow> inboxRows = FXCollections.observableArrayList();
     private final ObservableList<SqliteMessageDao.MessageRow> sentRows = FXCollections.observableArrayList();
+    private final ObservableList<SqliteMessageDao.MessageRow> requestRows = FXCollections.observableArrayList();
     private AppShell appShell;
 
     @FXML private VBox accessDeniedPane;
     @FXML private VBox contentPane;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> statusFilter;
+    @FXML private ComboBox<String> requestFilter;
     @FXML private TableView<SqliteMessageDao.MessageRow> inboxTable;
     @FXML private TableView<SqliteMessageDao.MessageRow> sentTable;
+    @FXML private TableView<SqliteMessageDao.MessageRow> requestTable;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, Number> inboxRowNumberColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, Long> inboxIdColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> inboxSenderColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> inboxSubjectColumn;
@@ -49,12 +63,23 @@ public class MessagingController implements FxController {
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> inboxStatusColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> inboxPatientColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> inboxCreatedColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, Number> sentRowNumberColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, Long> sentIdColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentTargetColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentSubjectColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentPriorityColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentStatusColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentPatientColumn;
     @FXML private TableColumn<SqliteMessageDao.MessageRow, String> sentCreatedColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, Number> requestRowNumberColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestTypeColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestFromColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestToColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestPatientColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestSubjectColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestPriorityColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestStatusColumn;
+    @FXML private TableColumn<SqliteMessageDao.MessageRow, String> requestCreatedColumn;
     @FXML private ComboBox<String> targetTypeBox;
     @FXML private ComboBox<SqliteUserDao.UserTarget> targetUserBox;
     @FXML private ComboBox<String> targetRoleBox;
@@ -87,16 +112,26 @@ public class MessagingController implements FxController {
         }
         try {
             User user = Session.getCurrentUser();
-            SelectionHelper.safeClearSelection(inboxTable);
-            SelectionHelper.safeClearSelection(sentTable);
+            Long selectedInboxId = selectedId(inboxTable);
+            Long selectedSentId = selectedId(sentTable);
+            Long selectedRequestId = selectedId(requestTable);
+            SelectionHelper.safeClearTableSelection(inboxTable);
+            SelectionHelper.safeClearTableSelection(sentTable);
+            SelectionHelper.safeClearTableSelection(requestTable);
             inboxRows.setAll(messagingService.inbox(user, searchField.getText(), statusFilter.getValue()));
             sentRows.setAll(messagingService.sent(user, searchField.getText(), statusFilter.getValue()));
+            requestRows.setAll(messagingService.requests(user, searchField.getText(), requestFilter.getValue()));
             inboxTable.setItems(inboxRows);
             sentTable.setItems(sentRows);
-            if (inboxRows.isEmpty() && sentRows.isEmpty()) {
+            requestTable.setItems(requestRows);
+            boolean restored = SelectionHelper.safeRestoreSelectionById(inboxTable, selectedInboxId, SqliteMessageDao.MessageRow::getId)
+                    || SelectionHelper.safeRestoreSelectionById(sentTable, selectedSentId, SqliteMessageDao.MessageRow::getId)
+                    || SelectionHelper.safeRestoreSelectionById(requestTable, selectedRequestId, SqliteMessageDao.MessageRow::getId);
+            if (!restored && inboxRows.isEmpty() && sentRows.isEmpty() && requestRows.isEmpty()) {
                 clearDetail();
             }
-            NotificationHelper.showInfo(statusLabel, "Messages loaded. Inbox: " + inboxRows.size() + " | Sent: " + sentRows.size());
+            NotificationHelper.showInfo(statusLabel, "Messages loaded. Inbox: " + inboxRows.size()
+                    + " | Sent: " + sentRows.size() + " | Requests: " + requestRows.size());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load messages: " + e.getMessage());
         }
@@ -176,7 +211,15 @@ public class MessagingController implements FxController {
             NotificationHelper.showInfo(statusLabel, "This message does not include certificate metadata.");
             return;
         }
-        appShell.showCertificateFromMessage(metadata.sourceType, metadata.sourceId);
+        try {
+            Path certificate = validateCertificatePath(metadata);
+            FxFileOpenHelper.open(certificate);
+            AuditWriteHelper.write(Session.getUsername(), AuditAction.OPEN_CERTIFICATE_FROM_MESSAGE,
+                    "source=" + metadata.sourceType + ":" + metadata.sourceId + ", path=" + certificate);
+            NotificationHelper.showSuccess(statusLabel, "Opening certificate with the local desktop handler.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, certificateError(e));
+        }
     }
 
     @FXML
@@ -194,12 +237,19 @@ public class MessagingController implements FxController {
 
     private void configureFilters() {
         statusFilter.setItems(FXCollections.observableArrayList("All", "SENT", "READ", "ARCHIVED"));
+        requestFilter.setItems(FXCollections.observableArrayList("All Requests", "Pending", "Read", "Archived", "High Priority"));
         statusFilter.getSelectionModel().select("All");
+        requestFilter.getSelectionModel().select("All Requests");
         searchField.textProperty().addListener((obs, old, value) -> loadMessages());
         statusFilter.valueProperty().addListener((obs, old, value) -> loadMessages());
+        requestFilter.valueProperty().addListener((obs, old, value) -> loadMessages());
     }
 
     private void configureTables() {
+        if (inboxRowNumberColumn != null) {
+            inboxRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    inboxTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         inboxIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         inboxSenderColumn.setCellValueFactory(new PropertyValueFactory<>("senderUsername"));
         inboxSubjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
@@ -212,9 +262,45 @@ public class MessagingController implements FxController {
         sentSubjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
         sentPriorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
         sentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        sentPatientColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
+        if (sentRowNumberColumn != null) {
+            sentRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    sentTable.getItems().indexOf(cell.getValue()) + 1));
+        }
         sentCreatedColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-        inboxTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> showDetail(row));
-        sentTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> showDetail(row));
+        if (requestRowNumberColumn != null) {
+            requestRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                    requestTable.getItems().indexOf(cell.getValue()) + 1));
+        }
+        requestTypeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(messagingService.requestType(cell.getValue())));
+        requestFromColumn.setCellValueFactory(new PropertyValueFactory<>("senderUsername"));
+        requestToColumn.setCellValueFactory(new PropertyValueFactory<>("targetSummary"));
+        requestPatientColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
+        requestSubjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
+        requestPriorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
+        requestStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        requestCreatedColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        inboxTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> {
+            if (row != null) {
+                SelectionHelper.safeClearTableSelection(sentTable);
+                SelectionHelper.safeClearTableSelection(requestTable);
+                showDetail(row);
+            }
+        });
+        sentTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> {
+            if (row != null) {
+                SelectionHelper.safeClearTableSelection(inboxTable);
+                SelectionHelper.safeClearTableSelection(requestTable);
+                showDetail(row);
+            }
+        });
+        requestTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> {
+            if (row != null) {
+                SelectionHelper.safeClearTableSelection(inboxTable);
+                SelectionHelper.safeClearTableSelection(sentTable);
+                showDetail(row);
+            }
+        });
     }
 
     private void configureCompose() {
@@ -235,7 +321,8 @@ public class MessagingController implements FxController {
 
     private void reloadUsers() {
         try {
-            targetUserBox.setItems(FXCollections.observableArrayList(userDao.findMessageTargets()));
+            targetUserBox.setItems(FXCollections.observableArrayList(
+                    userDao.findMessageTargetsExcept(Session.getUsername())));
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load user targets: " + e.getMessage());
         }
@@ -258,6 +345,9 @@ public class MessagingController implements FxController {
         if (selected == null || selected.getUsername().isBlank()) {
             throw new IllegalArgumentException("Select an exact user account recipient before sending.");
         }
+        if (selected.getUsername().equalsIgnoreCase(Session.getUsername())) {
+            throw new IllegalArgumentException("You cannot send a message to yourself.");
+        }
         return new SqliteMessageDao.MessageWriteRecord(
                 Session.getUsername(),
                 selected.getUsername(),
@@ -272,7 +362,11 @@ public class MessagingController implements FxController {
 
     private SqliteMessageDao.MessageRow selectedMessage() {
         SqliteMessageDao.MessageRow row = inboxTable.getSelectionModel().getSelectedItem();
-        return row == null ? sentTable.getSelectionModel().getSelectedItem() : row;
+        if (row != null) {
+            return row;
+        }
+        row = sentTable.getSelectionModel().getSelectedItem();
+        return row == null ? requestTable.getSelectionModel().getSelectedItem() : row;
     }
 
     private void showDetail(SqliteMessageDao.MessageRow row) {
@@ -281,7 +375,8 @@ public class MessagingController implements FxController {
         }
         detailTitleLabel.setText(row.getSubject());
         detailMetaLabel.setText("From " + row.getSenderUsername() + " | " + row.getTargetSummary()
-                + " | " + row.getPriority() + " | " + row.getStatus() + " | " + row.getCreatedAt());
+                + " | " + messageCategory(row) + " | " + row.getPriority()
+                + " | " + row.getStatus() + " | " + row.getCreatedAt());
         detailBodyArea.setText(row.getBody());
         CertificateMetadata metadata = metadataFrom(row);
         if (metadata == null) {
@@ -353,6 +448,38 @@ public class MessagingController implements FxController {
 
     private String emptyTo(String value, String fallback) {
         return value == null || value.isBlank() || "-".equals(value) ? fallback : value;
+    }
+
+    private String messageCategory(SqliteMessageDao.MessageRow row) {
+        return messagingService.isRequestMessage(row) ? messagingService.requestType(row) : "MESSAGE";
+    }
+
+    private Long selectedId(TableView<SqliteMessageDao.MessageRow> table) {
+        SqliteMessageDao.MessageRow row = table == null ? null : table.getSelectionModel().getSelectedItem();
+        return row == null ? null : row.getId();
+    }
+
+    private Path validateCertificatePath(CertificateMetadata metadata) {
+        String rawPath = metadata == null ? "" : metadata.certificatePath;
+        if (rawPath == null || rawPath.isBlank() || "-".equals(rawPath.trim())) {
+            throw new IllegalArgumentException("Certificate file was not found.");
+        }
+        Path path = Path.of(rawPath.trim()).toAbsolutePath().normalize();
+        if (!path.startsWith(DEATH_CERTIFICATE_DIR) && !path.startsWith(BIRTH_CERTIFICATE_DIR)) {
+            throw new SecurityException("Certificate path is outside the generated certificate folders.");
+        }
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("Certificate file was not found.");
+        }
+        return path;
+    }
+
+    private String certificateError(Exception e) {
+        String message = e == null ? "" : e.getMessage();
+        if (message == null || message.isBlank() || message.toLowerCase().contains("does not exist")) {
+            return "Certificate file was not found.";
+        }
+        return message;
     }
 
     private static class CertificateMetadata {

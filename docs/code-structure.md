@@ -28,11 +28,15 @@ SQLite data access classes. These classes query and update database tables and m
 
 Examples include patient, alert, medication, reminder, notification, medical file, certificate, audit log, and room DAOs.
 
+Section and room data is stored in SQLite. Sections represent hospital departments. Rooms belong to sections, include capacity and status, and patient room assignments are kept on patient records.
+
 ### `services/`
 
 Business logic and workflow services.
 
 Services validate input, enforce permissions, coordinate multiple DAOs, run rule-based decision-support checks, and write audit events.
+
+Room and section workflows follow the same service pattern: controllers collect form input, services validate capacity/status/permissions, and DAOs persist changes in SQLite.
 
 ### `ui/javafx/controllers/`
 

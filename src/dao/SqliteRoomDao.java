@@ -31,6 +31,21 @@ public class SqliteRoomDao {
         }
     }
 
+    public long insertGeneratedRoom(RoomRecord room, int floorNumber, int roomSequence) throws SQLException {
+        String sql = "INSERT INTO rooms(section, room_number, capacity, status, notes, floor_number, room_sequence, updated_at) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            bindRoom(statement, room);
+            statement.setInt(6, floorNumber);
+            statement.setInt(7, roomSequence);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                return keys.next() ? keys.getLong(1) : 0;
+            }
+        }
+    }
+
     public void updateRoom(long id, RoomRecord room) throws SQLException {
         String sql = "UPDATE rooms SET section = ?, room_number = ?, capacity = ?, status = ?, notes = ?, "
                 + "updated_at = CURRENT_TIMESTAMP WHERE id = ?";
@@ -63,6 +78,31 @@ public class SqliteRoomDao {
             }
         }
         return Optional.empty();
+    }
+
+    public List<RoomDetail> findBySection(String section) throws SQLException {
+        ArrayList<RoomDetail> rooms = new ArrayList<>();
+        String sql = selectRoomSql() + " WHERE UPPER(r.section) = ? ORDER BY r.room_number COLLATE NOCASE";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(section).toUpperCase());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    rooms.add(mapRoom(resultSet));
+                }
+            }
+        }
+        return rooms;
+    }
+
+    public void updateRoomStatus(long id, String status) throws SQLException {
+        String sql = "UPDATE rooms SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, value(status).isBlank() ? "INACTIVE" : value(status).toUpperCase());
+            statement.setLong(2, id);
+            statement.executeUpdate();
+        }
     }
 
     public List<RoomDetail> findAssignableRooms() throws SQLException {
@@ -129,6 +169,24 @@ public class SqliteRoomDao {
                 return resultSet.next() ? resultSet.getInt(1) : 0;
             }
         }
+    }
+
+    public List<RoomNumberMetadata> findRoomNumberMetadata() throws SQLException {
+        ArrayList<RoomNumberMetadata> rows = new ArrayList<>();
+        String sql = "SELECT section, room_number, floor_number, room_sequence FROM rooms";
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            while (resultSet.next()) {
+                rows.add(new RoomNumberMetadata(
+                        resultSet.getString("section"),
+                        resultSet.getString("room_number"),
+                        resultSet.getObject("floor_number") == null ? null : resultSet.getInt("floor_number"),
+                        resultSet.getObject("room_sequence") == null ? null : resultSet.getInt("room_sequence")
+                ));
+            }
+        }
+        return rows;
     }
 
     private String selectRoomSql() {
@@ -237,5 +295,24 @@ public class SqliteRoomDao {
         public String getDisplayName() {
             return section + " / Room " + roomNumber + " (" + availableCount + " available)";
         }
+    }
+
+    public static class RoomNumberMetadata {
+        private final String section;
+        private final String roomNumber;
+        private final Integer floorNumber;
+        private final Integer roomSequence;
+
+        public RoomNumberMetadata(String section, String roomNumber, Integer floorNumber, Integer roomSequence) {
+            this.section = section == null ? "" : section;
+            this.roomNumber = roomNumber == null ? "" : roomNumber;
+            this.floorNumber = floorNumber;
+            this.roomSequence = roomSequence;
+        }
+
+        public String getSection() { return section; }
+        public String getRoomNumber() { return roomNumber; }
+        public Integer getFloorNumber() { return floorNumber; }
+        public Integer getRoomSequence() { return roomSequence; }
     }
 }

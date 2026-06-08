@@ -1,26 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane
-        prefWidth="1150.0"
-        prefHeight="720.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.UserDirectoryController" styleClass="content-page">
-
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Staff/User Directory" styleClass="screen-title" />
-                <Label text="Read-only local database staff directory for Admin users" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
+<BorderPane prefHeight="720.0" prefWidth="1150.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.UserDirectoryController">
 
     <center>
         <VBox spacing="18.0">
@@ -28,10 +12,17 @@
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
 
-            <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
-                <Label text="Access denied" styleClass="warning-value" />
-                <Label text="The Staff/User Directory is visible only for Admin users for authorized hospital roles."
-                       wrapText="true" styleClass="body-text" />
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label styleClass="screen-title" text="Staff/User Directory" />
+                    <Label styleClass="muted-text" text="Read-only local database staff directory for Admin users" wrapText="true" />
+                </VBox>
+                <Button onAction="#showDashboard" styleClass="secondary-button" text="Back to Dashboard" />
+            </HBox>
+
+            <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
+                <Label styleClass="warning-value" text="Access denied" />
+                <Label styleClass="body-text" text="The Staff/User Directory is visible only for Admin users for authorized hospital roles." wrapText="true" />
             </VBox>
 
             <VBox fx:id="directoryContentPane" spacing="16.0">
@@ -39,40 +30,41 @@
                 <VBox spacing="12.0" styleClass="panel-card">
 
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <Label text="Search" styleClass="field-label" />
-                        <TextField fx:id="searchField" promptText="Username" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                        <Label styleClass="field-label" text="Search" />
+                        <TextField fx:id="searchField" promptText="Username" styleClass="control-input" HBox.hgrow="ALWAYS" />
 
-                        <Label text="Role" styleClass="field-label" />
+                        <Label styleClass="field-label" text="Role" />
                         <ComboBox fx:id="roleFilter" prefWidth="130.0" styleClass="control-input" />
 
-                        <Label text="Section" styleClass="field-label" />
+                        <Label styleClass="field-label" text="Section" />
                         <ComboBox fx:id="sectionFilter" prefWidth="150.0" styleClass="control-input" />
 
-                        <Label text="Status" styleClass="field-label" />
+                        <Label styleClass="field-label" text="Status" />
                         <ComboBox fx:id="activeFilter" prefWidth="130.0" styleClass="control-input" />
                     </HBox>
 
                     <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                        <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                        <Button onAction="#clearFilters" styleClass="secondary-button" text="Clear Filters" />
 
-                        <Button text="Refresh" onAction="#loadUsers" styleClass="secondary-button" />
+                        <Button onAction="#loadUsers" styleClass="secondary-button" text="Refresh" />
                     </HBox>
                 </VBox>
 
-                <SplitPane dividerPositions="0.66" VBox.vgrow="ALWAYS" styleClass="transparent-pane">
+                <SplitPane dividerPositions="0.66" styleClass="transparent-pane" VBox.vgrow="ALWAYS">
 
                     <VBox spacing="10.0" styleClass="panel-card">
 
-                        <Label text="Staff Users" styleClass="section-title" />
+                        <Label styleClass="section-title" text="Staff Users" />
 
-                        <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="dialog-card">
+                        <TableView fx:id="userTable" styleClass="dialog-card" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="idColumn" text="ID" prefWidth="75.0" visible="false" />
-                                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
-                                <TableColumn fx:id="roleColumn" text="Role" prefWidth="190.0" />
-                                <TableColumn fx:id="sectionColumn" text="Section / Department" prefWidth="180.0" />
-                                <TableColumn fx:id="activeColumn" text="Active" prefWidth="100.0" />
-                                <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="185.0" />
+                        <TableColumn fx:id="rowNumberColumn" prefWidth="50.0" resizable="false" text="#" />
+                                <TableColumn fx:id="idColumn" prefWidth="75.0" text="ID" visible="false" />
+                                <TableColumn fx:id="usernameColumn" prefWidth="180.0" text="Username" />
+                                <TableColumn fx:id="roleColumn" prefWidth="190.0" text="Role" />
+                                <TableColumn fx:id="sectionColumn" prefWidth="180.0" text="Section / Department" />
+                                <TableColumn fx:id="activeColumn" prefWidth="100.0" text="Active" />
+                                <TableColumn fx:id="createdAtColumn" prefWidth="185.0" text="Created At" />
                             </columns>
                         </TableView>
                     </VBox>
@@ -81,32 +73,44 @@
                         <content>
                             <VBox spacing="16.0" styleClass="panel-card">
 
-                                <Label fx:id="detailTitleLabel" text="Select a staff user" wrapText="true" styleClass="detail-value" />
+                                <Label fx:id="detailTitleLabel" styleClass="detail-value" text="Select a staff user" wrapText="true" />
 
-                                <Label fx:id="detailRoleBadgeLabel" text="UNKNOWN" styleClass="status-info metric-value compact-metric-value" />
+                                <Label fx:id="detailRoleBadgeLabel" styleClass="status-info metric-value compact-metric-value" text="UNKNOWN" />
 
                                 <GridPane hgap="12.0" vgap="12.0">
-                                    <Label text="Username" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="metric-label" />
-                                    <Label fx:id="detailUsernameLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="compact-detail-value" />
+                                    <Label styleClass="metric-label" text="Username" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label fx:id="detailUsernameLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="Role" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="metric-label" />
-                                    <Label fx:id="detailRoleLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="compact-detail-value" />
+                                    <Label styleClass="metric-label" text="Role" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label fx:id="detailRoleLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                    <Label text="Section" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="metric-label" />
-                                    <Label fx:id="detailSectionLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="compact-detail-value" />
+                                    <Label styleClass="metric-label" text="Section" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <Label fx:id="detailSectionLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <Label text="Status" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="metric-label" />
-                                    <Label fx:id="detailStatusLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="success-value" />
+                                    <Label styleClass="metric-label" text="Status" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <Label fx:id="detailStatusLabel" styleClass="success-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                                    <Label text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="metric-label" />
-                                    <Label fx:id="detailAuthSourceLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="compact-detail-value" />
+                                    <Label styleClass="metric-label" text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    <Label fx:id="detailAuthSourceLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                                    <Label text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="metric-label" />
-                                    <Label fx:id="detailCreatedAtLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="compact-detail-value" />
+                                    <Label styleClass="metric-label" text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                    <Label fx:id="detailCreatedAtLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                           <columnConstraints>
+                              <ColumnConstraints />
+                              <ColumnConstraints />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                           </rowConstraints>
                                 </GridPane>
 
                                 <VBox spacing="10.0" styleClass="control-input">
-                                    <Label text="Permission Preview" styleClass="section-title" />
+                                    <Label styleClass="section-title" text="Permission Preview" />
                                     <VBox fx:id="permissionListBox" spacing="8.0" />
                                 </VBox>
                             </VBox>
@@ -114,7 +118,7 @@
                     </ScrollPane>
                 </SplitPane>
 
-                <Label fx:id="statusLabel" text="Users loaded: 0" styleClass="status-info metric-value compact-metric-value" />
+                <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="Users loaded: 0" />
             </VBox>
         </VBox>
     </center>

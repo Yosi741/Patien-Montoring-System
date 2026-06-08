@@ -32,6 +32,7 @@ public class UserProfileService {
         String username = username(user);
         validateProfile(email, phone);
         profileDao.upsert(username, email, phone);
+        userDao.updateEmail(username, email);
         AuditWriteHelper.write(username, "UPDATE_PROFILE", "Updated safe profile fields for " + username);
     }
 

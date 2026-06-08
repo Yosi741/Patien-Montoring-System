@@ -98,10 +98,54 @@ public class NewbornFormController {
         deliveryTypeBox.getItems().setAll("NATURAL", "C_SECTION", "ASSISTED", "UNKNOWN");
         deliveryTypeBox.getSelectionModel().select("UNKNOWN");
         birthTimeField.setText(LocalDateTime.now().format(SQLITE_DATE_TIME));
+        configureInputFilters();
         loadSections();
         sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> loadRoomsForSection(newValue));
         loadRoomsForSection(sectionBox.getValue());
         NotificationHelper.showInfo(statusLabel, "Newborn record workflow. System data is stored in the local database.");
+    }
+
+    private void configureInputFilters() {
+        installNineDigitFilter(newbornIdField);
+        installNineDigitFilter(motherPatientIdField);
+        installNameFilter(babyNameField);
+        installNameFilter(motherNameField);
+        installNameFilter(fatherNameField);
+    }
+
+    private void installNineDigitFilter(TextField field) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = newValue == null ? "" : newValue.replaceAll("\\D", "");
+            if (clean.length() > 9) {
+                clean = clean.substring(0, 9);
+            }
+            if (!clean.equals(newValue)) {
+                field.setText(clean);
+            }
+        });
+    }
+
+    private void installNameFilter(TextField field) {
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            String clean = cleanName(newValue);
+            if (!clean.equals(newValue)) {
+                field.setText(clean);
+            }
+        });
+    }
+
+    private String cleanName(String value) {
+        if (value == null) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            if (Character.isLetter(ch) || ch == ' ' || ch == '-' || ch == '\'' || ch == '\u2019') {
+                builder.append(ch);
+            }
+        }
+        return builder.toString();
     }
 
     private void prepare(User currentUser, String motherPatientId, SqliteNewbornRecordDao.NewbornRecord record) {

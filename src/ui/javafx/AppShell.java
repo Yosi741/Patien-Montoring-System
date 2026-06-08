@@ -29,21 +29,14 @@ import ui.javafx.helpers.PermissionHelper;
 import users.Session;
 import users.User;
 
-import java.util.prefs.Preferences;
-
 public class AppShell extends Application {
 
     public static final String PRESENTATION_THEME = "/ui/javafx/styles/dark-theme.css";
-    private static final String LIGHT_THEME = "/ui/javafx/styles/light-theme.css";
-    private static final String DARK_THEME = PRESENTATION_THEME;
-    private static final String THEME_PREF_KEY = "darkMode";
-    private static final Preferences PREFS = Preferences.userNodeForPackage(AppShell.class);
 
     private Stage primaryStage;
     private AppNavigator navigator;
     private AppLayoutController layoutController;
     private FxController currentContentController;
-    private boolean darkMode;
     private String databaseStatus = "Local database not initialized";
 
     public static void launchApp(String[] args) {
@@ -54,8 +47,6 @@ public class AppShell extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         this.navigator = new AppNavigator(this);
-        this.darkMode = true;
-        PREFS.putBoolean(THEME_PREF_KEY, true);
         FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
@@ -66,6 +57,7 @@ public class AppShell extends Application {
 
     public void showLogin() {
         setView("/ui/javafx/views/LoginView.fxml", "Smart Patient Monitoring System - Login");
+        configureLoginWindow();
     }
 
     public void showDashboard(User user) {
@@ -78,6 +70,7 @@ public class AppShell extends Application {
             SessionContext.start(user, authSource);
         }
         setShellContent("/ui/javafx/views/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
+        primaryStage.setMaximized(true);
     }
 
     public void showPatientList() {
@@ -289,16 +282,6 @@ public class AppShell extends Application {
         showLogin();
     }
 
-    public void toggleTheme() {
-        darkMode = true;
-        PREFS.putBoolean(THEME_PREF_KEY, true);
-        applyTheme(primaryStage.getScene());
-    }
-
-    public boolean isDarkMode() {
-        return darkMode;
-    }
-
     public String getDatabaseStatus() {
         return databaseStatus;
     }
@@ -330,6 +313,15 @@ public class AppShell extends Application {
         primaryStage.setMinWidth(980);
         primaryStage.setMinHeight(640);
         primaryStage.setScene(scene);
+    }
+
+    private void configureLoginWindow() {
+        primaryStage.setMaximized(false);
+        primaryStage.setMinWidth(1100);
+        primaryStage.setMinHeight(720);
+        primaryStage.setWidth(1180);
+        primaryStage.setHeight(760);
+        primaryStage.centerOnScreen();
     }
 
     private void setShellContent(String fxmlPath, String title) {

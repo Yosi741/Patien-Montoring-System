@@ -8,13 +8,13 @@
         prefWidth="680.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.VitalsEntryController" styleClass="panel-card">
+        fx:controller="ui.javafx.controllers.VitalsEntryController" styleClass="panel-card dialog-root">
 
-    <VBox spacing="4.0">
-        <Label text="Enter Vitals" styleClass="screen-title" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label text="Enter Vitals" styleClass="screen-title dialog-title" />
 
         <Label text="Manual JavaFX vitals entry writes to SQLite. Abnormal readings create alerts, notifications, and a local JavaFX alarm sound."
-               wrapText="true" styleClass="muted-text" />
+               wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -24,7 +24,7 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient No." styleClass="field-label" />
+            <Label text="Patient ID" styleClass="field-label" />
             <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
         </VBox>
 

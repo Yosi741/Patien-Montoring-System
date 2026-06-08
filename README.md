@@ -141,4 +141,4 @@ Use [docs/presentation-demo-guide.md](docs/presentation-demo-guide.md) for the r
 
 ## Smoke Testing
 
-Use [docs/javafx-only-smoke-test.md](docs/javafx-only-smoke-test.md) for the current JavaFX-only verification checklist.
+Use [docs/javafx-only-smoke-test.md](explanation%20files/javafx-only-smoke-test.md) for the current JavaFX-only verification checklist.

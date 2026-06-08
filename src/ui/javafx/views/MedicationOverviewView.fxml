@@ -11,17 +11,6 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="ui.javafx.controllers.MedicationOverviewController" styleClass="content-page">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
-            <VBox spacing="4.0">
-                <Label text="Medication Administration Overview" styleClass="screen-title" />
-                <Label text="Medication overview with controlled administration write workflow" styleClass="muted-text" />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
-        </HBox>
-    </top>
-
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
@@ -29,6 +18,14 @@
                     <padding>
                         <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label text="Medication Administration Overview" styleClass="screen-title" />
+                            <Label text="Medication overview with controlled administration write workflow" styleClass="muted-text" wrapText="true" />
+                        </VBox>
+                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                    </HBox>
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
@@ -77,7 +74,7 @@
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient No., patient name, or medication" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField" promptText="Patient ID, patient name, or medication" HBox.hgrow="ALWAYS" styleClass="control-input" />
                                 <Label text="Active" styleClass="field-label" />
                                 <ComboBox fx:id="activeFilter" prefWidth="125.0" styleClass="control-input" />
                                 <Label text="Route" styleClass="field-label" />
@@ -100,9 +97,10 @@
 
                         <VBox spacing="10.0" styleClass="panel-card">
                             <Label text="Active Medication Orders" styleClass="section-title" />
-                            <TableView fx:id="medicationTable" prefHeight="300.0" styleClass="dialog-card">
+                            <TableView fx:id="medicationTable" prefHeight="300.0" styleClass="dialog-card clinical-table">
                                 <columns>
-                                    <TableColumn fx:id="medPatientIdColumn" text="Patient No." prefWidth="120.0" />
+                                    <TableColumn fx:id="medRowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
+                                    <TableColumn fx:id="medPatientIdColumn" text="Patient ID" prefWidth="120.0" />
                                     <TableColumn fx:id="medPatientNameColumn" text="Patient Name" prefWidth="190.0" />
                                     <TableColumn fx:id="medNameColumn" text="Medication Name" prefWidth="220.0" />
                                     <TableColumn fx:id="doseColumn" text="Dose" prefWidth="120.0" />
@@ -115,9 +113,10 @@
 
                         <VBox spacing="10.0" styleClass="panel-card">
                             <Label text="Medication Administration Events" styleClass="section-title" />
-                            <TableView fx:id="eventTable" prefHeight="320.0" styleClass="dialog-card">
+                            <TableView fx:id="eventTable" prefHeight="320.0" styleClass="dialog-card clinical-table">
                                 <columns>
-                                    <TableColumn fx:id="eventPatientIdColumn" text="Patient No." prefWidth="120.0" />
+                                    <TableColumn fx:id="eventRowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
+                                    <TableColumn fx:id="eventPatientIdColumn" text="Patient ID" prefWidth="120.0" />
                                     <TableColumn fx:id="eventMedicationColumn" text="Medication Name" prefWidth="230.0" />
                                     <TableColumn fx:id="givenByColumn" text="Given By" prefWidth="160.0" />
                                     <TableColumn fx:id="givenAtColumn" text="Given At" prefWidth="180.0" />

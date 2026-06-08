@@ -98,6 +98,7 @@ public class SchemaInitializer {
                 + "room TEXT,"
                 + "status TEXT NOT NULL DEFAULT 'Active',"
                 + "priority TEXT NOT NULL DEFAULT 'NORMAL',"
+                + "blood_type TEXT NOT NULL DEFAULT 'Unknown',"
                 + "diagnosis TEXT,"
                 + "assigned_doctor_username TEXT,"
                 + "assigned_staff_username TEXT,"
@@ -109,6 +110,8 @@ public class SchemaInitializer {
     private static void migratePatients(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "patients", "assigned_doctor_username", "TEXT");
         addColumnIfMissing(statement, "patients", "assigned_staff_username", "TEXT");
+        addColumnIfMissing(statement, "patients", "blood_type", "TEXT NOT NULL DEFAULT 'Unknown'");
+        statement.execute("UPDATE patients SET blood_type = 'Unknown' WHERE blood_type IS NULL OR TRIM(blood_type) = ''");
     }
 
     private static void createVitalReadings(Statement statement) throws SQLException {
@@ -377,6 +380,8 @@ public class SchemaInitializer {
                 + "section TEXT NOT NULL,"
                 + "room_number TEXT NOT NULL,"
                 + "capacity INTEGER NOT NULL DEFAULT 1,"
+                + "floor_number INTEGER,"
+                + "room_sequence INTEGER,"
                 + "UNIQUE(section, room_number)"
                 + ")");
     }
@@ -412,6 +417,8 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, "rooms", "status", "TEXT NOT NULL DEFAULT 'ACTIVE'");
         addColumnIfMissing(statement, "rooms", "notes", "TEXT");
         addColumnIfMissing(statement, "rooms", "updated_at", "TEXT");
+        addColumnIfMissing(statement, "rooms", "floor_number", "INTEGER");
+        addColumnIfMissing(statement, "rooms", "room_sequence", "INTEGER");
         statement.execute("UPDATE rooms SET status = 'ACTIVE' WHERE status IS NULL OR TRIM(status) = ''");
         statement.execute("UPDATE rooms SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL OR TRIM(updated_at) = ''");
     }

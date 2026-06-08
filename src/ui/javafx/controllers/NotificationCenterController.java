@@ -150,9 +150,9 @@ public class NotificationCenterController implements FxController {
             return;
         }
         try {
-            notificationService.markRead(Session.getCurrentUser(), row.getId());
+            notificationService.markRead(Session.getCurrentUser(), row);
             loadNotifications();
-            NotificationHelper.showSuccess(statusLabel, "Notification marked read.");
+            NotificationHelper.showSuccess(statusLabel, sourceContains(row, "MESSAGE") ? "Message marked read." : "Notification marked read.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not mark read: " + e.getMessage());
         }
@@ -165,9 +165,9 @@ public class NotificationCenterController implements FxController {
             return;
         }
         try {
-            notificationService.dismiss(Session.getCurrentUser(), row.getId());
+            notificationService.dismiss(Session.getCurrentUser(), row);
             loadNotifications();
-            NotificationHelper.showSuccess(statusLabel, "Notification dismissed.");
+            NotificationHelper.showSuccess(statusLabel, sourceContains(row, "MESSAGE") ? "Message archived." : "Notification dismissed.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not dismiss: " + e.getMessage());
         }

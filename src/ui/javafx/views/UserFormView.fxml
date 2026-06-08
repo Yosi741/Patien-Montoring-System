@@ -8,11 +8,11 @@
         prefWidth="620.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.UserFormController" styleClass="panel-card">
+        fx:controller="ui.javafx.controllers.UserFormController" styleClass="panel-card dialog-root">
 
-    <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="User" styleClass="screen-title" />
-        <Label fx:id="helpLabel" text="Manage a staff account for role-based hospital access." wrapText="true" styleClass="muted-text" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" text="User" styleClass="screen-title dialog-title" />
+        <Label fx:id="helpLabel" text="Manage a staff account for role-based hospital access." wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">

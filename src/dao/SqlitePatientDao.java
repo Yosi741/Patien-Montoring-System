@@ -170,7 +170,8 @@ public class SqlitePatientDao implements PatientDao {
     }
 
     public Optional<PatientDetail> findDetailById(String patientId) throws SQLException {
-        String sql = "SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, diagnosis, "
+        String sql = "SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, "
+                + "COALESCE(blood_type, 'Unknown') AS blood_type, diagnosis, "
                 + "COALESCE(assigned_doctor_username, '') AS assigned_doctor_username, "
                 + "COALESCE(assigned_staff_username, '') AS assigned_staff_username "
                 + "FROM patients WHERE patient_id = ?";
@@ -189,6 +190,7 @@ public class SqlitePatientDao implements PatientDao {
                             resultSet.getString("room"),
                             resultSet.getString("status"),
                             resultSet.getString("priority"),
+                            resultSet.getString("blood_type"),
                             resultSet.getString("diagnosis"),
                             resultSet.getString("assigned_doctor_username"),
                             resultSet.getString("assigned_staff_username")
@@ -231,9 +233,9 @@ public class SqlitePatientDao implements PatientDao {
     }
 
     public void insertPatient(PatientWriteRecord patient) throws SQLException {
-        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, diagnosis, "
+        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, blood_type, diagnosis, "
                 + "assigned_doctor_username, assigned_staff_username, created_at, updated_at) "
-                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             bindWriteRecord(statement, patient);
@@ -243,7 +245,7 @@ public class SqlitePatientDao implements PatientDao {
 
     public void updatePatient(PatientWriteRecord patient) throws SQLException {
         String sql = "UPDATE patients SET first_name = ?, last_name = ?, birth_date = ?, gender = ?, section = ?, room = ?, "
-                + "status = ?, priority = ?, diagnosis = ?, assigned_doctor_username = ?, assigned_staff_username = ?, "
+                + "status = ?, priority = ?, blood_type = ?, diagnosis = ?, assigned_doctor_username = ?, assigned_staff_username = ?, "
                 + "updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -255,10 +257,11 @@ public class SqlitePatientDao implements PatientDao {
             statement.setString(6, patient.getRoom());
             statement.setString(7, patient.getStatus());
             statement.setString(8, patient.getPriority());
-            statement.setString(9, patient.getDiagnosis());
-            statement.setString(10, patient.getAssignedDoctorUsername());
-            statement.setString(11, patient.getAssignedStaffUsername());
-            statement.setString(12, patient.getPatientId());
+            statement.setString(9, patient.getBloodType());
+            statement.setString(10, patient.getDiagnosis());
+            statement.setString(11, patient.getAssignedDoctorUsername());
+            statement.setString(12, patient.getAssignedStaffUsername());
+            statement.setString(13, patient.getPatientId());
             statement.executeUpdate();
         }
     }
@@ -414,9 +417,10 @@ public class SqlitePatientDao implements PatientDao {
         statement.setString(7, patient.getRoom());
         statement.setString(8, patient.getStatus());
         statement.setString(9, patient.getPriority());
-        statement.setString(10, patient.getDiagnosis());
-        statement.setString(11, patient.getAssignedDoctorUsername());
-        statement.setString(12, patient.getAssignedStaffUsername());
+        statement.setString(10, patient.getBloodType());
+        statement.setString(11, patient.getDiagnosis());
+        statement.setString(12, patient.getAssignedDoctorUsername());
+        statement.setString(13, patient.getAssignedStaffUsername());
     }
 
     private LocalDateTime parseSqliteDateTime(String value) {
@@ -570,6 +574,7 @@ public class SqlitePatientDao implements PatientDao {
         private final String room;
         private final String status;
         private final String priority;
+        private final String bloodType;
         private final String diagnosis;
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
@@ -577,12 +582,20 @@ public class SqlitePatientDao implements PatientDao {
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
                                   String gender, String section, String room, String status,
                                   String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, diagnosis, "", "");
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "", "");
         }
 
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
                                   String gender, String section, String room, String status,
                                   String priority, String diagnosis, String assignedDoctorUsername,
+                                  String assignedStaffUsername) {
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
+                    assignedDoctorUsername, assignedStaffUsername);
+        }
+
+        public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
+                                  String gender, String section, String room, String status,
+                                  String priority, String bloodType, String diagnosis, String assignedDoctorUsername,
                                   String assignedStaffUsername) {
             this.patientId = patientId;
             this.firstName = firstName;
@@ -593,6 +606,7 @@ public class SqlitePatientDao implements PatientDao {
             this.room = room;
             this.status = status;
             this.priority = priority;
+            this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType.trim();
             this.diagnosis = diagnosis;
             this.assignedDoctorUsername = assignedDoctorUsername == null ? "" : assignedDoctorUsername.trim();
             this.assignedStaffUsername = assignedStaffUsername == null ? "" : assignedStaffUsername.trim();
@@ -607,6 +621,7 @@ public class SqlitePatientDao implements PatientDao {
         public String getRoom() { return room; }
         public String getStatus() { return status; }
         public String getPriority() { return priority; }
+        public String getBloodType() { return bloodType; }
         public String getDiagnosis() { return diagnosis; }
         public String getAssignedDoctorUsername() { return assignedDoctorUsername; }
         public String getAssignedStaffUsername() { return assignedStaffUsername; }
@@ -622,6 +637,7 @@ public class SqlitePatientDao implements PatientDao {
         private final String room;
         private final String status;
         private final String priority;
+        private final String bloodType;
         private final String diagnosis;
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
@@ -629,12 +645,20 @@ public class SqlitePatientDao implements PatientDao {
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
                              String gender, String section, String room, String status,
                              String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, diagnosis, "", "");
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "", "");
         }
 
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
                              String gender, String section, String room, String status,
                              String priority, String diagnosis, String assignedDoctorUsername,
+                             String assignedStaffUsername) {
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
+                    assignedDoctorUsername, assignedStaffUsername);
+        }
+
+        public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
+                             String gender, String section, String room, String status,
+                             String priority, String bloodType, String diagnosis, String assignedDoctorUsername,
                              String assignedStaffUsername) {
             this.patientId = patientId;
             this.firstName = firstName;
@@ -645,6 +669,7 @@ public class SqlitePatientDao implements PatientDao {
             this.room = room;
             this.status = status;
             this.priority = priority;
+            this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType;
             this.diagnosis = diagnosis;
             this.assignedDoctorUsername = assignedDoctorUsername == null ? "" : assignedDoctorUsername;
             this.assignedStaffUsername = assignedStaffUsername == null ? "" : assignedStaffUsername;
@@ -660,6 +685,7 @@ public class SqlitePatientDao implements PatientDao {
         public String getRoom() { return room; }
         public String getStatus() { return status; }
         public String getPriority() { return priority; }
+        public String getBloodType() { return bloodType; }
         public String getDiagnosis() { return diagnosis == null || diagnosis.isBlank() ? "No diagnosis recorded" : diagnosis; }
         public String getAssignedDoctorUsername() { return assignedDoctorUsername; }
         public String getAssignedStaffUsername() { return assignedStaffUsername; }

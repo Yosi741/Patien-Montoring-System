@@ -19,6 +19,7 @@ public class PatientWriteService {
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final Set<String> VALID_STATUSES = Set.of("ACTIVE", "DISCHARGED", "DECEASED");
     private static final Set<String> VALID_PRIORITIES = Set.of("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
+    private static final Set<String> VALID_BLOOD_TYPES = Set.of("UNKNOWN", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
     private final SqlitePatientDao patientDao;
 
@@ -75,9 +76,12 @@ public class PatientWriteService {
                 FormValidationHelper.validateRequired("Birth date", patient.getBirthDate()),
                 FormValidationHelper.validateRequired("First name", patient.getFirstName()),
                 FormValidationHelper.validateRequired("Last name", patient.getLastName()),
+                FormValidationHelper.validatePersonName("First name", patient.getFirstName()),
+                FormValidationHelper.validatePersonName("Last name", patient.getLastName()),
                 FormValidationHelper.validateMaxLength("First name", patient.getFirstName(), 60),
                 FormValidationHelper.validateMaxLength("Last name", patient.getLastName(), 60),
                 FormValidationHelper.validateMaxLength("Gender", patient.getGender(), 40),
+                FormValidationHelper.validateMaxLength("Blood type", patient.getBloodType(), 10),
                 FormValidationHelper.validateMaxLength("Section", patient.getSection(), 80),
                 FormValidationHelper.validateMaxLength("Room", patient.getRoom(), 30),
                 FormValidationHelper.validateMaxLength("Assigned doctor", patient.getAssignedDoctorUsername(), 64),
@@ -90,6 +94,7 @@ public class PatientWriteService {
         validateBirthDate(patient.getBirthDate());
         validateChoice("Status", normalize(patient.getStatus()), VALID_STATUSES);
         validateChoice("Priority", normalize(patient.getPriority()), VALID_PRIORITIES);
+        validateChoice("Blood type", normalizeBloodType(patient.getBloodType()).toUpperCase(Locale.ROOT), VALID_BLOOD_TYPES);
         if (create && patientDao.existsByPatientId(patient.getPatientId())) {
             throw new IllegalArgumentException("Patient ID already exists in SQLite.");
         }
@@ -128,6 +133,7 @@ public class PatientWriteService {
                 trim(patient.getRoom()),
                 normalize(patient.getStatus()),
                 normalize(patient.getPriority()),
+                normalizeBloodType(patient.getBloodType()),
                 trim(patient.getDiagnosis()),
                 trim(patient.getAssignedDoctorUsername()),
                 trim(patient.getAssignedStaffUsername())
@@ -139,12 +145,21 @@ public class PatientWriteService {
         try {
             return LocalDate.parse(trimmed, DISPLAY_DATE);
         } catch (DateTimeParseException e) {
-            return LocalDate.parse(trimmed);
+            try {
+                return LocalDate.parse(trimmed);
+            } catch (DateTimeParseException ignored) {
+                throw new IllegalArgumentException("Birth date must use format dd-MM-yyyy.");
+            }
         }
     }
 
     private String normalize(String value) {
         return value == null || value.isBlank() ? "ACTIVE" : value.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private String normalizeBloodType(String value) {
+        String normalized = value == null || value.isBlank() ? "Unknown" : value.trim();
+        return "UNKNOWN".equalsIgnoreCase(normalized) ? "Unknown" : normalized.toUpperCase(Locale.ROOT);
     }
 
     private String trim(String value) {

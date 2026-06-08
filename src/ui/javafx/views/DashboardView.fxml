@@ -33,8 +33,6 @@
                         <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="dashboard-action-row">
                             <Button text="Open Patients" onAction="#openPatientList"
                                     styleClass="dashboard-action-primary" />
-                            <Button text="Open Notifications" onAction="#openAlertCenter"
-                                    styleClass="dashboard-action-danger" />
                             <Button text="Open Work Queue" onAction="#openWorkQueue"
                                     styleClass="dashboard-action-secondary" />
                         </HBox>

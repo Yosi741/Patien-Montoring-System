@@ -8,12 +8,12 @@
         prefWidth="700.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.PatientFormController" styleClass="panel-card">
+        fx:controller="ui.javafx.controllers.PatientFormController" styleClass="panel-card dialog-root">
 
-    <VBox spacing="4.0">
-        <Label fx:id="titleLabel" text="Patient" styleClass="screen-title" />
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" text="Patient" styleClass="screen-title dialog-title" />
 
-        <Label fx:id="helpLabel" text="Patient record form" wrapText="true" styleClass="muted-text" />
+        <Label fx:id="helpLabel" text="Patient record form" wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -23,8 +23,8 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Patient No." styleClass="field-label" />
-            <TextField fx:id="patientIdField" promptText="ABC-123" styleClass="control-input" />
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -68,11 +68,16 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Blood Type" styleClass="field-label" />
+            <ComboBox fx:id="bloodTypeBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
             <Label text="Assigned Doctor" styleClass="field-label" />
             <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected section" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
             <Label text="Assigned Nurse / Staff" styleClass="field-label" />
             <ComboBox fx:id="assignedStaffBox" promptText="Nurse or staff in selected section" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
@@ -83,5 +88,5 @@
         </VBox>
     </GridPane>
 
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-success success-value" />
+    <Label fx:id="statusLabel" text="-" maxWidth="Infinity" wrapText="true" styleClass="status-success success-value" />
 </VBox>
