@@ -1,4 +1,4 @@
-package dao;
+package Data_Access_Object;
 
 import database.DatabaseManager;
 import security.PasswordHasher;
@@ -287,44 +287,15 @@ public class SqliteUserDao implements UserDao {
 
     public void updateUser(String originalUsername, UserWriteRecord record) throws SQLException {
         String oldUsername = originalUsername == null ? "" : originalUsername.trim();
-        String newUsername = record.getUsername();
-        try (Connection connection = DatabaseManager.getConnection()) {
-            connection.setAutoCommit(false);
-            try (PreparedStatement users = connection.prepareStatement(
-                    "UPDATE users SET username = ?, role = ?, section = ?, active = ? WHERE LOWER(username) = LOWER(?)");
-                 PreparedStatement profiles = connection.prepareStatement(
-                         "UPDATE user_profiles SET username = ? WHERE LOWER(username) = LOWER(?)");
-                 PreparedStatement messagesSender = connection.prepareStatement(
-                         "UPDATE messages SET sender_username = ? WHERE LOWER(sender_username) = LOWER(?)");
-                 PreparedStatement messagesRecipient = connection.prepareStatement(
-                         "UPDATE messages SET recipient_username = ? WHERE LOWER(recipient_username) = LOWER(?)");
-                 PreparedStatement notifications = connection.prepareStatement(
-                         "UPDATE notifications SET username = ? WHERE LOWER(username) = LOWER(?)")) {
-                users.setString(1, newUsername);
-                users.setString(2, record.getRole());
-                users.setString(3, blankToAll(record.getSection()));
-                users.setInt(4, record.isActive() ? 1 : 0);
-                users.setString(5, oldUsername);
-                users.executeUpdate();
-
-                updateUsernameReference(profiles, newUsername, oldUsername);
-                updateUsernameReference(messagesSender, newUsername, oldUsername);
-                updateUsernameReference(messagesRecipient, newUsername, oldUsername);
-                updateUsernameReference(notifications, newUsername, oldUsername);
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(true);
-            }
+        String sql = "UPDATE users SET role = ?, section = ?, active = ? WHERE LOWER(username) = LOWER(?)";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, record.getRole());
+            statement.setString(2, blankToAll(record.getSection()));
+            statement.setInt(3, record.isActive() ? 1 : 0);
+            statement.setString(4, oldUsername);
+            statement.executeUpdate();
         }
-    }
-
-    private void updateUsernameReference(PreparedStatement statement, String newUsername, String oldUsername) throws SQLException {
-        statement.setString(1, newUsername);
-        statement.setString(2, oldUsername);
-        statement.executeUpdate();
     }
 
     public void deactivateUser(String username) throws SQLException {

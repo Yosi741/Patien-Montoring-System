@@ -1,7 +1,7 @@
 package services;
 
-import dao.SqliteSectionDao;
-import dao.SqliteUserDao;
+import Data_Access_Object.SqliteSectionDao;
+import Data_Access_Object.SqliteUserDao;
 import security.PasswordHasher;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
@@ -56,12 +56,12 @@ public class UserWriteService {
         String original = originalUsername == null ? "" : originalUsername.trim();
         require(userDao.usernameExists(original), "User does not exist: " + original);
         if (!record.getUsername().equalsIgnoreCase(original)) {
-            require(!userDao.usernameExistsExcept(record.getUsername(), original), "Username already exists.");
+            throw new IllegalArgumentException("Username cannot be changed after creation. Create a new user if a different username is needed.");
         }
 
         userDao.updateUser(original, record);
         audit(admin, AuditAction.UPDATE_USER,
-                "Admin " + username(admin) + " updated user " + original + " -> " + record.getUsername());
+                "Admin " + username(admin) + " updated user " + original);
     }
 
     public void deactivateUser(User admin, String affectedUsername, boolean confirmedSelfDeactivation) throws SQLException {

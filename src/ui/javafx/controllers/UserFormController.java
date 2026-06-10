@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteUserDao;
+import Data_Access_Object.SqliteUserDao;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,6 +39,7 @@ public class UserFormController {
     @FXML private Label titleLabel;
     @FXML private Label helpLabel;
     @FXML private javafx.scene.control.TextField usernameField;
+    @FXML private Label usernameHelpLabel;
     @FXML private ComboBox<String> roleBox;
     @FXML private ComboBox<String> sectionBox;
     @FXML private CheckBox activeCheckBox;
@@ -104,6 +105,9 @@ public class UserFormController {
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add User");
             helpLabel.setText("Create a staff account with role and section access.");
+            usernameField.setEditable(true);
+            usernameField.setDisable(false);
+            usernameHelpLabel.setText("Enter a unique username for this new account.");
             passwordHelpLabel.setText("Password is stored safely and not displayed.");
             return;
         }
@@ -113,7 +117,9 @@ public class UserFormController {
         }
 
         usernameField.setText(user.getUsername());
+        usernameField.setEditable(false);
         usernameField.setDisable(mode == Mode.RESET_PASSWORD);
+        usernameHelpLabel.setText("Username cannot be changed after creation because it is used in system records.");
         roleBox.getSelectionModel().select(normalizeRole(user.getRole()));
         loadSectionsForRole(roleBox.getValue());
         selectSection(user.getSection());
@@ -121,7 +127,7 @@ public class UserFormController {
 
         if (mode == Mode.EDIT) {
             titleLabel.setText("Edit User");
-            helpLabel.setText("Update username, role, section, and active status.");
+            helpLabel.setText("Update role, section, and active status.");
             passwordField.setVisible(false);
             passwordField.setManaged(false);
             confirmPasswordField.setVisible(false);
@@ -176,8 +182,11 @@ public class UserFormController {
     }
 
     private SqliteUserDao.UserWriteRecord buildRecord() {
+        String username = mode == Mode.CREATE || existingUser == null
+                ? usernameField.getText()
+                : existingUser.getUsername();
         return new SqliteUserDao.UserWriteRecord(
-                usernameField.getText(),
+                username,
                 roleBox.getValue(),
                 sectionValue(),
                 activeCheckBox.isSelected()
