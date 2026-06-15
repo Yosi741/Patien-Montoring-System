@@ -78,7 +78,6 @@
                 <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="settingsButton" text="Profile / Settings" onAction="#showSettings" maxWidth="Infinity" styleClass="transparent-pane nav-button-blue" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
@@ -110,7 +109,7 @@
 
                     <MenuButton fx:id="profileMenuButton" text="Profile" styleClass="shell-profile-menu">
                         <items>
-                            <MenuItem text="Profile" onAction="#showSettings" />
+                            <MenuItem text="Profile / Settings" onAction="#showSettings" />
                             <MenuItem text="Messages" onAction="#showMessages" />
                             <MenuItem text="Logout" onAction="#logout" />
                         </items>

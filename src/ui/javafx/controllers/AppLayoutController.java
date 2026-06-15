@@ -50,9 +50,6 @@ public class AppLayoutController implements FxController {
     private Button messagesButton;
 
     @FXML
-    private Button settingsButton;
-
-    @FXML
     private Button auditLogsButton;
 
     @FXML
