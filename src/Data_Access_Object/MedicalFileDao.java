@@ -1,4 +1,4 @@
-package dao;
+package Data_Access_Object;
 
 import models.MedicalFile;
 

@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteDeceasedRecordDao;
+import Data_Access_Object.SqliteDeceasedRecordDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import services.DeceasedPatientService;
+import ui.javafx.services.DeceasedPatientService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

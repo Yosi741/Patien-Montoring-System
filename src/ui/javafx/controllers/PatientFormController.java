@@ -1,9 +1,9 @@
 package ui.javafx.controllers;
 
-import dao.SqlitePatientDao;
-import dao.SqliteRoomDao;
-import dao.SqliteUserDao;
-import services.SectionService;
+import Data_Access_Object.SqlitePatientDao;
+import Data_Access_Object.SqliteRoomDao;
+import Data_Access_Object.SqliteUserDao;
+import ui.javafx.services.SectionService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import services.PatientWriteService;
+import ui.javafx.services.PatientWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.DatePickerHelper;
 import ui.javafx.helpers.NotificationHelper;

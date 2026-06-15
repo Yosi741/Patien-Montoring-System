@@ -34,7 +34,7 @@
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label styleClass="status-info metric-value compact-metric-value" text="Local database upload. Preview extracts text where possible; no external services." />
+                            <Label styleClass="status-info metric-value compact-metric-value" text="Local database upload. Preview extracts text where possible; no external ui.javafx.services." />
                             <Label fx:id="patientFilterChip" managed="false" styleClass="status-success success-value" text="" visible="false" />
                             <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="transparent-pane secondary-button" text="Clear Patient Filter" visible="false" />
                         </HBox>

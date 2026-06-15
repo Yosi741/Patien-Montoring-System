@@ -1,6 +1,6 @@
 package ui.javafx.helpers;
 
-import services.AuditWriteService;
+import ui.javafx.services.AuditWriteService;
 
 import java.sql.SQLException;
 

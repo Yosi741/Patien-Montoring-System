@@ -1,9 +1,9 @@
 package ui.javafx.controllers;
 
-import dao.SqlitePatientDao;
-import dao.SqliteVitalReadingDao;
-import dao.SqliteAlertDao;
-import dao.SqliteNewbornRecordDao;
+import Data_Access_Object.SqlitePatientDao;
+import Data_Access_Object.SqliteVitalReadingDao;
+import Data_Access_Object.SqliteAlertDao;
+import Data_Access_Object.SqliteNewbornRecordDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,11 +17,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import models.VitalRecord;
-import dao.SqliteAuditLogDao;
-import services.AlertSoundService;
-import services.VitalThresholdService;
-import services.VitalTypeCatalog;
-import services.VitalsTrendService;
+import Data_Access_Object.SqliteAuditLogDao;
+import ui.javafx.services.AlertSoundService;
+import ui.javafx.services.VitalThresholdService;
+import ui.javafx.services.VitalTypeCatalog;
+import ui.javafx.services.VitalsTrendService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
@@ -406,7 +406,7 @@ public class PatientDetailController implements FxController {
             return;
         }
         try {
-            services.VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
+            ui.javafx.services.VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
                     nameLabel.getScene().getWindow(),
                     Session.getCurrentUser(),
                     patientId
@@ -673,7 +673,7 @@ public class PatientDetailController implements FxController {
         return "severity-warning";
     }
 
-    private void showVitalAlertPopupIfNeeded(services.VitalsWriteService.VitalsWriteResult result) {
+    private void showVitalAlertPopupIfNeeded(ui.javafx.services.VitalsWriteService.VitalsWriteResult result) {
         if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;
         }

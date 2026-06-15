@@ -13,7 +13,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import services.MedicalFileUploadService;
+import ui.javafx.services.MedicalFileUploadService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

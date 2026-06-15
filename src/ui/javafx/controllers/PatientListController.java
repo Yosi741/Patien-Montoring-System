@@ -1,9 +1,9 @@
 package ui.javafx.controllers;
 
-import dao.SqlitePatientDao;
-import dao.SqliteAuditLogDao;
-import dao.SqliteDeceasedRecordDao;
-import dao.SqliteNewbornRecordDao;
+import Data_Access_Object.SqlitePatientDao;
+import Data_Access_Object.SqliteAuditLogDao;
+import Data_Access_Object.SqliteDeceasedRecordDao;
+import Data_Access_Object.SqliteNewbornRecordDao;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,10 +19,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
-import services.AlertSoundService;
-import services.PatientWriteService;
-import services.VitalThresholdService;
-import services.VitalsWriteService;
+import ui.javafx.services.AlertSoundService;
+import ui.javafx.services.PatientWriteService;
+import ui.javafx.services.VitalThresholdService;
+import ui.javafx.services.VitalsWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.DialogHelper;

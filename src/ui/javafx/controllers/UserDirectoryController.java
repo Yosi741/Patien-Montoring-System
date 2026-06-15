@@ -1,7 +1,7 @@
 package ui.javafx.controllers;
 
-import dao.SqliteAuditLogDao;
-import dao.SqliteUserDao;
+import Data_Access_Object.SqliteAuditLogDao;
+import Data_Access_Object.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,9 +14,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import services.RolePermissionService;
-import services.SectionService;
-import services.UserWriteService;
+import ui.javafx.services.RolePermissionService;
+import ui.javafx.services.SectionService;
+import ui.javafx.services.UserWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;

@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteMedicationCatalogDao;
+import Data_Access_Object.SqliteMedicationCatalogDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,7 +20,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Window;
-import services.MedicationCatalogService;
+import ui.javafx.services.MedicationCatalogService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;

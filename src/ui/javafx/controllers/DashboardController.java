@@ -9,7 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import services.DashboardMetricsService;
+import ui.javafx.services.DashboardMetricsService;
 import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;

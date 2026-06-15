@@ -1,7 +1,7 @@
 package ui.javafx.controllers;
 
-import dao.SqliteAppointmentDao;
-import dao.SqliteReminderDao;
+import Data_Access_Object.SqliteAppointmentDao;
+import Data_Access_Object.SqliteReminderDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,7 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import services.SchedulingService;
+import ui.javafx.services.SchedulingService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.DialogHelper;

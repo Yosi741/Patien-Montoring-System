@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteRoomDao;
+import Data_Access_Object.SqliteRoomDao;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,8 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import services.RoomBedOccupancyService;
-import services.RoomWriteService;
+import ui.javafx.services.RoomBedOccupancyService;
+import ui.javafx.services.RoomWriteService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteAuditLogDao;
+import Data_Access_Object.SqliteAuditLogDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

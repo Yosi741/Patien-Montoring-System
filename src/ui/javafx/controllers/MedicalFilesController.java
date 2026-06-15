@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteMedicalFileDao;
+import Data_Access_Object.SqliteMedicalFileDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,8 +18,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
-import services.MedicalFilePreviewService;
-import services.MedicalFileUploadService;
+import ui.javafx.services.MedicalFilePreviewService;
+import ui.javafx.services.MedicalFileUploadService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;

@@ -1,7 +1,7 @@
 package ui.javafx.controllers;
 
-import dao.SqliteNewbornRecordDao;
-import dao.SqlitePatientDao;
+import Data_Access_Object.SqliteNewbornRecordDao;
+import Data_Access_Object.SqlitePatientDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,8 +15,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
-import services.CertificateEventService;
-import services.NewbornService;
+import ui.javafx.services.CertificateEventService;
+import ui.javafx.services.NewbornService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.AuditAction;

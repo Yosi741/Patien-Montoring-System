@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
-import services.NotificationCenterService;
+import ui.javafx.services.NotificationCenterService;
 import ui.javafx.AppFeatures;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
@@ -290,9 +290,9 @@ public class AppLayoutController implements FxController {
             return;
         }
         String[] candidates = {
-                "/ui/javafx/assets/spms-logo.png",
-                "/ui/javafx/assets/spms-logo.png",
-                "/ui/javafx/assets/spms-logo.png"
+                "/ui/javafx/Photos/spms-logo.png",
+                "/ui/javafx/Photos/spms-logo.png",
+                "/ui/javafx/Photos/spms-logo.png"
         };
         for (String candidate : candidates) {
             URL logoUrl = getClass().getResource(candidate);

@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteSectionDao;
+import Data_Access_Object.SqliteSectionDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,8 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import services.RoomWriteService;
-import services.SectionService;
+import ui.javafx.services.RoomWriteService;
+import ui.javafx.services.SectionService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.ClinicalTimelineDao;
+import Data_Access_Object.ClinicalTimelineDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

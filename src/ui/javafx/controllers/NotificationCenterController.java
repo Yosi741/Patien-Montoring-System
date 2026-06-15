@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteNotificationDao;
+import Data_Access_Object.SqliteNotificationDao;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -16,7 +16,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import services.NotificationCenterService;
+import ui.javafx.services.NotificationCenterService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.helpers.NotificationHelper;

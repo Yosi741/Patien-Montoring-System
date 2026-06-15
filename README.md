@@ -1,6 +1,6 @@
 # Smart Patient Monitoring System
 
-A JavaFX desktop hospital patient monitoring prototype for a local presentation/demo environment. The application uses a local SQLite database, JavaFX screens, service-layer business logic, DAO persistence classes, audit logging, alerts, patient files, scheduling, notifications, certificates, and medication safety workflows.
+A JavaFX desktop hospital patient monitoring prototype for a local presentation/demo environment. The application uses a local SQLite database, JavaFX screens, service-layer business logic, Data_Access_Object persistence classes, audit logging, alerts, patient files, scheduling, notifications, certificates, and medication safety workflows.
 
 ## Current Stack
 
@@ -8,7 +8,7 @@ A JavaFX desktop hospital patient monitoring prototype for a local presentation/
 - JavaFX UI with FXML and a forced Hospital Navy presentation theme
 - SQLite local database at `data/smart_patient_monitoring.db`
 - Plain Java project structure with dependencies in `lib/`
-- Controller -> Service -> DAO architecture
+- Controller -> Service -> Data_Access_Object architecture
 
 ## Main Features
 
@@ -109,13 +109,13 @@ Patient records, vitals, alerts, messages, notifications, rooms, medications, ne
 ## Architecture
 
 - `src/ui/javafx/`: JavaFX shell, controllers, FXML views, and styles
-- `src/services/`: validation, business workflows, alerts, certificates, scheduling, medication safety, notifications, and write services
-- `src/dao/`: SQLite DAO classes and query models
+- `src/ui.javafx.services/`: validation, business workflows, alerts, certificates, scheduling, medication safety, notifications, and write ui.javafx.services
+- `src/Data_Access_Object/`: SQLite Data_Access_Object classes and query models
 - `src/database/`: SQLite database manager and schema initializer
 - `src/models/`: core model objects
 - `src/security/`: password hashing
 
-Controllers should not contain SQL. Write workflows should use Controller -> Service -> DAO.
+Controllers should not contain SQL. Write workflows should use Controller -> Service -> Data_Access_Object.
 
 ## Certificates
 

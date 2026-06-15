@@ -1,8 +1,7 @@
-package dao;
+package Data_Access_Object;
 
 import database.DatabaseManager;
 import models.Patient;
-import models.VitalSign;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,7 +1,7 @@
 package ui.javafx.controllers;
 
-import dao.SqliteMedicationCatalogDao;
-import dao.SqliteMedicationDao;
+import Data_Access_Object.SqliteMedicationCatalogDao;
+import Data_Access_Object.SqliteMedicationDao;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,8 +17,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import services.MedicationWriteService;
-import services.MedicationCatalogService;
+import ui.javafx.services.MedicationWriteService;
+import ui.javafx.services.MedicationCatalogService;
 import ui.javafx.AppNavigator;
 import ui.javafx.SessionContext;
 import ui.javafx.helpers.NotificationHelper;

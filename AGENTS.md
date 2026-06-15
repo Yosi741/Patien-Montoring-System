@@ -8,7 +8,7 @@
 - **SQLite preview**: Check `data/smart_patient_monitoring.db` after running app
 
 ## Recommended Pattern
-1. Modify Service (validation, audit) → DAO (persistence) → Controller (UI binding)
+1. Modify Service (validation, audit) → Data_Access_Object (persistence) → Controller (UI binding)
 2. Controllers should NOT execute SQL directly; use DAOs and Services
 3. When adding writes: include AuditWriteHelper calls and update SqliteMigrationService if needed
 
@@ -22,7 +22,7 @@ Key entry points and commands
 ## Project-specific conventions & gotchas
 - **Dual persistence**: Text-file storage (`data/*.txt`) and SQLite (`data/smart_patient_monitoring.db`) both exist for data redundancy.
 - **Safe file handling**: Uploads and generated certificates live under `data/uploads/` and `data/generated/...`
-- **Audit-first**: All writes use `AuditWriteHelper` / `AuditWriteService` (see src/services/)
+- **Audit-first**: All writes use `AuditWriteHelper` / `AuditWriteService` (see src/ui.javafx.services/)
 - **Passwords**: Use `PasswordHasher` (do not log raw passwords)
 - **UI Layer**: Controllers are in `src/ui/javafx/controllers/`, FXML views in `src/ui/javafx/views/`
 
@@ -38,11 +38,11 @@ Integration points & external deps
 - `src/database/DatabaseManager.java` — database path, PRAGMA config, connection helper
 - `src/database/MedicalFileStorage.java` — file upload storage and indexing
 - `src/ai_Prototype/AIAdviceEngine.java` — rule-based AI note generation
-- `src/dao/Sqlite*.java` — SQLite schema and query layer
+- `src/Data_Access_Object/Sqlite*.java` — SQLite schema and query layer
 
 How to make a safe change (recommended pattern)
 1. Run the app and reproduce behavior with the smallest entry point (use `Main` or `JavaFxMain`).
-2. Modify Service (validation/audit) + DAO (persistence) — keep Controller changes minimal.
+2. Modify Service (validation/audit) + Data_Access_Object (persistence) — keep Controller changes minimal.
 3. Add unit-like manual test: run migration if you touched persistence, open UI, run the flow, and check `data/` files and `data/smart_patient_monitoring.db`.
 4. If adding a write path for JavaFX, update migration logic and add audit entries.
 
@@ -52,5 +52,5 @@ Where to leave notes for other agents
 If unsure: prefer non-destructive changes and add explicit checks (e.g., do not overwrite text-file legacy stores; prefer adding an opt-in migration path).
 
 ---
-Short references: `Main.java`, `JavaFxMain.java`, `DatabaseMigrationMain.java`, `src/database/DatabaseManager.java`, `src/database/MedicalFileStorage.java`, `src/ai_Prototype/AIAdviceEngine.java`, `src/dao/SqlitePatientDao.java`.
+Short references: `Main.java`, `JavaFxMain.java`, `DatabaseMigrationMain.java`, `src/database/DatabaseManager.java`, `src/database/MedicalFileStorage.java`, `src/ai_Prototype/AIAdviceEngine.java`, `src/Data_Access_Object/SqlitePatientDao.java`.
 

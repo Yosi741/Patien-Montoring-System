@@ -1,7 +1,7 @@
 package ui.javafx.controllers;
 
-import dao.SqliteAuditLogDao;
-import dao.SqliteUserDao;
+import Data_Access_Object.SqliteAuditLogDao;
+import Data_Access_Object.SqliteUserDao;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -13,7 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import services.PasswordResetService;
+import ui.javafx.services.PasswordResetService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import users.User;
@@ -172,7 +172,7 @@ public class LoginController implements FxController {
             return;
         }
         try {
-            URL logoUrl = getClass().getResource("/ui/javafx/assets/ICON-Logo.png");
+            URL logoUrl = getClass().getResource("/ui/javafx/Photos/ICON-Logo.png");
             if (logoUrl == null) {
                 showFallbackLogo();
                 return;

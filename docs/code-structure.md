@@ -6,11 +6,11 @@ The current application architecture is:
 JavaFX View
   -> Controller
   -> Service
-  -> DAO
+  -> Data_Access_Object
   -> SQLite
 ```
 
-Controllers should coordinate UI state and call services. They should not contain SQL. Services hold business rules, validation, permission checks, and workflow logic. DAOs contain SQLite access.
+Controllers should coordinate UI state and call ui.javafx.services. They should not contain SQL. Services hold business rules, validation, permission checks, and workflow logic. DAOs contain SQLite access.
 
 ## Packages
 
@@ -22,7 +22,7 @@ Database startup and schema code.
 - `SchemaInitializer`: creates and migrates tables safely.
 - Seed/demo database utilities live here when needed.
 
-### `dao/`
+### `Data_Access_Object/`
 
 SQLite data access classes. These classes query and update database tables and map rows into DTOs/records.
 
@@ -30,19 +30,19 @@ Examples include patient, alert, medication, reminder, notification, medical fil
 
 Section and room data is stored in SQLite. Sections represent hospital departments. Rooms belong to sections, include capacity and status, and patient room assignments are kept on patient records.
 
-### `services/`
+### `ui.javafx.services/`
 
-Business logic and workflow services.
+Business logic and workflow ui.javafx.services.
 
 Services validate input, enforce permissions, coordinate multiple DAOs, run rule-based decision-support checks, and write audit events.
 
-Room and section workflows follow the same service pattern: controllers collect form input, services validate capacity/status/permissions, and DAOs persist changes in SQLite.
+Room and section workflows follow the same service pattern: controllers collect form input, ui.javafx.services validate capacity/status/permissions, and DAOs persist changes in SQLite.
 
 ### `ui/javafx/controllers/`
 
 JavaFX screen and dialog controllers.
 
-Controllers load screen data, bind UI controls, respond to button clicks, and call services. SQL should stay out of controllers.
+Controllers load screen data, bind UI controls, respond to button clicks, and call ui.javafx.services. SQL should stay out of controllers.
 
 ### `ui/javafx/views/`
 

@@ -1,8 +1,8 @@
 package ui.javafx.controllers;
 
-import dao.SqliteNewbornRecordDao;
-import dao.SqlitePatientDao;
-import dao.SqliteRoomDao;
+import Data_Access_Object.SqliteNewbornRecordDao;
+import Data_Access_Object.SqlitePatientDao;
+import Data_Access_Object.SqliteRoomDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,8 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import services.NewbornService;
-import services.SectionService;
+import ui.javafx.services.NewbornService;
+import ui.javafx.services.SectionService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

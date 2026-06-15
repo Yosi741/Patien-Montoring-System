@@ -1,6 +1,6 @@
 package ui.javafx.controllers;
 
-import dao.SqliteReminderDao;
+import Data_Access_Object.SqliteReminderDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import services.SchedulingService;
+import ui.javafx.services.SchedulingService;
 import ui.javafx.AppNavigator;
 import ui.javafx.helpers.NotificationHelper;
 import users.User;

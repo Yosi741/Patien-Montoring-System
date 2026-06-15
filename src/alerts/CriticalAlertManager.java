@@ -1,7 +1,7 @@
 package alerts;
 
 import models.Patient;
-import services.AlarmService;
+import ui.javafx.services.AlarmService;
 
 public class CriticalAlertManager {
 
