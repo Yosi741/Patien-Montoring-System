@@ -97,8 +97,6 @@
             <top>
                 <HBox alignment="CENTER_RIGHT" spacing="14.0" styleClass="shell-top-bar">
 
-                    <TextField promptText="Search patients, alerts..." styleClass="shell-search-field" />
-
                     <Label fx:id="topUserLabel" text="User | Section" styleClass="muted-text" />
 
                     <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
