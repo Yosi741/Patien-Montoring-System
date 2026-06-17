@@ -96,8 +96,11 @@ public class AuditLogController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    auditTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = auditTable.getItems() == null ? -1 : auditTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));

@@ -27,6 +27,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 public class MedicalFilesController implements FxController {
@@ -119,6 +120,7 @@ public class MedicalFilesController implements FxController {
             return;
         }
         try {
+            SelectionHelper.safeClearSelection(filesTable);
             files.setAll(fileDao.findFiles(
                     searchField.getText(),
                     categoryFilter.getValue(),
@@ -232,9 +234,11 @@ public class MedicalFilesController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    filesTable.getItems().indexOf(cell.getValue()) + 1
-            ));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = filesTable.getItems() == null ? -1 : filesTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         patientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
@@ -350,8 +354,11 @@ public class MedicalFilesController implements FxController {
         }
         for (SqliteMedicalFileDao.MedicalFileRecord file : files) {
             if (pendingFileId.equals(file.getFileId())) {
-                filesTable.getSelectionModel().select(file);
-                filesTable.scrollTo(file);
+                int index = filesTable.getItems() == null ? -1 : filesTable.getItems().indexOf(file);
+                if (index >= 0) {
+                    filesTable.getSelectionModel().select(index);
+                    filesTable.scrollTo(index);
+                }
                 pendingFileId = "";
                 return;
             }

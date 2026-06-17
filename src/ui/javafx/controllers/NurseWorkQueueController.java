@@ -24,6 +24,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 public class NurseWorkQueueController implements FxController {
@@ -87,6 +88,7 @@ public class NurseWorkQueueController implements FxController {
             totalTasksLabel.setText(String.valueOf(overview.getTotalTasks()));
             criticalAlertsLabel.setText(String.valueOf(overview.getCriticalAlerts()));
             missingVitalsLabel.setText(String.valueOf(overview.getMissingVitals()));
+            SelectionHelper.safeClearSelection(queueTable);
             tasks.setAll(overview.getTasks());
             queueTable.setItems(tasks);
             renderReminderNotifications();
@@ -178,8 +180,11 @@ public class NurseWorkQueueController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    queueTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = queueTable.getItems() == null ? -1 : queueTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("actionStatus"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("taskType"));

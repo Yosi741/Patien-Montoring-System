@@ -245,8 +245,11 @@ public class MessagingController implements FxController {
 
     private void configureTables() {
         if (inboxRowNumberColumn != null) {
-            inboxRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    inboxTable.getItems().indexOf(cell.getValue()) + 1));
+            inboxRowNumberColumn.setCellValueFactory(cell -> {
+                int index = inboxTable.getItems() == null ? -1 : inboxTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         inboxIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         inboxSenderColumn.setCellValueFactory(new PropertyValueFactory<>("senderUsername"));
@@ -262,13 +265,19 @@ public class MessagingController implements FxController {
         sentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         sentPatientColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         if (sentRowNumberColumn != null) {
-            sentRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    sentTable.getItems().indexOf(cell.getValue()) + 1));
+            sentRowNumberColumn.setCellValueFactory(cell -> {
+                int index = sentTable.getItems() == null ? -1 : sentTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         sentCreatedColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
         if (requestRowNumberColumn != null) {
-            requestRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    requestTable.getItems().indexOf(cell.getValue()) + 1));
+            requestRowNumberColumn.setCellValueFactory(cell -> {
+                int index = requestTable.getItems() == null ? -1 : requestTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         requestTypeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(messagingService.requestType(cell.getValue())));
         requestFromColumn.setCellValueFactory(new PropertyValueFactory<>("senderUsername"));

@@ -24,6 +24,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.nio.file.Path;
@@ -87,8 +88,11 @@ public class DeceasedRecordsController implements FxController {
         loadRecords();
         for (SqliteDeceasedRecordDao.DeathRecord record : records) {
             if (record.getId() == recordId) {
-                deceasedTable.getSelectionModel().select(record);
-                deceasedTable.scrollTo(record);
+                int index = deceasedTable.getItems() == null ? -1 : deceasedTable.getItems().indexOf(record);
+                if (index >= 0) {
+                    deceasedTable.getSelectionModel().select(index);
+                    deceasedTable.scrollTo(index);
+                }
                 renderDetail(record);
                 NotificationHelper.showInfo(statusLabel, "Opened death certificate source record: " + recordId);
                 return;
@@ -104,6 +108,7 @@ public class DeceasedRecordsController implements FxController {
             return;
         }
         try {
+            SelectionHelper.safeClearSelection(deceasedTable);
             records.setAll(deceasedPatientService.getDeceasedRecords(buildFilter()));
             deceasedTable.setItems(records);
             loadSummaryCards();
@@ -227,7 +232,11 @@ public class DeceasedRecordsController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new javafx.beans.property.ReadOnlyObjectWrapper<>(deceasedTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = deceasedTable.getItems() == null ? -1 : deceasedTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new javafx.beans.property.ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         patientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
@@ -239,7 +248,7 @@ public class DeceasedRecordsController implements FxController {
         deceasedTable.setRowFactory(table -> {
             TableRow<SqliteDeceasedRecordDao.DeathRecord> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
                     appShell.showPatientDetail(row.getItem().getPatientId());
                 }
             });

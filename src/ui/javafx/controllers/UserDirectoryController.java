@@ -23,6 +23,7 @@ import ui.javafx.SessionContext;
 import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 import users.User;
 
@@ -93,6 +94,7 @@ public class UserDirectoryController implements FxController {
                     sectionFilter.getValue(),
                     activeFilter.getValue()
             );
+            SelectionHelper.safeClearSelection(userTable);
             rows.setAll(userDao.findDirectoryRows(filter));
             userTable.setItems(rows);
             statusLabel.setText(rows.isEmpty()
@@ -131,8 +133,11 @@ public class UserDirectoryController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    userTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = userTable.getItems() == null ? -1 : userTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -326,8 +331,11 @@ public class UserDirectoryController implements FxController {
         }
         for (SqliteUserDao.UserDirectoryRow row : rows) {
             if (username.equalsIgnoreCase(row.getUsername())) {
-                userTable.getSelectionModel().select(row);
-                userTable.scrollTo(row);
+                int index = userTable.getItems() == null ? -1 : userTable.getItems().indexOf(row);
+                if (index >= 0) {
+                    userTable.getSelectionModel().select(index);
+                    userTable.scrollTo(index);
+                }
                 return;
             }
         }

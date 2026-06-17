@@ -23,6 +23,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.nio.file.Path;
@@ -103,8 +104,11 @@ public class NewbornRecordsController implements FxController {
         loadRecords();
         for (SqliteNewbornRecordDao.NewbornRecord record : records) {
             if (record.getId() == recordId) {
-                newbornTable.getSelectionModel().select(record);
-                newbornTable.scrollTo(record);
+                int index = newbornTable.getItems() == null ? -1 : newbornTable.getItems().indexOf(record);
+                if (index >= 0) {
+                    newbornTable.getSelectionModel().select(index);
+                    newbornTable.scrollTo(index);
+                }
                 renderDetail(record);
                 NotificationHelper.showInfo(statusLabel, "Opened birth certificate source record: " + recordId);
                 return;
@@ -120,6 +124,7 @@ public class NewbornRecordsController implements FxController {
             return;
         }
         try {
+            SelectionHelper.safeClearSelection(newbornTable);
             records.setAll(newbornService.getNewbornRecords(buildFilter()));
             newbornTable.setItems(records);
             loadSummaryCards();
@@ -267,7 +272,11 @@ public class NewbornRecordsController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new javafx.beans.property.ReadOnlyObjectWrapper<>(newbornTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = newbornTable.getItems() == null ? -1 : newbornTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new javafx.beans.property.ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         newbornIdColumn.setCellValueFactory(new PropertyValueFactory<>("newbornId"));
         babyNameColumn.setCellValueFactory(new PropertyValueFactory<>("babyName"));

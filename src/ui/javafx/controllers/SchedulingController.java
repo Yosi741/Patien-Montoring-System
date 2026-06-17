@@ -329,8 +329,11 @@ public class SchedulingController implements FxController {
 
     private void configureTables() {
         if (appointmentRowNumberColumn != null) {
-            appointmentRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    appointmentTable.getItems().indexOf(cell.getValue()) + 1));
+            appointmentRowNumberColumn.setCellValueFactory(cell -> {
+                int index = appointmentTable.getItems() == null ? -1 : appointmentTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         appointmentIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         appointmentPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
@@ -344,8 +347,11 @@ public class SchedulingController implements FxController {
         appointmentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         if (reminderRowNumberColumn != null) {
-            reminderRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    reminderTable.getItems().indexOf(cell.getValue()) + 1));
+            reminderRowNumberColumn.setCellValueFactory(cell -> {
+                int index = reminderTable.getItems() == null ? -1 : reminderTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         reminderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         reminderPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));

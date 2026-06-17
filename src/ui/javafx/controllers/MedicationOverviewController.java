@@ -353,8 +353,11 @@ public class MedicationOverviewController implements FxController {
 
     private void configureTables() {
         if (medRowNumberColumn != null) {
-            medRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    medicationTable.getItems().indexOf(cell.getValue()) + 1));
+            medRowNumberColumn.setCellValueFactory(cell -> {
+                int index = medicationTable.getItems() == null ? -1 : medicationTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         medPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         medPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
@@ -365,8 +368,11 @@ public class MedicationOverviewController implements FxController {
         activeColumn.setCellValueFactory(new PropertyValueFactory<>("activeStatus"));
 
         if (eventRowNumberColumn != null) {
-            eventRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    eventTable.getItems().indexOf(cell.getValue()) + 1));
+            eventRowNumberColumn.setCellValueFactory(cell -> {
+                int index = eventTable.getItems() == null ? -1 : eventTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         eventPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         eventMedicationColumn.setCellValueFactory(new PropertyValueFactory<>("medicationName"));

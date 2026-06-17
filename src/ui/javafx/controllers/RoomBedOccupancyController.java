@@ -261,7 +261,11 @@ public class RoomBedOccupancyController implements FxController {
 
     private void configureTable() {
         if (roomRowNumberColumn != null) {
-            roomRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(roomTable.getItems().indexOf(cell.getValue()) + 1));
+            roomRowNumberColumn.setCellValueFactory(cell -> {
+                int index = roomTable.getItems() == null ? -1 : roomTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
         roomColumn.setCellValueFactory(new PropertyValueFactory<>("roomNumber"));
@@ -288,7 +292,11 @@ public class RoomBedOccupancyController implements FxController {
             return;
         }
         if (sectionRowNumberColumn != null) {
-            sectionRowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(sectionTable.getItems().indexOf(cell.getValue()) + 1));
+            sectionRowNumberColumn.setCellValueFactory(cell -> {
+                int index = sectionTable.getItems() == null ? -1 : sectionTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         sectionNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         sectionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
@@ -373,6 +381,7 @@ public class RoomBedOccupancyController implements FxController {
 
     private void loadSections() {
         try {
+            SelectionHelper.safeClearSelection(sectionTable);
             sections.setAll(sectionService.findSections());
         } catch (Exception e) {
             statusLabel.setText("Could not load sections: " + e.getMessage());

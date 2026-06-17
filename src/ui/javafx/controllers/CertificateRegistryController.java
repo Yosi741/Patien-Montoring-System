@@ -31,6 +31,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.helpers.SelectionHelper;
 import users.Session;
 
 import java.nio.file.Path;
@@ -110,6 +111,7 @@ public class CertificateRegistryController implements FxController {
             return;
         }
         try {
+            SelectionHelper.safeClearSelection(certificateTable);
             rows.setAll(registryService.findCertificates(buildFilter()));
             certificateTable.setItems(rows);
             renderSummary();
@@ -388,8 +390,11 @@ public class CertificateRegistryController implements FxController {
 
     private void configureTable() {
         if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                    certificateTable.getItems().indexOf(cell.getValue()) + 1));
+            rowNumberColumn.setCellValueFactory(cell -> {
+                int index = certificateTable.getItems() == null ? -1 : certificateTable.getItems().indexOf(cell.getValue());
+                Number rowNumber = index >= 0 ? index + 1 : null;
+                return new ReadOnlyObjectWrapper<>(rowNumber);
+            });
         }
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("certificateType"));
         sourceRecordColumn.setCellValueFactory(new PropertyValueFactory<>("sourceRecordId"));

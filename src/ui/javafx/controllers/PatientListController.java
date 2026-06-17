@@ -488,7 +488,9 @@ public class PatientListController implements FxController {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
-                setText(empty ? null : String.valueOf(getIndex() + 1));
+                int index = getIndex();
+                int size = getTableView() == null || getTableView().getItems() == null ? 0 : getTableView().getItems().size();
+                setText(empty || index < 0 || index >= size ? null : String.valueOf(index + 1));
             }
         });
         idColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
@@ -544,7 +546,7 @@ public class PatientListController implements FxController {
         patientTable.setRowFactory(table -> {
             TableRow<SqlitePatientDao.PatientListRow> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
                     appShell.showPatientDetail(row.getItem().getPatientId());
                 }
             });
@@ -555,7 +557,9 @@ public class PatientListController implements FxController {
             @Override
             protected void updateItem(String value, boolean empty) {
                 super.updateItem(value, empty);
-                setText(empty ? null : String.valueOf(getIndex() + 1));
+                int index = getIndex();
+                int size = getTableView() == null || getTableView().getItems() == null ? 0 : getTableView().getItems().size();
+                setText(empty || index < 0 || index >= size ? null : String.valueOf(index + 1));
             }
         });
         newbornIdColumn.setCellValueFactory(new PropertyValueFactory<>("newbornId"));
@@ -582,7 +586,7 @@ public class PatientListController implements FxController {
         newbornTable.setRowFactory(table -> {
             TableRow<SqliteNewbornRecordDao.NewbornRecord> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
                     appShell.showNewbornRecord(row.getItem().getId());
                 }
             });
@@ -802,6 +806,8 @@ public class PatientListController implements FxController {
     }
 
     private void showPatientTable() {
+        SelectionHelper.safeClearSelection(patientTable);
+        SelectionHelper.safeClearSelection(newbornTable);
         patientTable.setVisible(true);
         patientTable.setManaged(true);
         newbornTable.setVisible(false);
@@ -823,6 +829,8 @@ public class PatientListController implements FxController {
     }
 
     private void showNewbornTable() {
+        SelectionHelper.safeClearSelection(patientTable);
+        SelectionHelper.safeClearSelection(newbornTable);
         patientTable.setVisible(false);
         patientTable.setManaged(false);
         newbornTable.setVisible(true);

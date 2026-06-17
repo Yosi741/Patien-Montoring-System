@@ -3,6 +3,7 @@ package ui.javafx.controllers;
 import Data_Access_Object.SqliteMedicationCatalogDao;
 import Data_Access_Object.SqliteMedicationDao;
 import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -104,9 +105,9 @@ public class MedicationFormController {
             }
         });
 
-        doseUnitField.getItems().setAll(DEFAULT_UNITS);
-        routeField.getItems().setAll(DEFAULT_ROUTES);
-        frequencyField.getItems().setAll(DEFAULT_FREQUENCIES);
+        replaceComboItemsSafely(doseUnitField, DEFAULT_UNITS);
+        replaceComboItemsSafely(routeField, DEFAULT_ROUTES);
+        replaceComboItemsSafely(frequencyField, DEFAULT_FREQUENCIES);
         safeSelectValue(doseUnitField, "mg");
         safeSelectValue(routeField, "Oral");
         safeSelectValue(frequencyField, "Once daily");
@@ -202,13 +203,9 @@ public class MedicationFormController {
             String typed = searchText == null ? "" : searchText;
             List<SqliteMedicationCatalogDao.MedicationCatalogRecord> matches =
                     medicationCatalogService.searchMedicationsByName(typed);
-            catalogMedicationBox.hide();
-            SelectionHelper.safeClearSelection(catalogMedicationBox);
-            catalogMedicationBox.getItems().clear();
+            replaceComboItemsSafely(catalogMedicationBox, matches);
             if (matches.isEmpty()) {
                 safetyInfoLabel.setText("No catalog medication selected.");
-            } else {
-                catalogMedicationBox.getItems().setAll(matches);
             }
             catalogMedicationBox.getEditor().setText(typed);
             catalogMedicationBox.getEditor().positionCaret(typed.length());
@@ -221,8 +218,8 @@ public class MedicationFormController {
 
     private void applyCatalogSelection(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
         if (catalogItem == null) {
-            doseUnitField.getItems().setAll(DEFAULT_UNITS);
-            routeField.getItems().setAll(DEFAULT_ROUTES);
+            replaceComboItemsSafely(doseUnitField, DEFAULT_UNITS);
+            replaceComboItemsSafely(routeField, DEFAULT_ROUTES);
             safeSelectValue(doseUnitField, "mg");
             safeSelectValue(routeField, "Oral");
             safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
@@ -230,8 +227,8 @@ public class MedicationFormController {
         }
         List<String> allowedUnits = csvValues(catalogItem.getAllowedUnits(), DEFAULT_UNITS);
         List<String> allowedRoutes = csvValues(catalogItem.getAllowedRoutes(), DEFAULT_ROUTES);
-        doseUnitField.getItems().setAll(allowedUnits);
-        routeField.getItems().setAll(allowedRoutes);
+        replaceComboItemsSafely(doseUnitField, allowedUnits);
+        replaceComboItemsSafely(routeField, allowedRoutes);
         selectOrFallback(doseUnitField, catalogItem.getDefaultUnit(), allowedUnits);
         if (catalogItem.getDefaultRoute() != null && !catalogItem.getDefaultRoute().isBlank()) {
             selectOrFallback(routeField, catalogItem.getDefaultRoute(), allowedRoutes);
@@ -242,13 +239,20 @@ public class MedicationFormController {
     }
 
     private void selectCatalogItem(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
-        loadingCatalog = true;
-        catalogMedicationBox.hide();
-        SelectionHelper.safeClearSelection(catalogMedicationBox);
-        if (!catalogMedicationBox.getItems().contains(catalogItem)) {
-            catalogMedicationBox.getItems().add(catalogItem);
+        if (catalogItem == null) {
+            setCatalogEditorTextOnly("");
+            return;
         }
-        catalogMedicationBox.getSelectionModel().select(catalogItem);
+        loadingCatalog = true;
+        List<SqliteMedicationCatalogDao.MedicationCatalogRecord> items = new ArrayList<>(catalogMedicationBox.getItems());
+        if (!items.contains(catalogItem)) {
+            items.add(catalogItem);
+        }
+        replaceComboItemsSafely(catalogMedicationBox, items);
+        int index = catalogMedicationBox.getItems().indexOf(catalogItem);
+        if (index >= 0) {
+            catalogMedicationBox.getSelectionModel().select(index);
+        }
         catalogMedicationBox.getEditor().setText(catalogItem.getName());
         loadingCatalog = false;
         applyCatalogSelection(catalogItem);
@@ -256,8 +260,7 @@ public class MedicationFormController {
 
     private void setCatalogEditorTextOnly(String text) {
         loadingCatalog = true;
-        catalogMedicationBox.hide();
-        SelectionHelper.safeClearSelection(catalogMedicationBox);
+        clearComboSelectionSafely(catalogMedicationBox);
         catalogMedicationBox.getEditor().setText(text == null ? "" : text);
         catalogMedicationBox.getEditor().positionCaret(catalogMedicationBox.getEditor().getText().length());
         loadingCatalog = false;
@@ -298,7 +301,7 @@ public class MedicationFormController {
         if (value != null && comboBox.getItems().contains(value)) {
             comboBox.getSelectionModel().select(value);
         } else {
-            comboBox.getItems().setAll(fallback);
+            replaceComboItemsSafely(comboBox, fallback);
             SelectionHelper.safeSelectFirst(comboBox);
         }
     }
@@ -313,6 +316,25 @@ public class MedicationFormController {
         } else {
             SelectionHelper.safeSelectFirst(comboBox);
         }
+    }
+
+    private <T> void clearComboSelectionSafely(ComboBox<T> comboBox) {
+        if (comboBox == null) {
+            return;
+        }
+        comboBox.hide();
+        if (comboBox.getSelectionModel() != null) {
+            comboBox.getSelectionModel().clearSelection();
+        }
+        comboBox.setValue(null);
+    }
+
+    private <T> void replaceComboItemsSafely(ComboBox<T> comboBox, List<T> newItems) {
+        if (comboBox == null) {
+            return;
+        }
+        clearComboSelectionSafely(comboBox);
+        comboBox.setItems(FXCollections.observableArrayList(newItems == null ? List.of() : newItems));
     }
 
     private String formatNumber(Double value) {
