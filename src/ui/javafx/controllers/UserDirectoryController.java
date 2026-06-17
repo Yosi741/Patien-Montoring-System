@@ -94,12 +94,13 @@ public class UserDirectoryController implements FxController {
                     sectionFilter.getValue(),
                     activeFilter.getValue()
             );
-            SelectionHelper.safeClearSelection(userTable);
-            rows.setAll(userDao.findDirectoryRows(filter));
-            userTable.setItems(rows);
-            statusLabel.setText(rows.isEmpty()
-                    ? "No users match the selected filters."
-                    : "Users loaded: " + rows.size() + " | Sorted by role, section, username");
+            var loadedRows = userDao.findDirectoryRows(filter);
+            SelectionHelper.runWhenTableStable(userTable, () -> {
+                SelectionHelper.safeReplaceItems(userTable, rows, loadedRows);
+                statusLabel.setText(rows.isEmpty()
+                        ? "No users match the selected filters."
+                        : "Users loaded: " + rows.size() + " | Sorted by role, section, username");
+            });
         } catch (Exception e) {
             statusLabel.setText("Could not load users: " + e.getMessage());
         }
@@ -332,10 +333,7 @@ public class UserDirectoryController implements FxController {
         for (SqliteUserDao.UserDirectoryRow row : rows) {
             if (username.equalsIgnoreCase(row.getUsername())) {
                 int index = userTable.getItems() == null ? -1 : userTable.getItems().indexOf(row);
-                if (index >= 0) {
-                    userTable.getSelectionModel().select(index);
-                    userTable.scrollTo(index);
-                }
+                SelectionHelper.safeSelectIndex(userTable, index);
                 return;
             }
         }

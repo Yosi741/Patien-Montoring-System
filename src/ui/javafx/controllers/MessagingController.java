@@ -113,23 +113,22 @@ public class MessagingController implements FxController {
             Long selectedInboxId = selectedId(inboxTable);
             Long selectedSentId = selectedId(sentTable);
             Long selectedRequestId = selectedId(requestTable);
-            SelectionHelper.safeClearTableSelection(inboxTable);
-            SelectionHelper.safeClearTableSelection(sentTable);
-            SelectionHelper.safeClearTableSelection(requestTable);
-            inboxRows.setAll(messagingService.inbox(user, searchField.getText(), statusFilter.getValue()));
-            sentRows.setAll(messagingService.sent(user, searchField.getText(), statusFilter.getValue()));
-            requestRows.setAll(messagingService.requests(user, searchField.getText(), requestFilter.getValue()));
-            inboxTable.setItems(inboxRows);
-            sentTable.setItems(sentRows);
-            requestTable.setItems(requestRows);
-            boolean restored = SelectionHelper.safeRestoreSelectionById(inboxTable, selectedInboxId, SqliteMessageDao.MessageRow::getId)
-                    || SelectionHelper.safeRestoreSelectionById(sentTable, selectedSentId, SqliteMessageDao.MessageRow::getId)
-                    || SelectionHelper.safeRestoreSelectionById(requestTable, selectedRequestId, SqliteMessageDao.MessageRow::getId);
-            if (!restored && inboxRows.isEmpty() && sentRows.isEmpty() && requestRows.isEmpty()) {
-                clearDetail();
-            }
-            NotificationHelper.showInfo(statusLabel, "Messages loaded. Inbox: " + inboxRows.size()
-                    + " | Sent: " + sentRows.size() + " | Requests: " + requestRows.size());
+            var loadedInbox = messagingService.inbox(user, searchField.getText(), statusFilter.getValue());
+            var loadedSent = messagingService.sent(user, searchField.getText(), statusFilter.getValue());
+            var loadedRequests = messagingService.requests(user, searchField.getText(), requestFilter.getValue());
+            SelectionHelper.runWhenTablesStable(() -> {
+                SelectionHelper.safeReplaceItems(inboxTable, inboxRows, loadedInbox);
+                SelectionHelper.safeReplaceItems(sentTable, sentRows, loadedSent);
+                SelectionHelper.safeReplaceItems(requestTable, requestRows, loadedRequests);
+                boolean restored = SelectionHelper.safeRestoreSelectionById(inboxTable, selectedInboxId, SqliteMessageDao.MessageRow::getId)
+                        || SelectionHelper.safeRestoreSelectionById(sentTable, selectedSentId, SqliteMessageDao.MessageRow::getId)
+                        || SelectionHelper.safeRestoreSelectionById(requestTable, selectedRequestId, SqliteMessageDao.MessageRow::getId);
+                if (!restored && inboxRows.isEmpty() && sentRows.isEmpty() && requestRows.isEmpty()) {
+                    clearDetail();
+                }
+                NotificationHelper.showInfo(statusLabel, "Messages loaded. Inbox: " + inboxRows.size()
+                        + " | Sent: " + sentRows.size() + " | Requests: " + requestRows.size());
+            }, inboxTable, sentTable, requestTable);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load messages: " + e.getMessage());
         }

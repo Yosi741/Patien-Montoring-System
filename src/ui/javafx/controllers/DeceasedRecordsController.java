@@ -89,10 +89,7 @@ public class DeceasedRecordsController implements FxController {
         for (SqliteDeceasedRecordDao.DeathRecord record : records) {
             if (record.getId() == recordId) {
                 int index = deceasedTable.getItems() == null ? -1 : deceasedTable.getItems().indexOf(record);
-                if (index >= 0) {
-                    deceasedTable.getSelectionModel().select(index);
-                    deceasedTable.scrollTo(index);
-                }
+                SelectionHelper.safeSelectIndex(deceasedTable, index);
                 renderDetail(record);
                 NotificationHelper.showInfo(statusLabel, "Opened death certificate source record: " + recordId);
                 return;
@@ -108,12 +105,13 @@ public class DeceasedRecordsController implements FxController {
             return;
         }
         try {
-            SelectionHelper.safeClearSelection(deceasedTable);
-            records.setAll(deceasedPatientService.getDeceasedRecords(buildFilter()));
-            deceasedTable.setItems(records);
+            var loadedRecords = deceasedPatientService.getDeceasedRecords(buildFilter());
             loadSummaryCards();
-            statusLabel.setText("Deceased records loaded from the local database: " + records.size());
-            renderDetail(null);
+            SelectionHelper.runWhenTableStable(deceasedTable, () -> {
+                SelectionHelper.safeReplaceItems(deceasedTable, records, loadedRecords);
+                statusLabel.setText("Deceased records loaded from the local database: " + records.size());
+                renderDetail(null);
+            });
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load deceased records: " + e.getMessage());
         }

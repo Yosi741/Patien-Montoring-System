@@ -129,15 +129,13 @@ public class SchedulingController implements FxController {
             overdueRemindersLabel.setText(String.valueOf(overview.getOverdueReminders()));
             medicationRemindersTodayLabel.setText(String.valueOf(overview.getMedicationRemindersToday()));
             cancelledMissedLabel.setText(String.valueOf(overview.getCancelledMissedItems()));
-            SelectionHelper.safeClearSelection(appointmentTable);
-            SelectionHelper.safeClearSelection(reminderTable);
-            appointments.setAll(overview.getAppointments());
-            appointmentTable.setItems(appointments);
-            reminders.setAll(overview.getReminders());
-            reminderTable.setItems(reminders);
-            showReminderDetail(null);
-            NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from the local database. Appointments: "
-                    + appointments.size() + ", reminders: " + reminders.size());
+            SelectionHelper.runWhenTablesStable(() -> {
+                SelectionHelper.safeReplaceItems(appointmentTable, appointments, overview.getAppointments());
+                SelectionHelper.safeReplaceItems(reminderTable, reminders, overview.getReminders());
+                showReminderDetail(null);
+                NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from the local database. Appointments: "
+                        + appointments.size() + ", reminders: " + reminders.size());
+            }, appointmentTable, reminderTable);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load scheduling data: " + e.getMessage());
         }

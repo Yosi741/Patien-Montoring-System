@@ -120,16 +120,17 @@ public class MedicalFilesController implements FxController {
             return;
         }
         try {
-            SelectionHelper.safeClearSelection(filesTable);
-            files.setAll(fileDao.findFiles(
+            var loadedFiles = fileDao.findFiles(
                     searchField.getText(),
                     categoryFilter.getValue(),
                     dateRangeFilter.getValue(),
                     uploadedByFilter.getText(),
-                    patientIdFilter));
-            filesTable.setItems(files);
-            selectPendingFile();
-            NotificationHelper.showInfo(statusLabel, "Medical files loaded from the local database: " + files.size());
+                    patientIdFilter);
+            SelectionHelper.runWhenTableStable(filesTable, () -> {
+                SelectionHelper.safeReplaceItems(filesTable, files, loadedFiles);
+                selectPendingFile();
+                NotificationHelper.showInfo(statusLabel, "Medical files loaded from the local database: " + files.size());
+            });
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load medical files: " + e.getMessage());
         }
@@ -355,10 +356,7 @@ public class MedicalFilesController implements FxController {
         for (SqliteMedicalFileDao.MedicalFileRecord file : files) {
             if (pendingFileId.equals(file.getFileId())) {
                 int index = filesTable.getItems() == null ? -1 : filesTable.getItems().indexOf(file);
-                if (index >= 0) {
-                    filesTable.getSelectionModel().select(index);
-                    filesTable.scrollTo(index);
-                }
+                SelectionHelper.safeSelectIndex(filesTable, index);
                 pendingFileId = "";
                 return;
             }

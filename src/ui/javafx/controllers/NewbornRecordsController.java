@@ -105,10 +105,7 @@ public class NewbornRecordsController implements FxController {
         for (SqliteNewbornRecordDao.NewbornRecord record : records) {
             if (record.getId() == recordId) {
                 int index = newbornTable.getItems() == null ? -1 : newbornTable.getItems().indexOf(record);
-                if (index >= 0) {
-                    newbornTable.getSelectionModel().select(index);
-                    newbornTable.scrollTo(index);
-                }
+                SelectionHelper.safeSelectIndex(newbornTable, index);
                 renderDetail(record);
                 NotificationHelper.showInfo(statusLabel, "Opened birth certificate source record: " + recordId);
                 return;
@@ -124,12 +121,13 @@ public class NewbornRecordsController implements FxController {
             return;
         }
         try {
-            SelectionHelper.safeClearSelection(newbornTable);
-            records.setAll(newbornService.getNewbornRecords(buildFilter()));
-            newbornTable.setItems(records);
+            var loadedRecords = newbornService.getNewbornRecords(buildFilter());
             loadSummaryCards();
-            statusLabel.setText("Newborn records loaded from the local database: " + records.size());
-            renderDetail(null);
+            SelectionHelper.runWhenTableStable(newbornTable, () -> {
+                SelectionHelper.safeReplaceItems(newbornTable, records, loadedRecords);
+                statusLabel.setText("Newborn records loaded from the local database: " + records.size());
+                renderDetail(null);
+            });
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load newborn records: " + e.getMessage());
         }

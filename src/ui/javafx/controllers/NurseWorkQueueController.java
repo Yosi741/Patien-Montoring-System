@@ -88,11 +88,11 @@ public class NurseWorkQueueController implements FxController {
             totalTasksLabel.setText(String.valueOf(overview.getTotalTasks()));
             criticalAlertsLabel.setText(String.valueOf(overview.getCriticalAlerts()));
             missingVitalsLabel.setText(String.valueOf(overview.getMissingVitals()));
-            SelectionHelper.safeClearSelection(queueTable);
-            tasks.setAll(overview.getTasks());
-            queueTable.setItems(tasks);
-            renderReminderNotifications();
-            NotificationHelper.showInfo(statusLabel, "Work Queue refreshed from the local database: " + tasks.size() + " tasks.");
+            SelectionHelper.runWhenTableStable(queueTable, () -> {
+                SelectionHelper.safeReplaceItems(queueTable, tasks, overview.getTasks());
+                renderReminderNotifications();
+                NotificationHelper.showInfo(statusLabel, "Work Queue refreshed from the local database: " + tasks.size() + " tasks.");
+            });
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load Work Queue: " + e.getMessage());
         }

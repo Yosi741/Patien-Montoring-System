@@ -200,14 +200,15 @@ public class PatientListController implements FxController {
                 return;
             }
             showPatientTable();
-            SelectionHelper.safeClearSelection(patientTable);
-            SelectionHelper.safeClearSelection(newbornTable);
-            patients.setAll(patientDao.findPatientListRows(buildFilter()));
-            loadDeathContextIfNeeded();
-            patientTable.setItems(patients);
-            updateBoardTitle();
-            statusLabel.setText(boardTitleLabel.getText() + " loaded: " + patients.size());
-            renderFilterChips();
+            List<SqlitePatientDao.PatientListRow> loadedPatients = patientDao.findPatientListRows(buildFilter());
+            SelectionHelper.runWhenTablesStable(() -> {
+                SelectionHelper.safeClearSelection(newbornTable);
+                SelectionHelper.safeReplaceItems(patientTable, patients, loadedPatients);
+                loadDeathContextIfNeeded();
+                updateBoardTitle();
+                statusLabel.setText(boardTitleLabel.getText() + " loaded: " + patients.size());
+                renderFilterChips();
+            }, patientTable, newbornTable);
         } catch (Exception e) {
             statusLabel.setText("Could not load patients: " + e.getMessage());
         }
@@ -216,16 +217,17 @@ public class PatientListController implements FxController {
     private void loadNewborns() {
         try {
             showNewbornTable();
-            SelectionHelper.safeClearSelection(patientTable);
-            SelectionHelper.safeClearSelection(newbornTable);
             SqliteNewbornRecordDao.RecordFilter filter = new SqliteNewbornRecordDao.RecordFilter();
             filter.setSearch(searchField.getText());
             filter.setSection(value(sectionFilter));
-            newborns.setAll(newbornDao.findRecords(filter));
-            newbornTable.setItems(newborns);
-            updateBoardTitle();
-            statusLabel.setText("Newborn records loaded: " + newborns.size());
-            renderFilterChips();
+            List<SqliteNewbornRecordDao.NewbornRecord> loadedNewborns = newbornDao.findRecords(filter);
+            SelectionHelper.runWhenTablesStable(() -> {
+                SelectionHelper.safeClearSelection(patientTable);
+                SelectionHelper.safeReplaceItems(newbornTable, newborns, loadedNewborns);
+                updateBoardTitle();
+                statusLabel.setText("Newborn records loaded: " + newborns.size());
+                renderFilterChips();
+            }, patientTable, newbornTable);
         } catch (Exception e) {
             statusLabel.setText("Could not load newborn records: " + e.getMessage());
         }
