@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.profile_settings;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

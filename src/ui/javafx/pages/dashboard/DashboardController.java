@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.dashboard;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

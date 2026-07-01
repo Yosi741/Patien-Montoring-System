@@ -10,7 +10,7 @@
         styleClass="dashboard-page"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.DashboardController">
+        fx:controller="ui.javafx.pages.dashboard.DashboardController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear dashboard-scroll">

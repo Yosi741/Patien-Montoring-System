@@ -55,7 +55,7 @@ public class AppShell extends Application {
     }
 
     public void showLogin() {
-        setView("/ui/javafx/views/LoginView.fxml", "Smart Patient Monitoring System - Login");
+        setView("/ui/javafx/pages/login/LoginView.fxml", "Smart Patient Monitoring System - Login");
         configureLoginWindow();
     }
 
@@ -68,7 +68,7 @@ public class AppShell extends Application {
         if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
             SessionContext.start(user, authSource);
         }
-        setShellContent("/ui/javafx/views/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
+        setShellContent("/ui/javafx/pages/dashboard/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
         primaryStage.setMaximized(true);
     }
 
@@ -128,7 +128,7 @@ public class AppShell extends Application {
     }
 
     public void showUserProfile() {
-        setShellContent("/ui/javafx/views/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
+        setShellContent("/ui/javafx/pages/profile_settings/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
     }
 
     public void showAuditLogs() {

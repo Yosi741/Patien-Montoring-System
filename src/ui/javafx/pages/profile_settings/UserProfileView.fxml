@@ -10,7 +10,7 @@
         styleClass="content-page"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.UserProfileController">
+        fx:controller="ui.javafx.pages.profile_settings.UserProfileController">
 
     <center>
         <VBox spacing="18.0">
