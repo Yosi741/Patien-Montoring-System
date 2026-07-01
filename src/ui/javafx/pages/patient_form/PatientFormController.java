@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.patient_form;
 
 import Data_Access_Object.SqlitePatientDao;
 import Data_Access_Object.SqliteRoomDao;
@@ -69,7 +69,7 @@ public class PatientFormController {
 
     private static boolean showDialog(Window owner, User currentUser, SqlitePatientDao.PatientDetail patient) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/PatientFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/patient_form/PatientFormView.fxml"));
             Parent root = loader.load();
             PatientFormController controller = loader.getController();
             controller.prepare(currentUser, patient);

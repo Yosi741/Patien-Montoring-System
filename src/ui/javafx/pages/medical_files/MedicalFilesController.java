@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.medical_files;
 
 import Data_Access_Object.SqliteMedicalFileDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;

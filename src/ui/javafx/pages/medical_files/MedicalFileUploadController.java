@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.medical_files;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -36,7 +36,7 @@ public class MedicalFileUploadController {
 
     public static boolean showDialog(Window owner, User currentUser, String patientId) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/MedicalFileUploadView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/medical_files/MedicalFileUploadView.fxml"));
             Parent root = loader.load();
             MedicalFileUploadController controller = loader.getController();
             controller.prepare(currentUser, patientId);

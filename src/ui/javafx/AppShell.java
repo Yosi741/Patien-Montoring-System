@@ -13,9 +13,9 @@ import ui.javafx.controllers.AppLayoutController;
 import ui.javafx.controllers.ClinicalTimelineController;
 import ui.javafx.controllers.DeceasedRecordsController;
 import ui.javafx.controllers.MedicationOverviewController;
-import ui.javafx.controllers.MedicalFilesController;
+import ui.javafx.pages.medical_files.MedicalFilesController;
 import ui.javafx.controllers.NewbornRecordsController;
-import ui.javafx.controllers.PatientDetailController;
+import ui.javafx.pages.patient_detail.PatientDetailController;
 import ui.javafx.controllers.PlaceholderController;
 import ui.javafx.controllers.SchedulingController;
 import ui.javafx.services.DeceasedPatientService;
@@ -73,7 +73,7 @@ public class AppShell extends Application {
     }
 
     public void showPatientList() {
-        setShellContent("/ui/javafx/views/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
+        setShellContent("/ui/javafx/pages/patient_board/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
     }
 
     public void showMessaging() {
@@ -98,7 +98,7 @@ public class AppShell extends Application {
 
     public void showPatientDetail(String patientId) {
         ensureShell("Smart Patient Monitoring System - Patient Detail");
-        AppNavigator.LoadedView detail = navigator.loadView("/ui/javafx/views/PatientDetailView.fxml");
+        AppNavigator.LoadedView detail = navigator.loadView("/ui/javafx/pages/patient_detail/PatientDetailView.fxml");
         if (detail.getController() instanceof PatientDetailController) {
             ((PatientDetailController) detail.getController()).loadPatient(patientId);
         }
@@ -218,12 +218,12 @@ public class AppShell extends Application {
     }
 
     public void showMedicalFiles() {
-        setShellContent("/ui/javafx/views/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
+        setShellContent("/ui/javafx/pages/medical_files/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
     }
 
     public void showMedicalFilesForPatient(String patientId) {
         ensureShell("Smart Patient Monitoring System - Patient Medical Files");
-        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/views/MedicalFilesView.fxml");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/pages/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForPatient(patientId);
         }
@@ -233,7 +233,7 @@ public class AppShell extends Application {
 
     public void showMedicalFileDetails(String patientId, String fileId) {
         ensureShell("Smart Patient Monitoring System - Medical File Details");
-        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/views/MedicalFilesView.fxml");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/pages/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
         }

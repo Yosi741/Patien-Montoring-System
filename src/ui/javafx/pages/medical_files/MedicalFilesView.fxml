@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="740.0" prefWidth="1180.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.MedicalFilesController">
+<BorderPane prefHeight="740.0" prefWidth="1180.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.pages.medical_files.MedicalFilesController">
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar page-header-card">

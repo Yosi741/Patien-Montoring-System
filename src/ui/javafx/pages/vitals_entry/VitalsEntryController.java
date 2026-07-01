@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.vitals_entry;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -43,7 +43,7 @@ public class VitalsEntryController {
 
     public static VitalsWriteService.VitalsWriteResult showDialog(Window owner, User currentUser, String patientId) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/VitalsEntryView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/vitals_entry/VitalsEntryView.fxml"));
             Parent root = loader.load();
             VitalsEntryController controller = loader.getController();
             controller.prepare(currentUser, patientId);

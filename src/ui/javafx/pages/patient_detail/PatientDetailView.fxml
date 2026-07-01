@@ -12,7 +12,7 @@
         styleClass="content-page patient-file-root"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.PatientDetailController">
+        fx:controller="ui.javafx.pages.patient_detail.PatientDetailController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="patient-file-scroll">

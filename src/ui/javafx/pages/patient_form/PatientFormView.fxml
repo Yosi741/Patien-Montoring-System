@@ -8,7 +8,7 @@
         prefWidth="700.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.PatientFormController" styleClass="panel-card dialog-root">
+        fx:controller="ui.javafx.pages.patient_form.PatientFormController" styleClass="panel-card dialog-root">
 
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label fx:id="titleLabel" text="Patient" styleClass="screen-title dialog-title" />

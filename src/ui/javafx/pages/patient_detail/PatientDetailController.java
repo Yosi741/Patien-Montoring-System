@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.patient_detail;
 
 import Data_Access_Object.SqlitePatientDao;
 import Data_Access_Object.SqliteVitalReadingDao;
@@ -27,6 +27,15 @@ import ui.javafx.FxController;
 import ui.javafx.SessionContext;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
+import ui.javafx.controllers.AppointmentFormController;
+import ui.javafx.controllers.DeathRecordFormController;
+import ui.javafx.controllers.MedicationFormController;
+import ui.javafx.controllers.MedicationGivenController;
+import ui.javafx.controllers.ReminderFormController;
+import ui.javafx.controllers.RoomAssignmentController;
+import ui.javafx.pages.medical_files.MedicalFileUploadController;
+import ui.javafx.pages.patient_form.PatientFormController;
+import ui.javafx.pages.vitals_entry.VitalsEntryController;
 import users.Session;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;

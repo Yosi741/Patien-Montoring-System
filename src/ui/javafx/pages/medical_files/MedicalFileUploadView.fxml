@@ -9,7 +9,7 @@
         prefWidth="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.MedicalFileUploadController" styleClass="panel-card">
+        fx:controller="ui.javafx.pages.medical_files.MedicalFileUploadController" styleClass="panel-card">
 
     <VBox spacing="4.0">
         <Label

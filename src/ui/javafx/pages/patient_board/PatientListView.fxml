@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="720.0" prefWidth="1150.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.PatientListController">
+<BorderPane prefHeight="720.0" prefWidth="1150.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.pages.patient_board.PatientListController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="patient-board-scroll">
