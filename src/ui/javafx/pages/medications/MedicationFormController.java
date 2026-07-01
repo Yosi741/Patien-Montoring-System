@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.medications;
 
 import Data_Access_Object.SqliteMedicationCatalogDao;
 import Data_Access_Object.SqliteMedicationDao;
@@ -19,6 +19,7 @@ import javafx.util.StringConverter;
 import ui.javafx.services.MedicationCatalogService;
 import ui.javafx.services.MedicationWriteService;
 import ui.javafx.AppNavigator;
+import ui.javafx.controllers.MedicationCatalogController;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.SelectionHelper;
 import users.User;
@@ -63,7 +64,7 @@ public class MedicationFormController {
 
     private static boolean showDialog(Window owner, User currentUser, String patientId, SqliteMedicationDao.MedicationRecord medication) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/MedicationFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/medications/MedicationFormView.fxml"));
             Parent root = loader.load();
             MedicationFormController controller = loader.getController();
             controller.prepare(currentUser, patientId, medication);

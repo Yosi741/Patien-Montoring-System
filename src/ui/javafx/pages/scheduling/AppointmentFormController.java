@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.scheduling;
 
 import Data_Access_Object.SqliteAppointmentDao;
 import javafx.event.ActionEvent;
@@ -53,7 +53,7 @@ public class AppointmentFormController {
 
     private static boolean showDialog(Window owner, User currentUser, String patientId, SqliteAppointmentDao.AppointmentRecord appointment) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/AppointmentFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/scheduling/AppointmentFormView.fxml"));
             Parent root = loader.load();
             AppointmentFormController controller = loader.getController();
             controller.prepare(currentUser, patientId, appointment);

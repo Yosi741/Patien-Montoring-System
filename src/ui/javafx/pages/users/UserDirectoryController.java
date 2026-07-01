@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.users;
 
 import Data_Access_Object.SqliteAuditLogDao;
 import Data_Access_Object.SqliteUserDao;

@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.scheduling;
 
 import Data_Access_Object.SqliteReminderDao;
 import javafx.event.ActionEvent;
@@ -90,7 +90,7 @@ public class ReminderFormController {
                                       String medicationName, SqliteReminderDao.ReminderRecord reminder,
                                       boolean orderCheckupMode) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/ReminderFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/scheduling/ReminderFormView.fxml"));
             Parent root = loader.load();
             ReminderFormController controller = loader.getController();
             controller.prepare(currentUser, patientId, medicationId, medicationName, reminder, orderCheckupMode);

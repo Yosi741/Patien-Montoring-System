@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.scheduling;
 
 import Data_Access_Object.SqliteAppointmentDao;
 import Data_Access_Object.SqliteReminderDao;

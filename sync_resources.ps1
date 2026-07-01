@@ -50,5 +50,37 @@ $legacyMedicalFileUploadView = Join-Path $targetViews "MedicalFileUploadView.fxm
 if (Test-Path $legacyMedicalFileUploadView) {
     Remove-Item -Path $legacyMedicalFileUploadView -Force
 }
+$legacyUserDirectoryManagementView = Join-Path $targetViews "UserDirectoryManagementView.fxml"
+if (Test-Path $legacyUserDirectoryManagementView) {
+    Remove-Item -Path $legacyUserDirectoryManagementView -Force
+}
+$legacyUserDirectoryView = Join-Path $targetViews "UserDirectoryView.fxml"
+if (Test-Path $legacyUserDirectoryView) {
+    Remove-Item -Path $legacyUserDirectoryView -Force
+}
+$legacyUserFormView = Join-Path $targetViews "UserFormView.fxml"
+if (Test-Path $legacyUserFormView) {
+    Remove-Item -Path $legacyUserFormView -Force
+}
+$legacyMedicationOverviewView = Join-Path $targetViews "MedicationOverviewView.fxml"
+if (Test-Path $legacyMedicationOverviewView) {
+    Remove-Item -Path $legacyMedicationOverviewView -Force
+}
+$legacyMedicationFormView = Join-Path $targetViews "MedicationFormView.fxml"
+if (Test-Path $legacyMedicationFormView) {
+    Remove-Item -Path $legacyMedicationFormView -Force
+}
+$legacySchedulingView = Join-Path $targetViews "SchedulingView.fxml"
+if (Test-Path $legacySchedulingView) {
+    Remove-Item -Path $legacySchedulingView -Force
+}
+$legacyAppointmentFormView = Join-Path $targetViews "AppointmentFormView.fxml"
+if (Test-Path $legacyAppointmentFormView) {
+    Remove-Item -Path $legacyAppointmentFormView -Force
+}
+$legacyReminderFormView = Join-Path $targetViews "ReminderFormView.fxml"
+if (Test-Path $legacyReminderFormView) {
+    Remove-Item -Path $legacyReminderFormView -Force
+}
 
 Write-Host "Resources synced successfully in the active project copy!"

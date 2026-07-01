@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.users;
 
 import Data_Access_Object.SqliteUserDao;
 import javafx.collections.FXCollections;
@@ -62,7 +62,7 @@ public class UserFormController {
 
     private static boolean showDialog(Window owner, User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/views/UserFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/ui/javafx/pages/users/UserFormView.fxml"));
             Parent root = loader.load();
             UserFormController controller = loader.getController();
             controller.prepare(currentUser, user, mode);

@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefWidth="760.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.ReminderFormController">
+<VBox prefWidth="760.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.pages.scheduling.ReminderFormController">
 
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Reminder" />

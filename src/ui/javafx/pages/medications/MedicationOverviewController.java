@@ -1,4 +1,4 @@
-package ui.javafx.controllers;
+package ui.javafx.pages.medications;
 
 import Data_Access_Object.SqliteAuditLogDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -19,10 +19,13 @@ import ui.javafx.services.MedicationWriteService;
 import ui.javafx.AppShell;
 import ui.javafx.FxController;
 import ui.javafx.SessionContext;
+import ui.javafx.controllers.MedicationCatalogController;
+import ui.javafx.controllers.MedicationGivenController;
 import ui.javafx.helpers.DialogHelper;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import ui.javafx.helpers.SelectionHelper;
+import ui.javafx.pages.scheduling.ReminderFormController;
 import users.Session;
 
 import java.time.LocalDateTime;

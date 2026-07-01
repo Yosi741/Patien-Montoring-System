@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.controllers.UserDirectoryController">
+<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.javafx.pages.users.UserDirectoryController">
     <center>
         <VBox spacing="18.0">
             <padding>

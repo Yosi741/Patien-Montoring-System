@@ -16,7 +16,7 @@
         prefWidth="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.AppointmentFormController" styleClass="panel-card dialog-root">
+        fx:controller="ui.javafx.pages.scheduling.AppointmentFormController" styleClass="panel-card dialog-root">
 
     <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dialog-header-card">
         <VBox spacing="4.0">

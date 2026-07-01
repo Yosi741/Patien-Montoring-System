@@ -9,7 +9,7 @@
         prefHeight="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ui.javafx.controllers.SchedulingController" styleClass="content-page">
+        fx:controller="ui.javafx.pages.scheduling.SchedulingController" styleClass="content-page">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
