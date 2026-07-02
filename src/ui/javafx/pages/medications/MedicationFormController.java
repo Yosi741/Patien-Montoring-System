@@ -19,7 +19,7 @@ import javafx.util.StringConverter;
 import ui.javafx.services.MedicationCatalogService;
 import ui.javafx.services.MedicationWriteService;
 import ui.javafx.AppNavigator;
-import ui.javafx.controllers.MedicationCatalogController;
+import ui.javafx.pages.medications.MedicationCatalogController;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.SelectionHelper;
 import users.User;

@@ -82,5 +82,69 @@ $legacyReminderFormView = Join-Path $targetViews "ReminderFormView.fxml"
 if (Test-Path $legacyReminderFormView) {
     Remove-Item -Path $legacyReminderFormView -Force
 }
+$legacyAuditLogView = Join-Path $targetViews "AuditLogView.fxml"
+if (Test-Path $legacyAuditLogView) {
+    Remove-Item -Path $legacyAuditLogView -Force
+}
+$legacyCertificateRegistryView = Join-Path $targetViews "CertificateRegistryView.fxml"
+if (Test-Path $legacyCertificateRegistryView) {
+    Remove-Item -Path $legacyCertificateRegistryView -Force
+}
+$legacyClinicalTimelineView = Join-Path $targetViews "ClinicalTimelineView.fxml"
+if (Test-Path $legacyClinicalTimelineView) {
+    Remove-Item -Path $legacyClinicalTimelineView -Force
+}
+$legacyDeathRecordFormView = Join-Path $targetViews "DeathRecordFormView.fxml"
+if (Test-Path $legacyDeathRecordFormView) {
+    Remove-Item -Path $legacyDeathRecordFormView -Force
+}
+$legacyDeceasedRecordsView = Join-Path $targetViews "DeceasedRecordsView.fxml"
+if (Test-Path $legacyDeceasedRecordsView) {
+    Remove-Item -Path $legacyDeceasedRecordsView -Force
+}
+$legacyMedicationCatalogView = Join-Path $targetViews "MedicationCatalogView.fxml"
+if (Test-Path $legacyMedicationCatalogView) {
+    Remove-Item -Path $legacyMedicationCatalogView -Force
+}
+$legacyMedicationGivenView = Join-Path $targetViews "MedicationGivenView.fxml"
+if (Test-Path $legacyMedicationGivenView) {
+    Remove-Item -Path $legacyMedicationGivenView -Force
+}
+$legacyMessagingView = Join-Path $targetViews "MessagingView.fxml"
+if (Test-Path $legacyMessagingView) {
+    Remove-Item -Path $legacyMessagingView -Force
+}
+$legacyNewbornFormView = Join-Path $targetViews "NewbornFormView.fxml"
+if (Test-Path $legacyNewbornFormView) {
+    Remove-Item -Path $legacyNewbornFormView -Force
+}
+$legacyNewbornRecordsView = Join-Path $targetViews "NewbornRecordsView.fxml"
+if (Test-Path $legacyNewbornRecordsView) {
+    Remove-Item -Path $legacyNewbornRecordsView -Force
+}
+$legacyNotificationCenterView = Join-Path $targetViews "NotificationCenterView.fxml"
+if (Test-Path $legacyNotificationCenterView) {
+    Remove-Item -Path $legacyNotificationCenterView -Force
+}
+$legacyNurseWorkQueueView = Join-Path $targetViews "NurseWorkQueueView.fxml"
+if (Test-Path $legacyNurseWorkQueueView) {
+    Remove-Item -Path $legacyNurseWorkQueueView -Force
+}
+$legacyRoomAssignmentView = Join-Path $targetViews "RoomAssignmentView.fxml"
+if (Test-Path $legacyRoomAssignmentView) {
+    Remove-Item -Path $legacyRoomAssignmentView -Force
+}
+$legacyRoomBedOccupancyView = Join-Path $targetViews "RoomBedOccupancyView.fxml"
+if (Test-Path $legacyRoomBedOccupancyView) {
+    Remove-Item -Path $legacyRoomBedOccupancyView -Force
+}
+$legacyRoomFormView = Join-Path $targetViews "RoomFormView.fxml"
+if (Test-Path $legacyRoomFormView) {
+    Remove-Item -Path $legacyRoomFormView -Force
+}
+$legacySectionFormView = Join-Path $targetViews "SectionFormView.fxml"
+if (Test-Path $legacySectionFormView) {
+    Remove-Item -Path $legacySectionFormView -Force
+}
 
 Write-Host "Resources synced successfully in the active project copy!"

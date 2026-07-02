@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+        styleClass="content-page notification-root"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.pages.notifications.NotificationCenterController">
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="notification-scroll">
+            <content>
+                <VBox spacing="18.0" styleClass="notification-page">
+                    <padding>
+                        <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
+                    </padding>
+
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="notification-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="notification-section-title" />
+                        <Label text="Login is required to view notifications." wrapText="true" styleClass="notification-muted" />
+                    </VBox>
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+                                                <VBox spacing="16.0">
+                            <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Notification Center" styleClass="screen-title" />
+                                    <Label text="Unified hospital event inbox for alerts, reminders, messages, and system updates." styleClass="muted-text" wrapText="true" />
+                                </VBox>
+                                <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                            </HBox>
+
+                            <GridPane hgap="12.0" vgap="12.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                </columnConstraints>
+
+                                <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="notification-counter-card">
+                                    <Label text="Unread" styleClass="notification-counter-label" />
+                                    <Label fx:id="unreadCountLabel" text="0" styleClass="notification-counter-value notification-counter-unread" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="notification-counter-card">
+                                    <Label text="Critical" styleClass="notification-counter-label" />
+                                    <Label fx:id="criticalCountLabel" text="0" styleClass="notification-counter-value notification-counter-critical" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="notification-counter-card">
+                                    <Label text="Alerts" styleClass="notification-counter-label" />
+                                    <Label fx:id="alertsCountLabel" text="0" styleClass="notification-counter-value" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="notification-counter-card">
+                                    <Label text="Reminders / Messages" styleClass="notification-counter-label" />
+                                    <Label fx:id="workflowCountLabel" text="0" styleClass="notification-counter-value" />
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="notification-filter-card">
+                            <FlowPane hgap="10.0" vgap="10.0">
+                                <Button text="All" onAction="#showAll" styleClass="notification-filter-chip" />
+                                <Button text="Unread" onAction="#showUnread" styleClass="notification-filter-chip" />
+                                <Button text="Critical" onAction="#showCritical" styleClass="notification-filter-chip-critical" />
+                                <Button text="Alerts" onAction="#showAlerts" styleClass="notification-filter-chip" />
+                                <Button text="Reminders" onAction="#showReminders" styleClass="notification-filter-chip" />
+                                <Button text="Messages" onAction="#showMessages" styleClass="notification-filter-chip" />
+                                <Button text="System" onAction="#showSystem" styleClass="notification-filter-chip" />
+                            </FlowPane>
+
+                            <GridPane hgap="14.0" vgap="10.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="17.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="17.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="17.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="39.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                                </columnConstraints>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Severity" styleClass="field-label" />
+                                    <ComboBox fx:id="severityFilter" maxWidth="Infinity" styleClass="notification-input" />
+                                </VBox>
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Status" styleClass="field-label" />
+                                    <ComboBox fx:id="statusFilter" maxWidth="Infinity" styleClass="notification-input" />
+                                </VBox>
+                                <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                    <Label text="Date" styleClass="field-label" />
+                                    <ComboBox fx:id="dateRangeFilter" maxWidth="Infinity" styleClass="notification-input" />
+                                </VBox>
+                                <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                    <Label text="Patient" styleClass="field-label" />
+                                    <TextField fx:id="patientSearchField" promptText="Patient ID" styleClass="notification-input" />
+                                </VBox>
+                                <Button text="Refresh" onAction="#loadNotifications" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="BOTTOM" maxWidth="Infinity" styleClass="notification-action-secondary" />
+                            </GridPane>
+                        </VBox>
+
+                        <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="notification-list-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                        <Label text="Inbox" styleClass="notification-section-title" />
+                                        <Label text="Grouped by date, newest first." styleClass="notification-subtitle" />
+                                    </VBox>
+                                </HBox>
+
+                                <ListView fx:id="notificationList" prefHeight="520.0" VBox.vgrow="ALWAYS" styleClass="notification-list" />
+                                <Label fx:id="statusLabel" text="Notifications not loaded yet." wrapText="true" styleClass="status-pill" />
+                            </VBox>
+
+                            <VBox spacing="14.0" prefWidth="410.0" minWidth="360.0" styleClass="notification-detail-card">
+                                <VBox spacing="5.0">
+                                    <Label fx:id="detailTitleLabel" text="Select a notification" wrapText="true" styleClass="notification-section-title" />
+                                    <Label fx:id="detailMetaLabel" text="-" wrapText="true" styleClass="notification-muted" />
+                                </VBox>
+
+                                <HBox spacing="10.0">
+                                    <Label fx:id="detailSeverityLabel" text="-" styleClass="notification-badge-info" />
+                                    <Label fx:id="detailStatusLabel" text="-" styleClass="notification-badge-status" />
+                                </HBox>
+
+                                <VBox spacing="6.0" styleClass="notification-detail-soft-card">
+                                    <Label text="Patient" styleClass="notification-detail-label" />
+                                    <Label fx:id="detailPatientLabel" text="-" wrapText="true" styleClass="notification-detail-value" />
+                                </VBox>
+
+                                <VBox spacing="6.0" styleClass="notification-detail-soft-card">
+                                    <Label text="Source" styleClass="notification-detail-label" />
+                                    <Label fx:id="detailSourceLabel" text="Source: -" wrapText="true" styleClass="notification-muted" />
+                                </VBox>
+
+                                <VBox spacing="6.0" VBox.vgrow="ALWAYS">
+                                    <Label text="Message" styleClass="notification-detail-label" />
+                                    <TextArea fx:id="detailMessageArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" styleClass="notification-detail-text" />
+                                </VBox>
+
+                                <VBox spacing="6.0">
+                                    <Label text="Recommended Action" styleClass="notification-detail-label" />
+                                    <TextArea fx:id="recommendedActionArea" editable="false" wrapText="true" prefRowCount="3" styleClass="notification-detail-text" />
+                                </VBox>
+
+                                <FlowPane fx:id="sourceButtonPane" hgap="10.0" vgap="10.0" managed="false" visible="false">
+                                    <Button text="Open Related Patient" onAction="#openRelatedPatient" styleClass="notification-action-secondary" />
+                                    <Button text="Open Related Record" onAction="#openSourceRecord" styleClass="notification-action-secondary" />
+                                    <Button text="Open Certificate" onAction="#openCertificate" styleClass="notification-action-primary" />
+                                </FlowPane>
+
+                                <VBox spacing="9.0">
+                                    <Button text="Mark Read" onAction="#markRead" maxWidth="Infinity" styleClass="notification-action-secondary" />
+                                    <Button text="Dismiss" onAction="#dismissNotification" maxWidth="Infinity" styleClass="notification-action-danger" />
+                                    <Button text="Open Linked Item" onAction="#openLinkedItem" maxWidth="Infinity" styleClass="notification-action-primary" />
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

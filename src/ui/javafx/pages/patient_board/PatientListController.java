@@ -30,7 +30,7 @@ import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.NotificationHelper;
 import ui.javafx.helpers.PermissionHelper;
 import ui.javafx.helpers.SelectionHelper;
-import ui.javafx.controllers.NewbornFormController;
+import ui.javafx.pages.newborns.NewbornFormController;
 import ui.javafx.pages.patient_form.PatientFormController;
 import ui.javafx.pages.vitals_entry.VitalsEntryController;
 import users.Session;

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="760.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.pages.medications.MedicationGivenController" styleClass="panel-card dialog-root">
+
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label text="Record Medication Given" styleClass="screen-title dialog-title" />
+        <Label text="Record the actual administered dose with rule-based safety checks. Not a medical diagnosis."
+               wrapText="true" styleClass="muted-text dialog-subtitle" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <Label fx:id="patientIdLabel" text="-" styleClass="status-info metric-value compact-metric-value" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Medication Order" styleClass="field-label" />
+            <ComboBox fx:id="medicationBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Actual Given Amount" styleClass="field-label" />
+            <TextField fx:id="givenAmountField" promptText="Example: 500" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Given Unit" styleClass="field-label" />
+            <ComboBox fx:id="givenUnitBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Route" styleClass="field-label" />
+            <ComboBox fx:id="routeBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Given At" styleClass="field-label" />
+            <TextField fx:id="givenAtField" promptText="dd-MM-yyyy HH:mm:ss" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Given By" styleClass="field-label" />
+            <TextField fx:id="givenByField" promptText="Doctor or nurse username" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+            <Label text="Safety Panel" styleClass="field-label" />
+            <Label fx:id="safetyInfoLabel" text="Select a medication to show safety guidance."
+                   wrapText="true" styleClass="status-warning" />
+        </VBox>
+
+        <VBox fx:id="overridePane" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <CheckBox fx:id="overrideCheckBox" text="Use Doctor/Admin override" styleClass="warning-value" />
+            <TextArea fx:id="overrideReasonArea" prefRowCount="2" wrapText="true"
+                      promptText="Override reason is required when safety limits are exceeded"
+                      styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="3" wrapText="true"
+                      promptText="Optional administration note" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-success success-value" />
+</VBox>
