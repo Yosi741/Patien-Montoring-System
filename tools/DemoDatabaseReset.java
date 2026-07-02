@@ -63,21 +63,22 @@ public class DemoDatabaseReset {
     }
 
     private static void seedUsers(Connection connection) throws Exception {
-        insertUser(connection, "admin", "admin123", "ADMIN", "All", "admin.demo@spms.local", "0590000001");
-        insertUser(connection, "doctor", "doctor123", "DOCTOR", "ER", "doctor.demo@spms.local", "0590000002");
-        insertUser(connection, "nurse", "nurse123", "NURSE", "Maternity", "nurse.demo@spms.local", "0590000003");
-        insertUser(connection, "staff", "staff123", "STAFF", "Front Desk", "staff.demo@spms.local", "0590000004");
+        insertUser(connection, "U0001", "admin", "admin123", "ADMIN", "All", "admin.demo@spms.local", "0590000001");
+        insertUser(connection, "U0002", "doctor", "doctor123", "DOCTOR", "ER", "doctor.demo@spms.local", "0590000002");
+        insertUser(connection, "U0003", "nurse", "nurse123", "NURSE", "Maternity", "nurse.demo@spms.local", "0590000003");
+        insertUser(connection, "U0004", "staff", "staff123", "STAFF", "Front Desk", "staff.demo@spms.local", "0590000004");
     }
 
-    private static void insertUser(Connection connection, String username, String password, String role,
+    private static void insertUser(Connection connection, String staffId, String username, String password, String role,
                                    String section, String email, String phone) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO users(username, password_hash, role, section, email, active, created_at) VALUES(?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
-            statement.setString(1, username);
-            statement.setString(2, PasswordHasher.hash(password.toCharArray()));
-            statement.setString(3, role);
-            statement.setString(4, section);
-            statement.setString(5, email);
+                "INSERT INTO users(staff_id, username, password_hash, role, section, email, active, created_at) VALUES(?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
+            statement.setString(1, staffId);
+            statement.setString(2, username);
+            statement.setString(3, PasswordHasher.hash(password.toCharArray()));
+            statement.setString(4, role);
+            statement.setString(5, section);
+            statement.setString(6, email);
             statement.executeUpdate();
         }
         try (PreparedStatement statement = connection.prepareStatement(

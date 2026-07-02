@@ -34,11 +34,17 @@
             <GridPane hgap="16.0" vgap="16.0">
                 <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
                       styleClass="metric-card">
+                    <Label text="Staff ID" styleClass="metric-label" />
+                    <Label fx:id="staffIdLabel" text="-" styleClass="detail-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                      styleClass="metric-card">
                     <Label text="Username" styleClass="metric-label" />
                     <Label fx:id="usernameLabel" text="-" styleClass="detail-value" />
                 </VBox>
 
-                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
                       styleClass="metric-card">
                     <Label text="Role" styleClass="metric-label" />
                     <Label fx:id="roleLabel" text="-" styleClass="detail-value" />
@@ -46,25 +52,25 @@
                            styleClass="status-info" />
                 </VBox>
 
-                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
                       styleClass="metric-card">
                     <Label text="Section / Department" styleClass="metric-label" />
                     <Label fx:id="sectionLabel" text="-" styleClass="detail-value" />
                 </VBox>
 
-                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
                       styleClass="metric-card">
                     <Label text="Account Status" styleClass="metric-label" />
                     <Label fx:id="accountStatusLabel" text="-" styleClass="detail-value success-value" />
                 </VBox>
 
-                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
                       styleClass="metric-card">
                     <Label text="Login Source" styleClass="metric-label" />
                     <Label fx:id="authSourceLabel" text="-" styleClass="detail-value accent-value" />
                 </VBox>
 
-                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="2" spacing="6.0"
                       styleClass="metric-card">
                     <Label text="Login Time" styleClass="metric-label" />
                     <Label fx:id="loginTimeLabel" text="-" styleClass="section-title" />

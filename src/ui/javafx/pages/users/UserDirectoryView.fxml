@@ -31,7 +31,7 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
                         <Label styleClass="field-label" text="Search" />
-                        <TextField fx:id="searchField" promptText="Username" styleClass="control-input" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="searchField" promptText="Staff ID, username, or email" styleClass="control-input" HBox.hgrow="ALWAYS" />
 
                         <Label styleClass="field-label" text="Role" />
                         <ComboBox fx:id="roleFilter" prefWidth="130.0" styleClass="control-input" />
@@ -60,9 +60,11 @@
                             <columns>
                         <TableColumn fx:id="rowNumberColumn" prefWidth="50.0" resizable="false" text="#" />
                                 <TableColumn fx:id="idColumn" prefWidth="75.0" text="ID" visible="false" />
+                                <TableColumn fx:id="staffIdColumn" prefWidth="110.0" text="Staff ID" />
                                 <TableColumn fx:id="usernameColumn" prefWidth="180.0" text="Username" />
                                 <TableColumn fx:id="roleColumn" prefWidth="190.0" text="Role" />
                                 <TableColumn fx:id="sectionColumn" prefWidth="180.0" text="Section / Department" />
+                                <TableColumn fx:id="emailColumn" prefWidth="220.0" text="Email" />
                                 <TableColumn fx:id="activeColumn" prefWidth="100.0" text="Active" />
                                 <TableColumn fx:id="createdAtColumn" prefWidth="185.0" text="Created At" />
                             </columns>
@@ -78,28 +80,36 @@
                                 <Label fx:id="detailRoleBadgeLabel" styleClass="status-info metric-value compact-metric-value" text="UNKNOWN" />
 
                                 <GridPane hgap="12.0" vgap="12.0">
-                                    <Label styleClass="metric-label" text="Username" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <Label fx:id="detailUsernameLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    <Label styleClass="metric-label" text="Staff ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label fx:id="detailStaffIdLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label styleClass="metric-label" text="Role" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <Label fx:id="detailRoleLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label styleClass="metric-label" text="Username" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label fx:id="detailUsernameLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                    <Label styleClass="metric-label" text="Section" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                    <Label fx:id="detailSectionLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label styleClass="metric-label" text="Role" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <Label fx:id="detailRoleLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <Label styleClass="metric-label" text="Status" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                    <Label fx:id="detailStatusLabel" styleClass="success-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label styleClass="metric-label" text="Section" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <Label fx:id="detailSectionLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                                    <Label styleClass="metric-label" text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                    <Label fx:id="detailAuthSourceLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <Label styleClass="metric-label" text="Email" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    <Label fx:id="detailEmailLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                                    <Label styleClass="metric-label" text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                    <Label fx:id="detailCreatedAtLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    <Label styleClass="metric-label" text="Status" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                    <Label fx:id="detailStatusLabel" styleClass="success-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                    <Label styleClass="metric-label" text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                    <Label fx:id="detailAuthSourceLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                    <Label styleClass="metric-label" text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                    <Label fx:id="detailCreatedAtLabel" styleClass="compact-detail-value" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                            <columnConstraints>
                               <ColumnConstraints />
                               <ColumnConstraints />
                            </columnConstraints>
                            <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />

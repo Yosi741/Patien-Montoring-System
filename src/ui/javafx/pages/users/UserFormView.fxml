@@ -22,32 +22,37 @@
         </columnConstraints>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Staff ID" styleClass="field-label" />
+            <TextField fx:id="staffIdField" promptText="U0001" editable="false" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label text="Username" styleClass="field-label" />
             <TextField fx:id="usernameField" promptText="username" styleClass="control-input" />
             <Label fx:id="usernameHelpLabel" text="" wrapText="true" styleClass="muted-text" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label text="Role" styleClass="field-label" />
             <ComboBox fx:id="roleBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label text="Section / Department" styleClass="field-label" />
             <ComboBox fx:id="sectionBox" promptText="Select active section" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <Label text="Active Status" styleClass="field-label" />
             <CheckBox fx:id="activeCheckBox" text="Active account" styleClass="compact-detail-value" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Password / New Password" styleClass="field-label" />
             <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <Label text="Confirm Password" styleClass="field-label" />
             <PasswordField fx:id="confirmPasswordField" promptText="Repeat password" styleClass="control-input" />
         </VBox>

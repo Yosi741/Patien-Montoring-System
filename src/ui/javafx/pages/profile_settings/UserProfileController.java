@@ -26,6 +26,7 @@ public class UserProfileController implements FxController {
     private AppShell appShell;
     private final UserProfileService profileService = new UserProfileService();
 
+    @FXML private Label staffIdLabel;
     @FXML private Label usernameLabel;
     @FXML private Label roleLabel;
     @FXML private Label roleBadgeLabel;
@@ -54,6 +55,7 @@ public class UserProfileController implements FxController {
 
     private void renderProfile() {
         User user = Session.getCurrentUser();
+        setLabel(staffIdLabel, user == null ? "-" : user.getStaffId());
         setLabel(usernameLabel, SessionContext.username());
         setLabel(roleLabel, SessionContext.role());
         setLabel(sectionLabel, SessionContext.section());

@@ -51,16 +51,20 @@ public class UserDirectoryController implements FxController {
     @FXML private TableView<SqliteUserDao.UserDirectoryRow> userTable;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Number> rowNumberColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Long> idColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> staffIdColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> usernameColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> roleColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> sectionColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> emailColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> activeColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> createdAtColumn;
     @FXML private Label detailTitleLabel;
+    @FXML private Label detailStaffIdLabel;
     @FXML private Label detailUsernameLabel;
     @FXML private Label detailRoleLabel;
     @FXML private Label detailRoleBadgeLabel;
     @FXML private Label detailSectionLabel;
+    @FXML private Label detailEmailLabel;
     @FXML private Label detailStatusLabel;
     @FXML private Label detailAuthSourceLabel;
     @FXML private Label detailCreatedAtLabel;
@@ -141,9 +145,11 @@ public class UserDirectoryController implements FxController {
             });
         }
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        staffIdColumn.setCellValueFactory(new PropertyValueFactory<>("staffId"));
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         activeColumn.setCellValueFactory(new PropertyValueFactory<>("activeStatus"));
         createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
     }
@@ -258,9 +264,11 @@ public class UserDirectoryController implements FxController {
 
     private void renderDetail(SqliteUserDao.UserDirectoryRow row) {
         detailTitleLabel.setText(row.getUsername());
+        detailStaffIdLabel.setText(blank(row.getStaffId()));
         detailUsernameLabel.setText(row.getUsername());
         detailRoleLabel.setText(row.getRole());
         detailSectionLabel.setText(row.getSection());
+        detailEmailLabel.setText(blank(row.getEmail()));
         detailStatusLabel.setText(row.getActiveStatus());
         detailAuthSourceLabel.setText(row.getUsername().equalsIgnoreCase(SessionContext.username())
                 ? SessionContext.authSource()
@@ -287,9 +295,11 @@ public class UserDirectoryController implements FxController {
 
     private void clearDetail() {
         detailTitleLabel.setText("Select a staff user");
+        detailStaffIdLabel.setText("-");
         detailUsernameLabel.setText("-");
         detailRoleLabel.setText("-");
         detailSectionLabel.setText("-");
+        detailEmailLabel.setText("-");
         detailStatusLabel.setText("-");
         detailAuthSourceLabel.setText("-");
         detailCreatedAtLabel.setText("-");
@@ -401,5 +411,9 @@ public class UserDirectoryController implements FxController {
             default:
                 return "role-unknown";
         }
+    }
+
+    private String blank(String value) {
+        return value == null || value.isBlank() ? "-" : value;
     }
 }

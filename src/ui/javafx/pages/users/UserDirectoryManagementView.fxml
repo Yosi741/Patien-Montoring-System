@@ -28,7 +28,7 @@
                 <VBox spacing="12.0" styleClass="panel-card patient-filter-panel">
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
                         <Label text="Search" styleClass="field-label" />
-                        <TextField fx:id="searchField" promptText="Username" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="searchField" promptText="Staff ID, username, or email" HBox.hgrow="ALWAYS" />
                         <Label text="Role" styleClass="field-label" />
                         <ComboBox fx:id="roleFilter" prefWidth="130.0" />
                         <Label text="Section" styleClass="field-label" />
@@ -55,9 +55,11 @@
                             <columns>
                                 <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
                                 <TableColumn fx:id="idColumn" text="ID" prefWidth="75.0" visible="false" />
+                                <TableColumn fx:id="staffIdColumn" text="Staff ID" prefWidth="110.0" />
                                 <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180.0" />
                                 <TableColumn fx:id="roleColumn" text="Role" prefWidth="180.0" />
                                 <TableColumn fx:id="sectionColumn" text="Section / Department" prefWidth="190.0" />
+                                <TableColumn fx:id="emailColumn" text="Email" prefWidth="220.0" />
                                 <TableColumn fx:id="activeColumn" text="Active" prefWidth="100.0" />
                                 <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="185.0" />
                             </columns>
@@ -71,18 +73,22 @@
                                 <Label fx:id="detailRoleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
 
                                 <GridPane hgap="12.0" vgap="12.0">
-                                    <Label text="Username" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
-                                    <Label fx:id="detailUsernameLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-field-value" />
-                                    <Label text="Role" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-field-name" />
-                                    <Label fx:id="detailRoleLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-field-value" />
-                                    <Label text="Section" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="detail-field-name" />
-                                    <Label fx:id="detailSectionLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="detail-field-value" />
-                                    <Label text="Status" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="detail-field-name" />
-                                    <Label fx:id="detailStatusLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="detail-field-value" />
-                                    <Label text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="detail-field-name" />
-                                    <Label fx:id="detailAuthSourceLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="detail-field-value" />
-                                    <Label text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="detail-field-name" />
-                                    <Label fx:id="detailCreatedAtLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="detail-field-value" />
+                                    <Label text="Staff ID" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
+                                    <Label fx:id="detailStaffIdLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-field-value" />
+                                    <Label text="Username" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-field-name" />
+                                    <Label fx:id="detailUsernameLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-field-value" />
+                                    <Label text="Role" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="detail-field-name" />
+                                    <Label fx:id="detailRoleLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="detail-field-value" />
+                                    <Label text="Section" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="detail-field-name" />
+                                    <Label fx:id="detailSectionLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="detail-field-value" />
+                                    <Label text="Email" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="detail-field-name" />
+                                    <Label fx:id="detailEmailLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="detail-field-value" />
+                                    <Label text="Status" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="detail-field-name" />
+                                    <Label fx:id="detailStatusLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="detail-field-value" />
+                                    <Label text="Auth Source" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="detail-field-name" />
+                                    <Label fx:id="detailAuthSourceLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="detail-field-value" />
+                                    <Label text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="detail-field-name" />
+                                    <Label fx:id="detailCreatedAtLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="detail-field-value" />
                                 </GridPane>
 
                                 <VBox spacing="10.0" styleClass="trend-summary-card">

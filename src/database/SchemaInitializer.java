@@ -1,8 +1,14 @@
 package database;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 public class SchemaInitializer {
 
@@ -13,7 +19,7 @@ public class SchemaInitializer {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
             createUsers(statement);
-            migrateUsers(statement);
+            migrateUsers(connection, statement);
             createUserProfiles(statement);
             createPasswordResetTokens(statement);
             createPatients(statement);
@@ -50,6 +56,7 @@ public class SchemaInitializer {
     private static void createUsers(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS users ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "staff_id TEXT UNIQUE,"
                 + "username TEXT NOT NULL UNIQUE,"
                 + "password_hash TEXT NOT NULL,"
                 + "role TEXT NOT NULL,"
@@ -60,8 +67,68 @@ public class SchemaInitializer {
                 + ")");
     }
 
-    private static void migrateUsers(Statement statement) throws SQLException {
+    private static void migrateUsers(Connection connection, Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "users", "staff_id", "TEXT");
         addColumnIfMissing(statement, "users", "email", "TEXT");
+        backfillUserStaffIds(connection);
+        statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_staff_id_unique ON users(staff_id)");
+    }
+
+    private static void backfillUserStaffIds(Connection connection) throws SQLException {
+        ArrayList<UserStaffIdUpdate> updates = new ArrayList<>();
+        Set<String> usedStaffIds = new HashSet<>();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT id, staff_id FROM users ORDER BY id");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                long id = resultSet.getLong("id");
+                String current = normalizeStaffId(resultSet.getString("staff_id"));
+                if (current.isEmpty() || usedStaffIds.contains(current)) {
+                    String generated = uniqueStaffIdForId(id, usedStaffIds);
+                    updates.add(new UserStaffIdUpdate(id, generated));
+                    usedStaffIds.add(generated);
+                } else {
+                    usedStaffIds.add(current);
+                }
+            }
+        }
+        if (updates.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement update = connection.prepareStatement(
+                "UPDATE users SET staff_id = ? WHERE id = ?")) {
+            for (UserStaffIdUpdate row : updates) {
+                update.setString(1, row.staffId());
+                update.setLong(2, row.id());
+                update.addBatch();
+            }
+            update.executeBatch();
+        }
+    }
+
+    private static String normalizeStaffId(String value) {
+        if (value == null) {
+            return "";
+        }
+        String trimmed = value.trim().toUpperCase(Locale.ROOT);
+        return trimmed.matches("U\\d{4,}") ? trimmed : "";
+    }
+
+    private static String uniqueStaffIdForId(long id, Set<String> usedStaffIds) {
+        long candidate = Math.max(1L, id);
+        String staffId = formatStaffId(candidate);
+        while (usedStaffIds.contains(staffId)) {
+            candidate++;
+            staffId = formatStaffId(candidate);
+        }
+        return staffId;
+    }
+
+    private static String formatStaffId(long number) {
+        return String.format(Locale.ROOT, "U%04d", Math.max(1L, number));
+    }
+
+    private record UserStaffIdUpdate(long id, String staffId) {
     }
 
     private static void createUserProfiles(Statement statement) throws SQLException {

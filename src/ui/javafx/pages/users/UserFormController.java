@@ -38,6 +38,7 @@ public class UserFormController {
 
     @FXML private Label titleLabel;
     @FXML private Label helpLabel;
+    @FXML private javafx.scene.control.TextField staffIdField;
     @FXML private javafx.scene.control.TextField usernameField;
     @FXML private Label usernameHelpLabel;
     @FXML private ComboBox<String> roleBox;
@@ -105,6 +106,9 @@ public class UserFormController {
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add User");
             helpLabel.setText("Create a staff account with role and section access.");
+            staffIdField.setEditable(false);
+            staffIdField.setDisable(false);
+            staffIdField.setText(loadNextStaffId());
             usernameField.setEditable(true);
             usernameField.setDisable(false);
             usernameHelpLabel.setText("Enter a unique username for this new account.");
@@ -116,6 +120,9 @@ public class UserFormController {
             throw new IllegalArgumentException("A selected user is required.");
         }
 
+        staffIdField.setEditable(false);
+        staffIdField.setDisable(false);
+        staffIdField.setText(user.getStaffId());
         usernameField.setText(user.getUsername());
         usernameField.setEditable(false);
         usernameField.setDisable(mode == Mode.RESET_PASSWORD);
@@ -186,6 +193,7 @@ public class UserFormController {
                 ? usernameField.getText()
                 : existingUser.getUsername();
         return new SqliteUserDao.UserWriteRecord(
+                staffIdField.getText(),
                 username,
                 roleBox.getValue(),
                 sectionValue(),
@@ -270,5 +278,14 @@ public class UserFormController {
             return "Reset User Password";
         }
         return "Edit User";
+    }
+
+    private String loadNextStaffId() {
+        try {
+            return userWriteService.generateNextStaffId();
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Could not generate Staff ID: " + e.getMessage());
+            return "";
+        }
     }
 }
