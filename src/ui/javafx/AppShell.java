@@ -13,9 +13,9 @@ import ui.javafx.controllers.AppLayoutController;
 import ui.javafx.pages.clinical_timeline.ClinicalTimelineController;
 import ui.javafx.pages.deceased.DeceasedRecordsController;
 import ui.javafx.pages.medications.MedicationOverviewController;
-import ui.javafx.pages.medical_files.MedicalFilesController;
+import ui.javafx.patients.medical_files.MedicalFilesController;
 import ui.javafx.pages.newborns.NewbornRecordsController;
-import ui.javafx.pages.patient_detail.PatientDetailController;
+import ui.javafx.patients.patient_detail.PatientDetailController;
 import ui.javafx.controllers.PlaceholderController;
 import ui.javafx.pages.scheduling.SchedulingController;
 import ui.javafx.services.DeceasedPatientService;
@@ -55,7 +55,7 @@ public class AppShell extends Application {
     }
 
     public void showLogin() {
-        setView("/ui/javafx/pages/login/LoginView.fxml", "Smart Patient Monitoring System - Login");
+        setView("/ui/javafx/login/LoginView.fxml", "Smart Patient Monitoring System - Login");
         configureLoginWindow();
     }
 
@@ -68,12 +68,12 @@ public class AppShell extends Application {
         if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
             SessionContext.start(user, authSource);
         }
-        setShellContent("/ui/javafx/pages/dashboard/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
+        setShellContent("/ui/javafx/dashboard/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
         primaryStage.setMaximized(true);
     }
 
     public void showPatientList() {
-        setShellContent("/ui/javafx/pages/patient_board/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
+        setShellContent("/ui/javafx/patients/patient_board/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
     }
 
     public void showMessaging() {
@@ -98,7 +98,7 @@ public class AppShell extends Application {
 
     public void showPatientDetail(String patientId) {
         ensureShell("Smart Patient Monitoring System - Patient Detail");
-        AppNavigator.LoadedView detail = navigator.loadView("/ui/javafx/pages/patient_detail/PatientDetailView.fxml");
+        AppNavigator.LoadedView detail = navigator.loadView("/ui/javafx/patients/patient_detail/PatientDetailView.fxml");
         if (detail.getController() instanceof PatientDetailController) {
             ((PatientDetailController) detail.getController()).loadPatient(patientId);
         }
@@ -128,7 +128,7 @@ public class AppShell extends Application {
     }
 
     public void showUserProfile() {
-        setShellContent("/ui/javafx/pages/profile_settings/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
+        setShellContent("/ui/javafx/users/profile_settings/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
     }
 
     public void showAuditLogs() {
@@ -136,7 +136,7 @@ public class AppShell extends Application {
     }
 
     public void showUserDirectory() {
-        setShellContent("/ui/javafx/pages/users/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
+        setShellContent("/ui/javafx/users/user_directory/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
     }
 
     public void showMedicationOverview() {
@@ -218,12 +218,12 @@ public class AppShell extends Application {
     }
 
     public void showMedicalFiles() {
-        setShellContent("/ui/javafx/pages/medical_files/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
+        setShellContent("/ui/javafx/patients/medical_files/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
     }
 
     public void showMedicalFilesForPatient(String patientId) {
         ensureShell("Smart Patient Monitoring System - Patient Medical Files");
-        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/pages/medical_files/MedicalFilesView.fxml");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/patients/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForPatient(patientId);
         }
@@ -233,7 +233,7 @@ public class AppShell extends Application {
 
     public void showMedicalFileDetails(String patientId, String fileId) {
         ensureShell("Smart Patient Monitoring System - Medical File Details");
-        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/pages/medical_files/MedicalFilesView.fxml");
+        AppNavigator.LoadedView files = navigator.loadView("/ui/javafx/patients/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
         }

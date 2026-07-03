@@ -1,8 +1,8 @@
 package ui.javafx.services;
 
 import Data_Access_Object.SqliteMessageDao;
-import Data_Access_Object.SqlitePatientDao;
-import Data_Access_Object.SqliteUserDao;
+import ui.javafx.patients.dao.SqlitePatientDao;
+import ui.javafx.users.dao.SqliteUserDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;

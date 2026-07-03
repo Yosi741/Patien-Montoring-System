@@ -1,7 +1,7 @@
 package ui.javafx.pages.newborns;
 
 import Data_Access_Object.SqliteNewbornRecordDao;
-import Data_Access_Object.SqlitePatientDao;
+import ui.javafx.patients.dao.SqlitePatientDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

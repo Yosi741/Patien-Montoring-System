@@ -1,13 +1,25 @@
 $targetViews = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/views"
 $targetPages = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages"
+$targetPatients = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/patients"
+$targetUsers = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/users"
+$targetLogin = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/login"
+$targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/dashboard"
 $targetStyles = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/styles"
 
 New-Item -ItemType Directory -Force -Path $targetViews
 New-Item -ItemType Directory -Force -Path $targetPages
+New-Item -ItemType Directory -Force -Path $targetPatients
+New-Item -ItemType Directory -Force -Path $targetUsers
+New-Item -ItemType Directory -Force -Path $targetLogin
+New-Item -ItemType Directory -Force -Path $targetDashboard
 New-Item -ItemType Directory -Force -Path $targetStyles
 
 Copy-Item -Path "src/ui/javafx/views/*" -Destination $targetViews -Force
 Copy-Item -Path "src/ui/javafx/pages/*" -Destination $targetPages -Force -Recurse
+Copy-Item -Path "src/ui/javafx/patients/*" -Destination $targetPatients -Force -Recurse
+Copy-Item -Path "src/ui/javafx/users/*" -Destination $targetUsers -Force -Recurse
+Copy-Item -Path "src/ui/javafx/login/*" -Destination $targetLogin -Force -Recurse
+Copy-Item -Path "src/ui/javafx/dashboard/*" -Destination $targetDashboard -Force -Recurse
 Copy-Item -Path "src/ui/javafx/styles/*" -Destination $targetStyles -Force
 
 $legacyLoginView = Join-Path $targetViews "LoginView.fxml"
@@ -145,6 +157,24 @@ if (Test-Path $legacyRoomFormView) {
 $legacySectionFormView = Join-Path $targetViews "SectionFormView.fxml"
 if (Test-Path $legacySectionFormView) {
     Remove-Item -Path $legacySectionFormView -Force
+}
+
+$legacyPatientPages = @(
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_board",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_detail",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_form",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/vitals_entry",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/medical_files",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/users",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/login",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/dashboard"
+)
+
+foreach ($legacyFolder in $legacyPatientPages) {
+    if (Test-Path $legacyFolder) {
+        Remove-Item -Path $legacyFolder -Recurse -Force
+    }
 }
 
 Write-Host "Resources synced successfully in the active project copy!"

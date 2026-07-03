@@ -2,7 +2,7 @@ package ui.javafx.services;
 
 import Data_Access_Object.SqliteMedicationDao;
 import Data_Access_Object.SqliteMedicationCatalogDao;
-import Data_Access_Object.SqlitePatientDao;
+import ui.javafx.patients.dao.SqlitePatientDao;
 import ui.javafx.helpers.AuditAction;
 import ui.javafx.helpers.AuditWriteHelper;
 import ui.javafx.helpers.FormValidationHelper;

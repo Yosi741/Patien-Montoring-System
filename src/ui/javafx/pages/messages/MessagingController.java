@@ -1,7 +1,7 @@
 package ui.javafx.pages.messages;
 
 import Data_Access_Object.SqliteMessageDao;
-import Data_Access_Object.SqliteUserDao;
+import ui.javafx.users.dao.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;

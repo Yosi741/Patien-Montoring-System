@@ -1,11 +1,11 @@
 import Data_Access_Object.SqliteAuditLogDao;
 import Data_Access_Object.SqliteDeceasedRecordDao;
 import Data_Access_Object.SqliteNewbornRecordDao;
-import Data_Access_Object.SqlitePatientDao;
-import Data_Access_Object.SqliteVitalReadingDao;
 import database.DatabaseManager;
 import database.SchemaInitializer;
-import ui.javafx.services.DashboardMetricsService;
+import ui.javafx.dashboard.services.DashboardMetricsService;
+import ui.javafx.patients.dao.SqlitePatientDao;
+import ui.javafx.patients.dao.SqliteVitalReadingDao;
 import ui.javafx.services.MedicationOverviewService;
 import ui.javafx.services.NotificationCenterService;
 import ui.javafx.services.SchedulingService;
