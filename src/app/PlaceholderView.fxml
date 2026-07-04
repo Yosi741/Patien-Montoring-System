@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox
+        spacing="20.0"
+        prefWidth="900.0"
+        prefHeight="600.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="app.PlaceholderController" styleClass="content-page">
+
+    <padding>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
+    </padding>
+
+    <VBox spacing="5.0">
+        <Label fx:id="titleLabel"
+               text="Placeholder" styleClass="metric-value compact-metric-value" />
+
+        <Label fx:id="subtitleLabel"
+               text="Preview"
+               wrapText="true" styleClass="muted-text" />
+    </VBox>
+
+    <VBox spacing="14.0" styleClass="panel-card">
+
+        <Label text="Coming Soon" styleClass="body-text" />
+
+        <Label fx:id="bodyLabel"
+               text="This screen will be migrated in a later safe slice."
+               wrapText="true" styleClass="body-text" />
+
+        <Region prefHeight="10.0" />
+
+        <VBox spacing="10.0" styleClass="control-input">
+
+            <Label text="Planned Features" styleClass="metric-value compact-metric-value" />
+
+            <Label text="• Modern JavaFX migration" styleClass="muted-text" />
+
+            <Label text="• SQLite integration and safer storage" styleClass="muted-text" />
+
+            <Label text="• Responsive hospital workflow design" styleClass="muted-text" />
+
+            <Label text="• Improved patient monitoring experience" styleClass="muted-text" />
+        </VBox>
+
+        <Label text="Module coming soon" styleClass="status-info metric-value compact-metric-value" />
+    </VBox>
+</VBox>

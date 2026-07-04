@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+        prefWidth="1200.0"
+        prefHeight="760.0"
+        styleClass="dashboard-page"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.pages.dashboard.DashboardController">
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear dashboard-scroll">
+            <content>
+                <VBox spacing="22.0" styleClass="dashboard-content">
+                    <padding>
+                        <Insets bottom="28.0" left="28.0" right="28.0" top="24.0" />
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="dashboard-hero">
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <Label fx:id="welcomeLabel" text="Welcome" styleClass="dashboard-welcome" />
+                            <Label fx:id="roleLabel" text="Role | Section" styleClass="dashboard-role-text" />
+                            <Label text="Hospital Operations Overview" styleClass="dashboard-page-title" />
+                            <Label text="Real-time summary of hospital metrics and patient status."
+                                   wrapText="true"
+                                   styleClass="dashboard-page-subtitle" />
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="dashboard-action-row">
+                            <Button text="Open Patients" onAction="#openPatientList"
+                                    styleClass="dashboard-action-primary" />
+                            <Button text="Open Work Queue" onAction="#openWorkQueue"
+                                    styleClass="dashboard-action-secondary" />
+                        </HBox>
+                    </HBox>
+
+                    <TilePane hgap="16.0" vgap="16.0" prefColumns="4" tileAlignment="TOP_LEFT">
+                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-blue">
+                            <Label text="Total Patients" styleClass="dashboard-kpi-label" />
+                            <Label fx:id="totalPatientsLabel" text="0" styleClass="dashboard-kpi-value" />
+                            <Label text="All time" styleClass="dashboard-kpi-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-green">
+                            <Label text="Active Patients" styleClass="dashboard-kpi-label" />
+                            <Label fx:id="activePatientsLabel" text="0" styleClass="dashboard-kpi-value" />
+                            <Label text="Currently admitted" styleClass="dashboard-kpi-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-red">
+                            <Label text="Critical / Emergency" styleClass="dashboard-kpi-label" />
+                            <Label fx:id="criticalPatientsLabel" text="0" styleClass="dashboard-kpi-value" />
+                            <Label text="Needs attention" styleClass="dashboard-kpi-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-orange">
+                            <Label text="Active Alerts" styleClass="dashboard-kpi-label" />
+                            <Label fx:id="activeAlertsLabel" text="0" styleClass="dashboard-kpi-value" />
+                            <Label text="Open alert records" styleClass="dashboard-kpi-caption" />
+                        </VBox>
+                    </TilePane>
+
+                    <TilePane hgap="14.0" vgap="14.0" prefColumns="6" tileAlignment="TOP_LEFT">
+                        <VBox fx:id="newbornRecordsCard" spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Newborn Records" styleClass="dashboard-mini-label" />
+                            <Label fx:id="newbornRecordsLabel" text="0" styleClass="dashboard-mini-value accent-value" />
+                            <Label text="Total" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Births Today" styleClass="dashboard-mini-label" />
+                            <Label fx:id="birthsTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
+                            <Label text="Today" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox fx:id="acknowledgedAlertsCard" spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Acknowledged Alerts" styleClass="dashboard-mini-label" />
+                            <Label fx:id="acknowledgedTodayLabel" text="0" styleClass="dashboard-mini-value" />
+                            <Label text="Today" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox fx:id="resolvedAlertsCard" spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Resolved Alerts" styleClass="dashboard-mini-label" />
+                            <Label fx:id="resolvedTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
+                            <Label text="Today" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox fx:id="medicalFilesCard" spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Imported Files" styleClass="dashboard-mini-label" />
+                            <Label fx:id="medicalFilesLabel" text="0" styleClass="dashboard-mini-value accent-value" />
+                            <Label text="Stored" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Deceased Patients" styleClass="dashboard-mini-label" />
+                            <Label fx:id="deceasedPatientsLabel" text="0" styleClass="dashboard-mini-value neutral-value" />
+                            <Label text="Total" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Deaths This Month" styleClass="dashboard-mini-label" />
+                            <Label fx:id="deathsThisMonthLabel" text="0" styleClass="dashboard-mini-value neutral-value" />
+                            <Label text="This month" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Pending Birth Certs" styleClass="dashboard-mini-label" />
+                            <Label fx:id="pendingBirthCertificatesLabel" text="0" styleClass="dashboard-mini-value warning-value" />
+                            <Label text="Needs review" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
+                            <Label text="Pending Death Certs" styleClass="dashboard-mini-label" />
+                            <Label fx:id="pendingDeathCertificatesLabel" text="0" styleClass="dashboard-mini-value danger-value" />
+                            <Label text="Needs review" styleClass="dashboard-mini-caption" />
+                        </VBox>
+                    </TilePane>
+
+                    <GridPane hgap="18.0" vgap="18.0">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="33.33" />
+                            <ColumnConstraints percentWidth="33.33" />
+                            <ColumnConstraints percentWidth="33.33" />
+                        </columnConstraints>
+
+                        <VBox spacing="14.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                              styleClass="dashboard-panel-card">
+                            <Label text="Patient Priority Summary" styleClass="dashboard-panel-title" />
+                            <VBox fx:id="prioritySummaryBox" spacing="10.0" />
+                        </VBox>
+
+                        <VBox spacing="14.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                              styleClass="dashboard-panel-card">
+                            <Label text="Active Alerts By Severity" styleClass="dashboard-panel-title" />
+                            <VBox fx:id="activeAlertSeverityBox" spacing="10.0" />
+                            <Button text="View all alerts" onAction="#openAlertCenter"
+                                    maxWidth="Infinity"
+                                    styleClass="dashboard-alert-link" />
+                        </VBox>
+
+                        <VBox spacing="16.0" GridPane.columnIndex="2" GridPane.rowIndex="0"
+                              styleClass="dashboard-panel-card dashboard-vitals-card">
+                            <Label text="Vitals Today" styleClass="dashboard-panel-title" />
+                            <Label fx:id="recentVitalsTodayLabel" text="0" styleClass="dashboard-vitals-value" />
+                            <Label text="Recent vital readings recorded today"
+                                   wrapText="true"
+                                   styleClass="dashboard-page-subtitle" />
+                            <Region VBox.vgrow="ALWAYS" />
+                            <Button text="View Patients" onAction="#openPatientList"
+                                    maxWidth="Infinity"
+                                    styleClass="dashboard-soft-button" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                              styleClass="dashboard-mini-card">
+                            <Label text="Scheduling Today" styleClass="dashboard-mini-label" />
+                            <Label fx:id="appointmentsTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
+                            <Label text="Appointments scheduled today" wrapText="true" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                              styleClass="dashboard-mini-card">
+                            <Label text="Pending Reminders" styleClass="dashboard-mini-label" />
+                            <Label fx:id="pendingRemindersLabel" text="0" styleClass="dashboard-mini-value warning-value" />
+                            <Label text="Open medical reminders" wrapText="true" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="2" GridPane.rowIndex="1"
+                              styleClass="dashboard-mini-card">
+                            <Label text="Nurse Queue Tasks" styleClass="dashboard-mini-label" />
+                            <Label fx:id="nurseQueueTasksLabel" text="0" styleClass="dashboard-mini-value" />
+                            <Label text="Reminders, alerts, and missing vitals" wrapText="true" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                              styleClass="dashboard-mini-card">
+                            <Label text="Overdue Reminders" styleClass="dashboard-mini-label" />
+                            <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="dashboard-mini-value danger-value" />
+                            <Label text="Local engine status" wrapText="true" styleClass="dashboard-mini-caption" />
+                        </VBox>
+
+                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                              styleClass="dashboard-mini-card">
+                            <Label text="Upcoming Reminders" styleClass="dashboard-mini-label" />
+                            <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="dashboard-mini-value warning-value" />
+                            <Label text="Due soon" wrapText="true" styleClass="dashboard-mini-caption" />
+                        </VBox>
+                    </GridPane>
+
+                    <GridPane hgap="18.0" vgap="18.0">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="58.0" />
+                            <ColumnConstraints percentWidth="42.0" />
+                        </columnConstraints>
+
+                        <VBox spacing="14.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                              styleClass="dashboard-panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Recent Alerts" styleClass="dashboard-panel-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="Click a row to open Notifications" styleClass="dashboard-mini-caption" />
+                            </HBox>
+                            <VBox fx:id="recentAlertsBox" spacing="10.0" />
+                        </VBox>
+
+                        <VBox spacing="14.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                              styleClass="dashboard-panel-card">
+                            <Label text="Latest Vitals" styleClass="dashboard-panel-title" />
+                            <VBox fx:id="latestVitalsBox" spacing="10.0" />
+                        </VBox>
+                    </GridPane>
+
+                    <VBox spacing="10.0" styleClass="dashboard-system-card">
+                        <Label text="System Status" styleClass="dashboard-panel-title" />
+                        <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true"
+                               styleClass="status-info" />
+                        <Label fx:id="databaseStatusLabel" text="Database status" wrapText="true"
+                               styleClass="status-success" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

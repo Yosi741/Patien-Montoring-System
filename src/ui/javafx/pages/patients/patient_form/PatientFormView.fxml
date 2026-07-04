@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="700.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.pages.patients.patient_form.PatientFormController" styleClass="panel-card dialog-root">
+
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" text="Patient" styleClass="screen-title dialog-title" />
+
+        <Label fx:id="helpLabel" text="Patient record form" wrapText="true" styleClass="muted-text dialog-subtitle" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Birth Date" styleClass="field-label" />
+            <DatePicker fx:id="birthDatePicker" promptText="dd-MM-yyyy" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="First Name" styleClass="field-label" />
+            <TextField fx:id="firstNameField" promptText="First name" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Last Name" styleClass="field-label" />
+            <TextField fx:id="lastNameField" promptText="Last name" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Gender" styleClass="field-label" />
+            <ComboBox fx:id="genderBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Status" styleClass="field-label" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Section" styleClass="field-label" />
+            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type section" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Room" styleClass="field-label" />
+            <ComboBox fx:id="roomBox" editable="true" promptText="Room / bed" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
+            <Label text="Priority" styleClass="field-label" />
+            <ComboBox fx:id="priorityBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Blood Type" styleClass="field-label" />
+            <ComboBox fx:id="bloodTypeBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
+            <Label text="Assigned Doctor" styleClass="field-label" />
+            <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected section" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label text="Assigned Nurse / Staff" styleClass="field-label" />
+            <ComboBox fx:id="assignedStaffBox" promptText="Nurse or staff in selected section" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label text="Diagnosis" styleClass="field-label" />
+            <TextArea fx:id="diagnosisArea" promptText="Short diagnosis or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" maxWidth="Infinity" wrapText="true" styleClass="status-success success-value" />
+</VBox>

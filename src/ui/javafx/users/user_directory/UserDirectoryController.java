@@ -1,6 +1,6 @@
 package ui.javafx.users.user_directory;
 
-import Data_Access_Object.SqliteAuditLogDao;
+import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
 import ui.javafx.users.dao.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -15,16 +15,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import ui.javafx.users.services.RolePermissionService;
-import ui.javafx.services.SectionService;
+import ui.javafx.pages.rooms_sections.SectionService;
 import ui.javafx.users.user_form.UserFormController;
 import ui.javafx.users.services.UserWriteService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.DialogHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import app.helpers.DialogHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 import users.User;
 

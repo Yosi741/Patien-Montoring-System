@@ -4,7 +4,9 @@ $targetPatients = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx
 $targetUsers = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/users"
 $targetLogin = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/login"
 $targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/dashboard"
-$targetStyles = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/styles"
+$targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
+$targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
+$targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
 
 New-Item -ItemType Directory -Force -Path $targetViews
 New-Item -ItemType Directory -Force -Path $targetPages
@@ -12,15 +14,37 @@ New-Item -ItemType Directory -Force -Path $targetPatients
 New-Item -ItemType Directory -Force -Path $targetUsers
 New-Item -ItemType Directory -Force -Path $targetLogin
 New-Item -ItemType Directory -Force -Path $targetDashboard
-New-Item -ItemType Directory -Force -Path $targetStyles
+New-Item -ItemType Directory -Force -Path $targetApp
+New-Item -ItemType Directory -Force -Path $targetAppStyles
+New-Item -ItemType Directory -Force -Path $targetSound
 
-Copy-Item -Path "src/ui/javafx/views/*" -Destination $targetViews -Force
-Copy-Item -Path "src/ui/javafx/pages/*" -Destination $targetPages -Force -Recurse
-Copy-Item -Path "src/ui/javafx/patients/*" -Destination $targetPatients -Force -Recurse
-Copy-Item -Path "src/ui/javafx/users/*" -Destination $targetUsers -Force -Recurse
-Copy-Item -Path "src/ui/javafx/login/*" -Destination $targetLogin -Force -Recurse
-Copy-Item -Path "src/ui/javafx/dashboard/*" -Destination $targetDashboard -Force -Recurse
-Copy-Item -Path "src/ui/javafx/styles/*" -Destination $targetStyles -Force
+if (Test-Path "src/ui/javafx/views") {
+    Copy-Item -Path "src/ui/javafx/views/*" -Destination $targetViews -Force
+}
+if (Test-Path "src/ui/javafx/pages") {
+    Copy-Item -Path "src/ui/javafx/pages/*" -Destination $targetPages -Force -Recurse
+}
+if (Test-Path "src/ui/javafx/patients") {
+    Copy-Item -Path "src/ui/javafx/patients/*" -Destination $targetPatients -Force -Recurse
+}
+if (Test-Path "src/ui/javafx/users") {
+    Copy-Item -Path "src/ui/javafx/users/*" -Destination $targetUsers -Force -Recurse
+}
+if (Test-Path "src/ui/javafx/login") {
+    Copy-Item -Path "src/ui/javafx/login/*" -Destination $targetLogin -Force -Recurse
+}
+if (Test-Path "src/ui/javafx/dashboard") {
+    Copy-Item -Path "src/ui/javafx/dashboard/*" -Destination $targetDashboard -Force -Recurse
+}
+if (Test-Path "src/app") {
+    Copy-Item -Path "src/app/*.fxml" -Destination $targetApp -Force
+}
+if (Test-Path "src/app/styles") {
+    Copy-Item -Path "src/app/styles/*" -Destination $targetAppStyles -Force
+}
+if (Test-Path "src/sound") {
+    Copy-Item -Path "src/sound/*" -Destination $targetSound -Force
+}
 
 $legacyLoginView = Join-Path $targetViews "LoginView.fxml"
 if (Test-Path $legacyLoginView) {
@@ -101,6 +125,14 @@ if (Test-Path $legacyAuditLogView) {
 $legacyCertificateRegistryView = Join-Path $targetViews "CertificateRegistryView.fxml"
 if (Test-Path $legacyCertificateRegistryView) {
     Remove-Item -Path $legacyCertificateRegistryView -Force
+}
+$legacyAppLayoutView = Join-Path $targetViews "AppLayout.fxml"
+if (Test-Path $legacyAppLayoutView) {
+    Remove-Item -Path $legacyAppLayoutView -Force
+}
+$legacyPlaceholderView = Join-Path $targetViews "PlaceholderView.fxml"
+if (Test-Path $legacyPlaceholderView) {
+    Remove-Item -Path $legacyPlaceholderView -Force
 }
 $legacyClinicalTimelineView = Join-Path $targetViews "ClinicalTimelineView.fxml"
 if (Test-Path $legacyClinicalTimelineView) {

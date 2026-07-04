@@ -1,6 +1,5 @@
 package ui.javafx.pages.notifications;
 
-import Data_Access_Object.SqliteNotificationDao;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -16,12 +15,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import ui.javafx.services.NotificationCenterService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDate;

@@ -1,6 +1,5 @@
 package ui.javafx.pages.medications;
 
-import Data_Access_Object.SqliteMedicationCatalogDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,11 +19,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Window;
-import ui.javafx.services.MedicationCatalogService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.User;
 
 import java.util.List;
@@ -85,7 +83,7 @@ public class MedicationCatalogController {
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Medication Catalog");
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE, saveButtonType);

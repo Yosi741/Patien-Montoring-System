@@ -1,4 +1,4 @@
-import database.DatabaseManager;
+import app.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

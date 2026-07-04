@@ -1,6 +1,6 @@
 package ui.javafx.pages.certificates;
 
-import Data_Access_Object.SqliteDeceasedRecordDao;
+import ui.javafx.pages.deceased.SqliteDeceasedRecordDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,9 +12,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import ui.javafx.services.DeceasedPatientService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.pages.deceased.DeceasedPatientService;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
 import users.User;
 
 import java.time.LocalDateTime;
@@ -56,7 +56,7 @@ public class DeathRecordFormController {
             ButtonType saveButtonType = new ButtonType(record == null ? "Mark Deceased" : "Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(record == null ? "Mark Patient Deceased" : "Update Death Record");
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

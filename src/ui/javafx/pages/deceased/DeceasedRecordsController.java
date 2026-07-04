@@ -1,7 +1,6 @@
 package ui.javafx.pages.deceased;
 
-import Data_Access_Object.SqliteDeceasedRecordDao;
-import ui.javafx.patients.dao.SqlitePatientDao;
+import ui.javafx.pages.patients.dao.SqlitePatientDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,15 +15,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
-import ui.javafx.services.CertificateEventService;
-import ui.javafx.services.DeceasedPatientService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.helpers.AuditAction;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import ui.javafx.pages.certificates.CertificateEventService;
+import app.AppShell;
+import app.FxController;
+import ui.javafx.pages.audit_logs.AuditAction;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import ui.javafx.pages.certificates.DeathRecordFormController;
 import users.Session;
 

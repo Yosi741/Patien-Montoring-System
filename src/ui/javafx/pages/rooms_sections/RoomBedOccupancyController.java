@@ -1,8 +1,6 @@
 package ui.javafx.pages.rooms_sections;
 
-import Data_Access_Object.SqliteRoomDao;
-import Data_Access_Object.SqliteAuditLogDao;
-import Data_Access_Object.SqliteSectionDao;
+import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,16 +17,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import ui.javafx.services.RoomWriteService;
-import ui.javafx.services.RoomBedOccupancyService;
-import ui.javafx.services.SectionService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.DialogHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import app.helpers.DialogHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDateTime;

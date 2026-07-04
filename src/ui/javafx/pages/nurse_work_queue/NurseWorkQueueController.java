@@ -14,17 +14,16 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import ui.javafx.services.NurseWorkQueueService;
-import ui.javafx.services.ReminderEngineService;
-import ui.javafx.services.SchedulingService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.AuditAction;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import ui.javafx.pages.scheduling.ReminderEngineService;
+import ui.javafx.pages.scheduling.SchedulingService;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import ui.javafx.pages.audit_logs.AuditAction;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 
 public class NurseWorkQueueController implements FxController {

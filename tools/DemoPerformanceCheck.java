@@ -1,14 +1,14 @@
-import Data_Access_Object.SqliteAuditLogDao;
-import Data_Access_Object.SqliteDeceasedRecordDao;
-import Data_Access_Object.SqliteNewbornRecordDao;
-import database.DatabaseManager;
-import database.SchemaInitializer;
-import ui.javafx.dashboard.services.DashboardMetricsService;
-import ui.javafx.patients.dao.SqlitePatientDao;
-import ui.javafx.patients.dao.SqliteVitalReadingDao;
-import ui.javafx.services.MedicationOverviewService;
-import ui.javafx.services.NotificationCenterService;
-import ui.javafx.services.SchedulingService;
+import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
+import ui.javafx.pages.deceased.SqliteDeceasedRecordDao;
+import ui.javafx.pages.newborns.SqliteNewbornRecordDao;
+import app.DatabaseManager;
+import app.SchemaInitializer;
+import ui.javafx.pages.dashboard.services.DashboardMetricsService;
+import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import ui.javafx.pages.patients.dao.SqliteVitalReadingDao;
+import ui.javafx.pages.medications.MedicationOverviewService;
+import ui.javafx.pages.notifications.NotificationCenterService;
+import ui.javafx.pages.scheduling.SchedulingService;
 import users.User;
 
 import java.sql.Connection;

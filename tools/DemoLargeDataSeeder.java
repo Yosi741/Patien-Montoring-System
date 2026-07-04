@@ -1,5 +1,5 @@
-import database.DatabaseManager;
-import database.SchemaInitializer;
+import app.DatabaseManager;
+import app.SchemaInitializer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

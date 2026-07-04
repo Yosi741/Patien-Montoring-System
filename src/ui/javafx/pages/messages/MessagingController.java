@@ -1,6 +1,5 @@
 package ui.javafx.pages.messages;
 
-import Data_Access_Object.SqliteMessageDao;
 import ui.javafx.users.dao.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -16,15 +15,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import ui.javafx.services.MessagingService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.helpers.AuditAction;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.FxFileOpenHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import ui.javafx.pages.audit_logs.AuditAction;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import app.helpers.FxFileOpenHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 import users.User;
 

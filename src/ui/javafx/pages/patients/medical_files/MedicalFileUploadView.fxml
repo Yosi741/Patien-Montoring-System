@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="760.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="ui.javafx.pages.patients.medical_files.MedicalFileUploadController" styleClass="panel-card">
+
+    <VBox spacing="4.0">
+        <Label
+                text="Upload Medical File" styleClass="screen-title" />
+
+        <Label
+                text="Local database upload. TXT/CSV/PDF text extraction is local; image OCR is not implemented."
+                wrapText="true" styleClass="muted-text" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label
+                    text="Patient ID" styleClass="field-label" />
+
+            <TextField
+                    fx:id="patientIdField"
+                    promptText="9-digit patient ID" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label
+                    text="Category" styleClass="field-label" />
+
+            <ComboBox
+                    fx:id="categoryBox"
+                    maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0"
+              GridPane.columnIndex="0"
+              GridPane.columnSpan="2"
+              GridPane.rowIndex="1">
+
+            <Label
+                    text="Selected File" styleClass="field-label" />
+
+            <HBox spacing="8.0">
+                <TextField
+                        fx:id="filePathField"
+                        promptText="Choose txt, csv, pdf, png, jpg, or jpeg file"
+                        HBox.hgrow="ALWAYS" styleClass="control-input" />
+
+                <Button
+                        text="Browse"
+                        onAction="#browseFile" styleClass="secondary-button" />
+            </HBox>
+        </VBox>
+
+        <VBox spacing="6.0"
+              GridPane.columnIndex="0"
+              GridPane.columnSpan="2"
+              GridPane.rowIndex="2">
+
+            <Label
+                    text="Notes" styleClass="field-label" />
+
+            <TextArea
+                    fx:id="notesArea"
+                    prefRowCount="4"
+                    wrapText="true"
+                    promptText="Optional upload notes" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <HBox spacing="8.0" alignment="CENTER_LEFT">
+        <Label
+                text="Uploaded By" styleClass="metric-label" />
+
+        <Label
+                fx:id="uploadedByLabel"
+                text="-" styleClass="status-info metric-value compact-metric-value" />
+    </HBox>
+
+    <Label
+            fx:id="statusLabel"
+            text="-"
+            wrapText="true" styleClass="status-success success-value" />
+</VBox>

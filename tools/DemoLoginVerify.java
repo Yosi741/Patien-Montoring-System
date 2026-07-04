@@ -1,4 +1,4 @@
-import Data_Access_Object.SqliteUserDao;
+import ui.javafx.users.dao.SqliteUserDao;
 import users.User;
 
 import java.util.Optional;

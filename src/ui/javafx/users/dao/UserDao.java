@@ -1,6 +1,6 @@
 package ui.javafx.users.dao;
 
-import Data_Access_Object.Dao;
+import app.Dao;
 import users.User;
 
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
 package ui.javafx.users.dao;
 
-import database.DatabaseManager;
-import database.SchemaInitializer;
-import security.PasswordHasher;
+import app.DatabaseManager;
+import app.SchemaInitializer;
+import app.PasswordHasher;
 import users.User;
 
 import java.sql.Connection;

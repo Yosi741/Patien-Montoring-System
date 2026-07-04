@@ -1,6 +1,6 @@
-import database.DatabaseManager;
-import database.SchemaInitializer;
-import security.PasswordHasher;
+import app.DatabaseManager;
+import app.SchemaInitializer;
+import app.PasswordHasher;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -50,7 +50,7 @@ public class DemoDatabaseReset {
                 "medical_files", "medical_history", "reminders", "appointments",
                 "medication_events", "medications", "medication_interactions", "medication_catalog",
                 "alerts", "vital_readings", "newborn_records", "deceased_records", "rooms", "sections",
-                "password_reset_tokens", "user_profiles", "users", "patients"
+                "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
         };
         try (Statement statement = connection.createStatement()) {
             for (String table : tables) {

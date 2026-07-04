@@ -1,4 +1,4 @@
-import ui.javafx.AppShell;
+import app.AppShell;
 
 public class Main {
     public static void main(String[] args) {

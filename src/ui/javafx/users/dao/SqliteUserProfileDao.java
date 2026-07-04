@@ -1,7 +1,7 @@
 package ui.javafx.users.dao;
 
-import database.DatabaseManager;
-import database.SchemaInitializer;
+import app.DatabaseManager;
+import app.SchemaInitializer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

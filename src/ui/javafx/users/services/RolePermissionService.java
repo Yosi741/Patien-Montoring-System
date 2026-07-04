@@ -1,6 +1,6 @@
 package ui.javafx.users.services;
 
-import models.Patient;
+import ui.javafx.pages.patients.Patient;
 import users.User;
 
 import java.util.Set;

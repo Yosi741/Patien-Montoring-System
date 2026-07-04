@@ -11,13 +11,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import ui.javafx.users.services.UserProfileService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.AuditAction;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import ui.javafx.pages.audit_logs.AuditAction;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
 import users.Session;
 import users.User;
 
@@ -126,7 +126,7 @@ public class UserProfileController implements FxController {
     private void changePassword() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Change Password");
-        ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+        app.helpers.DialogThemeHelper.apply(dialog);
         if (usernameLabel != null && usernameLabel.getScene() != null) {
             dialog.initOwner(usernameLabel.getScene().getWindow());
         }

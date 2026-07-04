@@ -2,9 +2,9 @@ package ui.javafx.users.services;
 
 import ui.javafx.users.dao.SqliteUserDao;
 import ui.javafx.users.dao.SqliteUserProfileDao;
-import security.PasswordHasher;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.FormValidationHelper;
+import app.PasswordHasher;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import app.helpers.FormValidationHelper;
 import users.User;
 
 import java.sql.SQLException;

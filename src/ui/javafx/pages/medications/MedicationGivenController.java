@@ -1,7 +1,5 @@
 package ui.javafx.pages.medications;
 
-import Data_Access_Object.SqliteMedicationCatalogDao;
-import Data_Access_Object.SqliteMedicationDao;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,12 +15,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import ui.javafx.services.MedicationWriteService;
-import ui.javafx.services.MedicationCatalogService;
-import ui.javafx.AppNavigator;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
+import app.AppNavigator;
+import app.SessionContext;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
 import users.User;
 
 import java.time.LocalDateTime;
@@ -67,7 +63,7 @@ public class MedicationGivenController {
             ButtonType saveButtonType = new ButtonType("Record", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Record Medication Given");
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

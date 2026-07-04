@@ -1,7 +1,5 @@
 package ui.javafx.pages.scheduling;
 
-import Data_Access_Object.SqliteAppointmentDao;
-import Data_Access_Object.SqliteReminderDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,13 +13,12 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import ui.javafx.services.SchedulingService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.helpers.DialogHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.helpers.DialogHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import users.Session;
 
 public class SchedulingController implements FxController {

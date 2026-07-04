@@ -14,11 +14,11 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Window;
-import ui.javafx.services.SectionService;
+import ui.javafx.pages.rooms_sections.SectionService;
 import ui.javafx.users.services.UserWriteService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.SessionContext;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.SessionContext;
 import users.User;
 
 public class UserFormController {
@@ -72,7 +72,7 @@ public class UserFormController {
             ButtonType saveButtonType = new ButtonType(action, ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(dialogTitle(mode));
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

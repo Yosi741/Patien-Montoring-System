@@ -1,6 +1,5 @@
 package ui.javafx.pages.audit_logs;
 
-import Data_Access_Object.SqliteAuditLogDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,10 +11,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import app.helpers.SelectionHelper;
 
 public class AuditLogController implements FxController {
 

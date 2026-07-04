@@ -1,6 +1,5 @@
 package ui.javafx.pages.clinical_timeline;
 
-import Data_Access_Object.ClinicalTimelineDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,8 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
+import app.AppShell;
+import app.FxController;
 
 import java.util.Map;
 

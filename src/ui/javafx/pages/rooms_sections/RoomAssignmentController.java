@@ -1,6 +1,5 @@
 package ui.javafx.pages.rooms_sections;
 
-import Data_Access_Object.SqliteRoomDao;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,10 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import ui.javafx.services.RoomBedOccupancyService;
-import ui.javafx.services.RoomWriteService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
 import users.User;
 
 import java.util.List;
@@ -72,7 +69,7 @@ public class RoomAssignmentController {
             ButtonType saveButtonType = new ButtonType(action == AssignmentAction.REMOVE ? "Remove" : "Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(titleFor(action));
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

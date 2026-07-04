@@ -1,12 +1,12 @@
 package ui.javafx.users.services;
 
-import Data_Access_Object.SqliteSectionDao;
+import ui.javafx.pages.rooms_sections.SqliteSectionDao;
 import ui.javafx.users.dao.SqliteUserDao;
-import security.PasswordHasher;
-import ui.javafx.helpers.AuditAction;
-import ui.javafx.helpers.AuditWriteHelper;
-import ui.javafx.helpers.FormValidationHelper;
-import ui.javafx.helpers.PermissionHelper;
+import app.PasswordHasher;
+import ui.javafx.pages.audit_logs.AuditAction;
+import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import app.helpers.FormValidationHelper;
+import app.helpers.PermissionHelper;
 import users.User;
 
 import java.sql.SQLException;

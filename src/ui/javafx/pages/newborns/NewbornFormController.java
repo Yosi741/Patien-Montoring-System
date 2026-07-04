@@ -1,8 +1,7 @@
 package ui.javafx.pages.newborns;
 
-import Data_Access_Object.SqliteNewbornRecordDao;
-import ui.javafx.patients.dao.SqlitePatientDao;
-import Data_Access_Object.SqliteRoomDao;
+import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import ui.javafx.pages.rooms_sections.SqliteRoomDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,10 +14,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import ui.javafx.services.NewbornService;
-import ui.javafx.services.SectionService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
+import ui.javafx.pages.rooms_sections.SectionService;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
 import users.User;
 
 import java.time.LocalDateTime;
@@ -75,7 +73,7 @@ public class NewbornFormController {
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(record == null ? "Create Newborn Record" : "Update Newborn Record");
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

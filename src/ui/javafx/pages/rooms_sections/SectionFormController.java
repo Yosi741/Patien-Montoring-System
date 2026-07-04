@@ -1,6 +1,5 @@
 package ui.javafx.pages.rooms_sections;
 
-import Data_Access_Object.SqliteSectionDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,10 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
-import ui.javafx.services.RoomWriteService;
-import ui.javafx.services.SectionService;
-import ui.javafx.AppNavigator;
-import ui.javafx.helpers.NotificationHelper;
+import app.AppNavigator;
+import ui.javafx.pages.notifications.NotificationHelper;
 import users.User;
 
 public class SectionFormController {
@@ -59,7 +56,7 @@ public class SectionFormController {
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(section == null ? "Add Section" : "Edit Section");
-            ui.javafx.helpers.DialogThemeHelper.apply(dialog);
+            app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);

@@ -1,6 +1,6 @@
 package ui.javafx.pages.medications;
 
-import Data_Access_Object.SqliteAuditLogDao;
+import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,18 +13,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import Data_Access_Object.SqliteMedicationDao;
-import ui.javafx.services.MedicationOverviewService;
-import ui.javafx.services.MedicationWriteService;
-import ui.javafx.AppShell;
-import ui.javafx.FxController;
-import ui.javafx.SessionContext;
-import ui.javafx.pages.medications.MedicationCatalogController;
-import ui.javafx.pages.medications.MedicationGivenController;
-import ui.javafx.helpers.DialogHelper;
-import ui.javafx.helpers.NotificationHelper;
-import ui.javafx.helpers.PermissionHelper;
-import ui.javafx.helpers.SelectionHelper;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import app.helpers.DialogHelper;
+import ui.javafx.pages.notifications.NotificationHelper;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import ui.javafx.pages.scheduling.ReminderFormController;
 import users.Session;
 
