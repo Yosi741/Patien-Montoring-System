@@ -1,9 +1,9 @@
 package ui.javafx.pages.Alert;
 
 import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
-import ui.javafx.pages.patients.Patient;
+import pages.patient.Patient;
 import ui.javafx.pages.notifications.NotificationCenterService;
-import ui.javafx.pages.patients.vitals_entry.VitalSign;
+import pages.patient.VitalSign;
 import users.Session;
 
 import javax.sound.sampled.*;

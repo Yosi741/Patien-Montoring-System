@@ -15,7 +15,7 @@ import javafx.stage.Window;
 import ui.javafx.pages.deceased.DeceasedPatientService;
 import app.AppNavigator;
 import ui.javafx.pages.notifications.NotificationHelper;
-import users.User;
+import pages.user.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -4,7 +4,7 @@ import ui.javafx.pages.audit_logs.AuditAction;
 import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.sql.SQLException;
 import java.time.Duration;

@@ -1,9 +1,9 @@
 $targetViews = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/views"
 $targetPages = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages"
-$targetPatients = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/patients"
-$targetUsers = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/users"
-$targetLogin = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/login"
-$targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/dashboard"
+$targetPatients = "out/production/untitledSmartPatientMonitoringSystem/pages/patient"
+$targetUsers = "out/production/untitledSmartPatientMonitoringSystem/pages/user"
+$targetLogin = "out/production/untitledSmartPatientMonitoringSystem/pages/login"
+$targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/pages/dashboard"
 $targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
 $targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
 $targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
@@ -24,17 +24,17 @@ if (Test-Path "src/ui/javafx/views") {
 if (Test-Path "src/ui/javafx/pages") {
     Copy-Item -Path "src/ui/javafx/pages/*" -Destination $targetPages -Force -Recurse
 }
-if (Test-Path "src/ui/javafx/patients") {
-    Copy-Item -Path "src/ui/javafx/patients/*" -Destination $targetPatients -Force -Recurse
+if (Test-Path "src/pages/patient") {
+    Copy-Item -Path "src/pages/patient/*" -Destination $targetPatients -Force -Recurse
 }
-if (Test-Path "src/ui/javafx/users") {
-    Copy-Item -Path "src/ui/javafx/users/*" -Destination $targetUsers -Force -Recurse
+if (Test-Path "src/pages/user") {
+    Copy-Item -Path "src/pages/user/*" -Destination $targetUsers -Force -Recurse
 }
-if (Test-Path "src/ui/javafx/login") {
-    Copy-Item -Path "src/ui/javafx/login/*" -Destination $targetLogin -Force -Recurse
+if (Test-Path "src/pages/login") {
+    Copy-Item -Path "src/pages/login/*" -Destination $targetLogin -Force -Recurse
 }
-if (Test-Path "src/ui/javafx/dashboard") {
-    Copy-Item -Path "src/ui/javafx/dashboard/*" -Destination $targetDashboard -Force -Recurse
+if (Test-Path "src/pages/dashboard") {
+    Copy-Item -Path "src/pages/dashboard/*" -Destination $targetDashboard -Force -Recurse
 }
 if (Test-Path "src/app") {
     Copy-Item -Path "src/app/*.fxml" -Destination $targetApp -Force
@@ -53,6 +53,22 @@ if (Test-Path $legacyLoginView) {
 $legacyFeatureLoginView = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/features/login/LoginView.fxml"
 if (Test-Path $legacyFeatureLoginView) {
     Remove-Item -Path $legacyFeatureLoginView -Force
+}
+$legacyOldLoginFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/login"
+if (Test-Path $legacyOldLoginFolder) {
+    Remove-Item -Path $legacyOldLoginFolder -Recurse -Force
+}
+$legacyOldDashboardFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/dashboard"
+if (Test-Path $legacyOldDashboardFolder) {
+    Remove-Item -Path $legacyOldDashboardFolder -Recurse -Force
+}
+$legacyOldPatientsFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patients"
+if (Test-Path $legacyOldPatientsFolder) {
+    Remove-Item -Path $legacyOldPatientsFolder -Recurse -Force
+}
+$legacyOldUsersFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/users"
+if (Test-Path $legacyOldUsersFolder) {
+    Remove-Item -Path $legacyOldUsersFolder -Recurse -Force
 }
 $legacyDashboardView = Join-Path $targetViews "DashboardView.fxml"
 if (Test-Path $legacyDashboardView) {
@@ -198,9 +214,7 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/vitals_entry",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/medical_files",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/users",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/login",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/dashboard"
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings"
 )
 
 foreach ($legacyFolder in $legacyPatientPages) {

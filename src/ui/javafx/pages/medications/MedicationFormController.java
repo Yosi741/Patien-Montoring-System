@@ -17,7 +17,7 @@ import javafx.util.StringConverter;
 import app.AppNavigator;
 import ui.javafx.pages.notifications.NotificationHelper;
 import app.helpers.SelectionHelper;
-import users.User;
+import pages.user.User;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package ui.javafx.pages.newborns;
 
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import pages.patient.dao.SqlitePatientDao;
 import ui.javafx.pages.rooms_sections.SqliteRoomDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +17,7 @@ import javafx.stage.Window;
 import ui.javafx.pages.rooms_sections.SectionService;
 import app.AppNavigator;
 import ui.javafx.pages.notifications.NotificationHelper;
-import users.User;
+import pages.user.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

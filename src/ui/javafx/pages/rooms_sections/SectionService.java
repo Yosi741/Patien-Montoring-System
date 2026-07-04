@@ -5,7 +5,7 @@ import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.DialogHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.sql.SQLException;
 import java.util.List;

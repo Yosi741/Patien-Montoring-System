@@ -1,6 +1,6 @@
 package ui.javafx.pages.Alert;
 
-import ui.javafx.pages.patients.Patient;
+import pages.patient.Patient;
 
 public class CriticalAlertManager {
 

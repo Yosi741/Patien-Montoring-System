@@ -1,13 +1,13 @@
 package ui.javafx.pages.deceased;
 
 import ui.javafx.pages.certificates.CertificateEventService;
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import pages.patient.dao.SqlitePatientDao;
 import ui.javafx.pages.audit_logs.AuditAction;
 import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.FxFileOpenHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

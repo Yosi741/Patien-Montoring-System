@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="740.0" prefWidth="1180.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.patient.medical_files.MedicalFilesController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar page-header-card">
+            <VBox spacing="4.0">
+                <Label styleClass="screen-title" text="Medical Files" />
+                <Label styleClass="muted-text" text="Local upload and basic analysis" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#showDashboard" styleClass="secondary-button" text="Dashboard" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
+            <content>
+                <VBox spacing="18.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+
+                    <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
+                        <Label styleClass="warning-value" text="Access denied" />
+                        <Label styleClass="body-text" text="Medical Files is available to Admin, Doctor, and Nurse roles for authorized hospital roles." wrapText="true" />
+                    </VBox>
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label styleClass="status-info metric-value compact-metric-value" text="Local database upload. Preview extracts text where possible; no external ui.javafx.services." />
+                            <Label fx:id="patientFilterChip" managed="false" styleClass="status-success success-value" text="" visible="false" />
+                            <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="transparent-pane secondary-button" text="Clear Patient Filter" visible="false" />
+                        </HBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label styleClass="field-label" text="Search" />
+                                <TextField fx:id="searchField" promptText="Patient ID, patient name, original filename, uploaded by" styleClass="control-input" HBox.hgrow="ALWAYS" />
+                                <Label styleClass="field-label" text="Category" />
+                                <ComboBox fx:id="categoryFilter" prefWidth="180.0" styleClass="control-input" />
+                                <Label styleClass="field-label" text="Date" />
+                                <ComboBox fx:id="dateRangeFilter" prefWidth="135.0" styleClass="control-input" />
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label styleClass="field-label" text="Uploaded By" />
+                                <TextField fx:id="uploadedByFilter" prefWidth="220.0" promptText="Username" styleClass="control-input" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="uploadButton" onAction="#uploadFile" styleClass="primary-button" text="Upload Medical File" />
+                                <Button onAction="#clearFilters" styleClass="secondary-button" text="Clear Filters" />
+                                <Button onAction="#loadFiles" styleClass="secondary-button" text="Refresh" />
+                            </HBox>
+                        </VBox>
+
+                        <SplitPane dividerPositions="0.62" prefHeight="630.0" styleClass="transparent-pane">
+                            <VBox spacing="10.0" styleClass="panel-card">
+                                <Label styleClass="section-title" text="Uploaded Files" />
+                                <TableView fx:id="filesTable" styleClass="dialog-card clinical-table" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="rowNumberColumn" prefWidth="66.0" sortable="false" text="#" />
+                                        <TableColumn fx:id="patientIdColumn" prefWidth="154.0" text="Patient ID" />
+                                        <TableColumn fx:id="patientNameColumn" prefWidth="165.0" text="Patient Name" />
+                                        <TableColumn fx:id="originalNameColumn" prefWidth="210.0" text="Original Name" />
+                                        <TableColumn fx:id="categoryColumn" prefWidth="140.0" text="Category" />
+                                        <TableColumn fx:id="uploadedByColumn" prefWidth="130.0" text="Uploaded By" />
+                                        <TableColumn fx:id="uploadedAtColumn" prefWidth="160.0" text="Uploaded At" />
+                                        <TableColumn fx:id="fileSizeColumn" prefWidth="100.0" text="Size" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="12.0" styleClass="panel-card">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <Label fx:id="detailTitleLabel" styleClass="detail-value" text="Select a file" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="copySummaryButton" disable="true" onAction="#copySummary" styleClass="secondary-button" text="Copy Summary" />
+                                    <Button fx:id="openFileButton" disable="true" onAction="#openSelectedFile" styleClass="secondary-button" text="Open File" />
+                                </HBox>
+
+                                <Label managed="false" styleClass="metric-label" text="File ID" visible="false" />
+                                <Label fx:id="fileIdLabel" managed="false" styleClass="muted-text" text="-" visible="false" wrapText="true" />
+
+                                <Label styleClass="metric-label" text="Patient" />
+                                <Label fx:id="patientLabel" styleClass="muted-text" text="-" wrapText="true" />
+
+                                <Label styleClass="metric-label" text="Original Name" />
+                                <Label fx:id="originalNameLabel" styleClass="muted-text" text="-" wrapText="true" />
+
+                                <Label styleClass="metric-label" text="Stored Path" />
+                                <Label fx:id="storedPathLabel" styleClass="muted-text" text="-" wrapText="true" />
+
+                                <HBox spacing="16.0">
+                                    <VBox spacing="4.0">
+                                        <Label styleClass="metric-label" text="Category" />
+                                        <Label fx:id="categoryLabel" styleClass="body-text" text="-" />
+                                    </VBox>
+                                    <VBox spacing="4.0">
+                                        <Label styleClass="metric-label" text="Uploaded By" />
+                                        <Label fx:id="uploadedByLabel" styleClass="body-text" text="-" />
+                                    </VBox>
+                                    <VBox spacing="4.0">
+                                        <Label styleClass="metric-label" text="Uploaded At" />
+                                        <Label fx:id="uploadedAtLabel" styleClass="body-text" text="-" />
+                                    </VBox>
+                                    <VBox spacing="4.0">
+                                        <Label styleClass="metric-label" text="Size" />
+                                        <Label fx:id="fileSizeLabel" styleClass="body-text" text="-" />
+                                    </VBox>
+                                </HBox>
+
+                                <Label styleClass="metric-label" text="Extracted Summary" />
+                                <TextArea fx:id="summaryArea" editable="false" prefRowCount="6" styleClass="control-input" wrapText="true" />
+
+                                <Label styleClass="metric-label" text="Notes" />
+                                <TextArea fx:id="notesArea" editable="false" prefRowCount="3" styleClass="control-input" wrapText="true" />
+
+                                <HBox spacing="8.0">
+                                    <Label styleClass="metric-label" text="Safe Preview" />
+                                    <Label fx:id="previewTypeLabel" styleClass="status-info metric-value compact-metric-value" text="-" />
+                                </HBox>
+
+                                <ImageView fx:id="previewImageView" fitHeight="280.0" fitWidth="500.0" managed="false" preserveRatio="true" smooth="true" visible="false" />
+
+                                <TextArea fx:id="previewArea" editable="false" prefRowCount="7" styleClass="control-input" text="Select a medical file to load a safe local preview." wrapText="true" />
+                            </VBox>
+                        </SplitPane>
+
+                        <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="Medical files not loaded yet." wrapText="true" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,5 +1,7 @@
 package users;
 
+import pages.user.User;
+
 public class Admin extends User {
 
     public Admin() {

@@ -3,7 +3,7 @@ package ui.javafx.pages.certificates;
 import ui.javafx.pages.deceased.SqliteDeceasedRecordDao;
 import ui.javafx.pages.messages.SqliteMessageDao;
 import ui.javafx.pages.newborns.SqliteNewbornRecordDao;
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import pages.patient.dao.SqlitePatientDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

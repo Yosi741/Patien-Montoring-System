@@ -1,12 +1,12 @@
 package ui.javafx.pages.scheduling;
 
 import ui.javafx.pages.medications.SqliteMedicationDao;
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import pages.patient.dao.SqlitePatientDao;
 import ui.javafx.pages.audit_logs.AuditAction;
 import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;

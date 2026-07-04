@@ -1,6 +1,6 @@
 package app.helpers;
 
-import users.User;
+import pages.user.User;
 
 public final class PermissionHelper {
 

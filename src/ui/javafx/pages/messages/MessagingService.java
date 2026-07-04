@@ -1,12 +1,12 @@
 package ui.javafx.pages.messages;
 
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
-import ui.javafx.users.dao.SqliteUserDao;
+import pages.patient.dao.SqlitePatientDao;
+import pages.user.dao.SqliteUserDao;
 import ui.javafx.pages.audit_logs.AuditAction;
 import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

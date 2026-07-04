@@ -1,5 +1,5 @@
-import ui.javafx.users.dao.SqliteUserDao;
-import users.User;
+import pages.user.dao.SqliteUserDao;
+import pages.user.User;
 
 import java.util.Optional;
 

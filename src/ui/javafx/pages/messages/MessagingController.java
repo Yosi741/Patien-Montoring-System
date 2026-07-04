@@ -1,6 +1,6 @@
 package ui.javafx.pages.messages;
 
-import ui.javafx.users.dao.SqliteUserDao;
+import pages.user.dao.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -24,7 +24,7 @@ import ui.javafx.pages.notifications.NotificationHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import users.Session;
-import users.User;
+import pages.user.User;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -1,6 +1,6 @@
 package app;
 
-import users.User;
+import pages.user.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

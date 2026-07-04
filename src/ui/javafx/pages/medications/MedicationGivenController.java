@@ -19,7 +19,7 @@ import app.AppNavigator;
 import app.SessionContext;
 import ui.javafx.pages.notifications.NotificationHelper;
 import app.helpers.PermissionHelper;
-import users.User;
+import pages.user.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

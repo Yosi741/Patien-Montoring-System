@@ -16,7 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import app.AppNavigator;
 import ui.javafx.pages.notifications.NotificationHelper;
-import users.User;
+import pages.user.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

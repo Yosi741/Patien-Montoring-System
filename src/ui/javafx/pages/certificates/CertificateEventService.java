@@ -9,7 +9,7 @@ import ui.javafx.pages.audit_logs.AuditWriteHelper;
 import app.helpers.PermissionHelper;
 import ui.javafx.pages.messages.MessagingService;
 import ui.javafx.pages.notifications.NotificationCenterService;
-import users.User;
+import pages.user.User;
 
 import java.sql.SQLException;
 

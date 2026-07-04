@@ -1,5 +1,7 @@
 package users;
 
+import pages.user.User;
+
 public class Session {
 
     private static User currentUser;

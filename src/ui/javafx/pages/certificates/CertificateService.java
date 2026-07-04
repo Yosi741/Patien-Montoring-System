@@ -1,7 +1,7 @@
 package ui.javafx.pages.certificates;
 
-import ui.javafx.pages.patients.Patient;
-import ui.javafx.pages.patients.vitals_entry.VitalSign;
+import pages.patient.Patient;
+import pages.patient.VitalSign;
 
 import java.io.File;
 import java.time.LocalDateTime;

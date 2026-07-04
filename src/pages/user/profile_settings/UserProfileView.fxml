@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+        prefWidth="1050.0"
+        prefHeight="680.0"
+        styleClass="content-page"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="pages.user.profile_settings.UserProfileController">
+
+    <center>
+        <VBox spacing="18.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="16.0"
+                  styleClass="page-header-card">
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label text="Staff Profile"
+                           styleClass="screen-title" />
+                    <Label text="Session, safe profile fields, and permission summary"
+                           styleClass="muted-text" />
+                </VBox>
+
+                <Button text="Dashboard" onAction="#goDashboard"
+                        styleClass="secondary-button" />
+            </HBox>
+
+            <GridPane hgap="16.0" vgap="16.0">
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Staff ID" styleClass="metric-label" />
+                    <Label fx:id="staffIdLabel" text="-" styleClass="detail-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Username" styleClass="metric-label" />
+                    <Label fx:id="usernameLabel" text="-" styleClass="detail-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Role" styleClass="metric-label" />
+                    <Label fx:id="roleLabel" text="-" styleClass="detail-value" />
+                    <Label fx:id="roleBadgeLabel" text="UNKNOWN"
+                           styleClass="status-info" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Section / Department" styleClass="metric-label" />
+                    <Label fx:id="sectionLabel" text="-" styleClass="detail-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Account Status" styleClass="metric-label" />
+                    <Label fx:id="accountStatusLabel" text="-" styleClass="detail-value success-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Login Source" styleClass="metric-label" />
+                    <Label fx:id="authSourceLabel" text="-" styleClass="detail-value accent-value" />
+                </VBox>
+
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="2" spacing="6.0"
+                      styleClass="metric-card">
+                    <Label text="Login Time" styleClass="metric-label" />
+                    <Label fx:id="loginTimeLabel" text="-" styleClass="section-title" />
+                </VBox>
+            </GridPane>
+
+            <VBox spacing="12.0"
+                  styleClass="panel-card">
+                <Label text="Contact &amp; Security"
+                       styleClass="section-title" />
+
+                <GridPane hgap="14.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" />
+                        <ColumnConstraints percentWidth="50.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Email" styleClass="metric-label" />
+                        <TextField fx:id="emailField" promptText="name@hospital.local"
+                                   styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Phone" styleClass="metric-label" />
+                        <TextField fx:id="phoneField" promptText="Department phone or extension"
+                                   styleClass="control-input" />
+                    </VBox>
+                </GridPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Button text="Save Profile" onAction="#saveProfile"
+                            styleClass="primary-button" />
+                    <Button text="Change Password" onAction="#changePassword"
+                            styleClass="secondary-button" />
+                    <Label fx:id="profileStatusLabel" text="Passwords are never displayed."
+                           wrapText="true"
+                           styleClass="status-info" />
+                </HBox>
+            </VBox>
+
+            <VBox spacing="12.0"
+                  styleClass="panel-card">
+                <Label text="Permission Preview"
+                       styleClass="section-title" />
+
+                <Label text="This panel summarizes the permissions currently available for this role."
+                       wrapText="true"
+                       styleClass="muted-text" />
+
+                <VBox fx:id="permissionListBox" spacing="8.0" />
+            </VBox>
+
+            <VBox fx:id="writeFoundationBox"
+                  managed="false"
+                  visible="false"
+                  spacing="12.0"
+                  styleClass="panel-card">
+
+                <Label text="Admin Audit Test"
+                       styleClass="section-title" />
+
+                <Label text="Admin-only safe test write. This creates a local database audit log row only; no patient, vitals, medication, or user data is changed."
+                       wrapText="true"
+                       styleClass="muted-text" />
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Button fx:id="createTestAuditButton"
+                            text="Create Test Audit Event"
+                            onAction="#createTestAuditEvent"
+                            styleClass="primary-button" />
+
+                    <Label fx:id="writeFoundationStatusLabel"
+                           text="-"
+                           wrapText="true" styleClass="status-success success-value" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

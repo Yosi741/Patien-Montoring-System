@@ -3,13 +3,13 @@ import ui.javafx.pages.deceased.SqliteDeceasedRecordDao;
 import ui.javafx.pages.newborns.SqliteNewbornRecordDao;
 import app.DatabaseManager;
 import app.SchemaInitializer;
-import ui.javafx.pages.dashboard.services.DashboardMetricsService;
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
-import ui.javafx.pages.patients.dao.SqliteVitalReadingDao;
+import pages.dashboard.services.DashboardMetricsService;
+import pages.patient.dao.SqlitePatientDao;
+import pages.patient.dao.SqliteVitalReadingDao;
 import ui.javafx.pages.medications.MedicationOverviewService;
 import ui.javafx.pages.notifications.NotificationCenterService;
 import ui.javafx.pages.scheduling.SchedulingService;
-import users.User;
+import pages.user.User;
 
 import java.sql.Connection;
 import java.time.Duration;

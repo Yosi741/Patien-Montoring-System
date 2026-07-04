@@ -1,7 +1,7 @@
 package ui.javafx.pages.nurse_work_queue;
 
 import ui.javafx.pages.Alert.SqliteAlertDao;
-import ui.javafx.pages.patients.dao.SqlitePatientDao;
+import pages.patient.dao.SqlitePatientDao;
 import ui.javafx.pages.scheduling.SqliteReminderDao;
 import app.DatabaseManager;
 import ui.javafx.pages.scheduling.ReminderEngineService;
