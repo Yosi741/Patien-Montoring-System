@@ -3,7 +3,7 @@ package pages.user.services;
 import pages.user.dao.SqliteUserDao;
 import pages.user.dao.SqliteUserProfileDao;
 import app.PasswordHasher;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import pages.user.User;
 

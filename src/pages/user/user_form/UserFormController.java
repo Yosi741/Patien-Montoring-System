@@ -14,10 +14,10 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Window;
-import ui.javafx.pages.rooms_sections.SectionService;
+import pages.room_section.SectionService;
 import pages.user.services.UserWriteService;
 import app.AppNavigator;
-import ui.javafx.pages.notifications.NotificationHelper;
+import pages.notification.NotificationHelper;
 import app.SessionContext;
 import pages.user.User;
 

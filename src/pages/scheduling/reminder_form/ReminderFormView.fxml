@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefWidth="760.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.scheduling.reminder_form.ReminderFormController">
+
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Reminder" />
+        <Label text="Create a local patient reminder or checkup task." wrapText="true" styleClass="muted-text dialog-subtitle" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label styleClass="field-label" text="Patient ID" />
+            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
+        </VBox>
+
+        <VBox fx:id="medicationIdBox" spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label styleClass="field-label" text="Medication ID (optional)" />
+            <TextField fx:id="medicationIdField" promptText="SQLite medication ID" styleClass="control-input" />
+        </VBox>
+
+        <VBox fx:id="reminderTypeContainer" spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label styleClass="field-label" text="Reminder Type" />
+            <ComboBox fx:id="reminderTypeBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label styleClass="field-label" text="Status" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label styleClass="field-label" text="Title" />
+            <TextField fx:id="reminderTitleField" promptText="Medication review reminder" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label styleClass="field-label" text="Due Time" />
+            <TextField fx:id="dueTimeField" promptText="dd-MM-yyyy HH:mm:ss" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label styleClass="field-label" text="Repeat Rule" />
+            <TextField fx:id="repeatRuleField" promptText="None / Daily / Weekly" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+            <Label styleClass="field-label" text="Assigned Staff" />
+            <TextField fx:id="assignedToField" promptText="Doctor or nurse username" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <Label styleClass="field-label" text="Notes" />
+            <TextArea fx:id="notesArea" prefRowCount="4" promptText="Optional reminder notes" styleClass="control-input" wrapText="true" />
+        </VBox>
+
+        <VBox fx:id="checkupSelectionBox" spacing="12.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label styleClass="section-title" text="Requested Checkups / Tests" />
+            <GridPane hgap="18.0" vgap="12.0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25.0" />
+                    <ColumnConstraints percentWidth="25.0" />
+                    <ColumnConstraints percentWidth="25.0" />
+                    <ColumnConstraints percentWidth="25.0" />
+                </columnConstraints>
+                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="field-label" text="Vitals" />
+                    <CheckBox fx:id="heartRateCheckBox" text="Heart Rate" />
+                    <CheckBox fx:id="bloodPressureCheckBox" text="Blood Pressure" />
+                    <CheckBox fx:id="temperatureCheckBox" text="Temperature" />
+                    <CheckBox fx:id="oxygenSaturationCheckBox" text="Oxygen Saturation" />
+                    <CheckBox fx:id="weightCheckBox" text="Weight" />
+                    <CheckBox fx:id="respiratoryRateCheckBox" text="Respiratory Rate" />
+                </VBox>
+                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="field-label" text="Blood Tests" />
+                    <CheckBox fx:id="cbcCheckBox" text="Complete Blood Count / CBC" />
+                    <CheckBox fx:id="rbcCheckBox" text="Red Blood Cell Count / RBC" />
+                    <CheckBox fx:id="wbcCheckBox" text="White Blood Cell Count / WBC" />
+                    <CheckBox fx:id="hemoglobinCheckBox" text="Hemoglobin" />
+                    <CheckBox fx:id="plateletsCheckBox" text="Platelets" />
+                    <CheckBox fx:id="crpCheckBox" text="CRP" />
+                    <CheckBox fx:id="ironFerritinCheckBox" text="Iron / Ferritin" />
+                    <CheckBox fx:id="vitaminB12CheckBox" text="Vitamin B12" />
+                    <CheckBox fx:id="vitaminDCheckBox" text="Vitamin D" />
+                </VBox>
+                <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <Label styleClass="field-label" text="Imaging" />
+                    <CheckBox fx:id="xrayCheckBox" text="X-Ray" />
+                    <CheckBox fx:id="ctScanCheckBox" text="CT Scan" />
+                    <CheckBox fx:id="mriCheckBox" text="MRI" />
+                    <CheckBox fx:id="ultrasoundCheckBox" text="Ultrasound" />
+                </VBox>
+                <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                    <Label styleClass="field-label" text="General" />
+                    <CheckBox fx:id="doctorReviewCheckBox" text="Doctor Review" />
+                    <CheckBox fx:id="nurseFollowUpCheckBox" text="Nurse Follow-up" />
+                    <CheckBox fx:id="medicationReviewCheckBox" text="Medication Review" />
+                    <CheckBox fx:id="painAssessmentCheckBox" text="Pain Assessment" />
+                </VBox>
+            </GridPane>
+        </VBox>
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
+    </GridPane>
+
+    <Label fx:id="statusLabel" styleClass="status-success success-value" text="-" maxWidth="Infinity" wrapText="true" />
+</VBox>

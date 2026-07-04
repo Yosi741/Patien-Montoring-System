@@ -1,6 +1,6 @@
 package pages.login;
 
-import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
+import pages.audit_log.SqliteAuditLogDao;
 import pages.user.dao.SqliteUserDao;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0" prefWidth="820.0"
+      xmlns="http://javafx.com/javafx/17.0.15"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pages.newborn.newborn_form.NewbornFormController" styleClass="panel-card">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Newborn Record" styleClass="screen-title" />
+        <Label text="Create or update a SQLite newborn record for birth certificate generation."
+               wrapText="true" styleClass="muted-text" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Newborn ID" styleClass="field-label" />
+            <TextField fx:id="newbornIdField" promptText="9 digit baby ID" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Baby Name" styleClass="field-label" />
+            <TextField fx:id="babyNameField" promptText="Baby name" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Gender" styleClass="field-label" />
+            <ComboBox fx:id="genderBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Birth Time" styleClass="field-label" />
+            <TextField fx:id="birthTimeField" promptText="yyyy-MM-dd HH:mm:ss" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Birth Weight (kg)" styleClass="field-label" />
+            <TextField fx:id="birthWeightField" promptText="3.2" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Birth Length (cm)" styleClass="field-label" />
+            <TextField fx:id="birthLengthField" promptText="Optional" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Mother Patient ID" styleClass="field-label" />
+            <HBox spacing="8.0">
+                <TextField fx:id="motherPatientIdField" promptText="Optional 9-digit patient ID" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                <Button text="Find" onAction="#findMother" styleClass="secondary-button" />
+            </HBox>
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Mother Name" styleClass="field-label" />
+            <TextField fx:id="motherNameField" promptText="Mother name" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
+            <Label text="Father Name" styleClass="field-label" />
+            <TextField fx:id="fatherNameField" promptText="Father name" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <Label text="Delivery Type" styleClass="field-label" />
+            <ComboBox fx:id="deliveryTypeBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
+            <Label text="Room" styleClass="field-label" />
+            <ComboBox fx:id="roomBox" maxWidth="Infinity" promptText="Room" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label text="Section" styleClass="field-label" />
+            <ComboBox fx:id="sectionBox" maxWidth="Infinity" promptText="Maternity" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+            <Label text="Doctor / Midwife" styleClass="field-label" />
+            <TextField fx:id="doctorField" promptText="Doctor or midwife" styleClass="control-input" />
+        </VBox>
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="7">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="3" wrapText="true" promptText="Optional birth notes" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" maxWidth="Infinity" wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+</VBox>

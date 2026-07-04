@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+        prefWidth="1150.0"
+        prefHeight="720.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="pages.clinical_timeline.ClinicalTimelineController" styleClass="content-page">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar">
+
+            <VBox spacing="4.0">
+                <Label
+                        text="Clinical Timeline" styleClass="screen-title" />
+
+                <Label
+                        fx:id="patientLabel"
+                        text="Patient ID: -" styleClass="muted-text" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Button
+                    text="Back to Patient Detail"
+                    onAction="#backToPatientDetail" styleClass="secondary-button" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="18.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+
+            <VBox spacing="12.0" styleClass="panel-card">
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+
+                    <Label
+                            text="Event Type" styleClass="field-label" />
+
+                    <ComboBox
+                            fx:id="eventTypeFilter"
+                            prefWidth="170.0" styleClass="control-input" />
+
+                    <TextField
+                            fx:id="searchField"
+                            promptText="Search title, description, severity, or source"
+                            HBox.hgrow="ALWAYS" styleClass="control-input" />
+
+                    <Button
+                            text="Refresh"
+                            onAction="#loadTimeline" styleClass="secondary-button" />
+                </HBox>
+
+                    <Label
+                    text="Read-only local database timeline combining vitals, alerts, files, medical history, medication events, and handover notes."
+                        wrapText="true" styleClass="muted-text" />
+            </VBox>
+
+            <SplitPane dividerPositions="0.38"
+                       VBox.vgrow="ALWAYS" styleClass="transparent-pane">
+
+                <items>
+
+                    <VBox spacing="10.0" styleClass="panel-card">
+
+                        <Label
+                                text="Timeline Events" styleClass="section-title" />
+
+                        <ListView
+                                fx:id="timelineList"
+                                VBox.vgrow="ALWAYS" styleClass="dialog-card" />
+                    </VBox>
+
+                    <ScrollPane fitToWidth="true" styleClass="scroll-clear">
+
+                        <content>
+                            <VBox spacing="16.0" styleClass="panel-card">
+
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+
+                                        <Label
+                                                fx:id="detailTitleLabel"
+                                                text="Select an event"
+                                                wrapText="true" styleClass="screen-title" />
+
+                                        <Label
+                                                fx:id="detailSubtitleLabel"
+                                                text="Full read-only event details will appear here."
+                                                wrapText="true" styleClass="muted-text" />
+                                    </VBox>
+
+                                    <Button
+                                            fx:id="copySummaryButton"
+                                            text="Copy Summary"
+                                            onAction="#copySummary"
+                                            disable="true" styleClass="secondary-button" />
+
+                                    <Button
+                                            fx:id="openAlertButton"
+                                            text="Open Alert"
+                                            onAction="#openSelectedAlert"
+                                            disable="true" styleClass="danger-button" />
+
+                                    <Button
+                                            fx:id="openFileButton"
+                                            text="Open File Details"
+                                            onAction="#openSelectedFileDetails"
+                                            disable="true" styleClass="secondary-button" />
+                                </HBox>
+
+                                <VBox spacing="6.0">
+                                    <Label
+                                            text="Full Description" styleClass="metric-label" />
+
+                                    <Label
+                                            fx:id="detailDescriptionLabel"
+                                            text="No event selected."
+                                            wrapText="true" styleClass="body-text" />
+                                </VBox>
+
+                                <VBox spacing="6.0">
+                                    <Label
+                                            text="Recommended Action" styleClass="metric-label" />
+
+                                    <Label
+                                            fx:id="recommendedActionLabel"
+                                            text="No recommended action selected."
+                                            wrapText="true" styleClass="body-text" />
+                                </VBox>
+
+                                <Separator />
+
+                                <VBox
+                                        fx:id="detailFieldsBox"
+                                        spacing="10.0" />
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+                </items>
+            </SplitPane>
+
+            <Label
+                    fx:id="statusLabel"
+                    text="Clinical events loaded from the local database: 0" styleClass="status-info metric-value compact-metric-value" />
+        </VBox>
+    </center>
+</BorderPane>

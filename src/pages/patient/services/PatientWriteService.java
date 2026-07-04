@@ -1,8 +1,8 @@
 package pages.patient.services;
 
 import pages.patient.dao.SqlitePatientDao;
-import ui.javafx.pages.audit_logs.AuditAction;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditAction;
+import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;

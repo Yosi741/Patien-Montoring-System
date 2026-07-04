@@ -3,7 +3,7 @@ package pages.login;
 import pages.login.dao.SqlitePasswordResetDao;
 import pages.user.dao.SqliteUserDao;
 import app.PasswordHasher;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditWriteHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

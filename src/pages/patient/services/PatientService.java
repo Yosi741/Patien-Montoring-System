@@ -1,6 +1,6 @@
 package pages.patient.services;
 
-import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
+import pages.audit_log.SqliteAuditLogDao;
 import pages.patient.Patient;
 import users.Session;
 

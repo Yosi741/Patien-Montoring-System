@@ -1,15 +1,15 @@
 package pages.patient.services;
 
-import ui.javafx.pages.Alert.SqliteAlertDao;
+import pages.alert.SqliteAlertDao;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.patient.VitalRecord;
-import ui.javafx.pages.audit_logs.AuditAction;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditAction;
+import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import ui.javafx.pages.Alert.AlertPersistenceService;
-import ui.javafx.pages.notifications.NotificationCenterService;
+import pages.alert.AlertPersistenceService;
+import pages.notification.NotificationCenterService;
 import pages.user.User;
 
 import java.sql.SQLException;

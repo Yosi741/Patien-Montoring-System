@@ -1,6 +1,6 @@
 package pages.patient;
 
-import ui.javafx.pages.medications.Medication;
+import pages.medication.Medication;
 import pages.patient.VitalSign;
 import users.Doctor;
 

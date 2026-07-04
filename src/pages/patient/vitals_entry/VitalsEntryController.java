@@ -15,7 +15,7 @@ import pages.patient.services.VitalTypeCatalog;
 import pages.patient.services.VitalsWriteService;
 import app.AppNavigator;
 import app.SessionContext;
-import ui.javafx.pages.notifications.NotificationHelper;
+import pages.notification.NotificationHelper;
 import pages.user.User;
 
 import java.time.LocalDateTime;

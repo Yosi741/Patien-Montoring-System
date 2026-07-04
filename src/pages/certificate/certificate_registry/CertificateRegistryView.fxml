@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefWidth="1200.0" prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/17.0.15"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pages.certificate.certificate_registry.CertificateRegistryController" styleClass="content-page">
+
+
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-clear">
+            <content>
+                <VBox spacing="18.0">
+                    <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label text="Certificate Registry" styleClass="screen-title" />
+                            <Label text="Unified birth and death certificate tracking with safe local HTML controls" styleClass="muted-text" wrapText="true" />
+                        </VBox>
+                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
+                    </HBox>
+
+                    <Label fx:id="accessDeniedPane" managed="false" visible="false"
+                           text="Access denied. Certificate Registry is available to authorized clinical users only."
+                           wrapText="true" styleClass="status-info warning-value" />
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+                        <HBox spacing="14.0">
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Total Certificates" styleClass="metric-label" />
+                                <Label fx:id="totalCertificatesLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Generated" styleClass="metric-label" />
+                                <Label fx:id="generatedCertificatesLabel" text="0" styleClass="success-value" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Pending" styleClass="metric-label" />
+                                <Label fx:id="pendingCertificatesLabel" text="0" styleClass="warning-value" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Birth Records" styleClass="metric-label" />
+                                <Label fx:id="birthCertificatesLabel" text="0" styleClass="accent-value" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Death Records" styleClass="metric-label" />
+                                <Label fx:id="deathCertificatesLabel" text="0" styleClass="body-text" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="12.0" styleClass="panel-card">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Type" styleClass="field-label" />
+                                <ComboBox fx:id="typeFilter" prefWidth="125.0" />
+                                <Label text="Status" styleClass="field-label" />
+                                <ComboBox fx:id="statusFilter" prefWidth="140.0" />
+                                <Label text="Review" styleClass="field-label" />
+                                <ComboBox fx:id="reviewStatusFilter" prefWidth="165.0" />
+                                <Label text="Date" styleClass="field-label" />
+                                <ComboBox fx:id="dateRangeFilter" prefWidth="145.0" />
+                                <Label text="Section" styleClass="field-label" />
+                                <ComboBox fx:id="sectionFilter" prefWidth="160.0" />
+                                <TextField fx:id="searchField" promptText="Patient/newborn no. or name" HBox.hgrow="ALWAYS" />
+                            </HBox>
+                            <FlowPane alignment="CENTER_RIGHT" hgap="10.0" vgap="10.0">
+                                <Button text="Open Related Record" onAction="#openRelatedRecord" styleClass="secondary-button" />
+                                <Button fx:id="generateButton" text="Generate Certificate" onAction="#generateCertificate" styleClass="primary-button" />
+                                <Button fx:id="openCertificateButton" text="Open Certificate" onAction="#openCertificate" styleClass="secondary-button" />
+                                <Button text="Copy Summary" onAction="#copySummary" styleClass="secondary-button" />
+                                <Button fx:id="sendNoticeButton" text="Send Notice" onAction="#sendNotice" styleClass="secondary-button" />
+                                <Button fx:id="submitReviewButton" text="Submit for Review" onAction="#submitForReview" styleClass="secondary-button" />
+                                <Button fx:id="approveButton" text="Approve" onAction="#approveCertificate" styleClass="secondary-button" />
+                                <Button fx:id="rejectButton" text="Reject" onAction="#rejectCertificate" styleClass="danger-button" />
+                                <Button fx:id="resetDraftButton" text="Reset Draft" onAction="#resetToDraft" styleClass="secondary-button" />
+                                <Button fx:id="sendReviewNoteButton" text="Send Review Note" onAction="#sendReviewNote" styleClass="secondary-button" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button text="Refresh" onAction="#loadCertificates" styleClass="secondary-button" />
+                            </FlowPane>
+                        </VBox>
+
+                        <HBox spacing="18.0">
+                            <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-card">
+                                <Label text="Certificates" styleClass="section-title" />
+                                <TableView fx:id="certificateTable" prefHeight="500.0" styleClass="clinical-table">
+                                    <columns>
+                                        <TableColumn fx:id="rowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
+                                        <TableColumn fx:id="typeColumn" text="Type" prefWidth="85.0" />
+                                        <TableColumn fx:id="sourceRecordColumn" text="Source ID" prefWidth="95.0" visible="false" />
+                                        <TableColumn fx:id="subjectIdColumn" text="Patient/Newborn ID" prefWidth="145.0" />
+                                        <TableColumn fx:id="nameColumn" text="Name" prefWidth="180.0" />
+                                        <TableColumn fx:id="eventTimeColumn" text="Event Time" prefWidth="165.0" />
+                                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="110.0" />
+                                        <TableColumn fx:id="reviewStatusColumn" text="Review" prefWidth="135.0" />
+                                        <TableColumn fx:id="sectionColumn" text="Section" prefWidth="120.0" />
+                                        <TableColumn fx:id="generatedAtColumn" text="Updated" prefWidth="160.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+
+                            <VBox spacing="12.0" prefWidth="360.0" styleClass="panel-card">
+                                <Label text="Certificate Detail" styleClass="section-title" />
+                                <Label text="Record" styleClass="metric-label" />
+                                <Label fx:id="detailTitleLabel" text="Select a certificate" wrapText="true" />
+                                <Label text="Metadata" styleClass="metric-label" />
+                                <Label fx:id="detailMetaLabel" text="-" wrapText="true" />
+                                <Label text="Status" styleClass="metric-label" />
+                                <Label fx:id="detailStatusLabel" text="No certificate selected." wrapText="true" />
+                                <Label text="Review" styleClass="metric-label" />
+                                <Label fx:id="detailReviewLabel" text="-" wrapText="true" />
+                                <Label fx:id="detailWarningLabel" text="" wrapText="true" styleClass="warning-value" />
+                                <Label text="Validated Certificate Path" styleClass="metric-label" />
+                                <Label fx:id="detailPathLabel" text="-" wrapText="true" />
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="statusLabel" text="Certificate registry not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

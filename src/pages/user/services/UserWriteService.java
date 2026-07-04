@@ -1,10 +1,10 @@
 package pages.user.services;
 
-import ui.javafx.pages.rooms_sections.SqliteSectionDao;
+import pages.room_section.SqliteSectionDao;
 import pages.user.dao.SqliteUserDao;
 import app.PasswordHasher;
-import ui.javafx.pages.audit_logs.AuditAction;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditAction;
+import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;

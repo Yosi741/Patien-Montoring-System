@@ -15,7 +15,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import pages.patient.services.MedicalFileUploadService;
 import app.AppNavigator;
-import ui.javafx.pages.notifications.NotificationHelper;
+import pages.notification.NotificationHelper;
 import pages.user.User;
 
 import java.io.File;

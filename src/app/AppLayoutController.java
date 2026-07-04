@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
-import ui.javafx.pages.notifications.NotificationCenterService;
+import pages.notification.NotificationCenterService;
 import app.helpers.PermissionHelper;
 import users.Session;
 

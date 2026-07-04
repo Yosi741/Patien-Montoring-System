@@ -2,7 +2,7 @@ package pages.dashboard.services;
 
 import app.DatabaseManager;
 import app.SchemaInitializer;
-import ui.javafx.pages.nurse_work_queue.NurseWorkQueueService;
+import pages.nurse_work.NurseWorkQueueService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

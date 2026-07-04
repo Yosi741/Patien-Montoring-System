@@ -1,7 +1,7 @@
 package pages.patient.services;
 
-import ui.javafx.pages.Alert.CriticalAlertManager;
-import ui.javafx.pages.audit_logs.SqliteAuditLogDao;
+import pages.alert.CriticalAlertManager;
+import pages.audit_log.SqliteAuditLogDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.patient.Patient;
 import pages.patient.VitalRecord;

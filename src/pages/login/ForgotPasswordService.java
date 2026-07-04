@@ -2,7 +2,7 @@ package pages.login;
 
 import pages.login.dao.SqliteEmailOutboxDao;
 import pages.user.dao.SqliteUserDao;
-import ui.javafx.pages.audit_logs.AuditWriteHelper;
+import pages.audit_log.AuditWriteHelper;
 
 import java.sql.SQLException;
 

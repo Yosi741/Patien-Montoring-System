@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefWidth="680.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.room_section.room_form.RoomFormController">
+
+    <VBox spacing="4.0" styleClass="dialog-header-card">
+        <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Manage Room" />
+        <Label styleClass="muted-text dialog-subtitle" text="Update room capacity, status, and maintenance notes." wrapText="true" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label styleClass="field-label" text="Section / Department" />
+            <ComboBox fx:id="sectionBox" editable="true" maxWidth="Infinity" promptText="Search or type section" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label styleClass="field-label" text="Room Number" />
+            <TextField fx:id="roomNumberField" promptText="101" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label styleClass="field-label" text="Capacity / Beds" />
+            <TextField fx:id="capacityField" promptText="1" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label styleClass="field-label" text="Status" />
+            <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label styleClass="field-label" text="Notes" />
+            <TextArea fx:id="notesArea" prefRowCount="4" promptText="Optional room notes" styleClass="control-input" wrapText="true" />
+        </VBox>
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
+    </GridPane>
+
+    <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="-" wrapText="true" />
+</VBox>

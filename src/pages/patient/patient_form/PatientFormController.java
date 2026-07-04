@@ -1,9 +1,9 @@
 package pages.patient.patient_form;
 
 import pages.patient.dao.SqlitePatientDao;
-import ui.javafx.pages.rooms_sections.SqliteRoomDao;
+import pages.room_section.SqliteRoomDao;
 import pages.user.dao.SqliteUserDao;
-import ui.javafx.pages.rooms_sections.SectionService;
+import pages.room_section.SectionService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,7 +20,7 @@ import javafx.stage.Window;
 import pages.patient.services.PatientWriteService;
 import app.AppNavigator;
 import app.helpers.DatePickerHelper;
-import ui.javafx.pages.notifications.NotificationHelper;
+import pages.notification.NotificationHelper;
 import pages.user.User;
 
 import java.util.ArrayList;

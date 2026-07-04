@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox
+        spacing="16.0"
+        prefWidth="720.0"
+        xmlns="http://javafx.com/javafx/17.0.15"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="pages.certificate.death_record_form.DeathRecordFormController" styleClass="panel-card">
+
+    <VBox spacing="4.0">
+        <Label fx:id="titleLabel" text="Death Record" styleClass="screen-title" />
+        <Label text="Create or update a SQLite death record. Certificate generation is handled after the record is saved."
+               wrapText="true" styleClass="muted-text" />
+    </VBox>
+
+    <GridPane hgap="14.0" vgap="13.0">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50.0" />
+            <ColumnConstraints percentWidth="50.0" />
+        </columnConstraints>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Patient ID" styleClass="field-label" />
+            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Death Time" styleClass="field-label" />
+            <TextField fx:id="deathTimeField" promptText="yyyy-MM-dd HH:mm:ss" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Pronounced By" styleClass="field-label" />
+            <TextField fx:id="pronouncedByField" promptText="Doctor username/name" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Cause Of Death" styleClass="field-label" />
+            <TextField fx:id="causeField" promptText="Unknown/Pending" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label text="Notes" styleClass="field-label" />
+            <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Clinical notes or certification context" styleClass="control-input" />
+        </VBox>
+    </GridPane>
+
+    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+</VBox>
