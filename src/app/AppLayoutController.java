@@ -283,9 +283,9 @@ public class AppLayoutController implements FxController {
             return;
         }
         String[] candidates = {
-                "/ui/javafx/Photos/spms-logo.png",
-                "/ui/javafx/Photos/spms-logo.png",
-                "/ui/javafx/Photos/spms-logo.png"
+                "/photo/spms-logo.png",
+                "/photo/SPMS-Logo.jpeg",
+                "/photo/ICON-Logo.png"
         };
         for (String candidate : candidates) {
             URL logoUrl = getClass().getResource(candidate);

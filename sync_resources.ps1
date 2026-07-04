@@ -1,5 +1,5 @@
 $targetViews = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/views"
-$targetPages = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages"
+$targetPhotos = "out/production/untitledSmartPatientMonitoringSystem/photo"
 $targetPatients = "out/production/untitledSmartPatientMonitoringSystem/pages/patient"
 $targetUsers = "out/production/untitledSmartPatientMonitoringSystem/pages/user"
 $targetLogin = "out/production/untitledSmartPatientMonitoringSystem/pages/login"
@@ -20,8 +20,7 @@ $targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
 $targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
 $targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
 
-New-Item -ItemType Directory -Force -Path $targetViews
-New-Item -ItemType Directory -Force -Path $targetPages
+New-Item -ItemType Directory -Force -Path $targetPhotos
 New-Item -ItemType Directory -Force -Path $targetPatients
 New-Item -ItemType Directory -Force -Path $targetUsers
 New-Item -ItemType Directory -Force -Path $targetLogin
@@ -42,11 +41,8 @@ New-Item -ItemType Directory -Force -Path $targetApp
 New-Item -ItemType Directory -Force -Path $targetAppStyles
 New-Item -ItemType Directory -Force -Path $targetSound
 
-if (Test-Path "src/ui/javafx/views") {
-    Copy-Item -Path "src/ui/javafx/views/*" -Destination $targetViews -Force
-}
-if (Test-Path "src/ui/javafx/pages") {
-    Copy-Item -Path "src/ui/javafx/pages/*" -Destination $targetPages -Force -Recurse
+if (Test-Path "src/photo") {
+    Copy-Item -Path "src/photo/*" -Destination $targetPhotos -Force
 }
 if (Test-Path "src/pages/patient") {
     Copy-Item -Path "src/pages/patient/*" -Destination $targetPatients -Force -Recurse
@@ -129,6 +125,10 @@ if (Test-Path $legacyOldPatientsFolder) {
 $legacyOldUsersFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/users"
 if (Test-Path $legacyOldUsersFolder) {
     Remove-Item -Path $legacyOldUsersFolder -Recurse -Force
+}
+$legacyOldPhotosFolder = "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/Photos"
+if (Test-Path $legacyOldPhotosFolder) {
+    Remove-Item -Path $legacyOldPhotosFolder -Recurse -Force
 }
 $legacyDashboardView = Join-Path $targetViews "DashboardView.fxml"
 if (Test-Path $legacyDashboardView) {

@@ -152,7 +152,7 @@ public class LoginController implements FxController {
             return;
         }
         try {
-            URL logoUrl = getClass().getResource("/ui/javafx/Photos/ICON-Logo.png");
+            URL logoUrl = getClass().getResource("/photo/ICON-Logo.png");
             if (logoUrl == null) {
                 showFallbackLogo();
                 return;
