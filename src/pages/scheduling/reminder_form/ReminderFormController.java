@@ -67,7 +67,7 @@ public class ReminderFormController {
     @FXML private CheckBox mriCheckBox;
     @FXML private CheckBox ultrasoundCheckBox;
     @FXML private CheckBox doctorReviewCheckBox;
-    @FXML private CheckBox nurseFollowUpCheckBox;
+    @FXML private CheckBox followUpCheckBox;
     @FXML private CheckBox treatmentReviewCheckBox;
     @FXML private CheckBox painAssessmentCheckBox;
 
@@ -265,7 +265,7 @@ public class ReminderFormController {
         addIfSelected(selected, mriCheckBox, "MRI");
         addIfSelected(selected, ultrasoundCheckBox, "Ultrasound");
         addIfSelected(selected, doctorReviewCheckBox, "Doctor Review");
-        addIfSelected(selected, nurseFollowUpCheckBox, "Nurse Follow-up");
+        addIfSelected(selected, followUpCheckBox, "Follow-up");
         addIfSelected(selected, treatmentReviewCheckBox, "Treatment Review");
         addIfSelected(selected, painAssessmentCheckBox, "Pain Assessment");
         return selected;

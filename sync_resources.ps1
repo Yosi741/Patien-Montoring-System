@@ -10,7 +10,6 @@ $targetClinicalTimeline = "out/production/untitledSmartPatientMonitoringSystem/p
 $targetMessages = "out/production/untitledSmartPatientMonitoringSystem/pages/messages"
 $targetNotification = "out/production/untitledSmartPatientMonitoringSystem/pages/notification"
 $targetAuditLog = "out/production/untitledSmartPatientMonitoringSystem/pages/audit_log"
-$targetNurseWork = "out/production/untitledSmartPatientMonitoringSystem/pages/nurse_work"
 $targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
 $targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
 $targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
@@ -26,7 +25,6 @@ New-Item -ItemType Directory -Force -Path $targetClinicalTimeline
 New-Item -ItemType Directory -Force -Path $targetMessages
 New-Item -ItemType Directory -Force -Path $targetNotification
 New-Item -ItemType Directory -Force -Path $targetAuditLog
-New-Item -ItemType Directory -Force -Path $targetNurseWork
 New-Item -ItemType Directory -Force -Path $targetApp
 New-Item -ItemType Directory -Force -Path $targetAppStyles
 New-Item -ItemType Directory -Force -Path $targetSound
@@ -63,9 +61,6 @@ if (Test-Path "src/pages/notification") {
 }
 if (Test-Path "src/pages/audit_log") {
     Copy-Item -Path "src/pages/audit_log/*" -Destination $targetAuditLog -Force -Recurse
-}
-if (Test-Path "src/pages/nurse_work") {
-    Copy-Item -Path "src/pages/nurse_work/*" -Destination $targetNurseWork -Force -Recurse
 }
 if (Test-Path "src/app") {
     Copy-Item -Path "src/app/*.fxml" -Destination $targetApp -Force
@@ -185,10 +180,6 @@ $legacyNotificationCenterView = Join-Path $targetViews "NotificationCenterView.f
 if (Test-Path $legacyNotificationCenterView) {
     Remove-Item -Path $legacyNotificationCenterView -Force
 }
-$legacyNurseWorkQueueView = Join-Path $targetViews "NurseWorkQueueView.fxml"
-if (Test-Path $legacyNurseWorkQueueView) {
-    Remove-Item -Path $legacyNurseWorkQueueView -Force
-}
 $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_board",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_detail",
@@ -202,8 +193,7 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/clinical_timeline",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/messages",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/notifications",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/audit_logs",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/nurse_work_queue"
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/audit_logs"
 )
 
 foreach ($legacyFolder in $legacyPatientPages) {

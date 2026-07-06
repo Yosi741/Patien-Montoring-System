@@ -33,7 +33,6 @@ public class SchemaInitializer {
             createMedicalHistory(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
-            createShiftHandoverNotes(statement);
             createAuditLogs(statement);
             createMessages(statement);
             createNotifications(statement);
@@ -396,17 +395,6 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, table, "reviewed_at", "TEXT");
         addColumnIfMissing(statement, table, "rejection_reason", "TEXT");
         statement.execute("UPDATE " + table + " SET review_status = 'DRAFT' WHERE review_status IS NULL OR TRIM(review_status) = ''");
-    }
-
-    private static void createShiftHandoverNotes(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS shift_handover_notes ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT,"
-                + "from_user TEXT NOT NULL,"
-                + "to_section TEXT NOT NULL,"
-                + "note TEXT NOT NULL,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                + ")");
     }
 
     private static void createAuditLogs(Statement statement) throws SQLException {

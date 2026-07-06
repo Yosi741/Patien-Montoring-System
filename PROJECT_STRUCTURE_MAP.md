@@ -93,8 +93,6 @@ Core clinic workflows:
   - Notification Center and notification services
 - `src/pages/audit_log`
   - Audit log page and audit write/read support
-- `src/pages/nurse_work`
-  - Nurse work queue and handover support
 
 ## 10. Removed hospital modules for clinic demo
 

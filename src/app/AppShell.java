@@ -157,10 +157,6 @@ public class AppShell extends Application {
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Scheduling");
     }
 
-    public void showNurseWorkQueue() {
-        setShellContent("/pages/nurse_work/NurseWorkQueueView.fxml", "Smart Patient Monitoring System - Nurse Work Queue");
-    }
-
     public void showMedicalFiles() {
         setShellContent("/pages/patient/medical_files/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
     }

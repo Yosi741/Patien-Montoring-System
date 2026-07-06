@@ -42,7 +42,7 @@ public class DemoDatabaseReset {
 
     private static void clearOperationalData(Connection connection) throws Exception {
         String[] tables = {
-                "notifications", "messages", "audit_logs", "shift_handover_notes",
+                "notifications", "messages", "audit_logs",
                 "medical_files", "medical_history", "reminders", "appointments",
                 "alerts", "vital_readings",
                 "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
@@ -173,7 +173,7 @@ public class DemoDatabaseReset {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
         insertReminder(connection, "100000002", "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
         insertReminder(connection, "100000004", "APPOINTMENT", "Post-operative follow-up reminder", now.plusHours(4), "PENDING", "doctor", "Review post-operative care plan.");
-        insertReminder(connection, "100000005", "CUSTOM", "Nurse follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
+        insertReminder(connection, "100000005", "CUSTOM", "Clinic follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
     }
 
     private static void insertReminder(Connection connection, String patientId, String type, String title,

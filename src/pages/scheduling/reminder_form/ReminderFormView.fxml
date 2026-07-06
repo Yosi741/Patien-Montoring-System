@@ -96,7 +96,7 @@
                 <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
                     <Label styleClass="field-label" text="General" />
                     <CheckBox fx:id="doctorReviewCheckBox" text="Doctor Review" />
-                    <CheckBox fx:id="nurseFollowUpCheckBox" text="Nurse Follow-up" />
+                    <CheckBox fx:id="followUpCheckBox" text="Follow-up" />
                     <CheckBox fx:id="treatmentReviewCheckBox" text="Treatment Review" />
                     <CheckBox fx:id="painAssessmentCheckBox" text="Pain Assessment" />
                 </VBox>
