@@ -83,10 +83,7 @@ Core clinic workflows:
   - Reminder form
   - Scheduling services and reminder engine
 
-## 9. Timeline, messages, notifications, audit logs, nurse work
-
-- `src/pages/clinical_timeline`
-  - Patient clinical timeline
+## 9. Messages, notifications, audit logs
 - `src/pages/messages`
   - Internal messaging page and message services
 - `src/pages/notification`

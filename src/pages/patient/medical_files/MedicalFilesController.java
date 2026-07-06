@@ -146,7 +146,7 @@ public class MedicalFilesController implements FxController {
             boolean saved = MedicalFileUploadController.showDialog(filesTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter);
             if (saved) {
                 loadFiles();
-                NotificationHelper.showSuccess(statusLabel, "Medical file uploaded. Clinical Timeline can show it as a FILE event.");
+                NotificationHelper.showSuccess(statusLabel, "Medical file uploaded and stored in the patient file list.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());

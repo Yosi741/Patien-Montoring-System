@@ -6,7 +6,6 @@ $targetLogin = "out/production/untitledSmartPatientMonitoringSystem/pages/login"
 $targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/pages/dashboard"
 $targetAlert = "out/production/untitledSmartPatientMonitoringSystem/pages/alert"
 $targetScheduling = "out/production/untitledSmartPatientMonitoringSystem/pages/scheduling"
-$targetClinicalTimeline = "out/production/untitledSmartPatientMonitoringSystem/pages/clinical_timeline"
 $targetMessages = "out/production/untitledSmartPatientMonitoringSystem/pages/messages"
 $targetNotification = "out/production/untitledSmartPatientMonitoringSystem/pages/notification"
 $targetAuditLog = "out/production/untitledSmartPatientMonitoringSystem/pages/audit_log"
@@ -21,7 +20,6 @@ New-Item -ItemType Directory -Force -Path $targetLogin
 New-Item -ItemType Directory -Force -Path $targetDashboard
 New-Item -ItemType Directory -Force -Path $targetAlert
 New-Item -ItemType Directory -Force -Path $targetScheduling
-New-Item -ItemType Directory -Force -Path $targetClinicalTimeline
 New-Item -ItemType Directory -Force -Path $targetMessages
 New-Item -ItemType Directory -Force -Path $targetNotification
 New-Item -ItemType Directory -Force -Path $targetAuditLog
@@ -49,9 +47,6 @@ if (Test-Path "src/pages/alert") {
 }
 if (Test-Path "src/pages/scheduling") {
     Copy-Item -Path "src/pages/scheduling/*" -Destination $targetScheduling -Force -Recurse
-}
-if (Test-Path "src/pages/clinical_timeline") {
-    Copy-Item -Path "src/pages/clinical_timeline/*" -Destination $targetClinicalTimeline -Force -Recurse
 }
 if (Test-Path "src/pages/messages") {
     Copy-Item -Path "src/pages/messages/*" -Destination $targetMessages -Force -Recurse
@@ -168,10 +163,6 @@ $legacyPlaceholderView = Join-Path $targetViews "PlaceholderView.fxml"
 if (Test-Path $legacyPlaceholderView) {
     Remove-Item -Path $legacyPlaceholderView -Force
 }
-$legacyClinicalTimelineView = Join-Path $targetViews "ClinicalTimelineView.fxml"
-if (Test-Path $legacyClinicalTimelineView) {
-    Remove-Item -Path $legacyClinicalTimelineView -Force
-}
 $legacyMessagingView = Join-Path $targetViews "MessagingView.fxml"
 if (Test-Path $legacyMessagingView) {
     Remove-Item -Path $legacyMessagingView -Force
@@ -190,7 +181,6 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/Alert",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/scheduling",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/clinical_timeline",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/messages",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/notifications",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/audit_logs"

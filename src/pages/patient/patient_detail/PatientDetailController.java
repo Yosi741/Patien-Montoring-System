@@ -137,15 +137,6 @@ public class PatientDetailController implements FxController {
     }
 
     @FXML
-    private void openClinicalTimeline() {
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for clinical timeline.");
-            return;
-        }
-        appShell.showClinicalTimeline(patientId);
-    }
-
-    @FXML
     private void viewPatientAlerts() {
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for alert view.");
@@ -176,7 +167,7 @@ public class PatientDetailController implements FxController {
         try {
             boolean saved = MedicalFileUploadController.showDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Medical file uploaded. Open Medical Files or Clinical Timeline to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Medical file uploaded. Open Medical Files to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -291,7 +282,7 @@ public class PatientDetailController implements FxController {
                 showVitalAlertPopupIfNeeded(result);
                 NotificationHelper.showSuccess(timelineStatusLabel,
                         "Saved " + result.getVitalType() + " " + result.getValue() + " " + result.getUnit()
-                                + " as " + result.getStatus() + ". Timeline and alerts are refreshed.");
+                                + " as " + result.getStatus() + ". Vitals and alerts are refreshed.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());

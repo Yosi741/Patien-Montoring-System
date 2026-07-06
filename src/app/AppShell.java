@@ -5,7 +5,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pages.audit_log.SqliteAuditLogDao;
-import pages.clinical_timeline.ClinicalTimelineController;
 import pages.messages.MessagingController;
 import pages.notification.NotificationCenterController;
 import pages.patient.medical_files.MedicalFilesController;
@@ -71,16 +70,6 @@ public class AppShell extends Application {
         logAudit("JavaFX PATIENT opened detail for " + patientId);
         setShellLoadedContent(detail);
         primaryStage.setTitle("Smart Patient Monitoring System - Patient Detail");
-    }
-
-    public void showClinicalTimeline(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Clinical Timeline");
-        AppNavigator.LoadedView timeline = navigator.loadView("/pages/clinical_timeline/ClinicalTimelineView.fxml");
-        if (timeline.getController() instanceof ClinicalTimelineController) {
-            ((ClinicalTimelineController) timeline.getController()).loadPatient(patientId);
-        }
-        setShellLoadedContent(timeline);
-        primaryStage.setTitle("Smart Patient Monitoring System - Clinical Timeline");
     }
 
     public void showMessaging() {
