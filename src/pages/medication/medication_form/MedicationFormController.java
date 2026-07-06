@@ -2,6 +2,7 @@ package pages.medication.medication_form;
 
 import pages.medication.*;
 import pages.medication.medication_catalog.MedicationCatalogController;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -64,7 +65,6 @@ public class MedicationFormController {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/medication/medication_form/MedicationFormView.fxml"));
             Parent root = loader.load();
             MedicationFormController controller = loader.getController();
-            controller.prepare(currentUser, patientId, medication);
 
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
@@ -73,6 +73,7 @@ public class MedicationFormController {
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);
+            controller.prepare(currentUser, patientId, medication);
             dialog.getDialogPane().lookupButton(saveButtonType).addEventFilter(ActionEvent.ACTION, event -> {
                 if (!controller.save()) {
                     event.consume();
@@ -126,31 +127,20 @@ public class MedicationFormController {
         this.patientId = patientId == null ? "" : patientId;
         this.existingMedication = medication;
         patientIdLabel.setText(this.patientId);
-        loadCatalogMatches("");
         if (medication == null) {
             titleLabel.setText("Add Medication");
             safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
+            Platform.runLater(() -> loadCatalogMatches(""));
             return;
         }
 
         titleLabel.setText("Edit Medication");
-        if (medication.getCatalogMedicationId() != null && medication.getCatalogMedicationId() > 0) {
-            try {
-                SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem =
-                        medicationCatalogService.getMedicationCatalogItem(medication.getCatalogMedicationId());
-                selectCatalogItem(catalogItem);
-            } catch (Exception e) {
-                setCatalogEditorTextOnly(medication.getName());
-                safetyInfoLabel.setText("Original catalog item is unavailable. The saved medication name is shown.");
-            }
-        } else {
-            setCatalogEditorTextOnly(medication.getName());
-        }
         doseAmountField.setText(formatNumber(medication.getDoseAmount()));
         selectOrFallback(doseUnitField, medication.getDoseUnit(), DEFAULT_UNITS);
         selectOrFallback(routeField, medication.getRoute(), DEFAULT_ROUTES);
         selectOrFallback(frequencyField, medication.getFrequency(), DEFAULT_FREQUENCIES);
         activeCheckBox.setSelected(medication.isActive());
+        Platform.runLater(() -> populateCatalogForExistingMedication(medication));
     }
 
     @FXML
@@ -212,6 +202,26 @@ public class MedicationFormController {
         } finally {
             loadingCatalog = false;
         }
+    }
+
+    private void populateCatalogForExistingMedication(SqliteMedicationDao.MedicationRecord medication) {
+        if (medication == null) {
+            loadCatalogMatches("");
+            return;
+        }
+        if (medication.getCatalogMedicationId() != null && medication.getCatalogMedicationId() > 0) {
+            try {
+                SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem =
+                        medicationCatalogService.getMedicationCatalogItem(medication.getCatalogMedicationId());
+                selectCatalogItem(catalogItem);
+                return;
+            } catch (Exception e) {
+                setCatalogEditorTextOnly(medication.getName());
+                safetyInfoLabel.setText("Original catalog item is unavailable. The saved medication name is shown.");
+                return;
+            }
+        }
+        setCatalogEditorTextOnly(medication.getName());
     }
 
     private void applyCatalogSelection(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
@@ -320,7 +330,6 @@ public class MedicationFormController {
         if (comboBox == null) {
             return;
         }
-        comboBox.hide();
         if (comboBox.getSelectionModel() != null) {
             comboBox.getSelectionModel().clearSelection();
         }
@@ -331,8 +340,15 @@ public class MedicationFormController {
         if (comboBox == null) {
             return;
         }
-        clearComboSelectionSafely(comboBox);
+        String editorText = comboBox.isEditable() && comboBox.getEditor() != null
+                ? comboBox.getEditor().getText()
+                : null;
         comboBox.setItems(FXCollections.observableArrayList(newItems == null ? List.of() : newItems));
+        clearComboSelectionSafely(comboBox);
+        if (editorText != null && comboBox.getEditor() != null) {
+            comboBox.getEditor().setText(editorText);
+            comboBox.getEditor().positionCaret(editorText.length());
+        }
     }
 
     private String formatNumber(Double value) {
