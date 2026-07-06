@@ -40,6 +40,10 @@ public class MedicationFormController {
     private SqliteMedicationDao.MedicationRecord existingMedication;
     private boolean saved;
     private boolean loadingCatalog;
+    private boolean updatingCatalogCombo;
+    private boolean selectingCatalogItem;
+    private boolean catalogRefreshScheduled;
+    private String pendingCatalogSearchText = "";
 
     @FXML private Label titleLabel;
     @FXML private Label patientIdLabel;
@@ -113,10 +117,10 @@ public class MedicationFormController {
         activeCheckBox.setSelected(true);
 
         catalogMedicationBox.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> applyCatalogSelection(newValue));
+                .addListener((observable, oldValue, newValue) -> handleCatalogSelectionChanged(newValue));
         catalogMedicationBox.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!loadingCatalog) {
-                loadCatalogMatches(newValue);
+            if (!loadingCatalog && !updatingCatalogCombo && !selectingCatalogItem && !matchesSelectedCatalogName(newValue)) {
+                requestCatalogRefresh(newValue);
             }
         });
         NotificationHelper.showInfo(statusLabel, "Medication order form ready.");
@@ -130,7 +134,7 @@ public class MedicationFormController {
         if (medication == null) {
             titleLabel.setText("Add Medication");
             safetyInfoLabel.setText("Select a catalog medication to show dose and route guidance.");
-            Platform.runLater(() -> loadCatalogMatches(""));
+            Platform.runLater(() -> requestCatalogRefresh(""));
             return;
         }
 
@@ -148,7 +152,7 @@ public class MedicationFormController {
         try {
             boolean changed = MedicationCatalogController.showDialog(catalogMedicationBox.getScene().getWindow(), currentUser);
             if (changed) {
-                loadCatalogMatches(catalogMedicationBox.getEditor().getText());
+                requestCatalogRefresh(catalogMedicationBox.getEditor().getText());
                 NotificationHelper.showSuccess(statusLabel, "Medication catalog updated.");
             }
         } catch (Exception e) {
@@ -186,8 +190,13 @@ public class MedicationFormController {
     }
 
     private void loadCatalogMatches(String searchText) {
+        if (selectingCatalogItem) {
+            requestCatalogRefresh(searchText);
+            return;
+        }
         try {
             loadingCatalog = true;
+            updatingCatalogCombo = true;
             String typed = searchText == null ? "" : searchText;
             List<SqliteMedicationCatalogDao.MedicationCatalogRecord> matches =
                     medicationCatalogService.searchMedicationsByName(typed);
@@ -200,13 +209,14 @@ public class MedicationFormController {
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load medication catalog: " + e.getMessage());
         } finally {
+            updatingCatalogCombo = false;
             loadingCatalog = false;
         }
     }
 
     private void populateCatalogForExistingMedication(SqliteMedicationDao.MedicationRecord medication) {
         if (medication == null) {
-            loadCatalogMatches("");
+            requestCatalogRefresh("");
             return;
         }
         if (medication.getCatalogMedicationId() != null && medication.getCatalogMedicationId() > 0) {
@@ -222,6 +232,45 @@ public class MedicationFormController {
             }
         }
         setCatalogEditorTextOnly(medication.getName());
+    }
+
+    private void handleCatalogSelectionChanged(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
+        selectingCatalogItem = true;
+        try {
+            applyCatalogSelection(catalogItem);
+        } finally {
+            Platform.runLater(() -> selectingCatalogItem = false);
+        }
+    }
+
+    private void requestCatalogRefresh(String searchText) {
+        pendingCatalogSearchText = searchText == null ? "" : searchText;
+        if (catalogRefreshScheduled) {
+            return;
+        }
+        catalogRefreshScheduled = true;
+        Platform.runLater(this::flushPendingCatalogRefresh);
+    }
+
+    private void flushPendingCatalogRefresh() {
+        catalogRefreshScheduled = false;
+        if (selectingCatalogItem || updatingCatalogCombo) {
+            requestCatalogRefresh(pendingCatalogSearchText);
+            return;
+        }
+        loadCatalogMatches(pendingCatalogSearchText);
+    }
+
+    private boolean matchesSelectedCatalogName(String text) {
+        SqliteMedicationCatalogDao.MedicationCatalogRecord selected = catalogMedicationBox == null
+                ? null
+                : catalogMedicationBox.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return false;
+        }
+        String selectedName = selected.getName() == null ? "" : selected.getName().trim();
+        String candidate = text == null ? "" : text.trim();
+        return selectedName.equalsIgnoreCase(candidate);
     }
 
     private void applyCatalogSelection(SqliteMedicationCatalogDao.MedicationCatalogRecord catalogItem) {
@@ -252,6 +301,7 @@ public class MedicationFormController {
             return;
         }
         loadingCatalog = true;
+        updatingCatalogCombo = true;
         List<SqliteMedicationCatalogDao.MedicationCatalogRecord> items = new ArrayList<>(catalogMedicationBox.getItems());
         if (!items.contains(catalogItem)) {
             items.add(catalogItem);
@@ -263,15 +313,18 @@ public class MedicationFormController {
         }
         catalogMedicationBox.getEditor().setText(catalogItem.getName());
         loadingCatalog = false;
+        updatingCatalogCombo = false;
         applyCatalogSelection(catalogItem);
     }
 
     private void setCatalogEditorTextOnly(String text) {
         loadingCatalog = true;
+        updatingCatalogCombo = true;
         clearComboSelectionSafely(catalogMedicationBox);
         catalogMedicationBox.getEditor().setText(text == null ? "" : text);
         catalogMedicationBox.getEditor().positionCaret(catalogMedicationBox.getEditor().getText().length());
         loadingCatalog = false;
+        updatingCatalogCombo = false;
     }
 
     private List<String> csvValues(String csv, List<String> fallback) {
@@ -330,6 +383,9 @@ public class MedicationFormController {
         if (comboBox == null) {
             return;
         }
+        if (comboBox == catalogMedicationBox && selectingCatalogItem) {
+            return;
+        }
         if (comboBox.getSelectionModel() != null) {
             comboBox.getSelectionModel().clearSelection();
         }
@@ -338,6 +394,9 @@ public class MedicationFormController {
 
     private <T> void replaceComboItemsSafely(ComboBox<T> comboBox, List<T> newItems) {
         if (comboBox == null) {
+            return;
+        }
+        if (comboBox == catalogMedicationBox && selectingCatalogItem) {
             return;
         }
         String editorText = comboBox.isEditable() && comboBox.getEditor() != null
