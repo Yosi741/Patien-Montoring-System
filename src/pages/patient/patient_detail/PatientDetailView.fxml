@@ -95,8 +95,8 @@
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
                             <Label text="Patient Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="editPatientButton" text="Edit Patient" onAction="#editPatient" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
-                            <Button fx:id="movePatientButton" text="Move Patient" onAction="#movePatientRoom" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
-                            <Button fx:id="markDeceasedButton" text="Mark Deceased" onAction="#markPatientDeceased" maxWidth="Infinity" styleClass="patient-file-danger-button" />
+                            <Button fx:id="createAppointmentButton" text="Schedule Visit" onAction="#createPatientAppointment" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="uploadMedicalFileButton" text="Upload File" onAction="#uploadPatientMedicalFile" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -105,7 +105,7 @@
                                 <Button text="Clinical Timeline" onAction="#openClinicalTimeline" styleClass="patient-file-chip-button" />
                                 <Button text="Alerts" onAction="#viewPatientAlerts" styleClass="patient-file-chip-danger" />
                                 <Button text="Files" onAction="#viewPatientMedicalFiles" styleClass="patient-file-chip-button" />
-                                <Button fx:id="viewNewbornsButton" text="Newborns" onAction="#viewPatientNewborns" styleClass="patient-file-chip-button" />
+                                <Button text="Scheduling" onAction="#viewPatientScheduling" styleClass="patient-file-chip-button" />
                             </FlowPane>
                         </VBox>
                     </GridPane>
@@ -128,14 +128,14 @@
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="patient-file-card">
-                            <Label text="Current Treatment" styleClass="patient-file-section-title" />
+                            <Label text="Clinical Notes" styleClass="patient-file-section-title" />
                             <Label text="Treatment planning is handled through checkups, appointments, alerts, and clinical notes in this clinic version." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="patient-file-card">
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
                                 <Label text="Uploaded Medical Files" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="uploadMedicalFileButton" text="Upload" onAction="#uploadPatientMedicalFile" styleClass="patient-file-mini-button" />
+                                <Button text="Upload" onAction="#uploadPatientMedicalFile" styleClass="patient-file-mini-button" />
                             </HBox>
                             <Label text="Use the Files record tab to view reports, scans, and uploaded clinical documents." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
@@ -153,7 +153,7 @@
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="patient-file-card">
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
                                 <Label text="Previous Checkups" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="createAppointmentButton" text="Schedule" onAction="#createPatientAppointment" styleClass="patient-file-mini-button" />
+                                <Button text="Schedule" onAction="#createPatientAppointment" styleClass="patient-file-mini-button" />
                             </HBox>
                             <Label text="No previous checkups recorded in this patient file view" wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
@@ -163,14 +163,6 @@
                             <Label text="CT, MRI, X-Ray, and ultrasound files will appear through Uploaded Medical Files. No scans uploaded yet." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
 
-                        <VBox fx:id="babiesCard" spacing="10.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4" styleClass="patient-file-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Babies / Newborns" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="viewBabiesButton" text="View Babies" onAction="#viewPatientNewborns" styleClass="patient-file-mini-button" />
-                            </HBox>
-                            <Label fx:id="babiesCountLabel" text="No linked newborn records" styleClass="patient-file-field-label" />
-                            <Label fx:id="babiesListLabel" text="No babies linked to this patient yet" wrapText="true" styleClass="patient-file-empty" />
-                        </VBox>
                     </GridPane>
 
                     <HBox spacing="16.0" styleClass="patient-file-card">

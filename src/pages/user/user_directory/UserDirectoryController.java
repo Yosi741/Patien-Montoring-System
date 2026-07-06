@@ -15,7 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import users.roles.RolePermissionService;
-import pages.room_section.SectionService;
 import pages.user.user_form.UserFormController;
 import pages.user.services.UserWriteService;
 import app.AppShell;
@@ -35,7 +34,6 @@ public class UserDirectoryController implements FxController {
     private final SqliteUserDao userDao = new SqliteUserDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final UserWriteService userWriteService = new UserWriteService();
-    private final SectionService sectionService = new SectionService();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
     private AppShell appShell;
 
@@ -77,7 +75,6 @@ public class UserDirectoryController implements FxController {
         this.appShell = appShell;
         configureAccess();
         configureTable();
-        configureFilters();
         configureSelection();
         clearDetail();
         if (isAdmin()) {
@@ -155,27 +152,6 @@ public class UserDirectoryController implements FxController {
         createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
     }
 
-    private void configureFilters() {
-        roleFilter.setItems(FXCollections.observableArrayList("All", "ADMIN", "DOCTOR", "NURSE", "STAFF"));
-        activeFilter.setItems(FXCollections.observableArrayList("All", "Active", "Inactive"));
-        roleFilter.getSelectionModel().select("All");
-        activeFilter.getSelectionModel().select("All");
-
-        ArrayList<String> sections = new ArrayList<>();
-        sections.add("All");
-        try {
-            sections.addAll(sectionService.findActiveSectionNames());
-        } catch (Exception e) {
-            statusLabel.setText("Section filters unavailable: " + e.getMessage());
-        }
-        sectionFilter.setItems(FXCollections.observableArrayList(sections));
-        sectionFilter.getSelectionModel().select("All");
-
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> loadUsers());
-        roleFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
-        sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
-        activeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadUsers());
-    }
 
     @FXML
     private void addUser() {
@@ -184,7 +160,7 @@ public class UserDirectoryController implements FxController {
             return;
         }
         if (UserFormController.showCreateDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser())) {
-            reloadSections();
+
             loadUsers();
             NotificationHelper.showSuccess(statusLabel, "User account saved.");
         }
@@ -201,7 +177,6 @@ public class UserDirectoryController implements FxController {
             return;
         }
         if (UserFormController.showEditDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
-            reloadSections();
             loadUsers();
             selectUser(selected.getUsername());
             NotificationHelper.showSuccess(statusLabel, "User updated.");
@@ -350,18 +325,7 @@ public class UserDirectoryController implements FxController {
         }
     }
 
-    private void reloadSections() {
-        String current = sectionFilter.getValue();
-        ArrayList<String> sections = new ArrayList<>();
-        sections.add("All");
-        try {
-            sections.addAll(sectionService.findActiveSectionNames());
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, "Section filters unavailable: " + e.getMessage());
-        }
-        sectionFilter.setItems(FXCollections.observableArrayList(sections));
-        sectionFilter.getSelectionModel().select(sections.contains(current) ? current : "All");
-    }
+
 
     private void showDenied() {
         NotificationHelper.showError(statusLabel, "Access denied. Admin role is required.");

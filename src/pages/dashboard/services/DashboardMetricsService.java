@@ -2,8 +2,6 @@ package pages.dashboard.services;
 
 import app.DatabaseManager;
 import app.SchemaInitializer;
-import pages.nurse_work.NurseWorkQueueService;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,16 +31,7 @@ public class DashboardMetricsService {
 
             DashboardMetrics metrics = new DashboardMetrics();
             metrics.totalPatients = count(connection, "SELECT COUNT(*) FROM patients");
-            metrics.activePatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE')");
-            metrics.deceasedPatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) = 'DECEASED'");
-            metrics.newbornRecords = count(connection, "SELECT COUNT(*) FROM newborn_records");
-            metrics.birthsToday = count(connection, "SELECT COUNT(*) FROM newborn_records WHERE date(birth_time) = date('now')");
-            metrics.pendingBirthCertificates = count(connection,
-                    "SELECT COUNT(*) FROM newborn_records WHERE certificate_path IS NULL OR TRIM(certificate_path) = ''");
-            metrics.pendingDeathCertificates = count(connection,
-                    "SELECT COUNT(*) FROM deceased_records WHERE certificate_path IS NULL OR TRIM(certificate_path) = ''");
-            metrics.deathsThisMonth = count(connection,
-                    "SELECT COUNT(*) FROM deceased_records WHERE strftime('%Y-%m', death_time) = strftime('%Y-%m', 'now')");
+            metrics.activePatients = count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(status) NOT IN ('DISCHARGED', 'INACTIVE')");
             metrics.criticalEmergencyPatients = count(connection,
                     "SELECT COUNT(*) FROM patients WHERE UPPER(priority) IN ('CRITICAL', 'EMERGENCY')");
             metrics.activeAlerts = count(connection, "SELECT COUNT(*) FROM alerts WHERE UPPER(status) = 'ACTIVE'");
@@ -59,10 +48,10 @@ public class DashboardMetricsService {
             metrics.appointmentsToday = count(connection, "SELECT COUNT(*) FROM appointments WHERE date(start_time) = date('now') "
                     + "OR substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')");
             metrics.pendingReminders = count(connection, "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'PENDING'");
-            NurseWorkQueueService.WorkQueueOverview queueOverview = new NurseWorkQueueService().loadQueue("System");
-            metrics.overdueReminders = queueOverview.getOverdueReminders();
-            metrics.upcomingRemindersToday = queueOverview.getUpcomingReminders();
-            metrics.nurseQueueTasks = queueOverview.getTotalTasks();
+            metrics.overdueReminders = count(connection, "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'OVERDUE'");
+            metrics.upcomingRemindersToday = count(connection,
+                    "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'PENDING' "
+                            + "AND (date(due_time) = date('now') OR substr(due_time, 1, 10) = strftime('%d-%m-%Y', 'now'))");
             metrics.priorityCounts.put("NORMAL", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'NORMAL'"));
             metrics.priorityCounts.put("HIGH", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'HIGH' OR UPPER(priority) = 'WARNING'"));
             metrics.priorityCounts.put("CRITICAL", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'CRITICAL'"));
@@ -156,12 +145,6 @@ public class DashboardMetricsService {
     public static class DashboardMetrics {
         private int totalPatients;
         private int activePatients;
-        private int deceasedPatients;
-        private int newbornRecords;
-        private int birthsToday;
-        private int pendingBirthCertificates;
-        private int pendingDeathCertificates;
-        private int deathsThisMonth;
         private int criticalEmergencyPatients;
         private int activeAlerts;
         private int acknowledgedAlertsToday;
@@ -172,7 +155,6 @@ public class DashboardMetricsService {
         private int pendingReminders;
         private int overdueReminders;
         private int upcomingRemindersToday;
-        private int nurseQueueTasks;
         private final LinkedHashMap<String, Integer> priorityCounts = new LinkedHashMap<>();
         private final LinkedHashMap<String, Integer> activeAlertSeverityCounts = new LinkedHashMap<>();
         private final ArrayList<RecentAlert> recentAlerts = new ArrayList<>();
@@ -181,13 +163,6 @@ public class DashboardMetricsService {
         public int getTotalPatients() { return totalPatients; }
 
         public int getActivePatients() { return activePatients; }
-
-        public int getDeceasedPatients() { return deceasedPatients; }
-        public int getNewbornRecords() { return newbornRecords; }
-        public int getBirthsToday() { return birthsToday; }
-        public int getPendingBirthCertificates() { return pendingBirthCertificates; }
-        public int getPendingDeathCertificates() { return pendingDeathCertificates; }
-        public int getDeathsThisMonth() { return deathsThisMonth; }
         public int getCriticalEmergencyPatients() { return criticalEmergencyPatients; }
         public int getActiveAlerts() { return activeAlerts; }
         public int getAcknowledgedAlertsToday() { return acknowledgedAlertsToday; }
@@ -198,7 +173,6 @@ public class DashboardMetricsService {
         public int getPendingReminders() { return pendingReminders; }
         public int getOverdueReminders() { return overdueReminders; }
         public int getUpcomingRemindersToday() { return upcomingRemindersToday; }
-        public int getNurseQueueTasks() { return nurseQueueTasks; }
         public Map<String, Integer> getPriorityCounts() { return priorityCounts; }
         public Map<String, Integer> getActiveAlertSeverityCounts() { return activeAlertSeverityCounts; }
         public List<RecentAlert> getRecentAlerts() { return recentAlerts; }

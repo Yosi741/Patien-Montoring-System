@@ -42,15 +42,15 @@ public class DemoLargeDataSeeder {
     private static final String[] GENDERS = {"Male", "Female"};
     private static final String[] REMINDER_TYPES = {"APPOINTMENT", "CHECKUP", "CUSTOM"};
     private static final String[] REMINDER_STATUSES = {"PENDING", "PENDING", "PENDING", "OVERDUE", "DONE", "MISSED"};
-    private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER"};
+    private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER"};
     private static final String[] APPOINTMENT_STATUSES = {"SCHEDULED", "SCHEDULED", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"};
     private static final String[] ALERT_SEVERITIES = {"WARNING", "CRITICAL", "EMERGENCY"};
     private static final String[] NOTIFICATION_SEVERITIES = {"INFO", "WARNING", "CRITICAL"};
     private static final String[] MESSAGE_PRIORITIES = {"NORMAL", "HIGH", "URGENT"};
     private static final String[] USERS = {"admin", "doctor", "nurse", "staff"};
 
-    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 10, 5, 300, 20, 40, 15);
-    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 200, 100, 5000, 250, 800, 180);
+    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 300, 20, 40, 15);
+    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 5000, 250, 800, 180);
 
     public static void main(String[] args) throws Exception {
         SeedConfig config = parseConfig(args);
@@ -73,15 +73,11 @@ public class DemoLargeDataSeeder {
 
         try (Connection connection = DatabaseManager.getConnection()) {
             connection.setAutoCommit(false);
-            ensureSectionsAndRooms(connection, config, summary);
-
             List<SeedPatient> patients = insertPatients(connection, config, random, summary);
             insertVitals(connection, config, random, patients, summary);
             insertReminders(connection, config, random, patients, summary);
             insertAppointments(connection, config, random, patients, summary);
             insertAlerts(connection, config, random, patients, summary);
-            insertNewbornRecords(connection, config, random, patients, summary);
-            insertDeceasedRecords(connection, config, random, patients, summary);
             insertNotifications(connection, config, random, patients, summary);
             insertMessages(connection, config, random, patients, summary);
             insertAuditLogs(connection, config, random, patients, summary);
@@ -124,34 +120,6 @@ public class DemoLargeDataSeeder {
         } catch (Exception vacuumFailure) {
             Files.copy(databasePath, backupPath);
             return backupPath;
-        }
-    }
-
-    private void ensureSectionsAndRooms(Connection connection, SeedConfig config, SeedSummary summary) throws Exception {
-        int roomsPerSection = Math.max(6, (config.patientCount / SECTIONS.length / 8) + 2);
-        try (PreparedStatement sectionStatement = connection.prepareStatement(
-                "INSERT OR IGNORE INTO sections(name, status, notes, created_at, updated_at) "
-                        + "VALUES(?, 'ACTIVE', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-             PreparedStatement roomStatement = connection.prepareStatement(
-                     "INSERT OR IGNORE INTO rooms(section, room_number, capacity, floor_number, room_sequence, status, notes, updated_at) "
-                             + "VALUES(?, ?, ?, ?, ?, 'ACTIVE', ?, CURRENT_TIMESTAMP)")) {
-            for (int i = 0; i < SECTIONS.length; i++) {
-                String section = SECTIONS[i];
-                sectionStatement.setString(1, section);
-                sectionStatement.setString(2, "Demo seeder maintained section.");
-                summary.sectionsInserted += sectionStatement.executeUpdate();
-
-                for (int sequence = 1; sequence <= roomsPerSection; sequence++) {
-                    String roomNumber = SECTION_PREFIXES.get(section) + "-" + (i + 1) + String.format(Locale.ROOT, "%03d", sequence);
-                    roomStatement.setString(1, section);
-                    roomStatement.setString(2, roomNumber);
-                    roomStatement.setInt(3, section.equals("ER") ? 4 : 2 + (sequence % 3));
-                    roomStatement.setInt(4, i + 1);
-                    roomStatement.setInt(5, sequence);
-                    roomStatement.setString(6, "Demo generated room.");
-                    summary.roomsInserted += roomStatement.executeUpdate();
-                }
-            }
         }
     }
 
@@ -299,66 +267,6 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private void insertNewbornRecords(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
-                                      SeedSummary summary) throws Exception {
-        List<SeedPatient> mothers = motherCandidates(patients);
-        long nextNewbornNumber = nextNumericId(connection, "newborn_records", "newborn_id", 800000000L, 899999999L);
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO newborn_records(newborn_id, mother_patient_id, father_name, mother_name, baby_name, gender, birth_time, birth_weight, birth_length, delivery_type, room, section, doctor_or_midwife, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Maternity', 'doctor', ?, '', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'DRAFT')")) {
-            for (int i = 1; i <= config.newbornCount; i++) {
-                SeedPatient mother = mothers.get(i % mothers.size());
-                String newbornId = String.format(Locale.ROOT, "%09d", nextNewbornNumber++);
-                LocalDateTime birthTime = LocalDateTime.now().minusHours((i * 11L) % (24L * 120));
-
-                statement.setString(1, newbornId);
-                statement.setString(2, mother.patientId);
-                statement.setString(3, "Demo Father " + String.format(Locale.ROOT, "%04d", i));
-                statement.setString(4, mother.displayName);
-                statement.setString(5, "Demo Newborn " + String.format(Locale.ROOT, "%04d", i));
-                statement.setString(6, i % 2 == 0 ? "Female" : "Male");
-                statement.setString(7, birthTime.format(ISO_DATE_TIME));
-                statement.setDouble(8, 2.6 + ((i % 12) * 0.12));
-                statement.setDouble(9, 47 + (i % 8));
-                statement.setString(10, i % 5 == 0 ? "C_SECTION" : "NATURAL");
-                statement.setString(11, mother.room);
-                statement.setString(12, "Demo newborn note " + String.format(Locale.ROOT, "%04d", i));
-                statement.executeUpdate();
-                summary.newbornsInserted++;
-            }
-        }
-    }
-
-    private void insertDeceasedRecords(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
-                                       SeedSummary summary) throws Exception {
-        List<SeedPatient> candidates = new ArrayList<>();
-        for (SeedPatient patient : patients) {
-            if (!"DECEASED".equalsIgnoreCase(patient.status)) {
-                candidates.add(patient);
-            }
-        }
-
-        try (PreparedStatement patientUpdate = connection.prepareStatement(
-                "UPDATE patients SET status = 'DECEASED', priority = 'NORMAL', updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?");
-             PreparedStatement deceasedInsert = connection.prepareStatement(
-                     "INSERT INTO deceased_records(patient_id, death_time, pronounced_by, cause_of_death, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                             + "VALUES(?, ?, ?, ?, ?, '', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'DRAFT')")) {
-            for (int i = 1; i <= config.deceasedCount; i++) {
-                SeedPatient patient = candidates.get(candidates.size() - i);
-                patientUpdate.setString(1, patient.patientId);
-                patientUpdate.executeUpdate();
-
-                deceasedInsert.setString(1, patient.patientId);
-                deceasedInsert.setString(2, LocalDateTime.now().minusHours((i * 9L) % (24L * 90)).format(ISO_DATE_TIME));
-                deceasedInsert.setString(3, "Dr. Demo " + ((i % 4) + 1));
-                deceasedInsert.setString(4, "Demo clinical cause " + String.format(Locale.ROOT, "%04d", i));
-                deceasedInsert.setString(5, "Demo deceased record " + String.format(Locale.ROOT, "%04d", i));
-                deceasedInsert.executeUpdate();
-                summary.deceasedInserted++;
-            }
-        }
-    }
-
     private void insertNotifications(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
                                      SeedSummary summary) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
@@ -428,7 +336,7 @@ public class DemoLargeDataSeeder {
                 "CREATE_REMINDER",
                 "CREATE_APPOINTMENT",
                 "OPEN_NOTIFICATION_CENTER",
-                "OPEN_CERTIFICATE_REGISTRY"
+                "OPEN_SCHEDULING"
         };
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO audit_logs(username, action, created_at) VALUES(?, ?, ?)")) {
@@ -455,17 +363,6 @@ public class DemoLargeDataSeeder {
             }
         }
         return active.isEmpty() ? patients : active;
-    }
-
-    private static List<SeedPatient> motherCandidates(List<SeedPatient> patients) {
-        ArrayList<SeedPatient> mothers = new ArrayList<>();
-        for (SeedPatient patient : patients) {
-            if ("Maternity".equals(patient.section) && "Female".equalsIgnoreCase(patient.gender)
-                    && !"DECEASED".equalsIgnoreCase(patient.status)) {
-                mothers.add(patient);
-            }
-        }
-        return mothers.isEmpty() ? activePatients(patients) : mothers;
     }
 
     private static String sectionForIndex(int index) {
@@ -588,14 +485,10 @@ public class DemoLargeDataSeeder {
         System.out.println("vitals inserted=" + summary.vitalsInserted);
         System.out.println("reminders inserted=" + summary.remindersInserted);
         System.out.println("appointments inserted=" + summary.appointmentsInserted);
-        System.out.println("newborns inserted=" + summary.newbornsInserted);
-        System.out.println("deceased inserted=" + summary.deceasedInserted);
         System.out.println("audit logs inserted=" + summary.auditLogsInserted);
         System.out.println("alerts inserted=" + summary.alertsInserted);
         System.out.println("notifications inserted=" + summary.notificationsInserted);
         System.out.println("messages inserted=" + summary.messagesInserted);
-        System.out.println("sections inserted=" + summary.sectionsInserted);
-        System.out.println("rooms inserted=" + summary.roomsInserted);
         System.out.println("database path=" + summary.databasePath);
         System.out.println("backup path=" + summary.backupPath);
     }
@@ -606,23 +499,19 @@ public class DemoLargeDataSeeder {
         private final int vitalCount;
         private final int reminderCount;
         private final int appointmentCount;
-        private final int newbornCount;
-        private final int deceasedCount;
         private final int auditLogCount;
         private final int messageCount;
         private final int notificationCount;
         private final int alertCount;
 
         private SeedConfig(String label, int patientCount, int vitalCount, int reminderCount,
-                           int appointmentCount, int newbornCount, int deceasedCount, int auditLogCount,
+                           int appointmentCount, int auditLogCount,
                            int messageCount, int notificationCount, int alertCount) {
             this.label = label;
             this.patientCount = patientCount;
             this.vitalCount = vitalCount;
             this.reminderCount = reminderCount;
             this.appointmentCount = appointmentCount;
-            this.newbornCount = newbornCount;
-            this.deceasedCount = deceasedCount;
             this.auditLogCount = auditLogCount;
             this.messageCount = messageCount;
             this.notificationCount = notificationCount;
@@ -638,14 +527,10 @@ public class DemoLargeDataSeeder {
         private int vitalsInserted;
         private int remindersInserted;
         private int appointmentsInserted;
-        private int newbornsInserted;
-        private int deceasedInserted;
         private int auditLogsInserted;
         private int alertsInserted;
         private int notificationsInserted;
         private int messagesInserted;
-        private int sectionsInserted;
-        private int roomsInserted;
 
         private SeedSummary(String mode, Path databasePath, Path backupPath) {
             this.mode = mode;

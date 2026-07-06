@@ -20,7 +20,7 @@ public class PatientService {
             if (lower.startsWith("diagnosis")) {
                 patient.setDiagnosis(append(patient.getDiagnosis(), value));
             } else if (lower.startsWith("medication")) {
-                patient.setCurrentMedications(append(patient.getCurrentMedications(), value));
+                patient.setMedicalHistory(append(patient.getMedicalHistory(), "Treatment note: " + value));
             } else if (lower.startsWith("allergy")) {
                 patient.setAllergies(append(patient.getAllergies(), value));
             } else if (lower.startsWith("family history")) {

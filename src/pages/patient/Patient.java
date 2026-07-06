@@ -19,8 +19,6 @@ public class Patient {
     private String status;
     private String diagnosis;
     private String medicalHistory;
-    private String currentMedications;
-    private String pastMedications;
     private String allergies;
     private String familyHistory;
     private String deathDateTime;
@@ -48,8 +46,6 @@ public class Patient {
         this.status = "Active";
         this.diagnosis = "";
         this.medicalHistory = "";
-        this.currentMedications = "";
-        this.pastMedications = "";
         this.allergies = "";
         this.familyHistory = "";
         this.deathDateTime = "";
@@ -114,14 +110,6 @@ public class Patient {
 
     public String getMedicalHistory() {
         return medicalHistory;
-    }
-
-    public String getCurrentMedications() {
-        return currentMedications;
-    }
-
-    public String getPastMedications() {
-        return pastMedications;
     }
 
     public String getAllergies() {
@@ -218,14 +206,6 @@ public class Patient {
 
     public void setMedicalHistory(String medicalHistory) {
         this.medicalHistory = medicalHistory;
-    }
-
-    public void setCurrentMedications(String currentMedications) {
-        this.currentMedications = currentMedications;
-    }
-
-    public void setPastMedications(String pastMedications) {
-        this.pastMedications = pastMedications;
     }
 
     public void setAllergies(String allergies) {

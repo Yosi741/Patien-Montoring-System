@@ -1,6 +1,5 @@
 package pages.user.services;
 
-import pages.room_section.SqliteSectionDao;
 import pages.user.dao.SqliteUserDao;
 import app.PasswordHasher;
 import pages.audit_log.AuditAction;
@@ -17,7 +16,6 @@ public class UserWriteService {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private final SqliteUserDao userDao;
-    private final SqliteSectionDao sectionDao = new SqliteSectionDao();
 
     public UserWriteService() {
         this(new SqliteUserDao());
@@ -117,9 +115,8 @@ public class UserWriteService {
                 FormValidationHelper.validateRequired("Username", record.getUsername()),
                 validateUsername(record.getUsername()),
                 FormValidationHelper.validateRequired("Role", record.getRole()),
-                validateRole(record.getRole()),
-                FormValidationHelper.validateMaxLength("Section", record.getSection(), 80)
-        );
+                validateRole(record.getRole())
+                );
         if (!base.isValid()) {
             return base;
         }
@@ -130,15 +127,7 @@ public class UserWriteService {
         if (!hasText(record.getSection()) || "All".equalsIgnoreCase(record.getSection())) {
             return FormValidationHelper.ValidationResult.error("A real active section is required for Doctor, Nurse, and Staff users.");
         }
-        try {
-            SqliteSectionDao.SectionRecord section = sectionDao.findByName(record.getSection()).orElse(null);
-            if (section == null || !"ACTIVE".equalsIgnoreCase(section.getStatus())) {
-                return FormValidationHelper.ValidationResult.error("Select an active section for this role.");
-            }
-        } catch (SQLException e) {
-            return FormValidationHelper.ValidationResult.error("Could not validate section: " + e.getMessage());
-        }
-        return FormValidationHelper.ValidationResult.ok();
+        return base;
     }
 
     private FormValidationHelper.ValidationResult validateUsername(String username) {

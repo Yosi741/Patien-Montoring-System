@@ -4,7 +4,6 @@ import pages.audit_log.AuditAction;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.alert.SqliteAlertDao;
-import pages.newborn.SqliteNewbornRecordDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,27 +28,22 @@ import app.SessionContext;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
-import pages.certificate.death_record_form.DeathRecordFormController;
 import pages.scheduling.reminder_form.ReminderFormController;
-import pages.room_section.room_assignment.RoomAssignmentController;
 import pages.patient.medical_files.MedicalFileUploadController;
 import pages.patient.patient_form.PatientFormController;
 import pages.patient.vitals_entry.VitalsEntryController;
 import users.Session;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.VBox;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PatientDetailController implements FxController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();
     private final SqliteAlertDao alertDao = new SqliteAlertDao();
-    private final SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
     private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final VitalsTrendService vitalsTrendService = new VitalsTrendService();
     private final ObservableList<VitalRecord> vitals = FXCollections.observableArrayList();
@@ -77,8 +71,6 @@ public class PatientDetailController implements FxController {
     @FXML private Label latestMetaLabel;
     @FXML private Label trendStatsLabel;
     @FXML private Label trendCountsLabel;
-    @FXML private Label babiesCountLabel;
-    @FXML private Label babiesListLabel;
     @FXML private ComboBox<String> vitalTypeFilter;
     @FXML private ComboBox<String> trendVitalTypeFilter;
     @FXML private ComboBox<String> trendRangeFilter;
@@ -98,11 +90,6 @@ public class PatientDetailController implements FxController {
     @FXML private Button createAppointmentButton;
     @FXML private Button createReminderButton;
     @FXML private Button uploadMedicalFileButton;
-    @FXML private Button movePatientButton;
-    @FXML private Button markDeceasedButton;
-    @FXML private Button viewNewbornsButton;
-    @FXML private Button viewBabiesButton;
-    @FXML private VBox babiesCard;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -134,12 +121,10 @@ public class PatientDetailController implements FxController {
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
             deceasedPatient = "DECEASED".equalsIgnoreCase(detail.getStatus());
-            updateDeceasedButton(detail.getStatus());
             updateClinicalActionBlocks();
             loadVitals();
             loadTrendChart();
             loadAlertSummary();
-            loadLinkedNewborns();
         } catch (Exception e) {
             nameLabel.setText("Patient unavailable");
             diagnosisLabel.setText(e.getMessage());
@@ -167,20 +152,6 @@ public class PatientDetailController implements FxController {
             return;
         }
         appShell.showAlertCenterForPatient(patientId);
-    }
-
-    @FXML
-    private void viewPatientNewborns() {
-        if (!PermissionHelper.canViewNewbornRecords(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for newborn lookup.");
-            return;
-        }
-        logAudit(AuditAction.OPEN_BABIES_FROM_MOTHER + " patient_id=" + patientId);
-        appShell.showNewbornRecordsForMother(patientId);
     }
 
     @FXML
@@ -261,51 +232,6 @@ public class PatientDetailController implements FxController {
             boolean saved = ReminderFormController.showOrderCheckupDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
                 NotificationHelper.showSuccess(timelineStatusLabel, "Checkup order saved. Open Scheduling or Nurse Work Queue to view.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void movePatientRoom() {
-        if (!PermissionHelper.canAssignPatientRoom(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for room move.");
-            return;
-        }
-        if (blockIfDeceased("move room")) {
-            return;
-        }
-        try {
-            boolean saved = RoomAssignmentController.showMovePatientDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
-            if (saved) {
-                loadPatient(patientId);
-                NotificationHelper.showSuccess(timelineStatusLabel, "Patient room updated. System data updated.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void markPatientDeceased() {
-        if (!PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for deceased workflow.");
-            return;
-        }
-        try {
-            boolean saved = DeathRecordFormController.showMarkDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
-            if (saved) {
-                loadPatient(patientId);
-                NotificationHelper.showSuccess(timelineStatusLabel, "Patient marked DECEASED and death record created.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -465,16 +391,6 @@ public class PatientDetailController implements FxController {
         setButtonVisible(createReminderButton, canReminders);
         boolean canUploadFiles = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         setButtonVisible(uploadMedicalFileButton, canUploadFiles);
-        boolean canMoveRoom = PermissionHelper.canAssignPatientRoom(Session.getCurrentUser());
-        setButtonVisible(movePatientButton, canMoveRoom);
-        setButtonVisible(markDeceasedButton, PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser()));
-        setButtonVisible(viewNewbornsButton, PermissionHelper.canViewNewbornRecords(Session.getCurrentUser()));
-    }
-
-    private void updateDeceasedButton(String status) {
-        boolean visible = PermissionHelper.canMarkPatientDeceased(Session.getCurrentUser())
-                && !"DECEASED".equalsIgnoreCase(status);
-        setButtonVisible(markDeceasedButton, visible);
     }
 
     private void updateClinicalActionBlocks() {
@@ -484,7 +400,6 @@ public class PatientDetailController implements FxController {
         setButtonVisible(enterVitalsButton, false);
         setButtonVisible(createAppointmentButton, false);
         setButtonVisible(createReminderButton, false);
-        setButtonVisible(movePatientButton, false);
     }
 
     private void setButtonVisible(Button button, boolean visible) {
@@ -532,26 +447,6 @@ public class PatientDetailController implements FxController {
                 + " | Warning: " + result.getWarningCount()
                 + " | Critical: " + result.getCriticalCount());
         trendStatusLabel.setText("Read-only local database trend loaded: " + result.getReadings().size() + " readings.");
-    }
-
-    private void loadLinkedNewborns() {
-        if (patientId == null || patientId.isBlank()) {
-            return;
-        }
-        try {
-            List<SqliteNewbornRecordDao.NewbornRecord> babies = newbornDao.findByMother(patientId);
-            babiesCountLabel.setText(babies.size() + (babies.size() == 1 ? " linked newborn" : " linked newborns"));
-            if (babies.isEmpty()) {
-                babiesListLabel.setText("No babies linked to this patient yet");
-                return;
-            }
-            babiesListLabel.setText(babies.stream()
-                    .map(baby -> baby.getNewbornId() + " - " + baby.getBabyName() + " (" + baby.getBirthTime() + ")")
-                    .collect(Collectors.joining("\n")));
-        } catch (Exception e) {
-            babiesCountLabel.setText("Newborn links unavailable");
-            babiesListLabel.setText(e.getMessage());
-        }
     }
 
     private boolean blockIfDeceased(String action) {

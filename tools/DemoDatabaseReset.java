@@ -26,13 +26,11 @@ public class DemoDatabaseReset {
             }
             clearOperationalData(connection);
             seedUsers(connection);
-            seedSectionsAndRooms(connection);
             seedPatients(connection);
             seedVitals(connection);
             seedAlerts(connection);
             seedReminders(connection);
             seedNotifications(connection);
-            seedCertificates(connection);
             seedAuditLogs(connection);
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON");
@@ -46,7 +44,7 @@ public class DemoDatabaseReset {
         String[] tables = {
                 "notifications", "messages", "audit_logs", "shift_handover_notes",
                 "medical_files", "medical_history", "reminders", "appointments",
-                "alerts", "vital_readings", "newborn_records", "deceased_records", "rooms", "sections",
+                "alerts", "vital_readings",
                 "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
         };
         try (Statement statement = connection.createStatement()) {
@@ -87,48 +85,13 @@ public class DemoDatabaseReset {
         }
     }
 
-    private static void seedSectionsAndRooms(Connection connection) throws Exception {
-        String[][] sections = {
-                {"ER", "Emergency department"},
-                {"Surgery", "Surgical unit"},
-                {"Internal Medicine", "Internal medicine ward"},
-                {"Maternity", "Maternity and newborn care"},
-                {"Pediatrics", "Pediatric ward"},
-                {"Cardiology", "Cardiology care"}
-        };
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO sections(name, status, notes, created_at, updated_at) VALUES(?, 'ACTIVE', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
-            for (String[] section : sections) {
-                statement.setString(1, section[0]);
-                statement.setString(2, section[1]);
-                statement.executeUpdate();
-            }
-        }
-        insertRoom(connection, "ER", "ER-101", 3);
-        insertRoom(connection, "Surgery", "SUR-201", 2);
-        insertRoom(connection, "Internal Medicine", "INT-301", 4);
-        insertRoom(connection, "Maternity", "MAT-401", 2);
-        insertRoom(connection, "Pediatrics", "PED-501", 3);
-        insertRoom(connection, "Cardiology", "CAR-601", 2);
-    }
-
-    private static void insertRoom(Connection connection, String section, String room, int capacity) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO rooms(section, room_number, capacity, status, notes, updated_at) VALUES(?, ?, ?, 'ACTIVE', 'Clean presentation room', CURRENT_TIMESTAMP)")) {
-            statement.setString(1, section);
-            statement.setString(2, room);
-            statement.setInt(3, capacity);
-            statement.executeUpdate();
-        }
-    }
-
     private static void seedPatients(Connection connection) throws Exception {
         insertPatient(connection, "100000001", "John", "Carter", "14-04-1984", "Male", "Internal Medicine", "INT-301", "Active", "NORMAL", "Routine observation after mild dehydration.");
         insertPatient(connection, "100000002", "Sara", "Haddad", "22-09-1977", "Female", "ER", "ER-101", "Active", "CRITICAL", "Low oxygen with elevated heart rate.");
         insertPatient(connection, "100000003", "Omar", "Nasser", "03-01-1956", "Male", "Cardiology", "CAR-601", "Active", "EMERGENCY", "Severe cardiac instability requiring immediate review.");
         insertPatient(connection, "100000004", "Lina", "Mansour", "18-11-1991", "Female", "Surgery", "SUR-201", "Active", "HIGH", "Post-operative monitoring.");
-        insertPatient(connection, "100000005", "Mariam", "Saleh", "07-06-1994", "Female", "Maternity", "MAT-401", "Active", "NORMAL", "Post-delivery mother care.");
-        insertPatient(connection, "100000007", "Nabil", "Khoury", "12-02-1942", "Male", "Internal Medicine", "INT-301", "DECEASED", "NORMAL", "Deceased record retained for certificate workflow demo.");
+        insertPatient(connection, "100000005", "Mariam", "Saleh", "07-06-1994", "Female", "Maternity", "MAT-401", "Active", "NORMAL", "Post-visit observation and follow-up.");
+        insertPatient(connection, "100000007", "Nabil", "Khoury", "12-02-1942", "Male", "Internal Medicine", "INT-301", "DISCHARGED", "NORMAL", "Follow-up visit completed.");
     }
 
     private static void insertPatient(Connection connection, String id, String first, String last, String birthDate,
@@ -232,7 +195,7 @@ public class DemoDatabaseReset {
     private static void seedNotifications(Connection connection) throws Exception {
         insertNotification(connection, "", "DOCTOR", "ER", "100000002", "CRITICAL", "Critical vital alert", "Sara Haddad has a critical oxygen and heart-rate trend.", "ALERT", "100000002");
         insertNotification(connection, "", "NURSE", "ER", "100000002", "INFO", "Pending checkup order", "Checkup: Heart Rate, Blood Pressure, CBC, CRP is pending.", "REMINDER", "100000002");
-        insertNotification(connection, "", "DOCTOR", "Maternity", "100000005", "INFO", "Certificate generated", "Birth certificate generated for newborn 100000006.", "BIRTH_CERTIFICATE", "100000006");
+        insertNotification(connection, "", "DOCTOR", "Internal Medicine", "100000007", "INFO", "Follow-up completed", "Nabil Khoury completed the clinic follow-up workflow.", "PATIENT", "100000007");
     }
 
     private static void insertNotification(Connection connection, String username, String role, String section, String patientId,
@@ -253,45 +216,12 @@ public class DemoDatabaseReset {
         }
     }
 
-    private static void seedCertificates(Connection connection) throws Exception {
-        Path birthDir = Path.of("data", "generated", "birth-certificates");
-        Path deathDir = Path.of("data", "generated", "death-certificates");
-        Files.createDirectories(birthDir);
-        Files.createDirectories(deathDir);
-        Path birthCertificate = birthDir.resolve("demo-birth-100000006.html");
-        Path deathCertificate = deathDir.resolve("demo-death-100000007.html");
-        Files.writeString(birthCertificate, certificateHtml("Birth Certificate", "Baby Adam Saleh", "Newborn ID: 100000006", "Mother: Mariam Saleh (100000005)"), StandardCharsets.UTF_8);
-        Files.writeString(deathCertificate, certificateHtml("Death Certificate", "Nabil Khoury", "Patient ID: 100000007", "Cause: Cardiac arrest complications"), StandardCharsets.UTF_8);
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO newborn_records(newborn_id, mother_patient_id, father_name, mother_name, baby_name, gender, birth_time, birth_weight, birth_length, delivery_type, room, section, doctor_or_midwife, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                        + "VALUES('100000006', '100000005', 'Yousef Saleh', 'Mariam Saleh', 'Adam Saleh', 'Male', ?, 3.4, 51, 'NATURAL', 'MAT-401', 'Maternity', 'doctor', 'Clean linked newborn demo record.', ?, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
-            statement.setString(1, LocalDateTime.now().minusDays(1).format(ISO_DATE_TIME));
-            statement.setString(2, birthCertificate.toString());
-            statement.executeUpdate();
-        }
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO deceased_records(patient_id, death_time, pronounced_by, cause_of_death, notes, certificate_path, created_by, created_at, updated_at, review_status) "
-                        + "VALUES('100000007', ?, 'Dr. Demo', 'Cardiac arrest complications', 'Clean deceased record for certificate workflow.', ?, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'APPROVED')")) {
-            statement.setString(1, LocalDateTime.now().minusDays(2).format(ISO_DATE_TIME));
-            statement.setString(2, deathCertificate.toString());
-            statement.executeUpdate();
-        }
-    }
-
-    private static String certificateHtml(String title, String person, String line1, String line2) {
-        return "<!doctype html><html><head><meta charset=\"UTF-8\"><title>" + title + "</title>"
-                + "<style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:48px;}"
-                + ".card{border:2px solid #2563eb;padding:36px;max-width:760px;margin:auto;}h1{color:#1d4ed8;}</style></head>"
-                + "<body><div class=\"card\"><h1>" + title + "</h1><h2>" + person + "</h2><p>" + line1 + "</p><p>" + line2
-                + "</p><p>Generated for SPMS presentation demo only.</p></div></body></html>";
-    }
-
     private static void seedAuditLogs(Connection connection) throws Exception {
         insertAudit(connection, "admin", "LOGIN");
         insertAudit(connection, "nurse", "ENTER_VITALS patient_id=100000002 status=CRITICAL");
         insertAudit(connection, "doctor", "CREATE_REMINDER patient_id=100000002 title=Checkup order");
-        insertAudit(connection, "admin", "GENERATE_BIRTH_CERTIFICATE newborn_id=100000006");
-        insertAudit(connection, "admin", "GENERATE_DEATH_CERTIFICATE patient_id=100000007");
+        insertAudit(connection, "doctor", "SCHEDULE_APPOINTMENT patient_id=100000004");
+        insertAudit(connection, "staff", "VIEW_PATIENT_FILE patient_id=100000001");
     }
 
     private static void insertAudit(Connection connection, String username, String action) throws Exception {

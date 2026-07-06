@@ -1,6 +1,4 @@
 import pages.audit_log.SqliteAuditLogDao;
-import pages.deceased.SqliteDeceasedRecordDao;
-import pages.newborn.SqliteNewbornRecordDao;
 import app.DatabaseManager;
 import app.SchemaInitializer;
 import pages.dashboard.services.DashboardMetricsService;
@@ -27,8 +25,6 @@ public class DemoPerformanceCheck {
 
         SqlitePatientDao patientDao = new SqlitePatientDao();
         SqliteVitalReadingDao vitalDao = new SqliteVitalReadingDao();
-        SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
-        SqliteDeceasedRecordDao deceasedDao = new SqliteDeceasedRecordDao();
         SchedulingService schedulingService = new SchedulingService();
         SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
         NotificationCenterService notificationCenterService = new NotificationCenterService();
@@ -71,16 +67,6 @@ public class DemoPerformanceCheck {
             List<SqlitePatientDao.PatientListRow> rows = patientDao.findPatientListRows(filter);
             return "Active patient rows=" + rows.size();
         }));
-        results.add(check("Patient filter deceased", () -> {
-            SqlitePatientDao.PatientFilter filter = new SqlitePatientDao.PatientFilter();
-            filter.setStatus("DECEASED");
-            List<SqlitePatientDao.PatientListRow> rows = patientDao.findPatientListRows(filter);
-            return "Deceased patient rows=" + rows.size();
-        }));
-        results.add(check("Newborn records load", () -> {
-            List<SqliteNewbornRecordDao.NewbornRecord> rows = newbornDao.findRecords(new SqliteNewbornRecordDao.RecordFilter());
-            return "Newborn rows=" + rows.size();
-        }));
         results.add(check("Patient filter critical/emergency", () -> {
             SqlitePatientDao.PatientFilter filter = new SqlitePatientDao.PatientFilter();
             filter.setCriticalEmergencyOnly(true);
@@ -109,9 +95,6 @@ public class DemoPerformanceCheck {
         results.add(check("Notifications load", () -> {
             return "Notification rows=" + notificationCenterService
                     .findForCurrentUser(adminUser, "All", "All", "", "All").size();
-        }));
-        results.add(check("Deceased records load", () -> {
-            return "Deceased rows=" + deceasedDao.findRecords(new SqliteDeceasedRecordDao.RecordFilter()).size();
         }));
 
         int passCount = 0;

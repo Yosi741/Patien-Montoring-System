@@ -14,7 +14,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Window;
-import pages.room_section.SectionService;
 import pages.user.services.UserWriteService;
 import app.AppNavigator;
 import pages.notification.NotificationHelper;
@@ -30,7 +29,7 @@ public class UserFormController {
     }
 
     private final UserWriteService userWriteService = new UserWriteService();
-    private final SectionService sectionService = new SectionService();
+    private final SqliteUserDao userDao = new SqliteUserDao();
     private User currentUser;
     private SqliteUserDao.UserDirectoryRow existingUser;
     private Mode mode;
@@ -208,7 +207,7 @@ public class UserFormController {
             sections.add("All");
         }
         try {
-            sections.addAll(sectionService.findActiveSectionNames());
+            sections.addAll(userDao.findDistinctSections());
         } catch (Exception e) {
             NotificationHelper.showInfo(statusLabel, "Active sections unavailable: " + e.getMessage());
         }

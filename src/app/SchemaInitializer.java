@@ -33,13 +33,6 @@ public class SchemaInitializer {
             createMedicalHistory(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
-            createSections(statement);
-            seedSections(statement);
-            createRooms(statement);
-            migrateRooms(statement);
-            createDeceasedRecords(statement);
-            createNewbornRecords(statement);
-            migrateCertificateReviewColumns(statement);
             createShiftHandoverNotes(statement);
             createAuditLogs(statement);
             createMessages(statement);

@@ -60,15 +60,6 @@
                 <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="workQueueButton" text="Nurse Work Queue" onAction="#showWorkQueue" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="roomOccupancyButton" text="Sections / Rooms" onAction="#showRoomBedOccupancy" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
-                <Button fx:id="certificateRegistryButton" text="Certificates" onAction="#showCertificateRegistry" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
                 <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 

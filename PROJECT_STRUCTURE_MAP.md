@@ -9,6 +9,7 @@ Core clinic workflows:
 - Vitals
 - Alerts
 - Scheduling
+- Medical Files
 - Users
 
 ## 1. Project entry point
@@ -82,32 +83,7 @@ Core clinic workflows:
   - Reminder form
   - Scheduling services and reminder engine
 
-## 9. Rooms and sections
-
-- `src/pages/room_section`
-  - Room occupancy
-  - Room form
-  - Section form
-  - Room assignment
-  - Related services and DAO classes
-
-## 10. Certificates and deceased records
-
-- `src/pages/certificate`
-  - Certificate registry
-  - Death record form
-  - Certificate services and certificate generation helpers
-- `src/pages/deceased`
-  - Deceased records workflow and supporting service/DAO code
-
-## 11. Newborns
-
-- `src/pages/newborn`
-  - Newborn records
-  - Newborn form
-  - Mother linking and newborn services/DAO code
-
-## 12. Timeline, messages, notifications, audit logs, nurse work
+## 9. Timeline, messages, notifications, audit logs, nurse work
 
 - `src/pages/clinical_timeline`
   - Patient clinical timeline
@@ -120,7 +96,17 @@ Core clinic workflows:
 - `src/pages/nurse_work`
   - Nurse work queue and handover support
 
-## 13. Resources
+## 10. Removed hospital modules for clinic demo
+
+- Removed from the active clinic build:
+  - Rooms / sections
+  - Certificates
+  - Deceased workflows
+  - Newborn workflows
+  - Medication workflows
+- The active clinic demo now focuses on patients, vitals, alerts, scheduling, users, and medical files.
+
+## 11. Resources
 
 - `src/photo`
   - Logo and branding image assets used by the login page and app shell
@@ -129,7 +115,7 @@ Core clinic workflows:
 - `src/app/styles/dark-theme.css`
   - Main Hospital Navy presentation theme
 
-## 14. How to answer teacher questions
+## 12. How to answer teacher questions
 
 - "Where is the Login button code?"
   - `src/pages/login/LoginController.java`

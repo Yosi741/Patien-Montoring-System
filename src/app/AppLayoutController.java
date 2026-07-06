@@ -55,15 +55,6 @@ public class AppLayoutController implements FxController {
     private Button schedulingButton;
 
     @FXML
-    private Button workQueueButton;
-
-    @FXML
-    private Button roomOccupancyButton;
-
-    @FXML
-    private Button certificateRegistryButton;
-
-    @FXML
     private Button topNotificationButton;
 
     @FXML
@@ -102,12 +93,6 @@ public class AppLayoutController implements FxController {
         unreadCountLabel.setManaged(loggedIn);
         schedulingButton.setVisible(admin || clinical);
         schedulingButton.setManaged(admin || clinical);
-        workQueueButton.setVisible(admin || clinical);
-        workQueueButton.setManaged(admin || clinical);
-        roomOccupancyButton.setVisible(admin || clinical);
-        roomOccupancyButton.setManaged(admin || clinical);
-        certificateRegistryButton.setVisible(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
-        certificateRegistryButton.setManaged(PermissionHelper.canViewCertificateRegistry(Session.getCurrentUser()));
         auditLogsButton.setVisible(admin);
         auditLogsButton.setManaged(admin);
         userDirectoryButton.setVisible(admin);
@@ -167,21 +152,6 @@ public class AppLayoutController implements FxController {
     @FXML
     private void showScheduling() {
         appShell.showScheduling();
-    }
-
-    @FXML
-    private void showWorkQueue() {
-        appShell.showNurseWorkQueue();
-    }
-
-    @FXML
-    private void showRoomBedOccupancy() {
-        appShell.showRoomBedOccupancy();
-    }
-
-    @FXML
-    private void showCertificateRegistry() {
-        appShell.showCertificateRegistry();
     }
 
     @FXML

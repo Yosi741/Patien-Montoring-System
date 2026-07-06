@@ -33,8 +33,6 @@
                         <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="dashboard-action-row">
                             <Button text="Open Patients" onAction="#openPatientList"
                                     styleClass="dashboard-action-primary" />
-                            <Button text="Open Work Queue" onAction="#openWorkQueue"
-                                    styleClass="dashboard-action-secondary" />
                         </HBox>
                     </HBox>
 
@@ -64,19 +62,7 @@
                         </VBox>
                     </TilePane>
 
-                    <TilePane hgap="14.0" vgap="14.0" prefColumns="6" tileAlignment="TOP_LEFT">
-                        <VBox fx:id="newbornRecordsCard" spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Newborn Records" styleClass="dashboard-mini-label" />
-                            <Label fx:id="newbornRecordsLabel" text="0" styleClass="dashboard-mini-value accent-value" />
-                            <Label text="Total" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Births Today" styleClass="dashboard-mini-label" />
-                            <Label fx:id="birthsTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
-                            <Label text="Today" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
+                    <TilePane hgap="14.0" vgap="14.0" prefColumns="4" tileAlignment="TOP_LEFT">
                         <VBox fx:id="acknowledgedAlertsCard" spacing="7.0" styleClass="dashboard-mini-card">
                             <Label text="Acknowledged Alerts" styleClass="dashboard-mini-label" />
                             <Label fx:id="acknowledgedTodayLabel" text="0" styleClass="dashboard-mini-value" />
@@ -93,30 +79,6 @@
                             <Label text="Imported Files" styleClass="dashboard-mini-label" />
                             <Label fx:id="medicalFilesLabel" text="0" styleClass="dashboard-mini-value accent-value" />
                             <Label text="Stored" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Deceased Patients" styleClass="dashboard-mini-label" />
-                            <Label fx:id="deceasedPatientsLabel" text="0" styleClass="dashboard-mini-value neutral-value" />
-                            <Label text="Total" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Deaths This Month" styleClass="dashboard-mini-label" />
-                            <Label fx:id="deathsThisMonthLabel" text="0" styleClass="dashboard-mini-value neutral-value" />
-                            <Label text="This month" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Pending Birth Certs" styleClass="dashboard-mini-label" />
-                            <Label fx:id="pendingBirthCertificatesLabel" text="0" styleClass="dashboard-mini-value warning-value" />
-                            <Label text="Needs review" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="7.0" styleClass="dashboard-mini-card">
-                            <Label text="Pending Death Certs" styleClass="dashboard-mini-label" />
-                            <Label fx:id="pendingDeathCertificatesLabel" text="0" styleClass="dashboard-mini-value danger-value" />
-                            <Label text="Needs review" styleClass="dashboard-mini-caption" />
                         </VBox>
                     </TilePane>
 
@@ -167,13 +129,6 @@
                             <Label text="Pending Reminders" styleClass="dashboard-mini-label" />
                             <Label fx:id="pendingRemindersLabel" text="0" styleClass="dashboard-mini-value warning-value" />
                             <Label text="Open medical reminders" wrapText="true" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="2" GridPane.rowIndex="1"
-                              styleClass="dashboard-mini-card">
-                            <Label text="Nurse Queue Tasks" styleClass="dashboard-mini-label" />
-                            <Label fx:id="nurseQueueTasksLabel" text="0" styleClass="dashboard-mini-value" />
-                            <Label text="Reminders, alerts, and missing vitals" wrapText="true" styleClass="dashboard-mini-caption" />
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2"

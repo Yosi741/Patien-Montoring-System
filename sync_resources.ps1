@@ -6,10 +6,6 @@ $targetLogin = "out/production/untitledSmartPatientMonitoringSystem/pages/login"
 $targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/pages/dashboard"
 $targetAlert = "out/production/untitledSmartPatientMonitoringSystem/pages/alert"
 $targetScheduling = "out/production/untitledSmartPatientMonitoringSystem/pages/scheduling"
-$targetCertificate = "out/production/untitledSmartPatientMonitoringSystem/pages/certificate"
-$targetRoomSection = "out/production/untitledSmartPatientMonitoringSystem/pages/room_section"
-$targetNewborn = "out/production/untitledSmartPatientMonitoringSystem/pages/newborn"
-$targetDeceased = "out/production/untitledSmartPatientMonitoringSystem/pages/deceased"
 $targetClinicalTimeline = "out/production/untitledSmartPatientMonitoringSystem/pages/clinical_timeline"
 $targetMessages = "out/production/untitledSmartPatientMonitoringSystem/pages/messages"
 $targetNotification = "out/production/untitledSmartPatientMonitoringSystem/pages/notification"
@@ -26,10 +22,6 @@ New-Item -ItemType Directory -Force -Path $targetLogin
 New-Item -ItemType Directory -Force -Path $targetDashboard
 New-Item -ItemType Directory -Force -Path $targetAlert
 New-Item -ItemType Directory -Force -Path $targetScheduling
-New-Item -ItemType Directory -Force -Path $targetCertificate
-New-Item -ItemType Directory -Force -Path $targetRoomSection
-New-Item -ItemType Directory -Force -Path $targetNewborn
-New-Item -ItemType Directory -Force -Path $targetDeceased
 New-Item -ItemType Directory -Force -Path $targetClinicalTimeline
 New-Item -ItemType Directory -Force -Path $targetMessages
 New-Item -ItemType Directory -Force -Path $targetNotification
@@ -59,18 +51,6 @@ if (Test-Path "src/pages/alert") {
 }
 if (Test-Path "src/pages/scheduling") {
     Copy-Item -Path "src/pages/scheduling/*" -Destination $targetScheduling -Force -Recurse
-}
-if (Test-Path "src/pages/certificate") {
-    Copy-Item -Path "src/pages/certificate/*" -Destination $targetCertificate -Force -Recurse
-}
-if (Test-Path "src/pages/room_section") {
-    Copy-Item -Path "src/pages/room_section/*" -Destination $targetRoomSection -Force -Recurse
-}
-if (Test-Path "src/pages/newborn") {
-    Copy-Item -Path "src/pages/newborn/*" -Destination $targetNewborn -Force -Recurse
-}
-if (Test-Path "src/pages/deceased") {
-    Copy-Item -Path "src/pages/deceased/*" -Destination $targetDeceased -Force -Recurse
 }
 if (Test-Path "src/pages/clinical_timeline") {
     Copy-Item -Path "src/pages/clinical_timeline/*" -Destination $targetClinicalTimeline -Force -Recurse
@@ -185,10 +165,6 @@ $legacyAuditLogView = Join-Path $targetViews "AuditLogView.fxml"
 if (Test-Path $legacyAuditLogView) {
     Remove-Item -Path $legacyAuditLogView -Force
 }
-$legacyCertificateRegistryView = Join-Path $targetViews "CertificateRegistryView.fxml"
-if (Test-Path $legacyCertificateRegistryView) {
-    Remove-Item -Path $legacyCertificateRegistryView -Force
-}
 $legacyAppLayoutView = Join-Path $targetViews "AppLayout.fxml"
 if (Test-Path $legacyAppLayoutView) {
     Remove-Item -Path $legacyAppLayoutView -Force
@@ -201,25 +177,9 @@ $legacyClinicalTimelineView = Join-Path $targetViews "ClinicalTimelineView.fxml"
 if (Test-Path $legacyClinicalTimelineView) {
     Remove-Item -Path $legacyClinicalTimelineView -Force
 }
-$legacyDeathRecordFormView = Join-Path $targetViews "DeathRecordFormView.fxml"
-if (Test-Path $legacyDeathRecordFormView) {
-    Remove-Item -Path $legacyDeathRecordFormView -Force
-}
-$legacyDeceasedRecordsView = Join-Path $targetViews "DeceasedRecordsView.fxml"
-if (Test-Path $legacyDeceasedRecordsView) {
-    Remove-Item -Path $legacyDeceasedRecordsView -Force
-}
 $legacyMessagingView = Join-Path $targetViews "MessagingView.fxml"
 if (Test-Path $legacyMessagingView) {
     Remove-Item -Path $legacyMessagingView -Force
-}
-$legacyNewbornFormView = Join-Path $targetViews "NewbornFormView.fxml"
-if (Test-Path $legacyNewbornFormView) {
-    Remove-Item -Path $legacyNewbornFormView -Force
-}
-$legacyNewbornRecordsView = Join-Path $targetViews "NewbornRecordsView.fxml"
-if (Test-Path $legacyNewbornRecordsView) {
-    Remove-Item -Path $legacyNewbornRecordsView -Force
 }
 $legacyNotificationCenterView = Join-Path $targetViews "NotificationCenterView.fxml"
 if (Test-Path $legacyNotificationCenterView) {
@@ -229,23 +189,6 @@ $legacyNurseWorkQueueView = Join-Path $targetViews "NurseWorkQueueView.fxml"
 if (Test-Path $legacyNurseWorkQueueView) {
     Remove-Item -Path $legacyNurseWorkQueueView -Force
 }
-$legacyRoomAssignmentView = Join-Path $targetViews "RoomAssignmentView.fxml"
-if (Test-Path $legacyRoomAssignmentView) {
-    Remove-Item -Path $legacyRoomAssignmentView -Force
-}
-$legacyRoomBedOccupancyView = Join-Path $targetViews "RoomBedOccupancyView.fxml"
-if (Test-Path $legacyRoomBedOccupancyView) {
-    Remove-Item -Path $legacyRoomBedOccupancyView -Force
-}
-$legacyRoomFormView = Join-Path $targetViews "RoomFormView.fxml"
-if (Test-Path $legacyRoomFormView) {
-    Remove-Item -Path $legacyRoomFormView -Force
-}
-$legacySectionFormView = Join-Path $targetViews "SectionFormView.fxml"
-if (Test-Path $legacySectionFormView) {
-    Remove-Item -Path $legacySectionFormView -Force
-}
-
 $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_board",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_detail",
@@ -256,10 +199,6 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/Alert",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/scheduling",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/certificates",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/rooms_sections",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/newborns",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/deceased",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/clinical_timeline",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/messages",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/notifications",

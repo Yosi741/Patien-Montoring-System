@@ -1,9 +1,7 @@
 package pages.patient.patient_form;
 
 import pages.patient.dao.SqlitePatientDao;
-import pages.room_section.SqliteRoomDao;
 import pages.user.dao.SqliteUserDao;
-import pages.room_section.SectionService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,9 +32,8 @@ public class PatientFormController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+    private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
-    private final SectionService sectionService = new SectionService();
-    private final SqliteRoomDao roomDao = new SqliteRoomDao();
     private final SqliteUserDao userDao = new SqliteUserDao();
     private User currentUser;
     private SqlitePatientDao.PatientDetail existingPatient;
@@ -221,14 +218,9 @@ public class PatientFormController {
     private void loadSections() {
         LinkedHashSet<String> sections = new LinkedHashSet<>();
         try {
-            sections.addAll(sectionService.findActiveSectionNames());
+            sections.addAll(patientDao.findDistinctSections());
         } catch (Exception e) {
             NotificationHelper.showInfo(statusLabel, "Active section list unavailable: " + e.getMessage());
-        }
-        try {
-            sections.addAll(new SqlitePatientDao().findDistinctSections());
-        } catch (Exception ignored) {
-            // Patient sections supplement the configured section list.
         }
         sectionBox.getItems().setAll(sections);
     }
@@ -236,12 +228,10 @@ public class PatientFormController {
     private void loadRoomsForSection(String section) {
         String selected = comboValue(roomBox);
         List<String> rooms = new ArrayList<>();
-        if (section != null && !section.isBlank()) {
-            try {
-                rooms.addAll(roomDao.findActiveRoomsForSection(section));
-            } catch (Exception e) {
-                NotificationHelper.showInfo(statusLabel, "Room choices unavailable for section: " + e.getMessage());
-            }
+        try {
+            rooms.addAll(patientDao.findDistinctRooms());
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Room choices unavailable: " + e.getMessage());
         }
         roomBox.getItems().setAll(rooms);
         if (selected != null && !selected.isBlank()) {
