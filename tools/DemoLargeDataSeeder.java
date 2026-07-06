@@ -40,26 +40,17 @@ public class DemoLargeDataSeeder {
 
     private static final String[] BLOOD_TYPES = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
     private static final String[] GENDERS = {"Male", "Female"};
-    private static final String[] REMINDER_TYPES = {"MEDICATION", "APPOINTMENT", "CHECKUP", "CUSTOM"};
+    private static final String[] REMINDER_TYPES = {"APPOINTMENT", "CHECKUP", "CUSTOM"};
     private static final String[] REMINDER_STATUSES = {"PENDING", "PENDING", "PENDING", "OVERDUE", "DONE", "MISSED"};
-    private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "MEDICATION_REVIEW", "OTHER"};
+    private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER"};
     private static final String[] APPOINTMENT_STATUSES = {"SCHEDULED", "SCHEDULED", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"};
     private static final String[] ALERT_SEVERITIES = {"WARNING", "CRITICAL", "EMERGENCY"};
     private static final String[] NOTIFICATION_SEVERITIES = {"INFO", "WARNING", "CRITICAL"};
     private static final String[] MESSAGE_PRIORITIES = {"NORMAL", "HIGH", "URGENT"};
     private static final String[] USERS = {"admin", "doctor", "nurse", "staff"};
 
-    private static final List<MedicationTemplate> MEDICATIONS = List.of(
-            new MedicationTemplate("Aspirin", "TABLET", "Oral", "Once daily", "mg", "mg, tablet", "Oral", 75, 650, 4000, 360, false, "Demo medication for cardiac and post-op workflows."),
-            new MedicationTemplate("Ibuprofen", "TABLET", "Oral", "Every 8 hours", "mg", "mg, tablet", "Oral", 100, 800, 3200, 360, false, "Demo anti-inflammatory medication."),
-            new MedicationTemplate("Amoxicillin", "CAPSULE", "Oral", "Three times daily", "mg", "mg, capsule", "Oral", 250, 1000, 3000, 480, false, "Demo antibiotic medication."),
-            new MedicationTemplate("Metoprolol", "TABLET", "Oral", "Twice daily", "mg", "mg, tablet", "Oral", 12.5, 100, 400, 720, false, "Demo cardiology medication."),
-            new MedicationTemplate("Vancomycin", "INJECTION", "IV", "Every 12 hours", "mg", "mg, mL", "IV", 250, 2000, 4000, 720, true, "Demo monitored IV antibiotic."),
-            new MedicationTemplate("Norepinephrine", "INJECTION", "IV", "As needed", "mcg", "mcg, mL", "IV", 1, 50, 500, 30, true, "Demo emergency vasopressor.")
-    );
-
-    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 100, 50, 20, 10, 5, 300, 20, 40, 15);
-    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 2000, 1000, 500, 200, 100, 5000, 250, 800, 180);
+    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 10, 5, 300, 20, 40, 15);
+    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 200, 100, 5000, 250, 800, 180);
 
     public static void main(String[] args) throws Exception {
         SeedConfig config = parseConfig(args);
@@ -83,12 +74,10 @@ public class DemoLargeDataSeeder {
         try (Connection connection = DatabaseManager.getConnection()) {
             connection.setAutoCommit(false);
             ensureSectionsAndRooms(connection, config, summary);
-            ensureMedicationCatalog(connection);
 
             List<SeedPatient> patients = insertPatients(connection, config, random, summary);
             insertVitals(connection, config, random, patients, summary);
-            List<MedicationAssignment> medicationAssignments = insertMedications(connection, config, random, patients, summary);
-            insertReminders(connection, config, random, patients, medicationAssignments, summary);
+            insertReminders(connection, config, random, patients, summary);
             insertAppointments(connection, config, random, patients, summary);
             insertAlerts(connection, config, random, patients, summary);
             insertNewbornRecords(connection, config, random, patients, summary);
@@ -166,54 +155,6 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private void ensureMedicationCatalog(Connection connection) throws Exception {
-        try (PreparedStatement catalogStatement = connection.prepareStatement(
-                "INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_frequency, default_unit, allowed_units, allowed_routes, "
-                        + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, requires_doctor_override, danger_notes, notes, active, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)");
-             PreparedStatement interactionStatement = connection.prepareStatement(
-                     "INSERT OR IGNORE INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, severity, min_wait_minutes, notes, message, active, updated_at) "
-                             + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
-            for (MedicationTemplate medication : MEDICATIONS) {
-                catalogStatement.setString(1, medication.name);
-                catalogStatement.setString(2, medication.formType);
-                catalogStatement.setString(3, medication.defaultRoute);
-                catalogStatement.setString(4, medication.defaultFrequency);
-                catalogStatement.setString(5, medication.defaultUnit);
-                catalogStatement.setString(6, medication.allowedUnits);
-                catalogStatement.setString(7, medication.allowedRoutes);
-                catalogStatement.setDouble(8, medication.minSingleDose);
-                catalogStatement.setDouble(9, medication.maxSingleDose);
-                catalogStatement.setDouble(10, medication.maxDailyDose);
-                catalogStatement.setDouble(11, medication.minIntervalMinutes);
-                catalogStatement.setInt(12, medication.requiresDoctorOverride ? 1 : 0);
-                catalogStatement.setString(13, medication.notes);
-                catalogStatement.setString(14, medication.notes);
-                catalogStatement.executeUpdate();
-            }
-
-            insertInteraction(connection, interactionStatement, "Ibuprofen", "Aspirin", "WARNING",
-                    "Increased bleeding risk in demo rule.");
-            insertInteraction(connection, interactionStatement, "Aspirin", "Norepinephrine", "DANGEROUS",
-                    "Dangerous interaction demo rule requiring doctor override.");
-        }
-    }
-
-    private void insertInteraction(Connection connection, PreparedStatement statement, String a, String b,
-                                   String severity, String note) throws Exception {
-        long aId = catalogId(connection, a);
-        long bId = catalogId(connection, b);
-        statement.setLong(1, aId);
-        statement.setLong(2, bId);
-        statement.setString(3, a);
-        statement.setString(4, b);
-        statement.setString(5, severity);
-        statement.setInt(6, 0);
-        statement.setString(7, note);
-        statement.setString(8, note);
-        statement.executeUpdate();
-    }
-
     private List<SeedPatient> insertPatients(Connection connection, SeedConfig config, Random random, SeedSummary summary) throws Exception {
         ArrayList<SeedPatient> patients = new ArrayList<>();
         long nextPatientNumber = nextNumericId(connection, "patients", "patient_id", 700000000L, 799999999L);
@@ -281,80 +222,26 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private List<MedicationAssignment> insertMedications(Connection connection, SeedConfig config, Random random,
-                                                         List<SeedPatient> patients, SeedSummary summary) throws Exception {
-        ArrayList<MedicationAssignment> assignments = new ArrayList<>();
-        List<SeedPatient> activePatients = activePatients(patients);
-        try (PreparedStatement medicationStatement = connection.prepareStatement(
-                "INSERT INTO medications(patient_id, catalog_medication_id, name, dose, dose_amount, dose_unit, route, frequency, active) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)", Statement.RETURN_GENERATED_KEYS);
-             PreparedStatement eventStatement = connection.prepareStatement(
-                     "INSERT INTO medication_events(medication_id, patient_id, given_by, given_at, notes, status, given_amount, given_unit, route, override_used, override_reason, safety_status) "
-                             + "VALUES(?, ?, 'nurse', ?, ?, 'GIVEN', ?, ?, ?, 0, '', 'NORMAL')")) {
-            for (int i = 1; i <= config.medicationCount; i++) {
-                SeedPatient patient = activePatients.get(i % activePatients.size());
-                MedicationTemplate medication = MEDICATIONS.get(i % MEDICATIONS.size());
-                double amount = medication.minSingleDose + (random.nextInt(4) * Math.max(1.0, medication.minSingleDose));
-                amount = Math.min(amount, medication.maxSingleDose);
-
-                medicationStatement.setString(1, patient.patientId);
-                medicationStatement.setLong(2, catalogId(connection, medication.name));
-                medicationStatement.setString(3, medication.name);
-                medicationStatement.setString(4, formatAmount(amount) + " " + medication.defaultUnit);
-                medicationStatement.setDouble(5, amount);
-                medicationStatement.setString(6, medication.defaultUnit);
-                medicationStatement.setString(7, medication.defaultRoute);
-                medicationStatement.setString(8, medication.defaultFrequency);
-                medicationStatement.executeUpdate();
-                summary.medicationsInserted++;
-
-                long medicationId;
-                try (ResultSet keys = medicationStatement.getGeneratedKeys()) {
-                    medicationId = keys.next() ? keys.getLong(1) : 0L;
-                }
-                assignments.add(new MedicationAssignment(medicationId, patient.patientId, medication.name));
-
-                eventStatement.setLong(1, medicationId);
-                eventStatement.setString(2, patient.patientId);
-                eventStatement.setString(3, LocalDateTime.now().minusHours(i % 120).format(DISPLAY_DATE_TIME));
-                eventStatement.setString(4, "Demo medication administration " + String.format(Locale.ROOT, "%04d", i));
-                eventStatement.setDouble(5, amount);
-                eventStatement.setString(6, medication.defaultUnit);
-                eventStatement.setString(7, medication.defaultRoute);
-                eventStatement.executeUpdate();
-                summary.medicationEventsInserted++;
-            }
-        }
-        return assignments;
-    }
-
     private void insertReminders(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
-                                 List<MedicationAssignment> medications, SeedSummary summary) throws Exception {
+                                 SeedSummary summary) throws Exception {
         List<SeedPatient> activePatients = activePatients(patients);
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO reminders(patient_id, medication_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                "INSERT INTO reminders(patient_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
+                        + "VALUES(?, ?, ?, ?, ?, ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             for (int i = 1; i <= config.reminderCount; i++) {
                 SeedPatient patient = activePatients.get(i % activePatients.size());
                 String type = REMINDER_TYPES[i % REMINDER_TYPES.length];
                 String status = REMINDER_STATUSES[i % REMINDER_STATUSES.length];
-                MedicationAssignment medication = medications.get(i % medications.size());
-                Long medicationId = "MEDICATION".equals(type) ? medication.medicationId : null;
                 LocalDateTime due = LocalDateTime.now().plusMinutes((i * 35L) % (60L * 24 * 20) - (60L * 24 * 5));
 
                 statement.setString(1, patient.patientId);
-                if (medicationId == null || medicationId <= 0) {
-                    statement.setNull(2, java.sql.Types.INTEGER);
-                } else {
-                    statement.setLong(2, medicationId);
-                }
-                statement.setString(3, type);
-                statement.setString(4, "Demo Reminder " + String.format(Locale.ROOT, "%04d", i));
-                statement.setString(5, due.format(DISPLAY_DATE_TIME));
-                statement.setString(6, "CUSTOM".equals(type) ? "" : "Every shift");
-                statement.setString(7, status);
-                statement.setString(8, "CHECKUP".equals(type) ? "doctor" : "nurse");
-                statement.setString(9, "Demo reminder note " + String.format(Locale.ROOT, "%04d", i));
+                statement.setString(2, type);
+                statement.setString(3, "Demo Reminder " + String.format(Locale.ROOT, "%04d", i));
+                statement.setString(4, due.format(DISPLAY_DATE_TIME));
+                statement.setString(5, "CUSTOM".equals(type) ? "" : "Every shift");
+                statement.setString(6, status);
+                statement.setString(7, "CHECKUP".equals(type) ? "doctor" : "nurse");
+                statement.setString(8, "Demo reminder note " + String.format(Locale.ROOT, "%04d", i));
                 statement.executeUpdate();
                 summary.remindersInserted++;
             }
@@ -541,7 +428,6 @@ public class DemoLargeDataSeeder {
                 "CREATE_REMINDER",
                 "CREATE_APPOINTMENT",
                 "OPEN_NOTIFICATION_CENTER",
-                "VIEW_MEDICATION_OVERVIEW",
                 "OPEN_CERTIFICATE_REGISTRY"
         };
         try (PreparedStatement statement = connection.prepareStatement(
@@ -674,19 +560,6 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private static long catalogId(Connection connection, String name) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT id FROM medication_catalog WHERE LOWER(name) = LOWER(?)")) {
-            statement.setString(1, name);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getLong(1);
-                }
-            }
-        }
-        throw new IllegalStateException("Missing medication catalog row for " + name);
-    }
-
     private static long nextNumericId(Connection connection, String table, String column, long minInclusive, long maxInclusive) throws Exception {
         String sql = "SELECT COALESCE(MAX(CAST(" + column + " AS INTEGER)), ?) FROM " + table
                 + " WHERE LENGTH(" + column + ") = 9 AND " + column + " GLOB '[0-9]*' AND CAST(" + column + " AS INTEGER) BETWEEN ? AND ?";
@@ -713,7 +586,6 @@ public class DemoLargeDataSeeder {
         System.out.println("Demo large data seeding complete (" + summary.mode + ").");
         System.out.println("patients inserted=" + summary.patientsInserted);
         System.out.println("vitals inserted=" + summary.vitalsInserted);
-        System.out.println("medications inserted=" + summary.medicationsInserted);
         System.out.println("reminders inserted=" + summary.remindersInserted);
         System.out.println("appointments inserted=" + summary.appointmentsInserted);
         System.out.println("newborns inserted=" + summary.newbornsInserted);
@@ -722,7 +594,6 @@ public class DemoLargeDataSeeder {
         System.out.println("alerts inserted=" + summary.alertsInserted);
         System.out.println("notifications inserted=" + summary.notificationsInserted);
         System.out.println("messages inserted=" + summary.messagesInserted);
-        System.out.println("medication events inserted=" + summary.medicationEventsInserted);
         System.out.println("sections inserted=" + summary.sectionsInserted);
         System.out.println("rooms inserted=" + summary.roomsInserted);
         System.out.println("database path=" + summary.databasePath);
@@ -733,7 +604,6 @@ public class DemoLargeDataSeeder {
         private final String label;
         private final int patientCount;
         private final int vitalCount;
-        private final int medicationCount;
         private final int reminderCount;
         private final int appointmentCount;
         private final int newbornCount;
@@ -743,13 +613,12 @@ public class DemoLargeDataSeeder {
         private final int notificationCount;
         private final int alertCount;
 
-        private SeedConfig(String label, int patientCount, int vitalCount, int medicationCount, int reminderCount,
+        private SeedConfig(String label, int patientCount, int vitalCount, int reminderCount,
                            int appointmentCount, int newbornCount, int deceasedCount, int auditLogCount,
                            int messageCount, int notificationCount, int alertCount) {
             this.label = label;
             this.patientCount = patientCount;
             this.vitalCount = vitalCount;
-            this.medicationCount = medicationCount;
             this.reminderCount = reminderCount;
             this.appointmentCount = appointmentCount;
             this.newbornCount = newbornCount;
@@ -767,8 +636,6 @@ public class DemoLargeDataSeeder {
         private final Path backupPath;
         private int patientsInserted;
         private int vitalsInserted;
-        private int medicationsInserted;
-        private int medicationEventsInserted;
         private int remindersInserted;
         private int appointmentsInserted;
         private int newbornsInserted;
@@ -808,50 +675,4 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private static class MedicationAssignment {
-        private final long medicationId;
-        private final String patientId;
-        private final String medicationName;
-
-        private MedicationAssignment(long medicationId, String patientId, String medicationName) {
-            this.medicationId = medicationId;
-            this.patientId = patientId;
-            this.medicationName = medicationName;
-        }
-    }
-
-    private static class MedicationTemplate {
-        private final String name;
-        private final String formType;
-        private final String defaultRoute;
-        private final String defaultFrequency;
-        private final String defaultUnit;
-        private final String allowedUnits;
-        private final String allowedRoutes;
-        private final double minSingleDose;
-        private final double maxSingleDose;
-        private final double maxDailyDose;
-        private final double minIntervalMinutes;
-        private final boolean requiresDoctorOverride;
-        private final String notes;
-
-        private MedicationTemplate(String name, String formType, String defaultRoute, String defaultFrequency,
-                                   String defaultUnit, String allowedUnits, String allowedRoutes,
-                                   double minSingleDose, double maxSingleDose, double maxDailyDose,
-                                   double minIntervalMinutes, boolean requiresDoctorOverride, String notes) {
-            this.name = name;
-            this.formType = formType;
-            this.defaultRoute = defaultRoute;
-            this.defaultFrequency = defaultFrequency;
-            this.defaultUnit = defaultUnit;
-            this.allowedUnits = allowedUnits;
-            this.allowedRoutes = allowedRoutes;
-            this.minSingleDose = minSingleDose;
-            this.maxSingleDose = maxSingleDose;
-            this.maxDailyDose = maxDailyDose;
-            this.minIntervalMinutes = minIntervalMinutes;
-            this.requiresDoctorOverride = requiresDoctorOverride;
-            this.notes = notes;
-        }
-    }
 }

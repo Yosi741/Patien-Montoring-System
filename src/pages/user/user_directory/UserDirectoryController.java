@@ -286,8 +286,8 @@ public class UserDirectoryController implements FxController {
         boolean adminRole = "ADMIN".equals(group);
         addPermission("View patients", true);
         addPermission("Enter vitals", PermissionHelper.canEnterVitals(user));
-        addPermission("Record medication administration", "ADMIN".equals(group) || "DOCTOR".equals(group) || "NURSE".equals(group));
-        addPermission("Manage medication orders", "ADMIN".equals(group) || "DOCTOR".equals(group));
+        addPermission("Manage patient reminders", "ADMIN".equals(group) || "DOCTOR".equals(group) || "NURSE".equals(group));
+        addPermission("Manage appointments", "ADMIN".equals(group) || "DOCTOR".equals(group));
         addPermission("Review alerts through Notifications", true);
         addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user));
         addPermission("Manage rooms and sections", adminRole);

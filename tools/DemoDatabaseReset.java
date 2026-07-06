@@ -30,8 +30,6 @@ public class DemoDatabaseReset {
             seedPatients(connection);
             seedVitals(connection);
             seedAlerts(connection);
-            seedMedicationCatalog(connection);
-            seedMedications(connection);
             seedReminders(connection);
             seedNotifications(connection);
             seedCertificates(connection);
@@ -48,7 +46,6 @@ public class DemoDatabaseReset {
         String[] tables = {
                 "notifications", "messages", "audit_logs", "shift_handover_notes",
                 "medical_files", "medical_history", "reminders", "appointments",
-                "medication_events", "medications", "medication_interactions", "medication_catalog",
                 "alerts", "vital_readings", "newborn_records", "deceased_records", "rooms", "sections",
                 "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
         };
@@ -209,128 +206,25 @@ public class DemoDatabaseReset {
         }
     }
 
-    private static void seedMedicationCatalog(Connection connection) throws Exception {
-        insertCatalog(connection, "Aspirin", "TABLET", "Oral", "Once daily", "mg", "mg, tablet", "Oral", 75, 650, 4000, 360, false, "Bleeding-risk demo medication.");
-        insertCatalog(connection, "Ibuprofen", "TABLET", "Oral", "Every 8 hours", "mg", "mg, tablet", "Oral", 100, 800, 3200, 360, false, "NSAID demo medication.");
-        insertCatalog(connection, "Amoxicillin", "CAPSULE", "Oral", "Three times daily", "mg", "mg, capsule", "Oral", 250, 1000, 3000, 480, false, "Antibiotic demo medication.");
-        insertCatalog(connection, "Metoprolol", "TABLET", "Oral", "Twice daily", "mg", "mg, tablet", "Oral", 12.5, 100, 400, 720, false, "Cardiology demo medication.");
-        insertCatalog(connection, "Vancomycin", "INJECTION", "IV", "Every 12 hours", "mg", "mg, mL", "IV", 250, 2000, 4000, 720, true, "Requires careful review in demo rules.");
-        insertCatalog(connection, "Norepinephrine", "INJECTION", "IV", "As needed", "mcg", "mcg, mL", "IV", 1, 50, 500, 30, true, "Emergency vasopressor demo medication.");
-        insertInteraction(connection, "Ibuprofen", "Aspirin", "WARNING", 0, "Increased bleeding risk in demo rule.");
-        insertInteraction(connection, "Aspirin", "Norepinephrine", "DANGEROUS", 0, "Dangerous interaction demo rule requiring doctor override.");
-    }
-
-    private static void insertCatalog(Connection connection, String name, String formType, String route, String frequency,
-                                      String unit, String units, String routes, double minSingle, double maxSingle,
-                                      double maxDaily, int intervalMinutes, boolean override, String notes) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO medication_catalog(name, form_type, default_route, default_frequency, default_unit, allowed_units, allowed_routes, "
-                        + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, requires_doctor_override, danger_notes, notes, active, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
-            statement.setString(1, name);
-            statement.setString(2, formType);
-            statement.setString(3, route);
-            statement.setString(4, frequency);
-            statement.setString(5, unit);
-            statement.setString(6, units);
-            statement.setString(7, routes);
-            statement.setDouble(8, minSingle);
-            statement.setDouble(9, maxSingle);
-            statement.setDouble(10, maxDaily);
-            statement.setInt(11, intervalMinutes);
-            statement.setInt(12, override ? 1 : 0);
-            statement.setString(13, notes);
-            statement.setString(14, notes);
-            statement.executeUpdate();
-        }
-    }
-
-    private static void insertInteraction(Connection connection, String a, String b, String severity, int waitMinutes, String notes) throws Exception {
-        long aId = catalogId(connection, a);
-        long bId = catalogId(connection, b);
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, severity, min_wait_minutes, notes, message, active, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
-            statement.setLong(1, aId);
-            statement.setLong(2, bId);
-            statement.setString(3, a.compareToIgnoreCase(b) <= 0 ? a : b);
-            statement.setString(4, a.compareToIgnoreCase(b) <= 0 ? b : a);
-            statement.setString(5, severity);
-            statement.setInt(6, waitMinutes);
-            statement.setString(7, notes);
-            statement.setString(8, notes);
-            statement.executeUpdate();
-        }
-    }
-
-    private static void seedMedications(Connection connection) throws Exception {
-        insertMedication(connection, "100000001", "Aspirin", 100, "mg", "Oral", "Once daily");
-        insertMedication(connection, "100000002", "Amoxicillin", 500, "mg", "Oral", "Three times daily");
-        insertMedication(connection, "100000003", "Norepinephrine", 8, "mcg", "IV", "As needed");
-        insertMedication(connection, "100000004", "Ibuprofen", 400, "mg", "Oral", "Every 8 hours");
-        insertMedication(connection, "100000005", "Metoprolol", 25, "mg", "Oral", "Twice daily");
-    }
-
-    private static void insertMedication(Connection connection, String patientId, String name, double amount,
-                                         String unit, String route, String frequency) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO medications(patient_id, catalog_medication_id, name, dose, dose_amount, dose_unit, route, frequency, active) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)",
-                Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, patientId);
-            statement.setLong(2, catalogId(connection, name));
-            statement.setString(3, name);
-            statement.setString(4, formatAmount(amount) + " " + unit);
-            statement.setDouble(5, amount);
-            statement.setString(6, unit);
-            statement.setString(7, route);
-            statement.setString(8, frequency);
-            statement.executeUpdate();
-            try (ResultSet keys = statement.getGeneratedKeys()) {
-                if (keys.next()) {
-                    insertMedicationEvent(connection, keys.getLong(1), patientId, amount, unit, route);
-                }
-            }
-        }
-    }
-
-    private static void insertMedicationEvent(Connection connection, long medicationId, String patientId, double amount, String unit, String route) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO medication_events(medication_id, patient_id, given_by, given_at, notes, status, given_amount, given_unit, route, override_used, override_reason, safety_status) "
-                        + "VALUES(?, ?, 'nurse', ?, 'Clean demo administration record.', 'GIVEN', ?, ?, ?, 0, '', 'NORMAL')")) {
-            statement.setLong(1, medicationId);
-            statement.setString(2, patientId);
-            statement.setString(3, LocalDateTime.now().minusHours(3).format(DISPLAY_DATE_TIME));
-            statement.setDouble(4, amount);
-            statement.setString(5, unit);
-            statement.setString(6, route);
-            statement.executeUpdate();
-        }
-    }
-
     private static void seedReminders(Connection connection) throws Exception {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
-        insertReminder(connection, "100000002", null, "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
-        insertReminder(connection, "100000004", medicationId(connection, "100000004", "Ibuprofen"), "MEDICATION", "Medication review reminder", now.plusHours(4), "PENDING", "doctor", "Review post-operative pain medication plan.");
-        insertReminder(connection, "100000005", null, "CUSTOM", "Nurse follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
+        insertReminder(connection, "100000002", "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
+        insertReminder(connection, "100000004", "APPOINTMENT", "Post-operative follow-up reminder", now.plusHours(4), "PENDING", "doctor", "Review post-operative care plan.");
+        insertReminder(connection, "100000005", "CUSTOM", "Nurse follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
     }
 
-    private static void insertReminder(Connection connection, String patientId, Long medicationId, String type, String title,
+    private static void insertReminder(Connection connection, String patientId, String type, String title,
                                        LocalDateTime due, String status, String assignedTo, String notes) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO reminders(patient_id, medication_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, '', ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
+                "INSERT INTO reminders(patient_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
+                        + "VALUES(?, ?, ?, ?, '', ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
             statement.setString(1, patientId);
-            if (medicationId == null) {
-                statement.setNull(2, java.sql.Types.INTEGER);
-            } else {
-                statement.setLong(2, medicationId);
-            }
-            statement.setString(3, type);
-            statement.setString(4, title);
-            statement.setString(5, due.format(DISPLAY_DATE_TIME));
-            statement.setString(6, status);
-            statement.setString(7, assignedTo);
-            statement.setString(8, notes);
+            statement.setString(2, type);
+            statement.setString(3, title);
+            statement.setString(4, due.format(DISPLAY_DATE_TIME));
+            statement.setString(5, status);
+            statement.setString(6, assignedTo);
+            statement.setString(7, notes);
             statement.executeUpdate();
         }
     }
@@ -405,28 +299,6 @@ public class DemoDatabaseReset {
             statement.setString(1, username);
             statement.setString(2, action);
             statement.executeUpdate();
-        }
-    }
-
-    private static long catalogId(Connection connection, String name) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT id FROM medication_catalog WHERE name = ?")) {
-            statement.setString(1, name);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getLong(1);
-                }
-            }
-        }
-        throw new IllegalStateException("Catalog medication missing: " + name);
-    }
-
-    private static Long medicationId(Connection connection, String patientId, String name) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT id FROM medications WHERE patient_id = ? AND name = ? LIMIT 1")) {
-            statement.setString(1, patientId);
-            statement.setString(2, name);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next() ? resultSet.getLong(1) : null;
-            }
         }
     }
 

@@ -57,9 +57,6 @@
                 <Button fx:id="messagesButton" text="Messages" onAction="#showMessages" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="medicationOverviewButton" text="Medications" onAction="#showMedicationOverview" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
                 <Button fx:id="schedulingButton" text="Scheduling" onAction="#showScheduling" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 

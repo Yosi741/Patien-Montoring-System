@@ -6,7 +6,6 @@ import app.SchemaInitializer;
 import pages.dashboard.services.DashboardMetricsService;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
-import pages.medication.MedicationOverviewService;
 import pages.notification.NotificationCenterService;
 import pages.scheduling.SchedulingService;
 import pages.user.User;
@@ -30,7 +29,6 @@ public class DemoPerformanceCheck {
         SqliteVitalReadingDao vitalDao = new SqliteVitalReadingDao();
         SqliteNewbornRecordDao newbornDao = new SqliteNewbornRecordDao();
         SqliteDeceasedRecordDao deceasedDao = new SqliteDeceasedRecordDao();
-        MedicationOverviewService medicationOverviewService = new MedicationOverviewService();
         SchedulingService schedulingService = new SchedulingService();
         SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
         NotificationCenterService notificationCenterService = new NotificationCenterService();
@@ -99,11 +97,6 @@ public class DemoPerformanceCheck {
             requireSample(samplePatient, "No patient found for vitals history.");
             return "Vitals rows for " + samplePatient.getPatientId() + "="
                     + vitalDao.findByPatientId(samplePatient.getPatientId()).size();
-        }));
-        results.add(check("Medication overview load", () -> {
-            MedicationOverviewService.MedicationOverview overview = medicationOverviewService.loadOverview(
-                    new MedicationOverviewService.MedicationFilter("", "All", "All", "All", ""));
-            return "Medication rows=" + overview.getMedications().size() + ", event rows=" + overview.getEvents().size();
         }));
         results.add(check("Scheduling/reminders load", () -> {
             SchedulingService.SchedulingOverview overview = schedulingService.loadOverview("", "All", "All", "All", "All", "");

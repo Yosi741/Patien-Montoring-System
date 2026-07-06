@@ -82,9 +82,7 @@ public class ReminderEngineService {
                             reminder.getTitle(),
                             reminder.getDueTime(),
                             "OVERDUE",
-                            "MEDICATION".equalsIgnoreCase(reminder.getReminderType())
-                                    ? "Overdue medication reminder needs review."
-                                    : "Overdue reminder needs review."
+                            "Overdue reminder needs review."
                     ));
                 }
             } else if (!due.get().isAfter(now.plusMinutes(UPCOMING_WINDOW_MINUTES))) {

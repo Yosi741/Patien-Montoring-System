@@ -78,7 +78,7 @@ public class AppointmentFormController {
 
     @FXML
     private void initialize() {
-        typeBox.getItems().setAll("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "MEDICATION_REVIEW", "OTHER");
+        typeBox.getItems().setAll("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER");
         statusBox.getItems().setAll("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
         typeBox.getSelectionModel().select("CHECKUP");
         statusBox.getSelectionModel().select("SCHEDULED");

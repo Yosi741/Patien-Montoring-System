@@ -59,7 +59,7 @@
                 </HBox>
 
                     <Label
-                    text="Read-only local database timeline combining vitals, alerts, files, medical history, medication events, and handover notes."
+                    text="Read-only local database timeline combining vitals, alerts, files, medical history, and handover notes."
                         wrapText="true" styleClass="muted-text" />
             </VBox>
 

@@ -52,9 +52,6 @@ public class AppLayoutController implements FxController {
     private Button userDirectoryButton;
 
     @FXML
-    private Button medicationOverviewButton;
-
-    @FXML
     private Button schedulingButton;
 
     @FXML
@@ -103,8 +100,6 @@ public class AppLayoutController implements FxController {
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
         unreadCountLabel.setManaged(loggedIn);
-        medicationOverviewButton.setVisible(admin || clinical);
-        medicationOverviewButton.setManaged(admin || clinical);
         schedulingButton.setVisible(admin || clinical);
         schedulingButton.setManaged(admin || clinical);
         workQueueButton.setVisible(admin || clinical);
@@ -167,11 +162,6 @@ public class AppLayoutController implements FxController {
     @FXML
     private void showUserDirectory() {
         appShell.showUserDirectory();
-    }
-
-    @FXML
-    private void showMedicationOverview() {
-        appShell.showMedicationOverview();
     }
 
     @FXML

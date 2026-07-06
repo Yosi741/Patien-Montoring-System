@@ -382,11 +382,6 @@
     -fx-text-fill: #e0f2fe;
 }
 
-.timeline-type-medication {
-    -fx-background-color: #14532d;
-    -fx-text-fill: #dcfce7;
-}
-
 .timeline-type-history {
     -fx-background-color: #78350f;
     -fx-text-fill: #fde68a;
@@ -2334,7 +2329,6 @@
 
 .status-info,
 .safety-panel,
-.medication-safety-panel,
 .certificate-preview,
 .notification-detail-text,
 .notification-detail-text .content {

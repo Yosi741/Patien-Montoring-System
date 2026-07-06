@@ -14,8 +14,6 @@ public class DemoDatabaseVerify {
             printCount(statement, "deceased_records");
             printCount(statement, "rooms");
             printCount(statement, "sections");
-            printCount(statement, "medication_catalog");
-            printCount(statement, "medication_interactions");
             printCount(statement, "reminders");
             printCount(statement, "notifications");
             printCount(statement, "medical_files");

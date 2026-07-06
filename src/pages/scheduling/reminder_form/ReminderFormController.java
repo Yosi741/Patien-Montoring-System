@@ -37,8 +37,6 @@ public class ReminderFormController {
 
     @FXML private Label titleLabel;
     @FXML private TextField patientIdField;
-    @FXML private TextField medicationIdField;
-    @FXML private VBox medicationIdBox;
     @FXML private VBox reminderTypeContainer;
     @FXML private ComboBox<String> reminderTypeBox;
     @FXML private TextField reminderTitleField;
@@ -70,29 +68,29 @@ public class ReminderFormController {
     @FXML private CheckBox ultrasoundCheckBox;
     @FXML private CheckBox doctorReviewCheckBox;
     @FXML private CheckBox nurseFollowUpCheckBox;
-    @FXML private CheckBox medicationReviewCheckBox;
+    @FXML private CheckBox treatmentReviewCheckBox;
     @FXML private CheckBox painAssessmentCheckBox;
 
-    public static boolean showCreateDialog(Window owner, User currentUser, String patientId, Long medicationId, String medicationName) {
-        return showDialog(owner, currentUser, patientId, medicationId, medicationName, null, false);
+    public static boolean showCreateDialog(Window owner, User currentUser, String patientId) {
+        return showDialog(owner, currentUser, patientId, null, false);
     }
 
     public static boolean showOrderCheckupDialog(Window owner, User currentUser, String patientId) {
-        return showDialog(owner, currentUser, patientId, null, "", null, true);
+        return showDialog(owner, currentUser, patientId, null, true);
     }
 
     public static boolean showEditDialog(Window owner, User currentUser, SqliteReminderDao.ReminderRecord reminder) {
-        return showDialog(owner, currentUser, "", null, "", reminder, false);
+        return showDialog(owner, currentUser, "", reminder, false);
     }
 
-    private static boolean showDialog(Window owner, User currentUser, String patientId, Long medicationId,
-                                      String medicationName, SqliteReminderDao.ReminderRecord reminder,
+    private static boolean showDialog(Window owner, User currentUser, String patientId,
+                                      SqliteReminderDao.ReminderRecord reminder,
                                       boolean orderCheckupMode) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/scheduling/reminder_form/ReminderFormView.fxml"));
             Parent root = loader.load();
             ReminderFormController controller = loader.getController();
-            controller.prepare(currentUser, patientId, medicationId, medicationName, reminder, orderCheckupMode);
+            controller.prepare(currentUser, patientId, reminder, orderCheckupMode);
 
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
@@ -115,7 +113,7 @@ public class ReminderFormController {
 
     @FXML
     private void initialize() {
-        reminderTypeBox.getItems().setAll("MEDICATION", "APPOINTMENT", "CHECKUP", "CUSTOM");
+        reminderTypeBox.getItems().setAll("APPOINTMENT", "CHECKUP", "CUSTOM");
         statusBox.getItems().setAll("PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED");
         reminderTypeBox.getSelectionModel().select("CUSTOM");
         statusBox.getSelectionModel().select("PENDING");
@@ -126,7 +124,7 @@ public class ReminderFormController {
         NotificationHelper.showInfo(statusLabel, "Local database reminder. External calendar integration is future work.");
     }
 
-    private void prepare(User currentUser, String patientId, Long medicationId, String medicationName,
+    private void prepare(User currentUser, String patientId,
                          SqliteReminderDao.ReminderRecord reminder, boolean orderCheckupMode) {
         this.currentUser = currentUser;
         this.existingReminder = reminder;
@@ -140,11 +138,6 @@ public class ReminderFormController {
             patientIdField.setEditable(false);
             patientIdField.setFocusTraversable(false);
             patientIdField.getStyleClass().add("locked-context-field");
-        }
-        if (medicationId != null && medicationId > 0) {
-            medicationIdField.setText(String.valueOf(medicationId));
-            reminderTypeBox.getSelectionModel().select("MEDICATION");
-            reminderTitleField.setText("Medication reminder: " + (medicationName == null || medicationName.isBlank() ? medicationId : medicationName));
         }
         if (orderCheckupMode) {
             titleLabel.setText("Order Checkup");
@@ -165,7 +158,6 @@ public class ReminderFormController {
         }
         titleLabel.setText("Edit Reminder");
         patientIdField.setText(reminder.getPatientId());
-        medicationIdField.setText(reminder.getMedicationId() == null ? "" : String.valueOf(reminder.getMedicationId()));
         reminderTypeBox.getSelectionModel().select(reminder.getReminderType());
         reminderTitleField.setText(reminder.getTitle());
         dueTimeField.setText(reminder.getDueTime());
@@ -185,7 +177,6 @@ public class ReminderFormController {
             SchedulingService.ReminderRequest request = new SchedulingService.ReminderRequest(
                     existingReminder == null ? 0 : existingReminder.getId(),
                     patientIdField.getText(),
-                    parseMedicationId(),
                     reminderTypeBox.getValue(),
                     reminderTitleField.getText(),
                     dueTimeField.getText(),
@@ -207,21 +198,6 @@ public class ReminderFormController {
         }
     }
 
-    private Long parseMedicationId() {
-        if (!"MEDICATION".equalsIgnoreCase(reminderTypeBox.getValue())) {
-            return null;
-        }
-        String value = medicationIdField.getText();
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        try {
-            return Long.parseLong(value.trim());
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Medication ID must be a whole number when provided.");
-        }
-    }
-
     private void installNineDigitFilter(TextField field) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             String clean = newValue == null ? "" : newValue.replaceAll("\\D", "");
@@ -236,15 +212,7 @@ public class ReminderFormController {
 
     private void updateTypeVisibility() {
         String type = reminderTypeBox == null ? "" : reminderTypeBox.getValue();
-        boolean medication = "MEDICATION".equalsIgnoreCase(type);
         boolean checkup = "CHECKUP".equalsIgnoreCase(type);
-        if (medicationIdBox != null) {
-            medicationIdBox.setVisible(medication);
-            medicationIdBox.setManaged(medication);
-        }
-        if (!medication && medicationIdField != null) {
-            medicationIdField.clear();
-        }
         if (checkupSelectionBox != null) {
             checkupSelectionBox.setVisible(checkup);
             checkupSelectionBox.setManaged(checkup);
@@ -298,7 +266,7 @@ public class ReminderFormController {
         addIfSelected(selected, ultrasoundCheckBox, "Ultrasound");
         addIfSelected(selected, doctorReviewCheckBox, "Doctor Review");
         addIfSelected(selected, nurseFollowUpCheckBox, "Nurse Follow-up");
-        addIfSelected(selected, medicationReviewCheckBox, "Medication Review");
+        addIfSelected(selected, treatmentReviewCheckBox, "Treatment Review");
         addIfSelected(selected, painAssessmentCheckBox, "Pain Assessment");
         return selected;
     }

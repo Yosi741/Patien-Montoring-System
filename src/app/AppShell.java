@@ -9,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pages.clinical_timeline.ClinicalTimelineController;
 import pages.deceased.deceased_records.DeceasedRecordsController;
-import pages.medication.overview.MedicationOverviewController;
 import pages.patient.medical_files.MedicalFilesController;
 import pages.newborn.newborn_records.NewbornRecordsController;
 import pages.patient.patient_detail.PatientDetailController;
@@ -133,20 +132,6 @@ public class AppShell extends Application {
 
     public void showUserDirectory() {
         setShellContent("/pages/user/user_directory/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
-    }
-
-    public void showMedicationOverview() {
-        setShellContent("/pages/medication/overview/MedicationOverviewView.fxml", "Smart Patient Monitoring System - Medication Overview");
-    }
-
-    public void showMedicationOverviewForPatient(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Patient Medications");
-        AppNavigator.LoadedView medicationOverview = navigator.loadView("/pages/medication/overview/MedicationOverviewView.fxml");
-        if (medicationOverview.getController() instanceof MedicationOverviewController) {
-            ((MedicationOverviewController) medicationOverview.getController()).openForPatient(patientId);
-        }
-        setShellLoadedContent(medicationOverview);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Medications");
     }
 
     public void showRoomBedOccupancy() {

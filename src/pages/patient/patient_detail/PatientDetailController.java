@@ -30,8 +30,6 @@ import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
 import pages.certificate.death_record_form.DeathRecordFormController;
-import pages.medication.medication_form.MedicationFormController;
-import pages.medication.medication_given.MedicationGivenController;
 import pages.scheduling.reminder_form.ReminderFormController;
 import pages.room_section.room_assignment.RoomAssignmentController;
 import pages.patient.medical_files.MedicalFileUploadController;
@@ -97,9 +95,6 @@ public class PatientDetailController implements FxController {
     @FXML private NumberAxis trendYAxis;
     @FXML private Button editPatientButton;
     @FXML private Button enterVitalsButton;
-    @FXML private Button addMedicationButton;
-    @FXML private Button clinicalAddMedicationButton;
-    @FXML private Button recordMedicationButton;
     @FXML private Button createAppointmentButton;
     @FXML private Button createReminderButton;
     @FXML private Button uploadMedicalFileButton;
@@ -172,15 +167,6 @@ public class PatientDetailController implements FxController {
             return;
         }
         appShell.showAlertCenterForPatient(patientId);
-    }
-
-    @FXML
-    private void viewPatientMedications() {
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for medication view.");
-            return;
-        }
-        appShell.showMedicationOverviewForPatient(patientId);
     }
 
     @FXML
@@ -320,59 +306,6 @@ public class PatientDetailController implements FxController {
             if (saved) {
                 loadPatient(patientId);
                 NotificationHelper.showSuccess(timelineStatusLabel, "Patient marked DECEASED and death record created.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void addPatientMedication() {
-        if (!PermissionHelper.canAddMedication(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for medication entry.");
-            return;
-        }
-        if (blockIfDeceased("add medication")) {
-            return;
-        }
-        try {
-            boolean saved = MedicationFormController.showCreateDialog(
-                    nameLabel.getScene().getWindow(),
-                    Session.getCurrentUser(),
-                    patientId);
-            if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Medication saved in SQLite. Open Medications to view.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void recordPatientMedicationGiven() {
-        if (!PermissionHelper.canGiveMedication(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for medication administration.");
-            return;
-        }
-        if (blockIfDeceased("record medication")) {
-            return;
-        }
-        try {
-            boolean saved = MedicationGivenController.showDialog(
-                    nameLabel.getScene().getWindow(),
-                    Session.getCurrentUser(),
-                    patientId,
-                    null);
-            if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Medication administration recorded.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -526,11 +459,6 @@ public class PatientDetailController implements FxController {
         setButtonVisible(editPatientButton, canEdit);
         boolean canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
         setButtonVisible(enterVitalsButton, canEnterVitals);
-        boolean canAddMedication = PermissionHelper.canAddMedication(Session.getCurrentUser());
-        setButtonVisible(addMedicationButton, canAddMedication);
-        setButtonVisible(clinicalAddMedicationButton, canAddMedication);
-        boolean canGiveMedication = PermissionHelper.canGiveMedication(Session.getCurrentUser());
-        setButtonVisible(recordMedicationButton, canGiveMedication);
         boolean canAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
         setButtonVisible(createAppointmentButton, canAppointments);
         boolean canReminders = PermissionHelper.canManageReminder(Session.getCurrentUser());
@@ -554,9 +482,6 @@ public class PatientDetailController implements FxController {
             return;
         }
         setButtonVisible(enterVitalsButton, false);
-        setButtonVisible(addMedicationButton, false);
-        setButtonVisible(clinicalAddMedicationButton, false);
-        setButtonVisible(recordMedicationButton, false);
         setButtonVisible(createAppointmentButton, false);
         setButtonVisible(createReminderButton, false);
         setButtonVisible(movePatientButton, false);

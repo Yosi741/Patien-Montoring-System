@@ -90,7 +90,6 @@
                             <Label text="Clinical Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
                             <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
-                            <Button fx:id="clinicalAddMedicationButton" text="Add Medication" onAction="#addPatientMedication" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -106,7 +105,6 @@
                                 <Button text="Clinical Timeline" onAction="#openClinicalTimeline" styleClass="patient-file-chip-button" />
                                 <Button text="Alerts" onAction="#viewPatientAlerts" styleClass="patient-file-chip-danger" />
                                 <Button text="Files" onAction="#viewPatientMedicalFiles" styleClass="patient-file-chip-button" />
-                                <Button text="Medications" onAction="#viewPatientMedications" styleClass="patient-file-chip-button" />
                                 <Button fx:id="viewNewbornsButton" text="Newborns" onAction="#viewPatientNewborns" styleClass="patient-file-chip-button" />
                             </FlowPane>
                         </VBox>
@@ -130,12 +128,8 @@
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="patient-file-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Current Medications" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="addMedicationButton" text="Add" onAction="#addPatientMedication" styleClass="patient-file-mini-button" />
-                                <Button fx:id="recordMedicationButton" text="Record Given" onAction="#recordPatientMedicationGiven" styleClass="patient-file-mini-button" />
-                            </HBox>
-                            <Label text="Open Medications to view active medications and administration events." wrapText="true" styleClass="patient-file-empty" />
+                            <Label text="Current Treatment" styleClass="patient-file-section-title" />
+                            <Label text="Treatment planning is handled through checkups, appointments, alerts, and clinical notes in this clinic version." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="patient-file-card">

@@ -28,11 +28,6 @@ public class SchemaInitializer {
             createVitalReadings(statement);
             createAlerts(statement);
             migrateAlerts(statement);
-            createMedicationCatalog(statement);
-            createMedicationInteractions(statement);
-            seedDemoMedicationInteractions(statement);
-            createMedications(statement);
-            createMedicationEvents(statement);
             createAppointments(statement);
             createReminders(statement);
             createMedicalHistory(statement);
@@ -238,150 +233,6 @@ public class SchemaInitializer {
         }
     }
 
-    private static void createMedications(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS medications ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT NOT NULL,"
-                + "catalog_medication_id INTEGER,"
-                + "name TEXT NOT NULL,"
-                + "dose TEXT,"
-                + "dose_amount REAL,"
-                + "dose_unit TEXT,"
-                + "route TEXT,"
-                + "frequency TEXT,"
-                + "active INTEGER NOT NULL DEFAULT 1,"
-                + "FOREIGN KEY(catalog_medication_id) REFERENCES medication_catalog(id),"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-        addColumnIfMissing(statement, "medications", "catalog_medication_id", "INTEGER");
-        addColumnIfMissing(statement, "medications", "dose_amount", "REAL");
-        addColumnIfMissing(statement, "medications", "dose_unit", "TEXT");
-    }
-
-    private static void createMedicationCatalog(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS medication_catalog ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "name TEXT NOT NULL UNIQUE,"
-                + "form_type TEXT NOT NULL DEFAULT 'OTHER',"
-                + "default_route TEXT,"
-                + "default_frequency TEXT,"
-                + "default_unit TEXT,"
-                + "allowed_units TEXT,"
-                + "allowed_routes TEXT,"
-                + "min_single_dose REAL,"
-                + "max_single_dose REAL,"
-                + "max_daily_dose REAL,"
-                + "min_interval_minutes REAL,"
-                + "min_interval_hours REAL,"
-                + "requires_doctor_override INTEGER NOT NULL DEFAULT 0,"
-                + "danger_notes TEXT,"
-                + "notes TEXT,"
-                + "active INTEGER NOT NULL DEFAULT 1,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                + ")");
-        addColumnIfMissing(statement, "medication_catalog", "form_type", "TEXT NOT NULL DEFAULT 'OTHER'");
-        addColumnIfMissing(statement, "medication_catalog", "default_route", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "default_frequency", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "default_unit", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "allowed_units", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "allowed_routes", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "min_single_dose", "REAL");
-        addColumnIfMissing(statement, "medication_catalog", "max_single_dose", "REAL");
-        addColumnIfMissing(statement, "medication_catalog", "max_daily_dose", "REAL");
-        addColumnIfMissing(statement, "medication_catalog", "min_interval_minutes", "REAL");
-        addColumnIfMissing(statement, "medication_catalog", "min_interval_hours", "REAL");
-        addColumnIfMissing(statement, "medication_catalog", "requires_doctor_override", "INTEGER NOT NULL DEFAULT 0");
-        addColumnIfMissing(statement, "medication_catalog", "danger_notes", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "notes", "TEXT");
-        addColumnIfMissing(statement, "medication_catalog", "active", "INTEGER NOT NULL DEFAULT 1");
-        addColumnIfMissing(statement, "medication_catalog", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
-        addColumnIfMissing(statement, "medication_catalog", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
-        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_catalog_name ON medication_catalog(name)");
-    }
-
-    private static void createMedicationInteractions(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS medication_interactions ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "medication_a_id INTEGER,"
-                + "medication_b_id INTEGER,"
-                + "medication_a TEXT NOT NULL,"
-                + "medication_b TEXT NOT NULL,"
-                + "severity TEXT NOT NULL DEFAULT 'WARNING',"
-                + "min_wait_minutes INTEGER NOT NULL DEFAULT 0,"
-                + "notes TEXT,"
-                + "message TEXT NOT NULL,"
-                + "active INTEGER NOT NULL DEFAULT 1,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "UNIQUE(medication_a, medication_b)"
-                + ")");
-        addColumnIfMissing(statement, "medication_interactions", "medication_a_id", "INTEGER");
-        addColumnIfMissing(statement, "medication_interactions", "medication_b_id", "INTEGER");
-        addColumnIfMissing(statement, "medication_interactions", "severity", "TEXT NOT NULL DEFAULT 'WARNING'");
-        addColumnIfMissing(statement, "medication_interactions", "min_wait_minutes", "INTEGER NOT NULL DEFAULT 0");
-        addColumnIfMissing(statement, "medication_interactions", "notes", "TEXT");
-        addColumnIfMissing(statement, "medication_interactions", "message", "TEXT NOT NULL DEFAULT ''");
-        addColumnIfMissing(statement, "medication_interactions", "active", "INTEGER NOT NULL DEFAULT 1");
-        addColumnIfMissing(statement, "medication_interactions", "created_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
-        addColumnIfMissing(statement, "medication_interactions", "updated_at", "TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP");
-        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_interactions_pair ON medication_interactions(medication_a, medication_b)");
-        statement.execute("CREATE INDEX IF NOT EXISTS idx_medication_interactions_pair_ids ON medication_interactions(medication_a_id, medication_b_id)");
-    }
-
-    private static void seedDemoMedicationInteractions(Statement statement) throws SQLException {
-        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
-                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
-                + "VALUES('Ibuprofen', 'TABLET', 'Oral', 'mg', 'mg, tablet', 'Oral', 100, 800, 3200, 360, "
-                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
-        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
-                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
-                + "VALUES('Aspirin', 'TABLET', 'Oral', 'mg', 'mg, tablet', 'Oral', 75, 650, 4000, 360, "
-                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
-        statement.execute("INSERT OR IGNORE INTO medication_catalog(name, form_type, default_route, default_unit, allowed_units, allowed_routes, "
-                + "min_single_dose, max_single_dose, max_daily_dose, min_interval_minutes, danger_notes, notes, active, updated_at) "
-                + "VALUES('Norepinephrine', 'INJECTION', 'IV', 'mcg', 'mcg, mL', 'IV', 1, 50, 500, 30, "
-                + "'Demo interaction catalog item.', 'Demo interaction catalog item.', 1, CURRENT_TIMESTAMP)");
-        statement.execute("INSERT OR IGNORE INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, "
-                + "severity, min_wait_minutes, notes, message, active, updated_at) "
-                + "SELECT a.id, b.id, 'Ibuprofen', 'Aspirin', 'WARNING', 0, "
-                + "'Increased bleeding risk in demo rule.', 'Increased bleeding risk in demo rule.', 1, CURRENT_TIMESTAMP "
-                + "FROM medication_catalog a, medication_catalog b WHERE a.name = 'Ibuprofen' AND b.name = 'Aspirin'");
-        statement.execute("INSERT OR IGNORE INTO medication_interactions(medication_a_id, medication_b_id, medication_a, medication_b, "
-                + "severity, min_wait_minutes, notes, message, active, updated_at) "
-                + "SELECT a.id, b.id, 'Aspirin', 'Norepinephrine', 'DANGEROUS', 0, "
-                + "'Dangerous interaction demo rule requiring doctor override.', "
-                + "'Dangerous interaction demo rule requiring doctor override.', 1, CURRENT_TIMESTAMP "
-                + "FROM medication_catalog a, medication_catalog b WHERE a.name = 'Aspirin' AND b.name = 'Norepinephrine'");
-    }
-
-    private static void createMedicationEvents(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS medication_events ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "medication_id INTEGER,"
-                + "patient_id TEXT NOT NULL,"
-                + "given_by TEXT NOT NULL,"
-                + "given_at TEXT NOT NULL,"
-                + "notes TEXT,"
-                + "status TEXT NOT NULL DEFAULT 'GIVEN',"
-                + "given_amount REAL,"
-                + "given_unit TEXT,"
-                + "route TEXT,"
-                + "override_used INTEGER NOT NULL DEFAULT 0,"
-                + "override_reason TEXT,"
-                + "safety_status TEXT,"
-                + "FOREIGN KEY(medication_id) REFERENCES medications(id),"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-        addColumnIfMissing(statement, "medication_events", "status", "TEXT NOT NULL DEFAULT 'GIVEN'");
-        addColumnIfMissing(statement, "medication_events", "given_amount", "REAL");
-        addColumnIfMissing(statement, "medication_events", "given_unit", "TEXT");
-        addColumnIfMissing(statement, "medication_events", "route", "TEXT");
-        addColumnIfMissing(statement, "medication_events", "override_used", "INTEGER NOT NULL DEFAULT 0");
-        addColumnIfMissing(statement, "medication_events", "override_reason", "TEXT");
-        addColumnIfMissing(statement, "medication_events", "safety_status", "TEXT");
-    }
-
     private static void createAppointments(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS appointments ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -405,7 +256,6 @@ public class SchemaInitializer {
         statement.execute("CREATE TABLE IF NOT EXISTS reminders ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "patient_id TEXT NOT NULL,"
-                + "medication_id INTEGER,"
                 + "reminder_type TEXT NOT NULL,"
                 + "title TEXT NOT NULL,"
                 + "due_time TEXT NOT NULL,"
@@ -416,8 +266,7 @@ public class SchemaInitializer {
                 + "notes TEXT,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,"
-                + "FOREIGN KEY(medication_id) REFERENCES medications(id)"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
     }
 

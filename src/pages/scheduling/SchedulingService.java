@@ -1,6 +1,5 @@
 package pages.scheduling;
 
-import pages.medication.SqliteMedicationDao;
 import pages.patient.dao.SqlitePatientDao;
 import pages.audit_log.AuditAction;
 import pages.audit_log.AuditWriteHelper;
@@ -18,26 +17,23 @@ import java.util.Set;
 public class SchedulingService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-    private static final Set<String> APPOINTMENT_TYPES = Set.of("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "MEDICATION_REVIEW", "OTHER");
+    private static final Set<String> APPOINTMENT_TYPES = Set.of("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER");
     private static final Set<String> APPOINTMENT_STATUSES = Set.of("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
-    private static final Set<String> REMINDER_TYPES = Set.of("MEDICATION", "APPOINTMENT", "CHECKUP", "CUSTOM");
+    private static final Set<String> REMINDER_TYPES = Set.of("APPOINTMENT", "CHECKUP", "CUSTOM");
     private static final Set<String> REMINDER_STATUSES = Set.of("PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED");
 
     private final SqliteAppointmentDao appointmentDao;
     private final SqliteReminderDao reminderDao;
     private final SqlitePatientDao patientDao;
-    private final SqliteMedicationDao medicationDao;
-
     public SchedulingService() {
-        this(new SqliteAppointmentDao(), new SqliteReminderDao(), new SqlitePatientDao(), new SqliteMedicationDao());
+        this(new SqliteAppointmentDao(), new SqliteReminderDao(), new SqlitePatientDao());
     }
 
     public SchedulingService(SqliteAppointmentDao appointmentDao, SqliteReminderDao reminderDao,
-                             SqlitePatientDao patientDao, SqliteMedicationDao medicationDao) {
+                             SqlitePatientDao patientDao) {
         this.appointmentDao = appointmentDao;
         this.reminderDao = reminderDao;
         this.patientDao = patientDao;
-        this.medicationDao = medicationDao;
     }
 
     public long createAppointment(User currentUser, AppointmentRequest request) throws SQLException {
@@ -151,7 +147,7 @@ public class SchedulingService {
                 appointmentDao.countToday(),
                 appointmentDao.countUpcomingSurgeries(),
                 reminderDao.countOverdue(),
-                reminderDao.countMedicationToday(),
+                reminderDao.countToday(),
                 appointmentDao.countCancelledOrMissed() + reminderDao.countCancelledOrMissed(),
                 appointments,
                 reminders
@@ -195,7 +191,7 @@ public class SchedulingService {
         String type = normalizeAppointmentType(request.appointmentType);
         String status = normalizeAppointmentStatus(request.status);
         if (!APPOINTMENT_TYPES.contains(type)) {
-            throw new IllegalArgumentException("Appointment type must be CHECKUP, SURGERY, FOLLOW_UP, LAB_TEST, MEDICATION_REVIEW, or OTHER.");
+            throw new IllegalArgumentException("Appointment type must be CHECKUP, SURGERY, FOLLOW_UP, LAB_TEST, or OTHER.");
         }
         if (!APPOINTMENT_STATUSES.contains(status)) {
             throw new IllegalArgumentException("Appointment status must be SCHEDULED, COMPLETED, CANCELLED, or MISSED.");
@@ -231,20 +227,10 @@ public class SchedulingService {
         String type = normalizeReminderType(request.reminderType);
         String status = normalizeReminderStatus(request.status);
         if (!REMINDER_TYPES.contains(type)) {
-            throw new IllegalArgumentException("Reminder type must be MEDICATION, APPOINTMENT, CHECKUP, or CUSTOM.");
+            throw new IllegalArgumentException("Reminder type must be APPOINTMENT, CHECKUP, or CUSTOM.");
         }
         if (!REMINDER_STATUSES.contains(status)) {
             throw new IllegalArgumentException("Reminder status must be PENDING, OVERDUE, DONE, MISSED, or CANCELLED.");
-        }
-        if (request.medicationId != null && request.medicationId > 0) {
-            SqliteMedicationDao.MedicationRecord medication = medicationDao.findMedicationById(request.medicationId)
-                    .orElseThrow(() -> new IllegalArgumentException("Medication not found in SQLite: " + request.medicationId));
-            if (!medication.getPatientId().equals(request.patientId)) {
-                throw new IllegalArgumentException("Medication does not belong to patient " + request.patientId + ".");
-            }
-            if ("MEDICATION".equals(type) && !medication.isActive()) {
-                throw new IllegalArgumentException("Medication reminder must reference an active medication.");
-            }
         }
         parseDateTime(request.dueTime);
     }
@@ -271,7 +257,6 @@ public class SchedulingService {
         return new SqliteReminderDao.ReminderRecord(
                 id,
                 trim(request.patientId),
-                request.medicationId == null || request.medicationId <= 0 ? null : request.medicationId,
                 normalizeReminderType(request.reminderType),
                 trim(request.title),
                 parseDateTime(request.dueTime).format(DISPLAY_DATE_TIME),
@@ -361,7 +346,6 @@ public class SchedulingService {
     public static class ReminderRequest {
         public final long id;
         public final String patientId;
-        public final Long medicationId;
         public final String reminderType;
         public final String title;
         public final String dueTime;
@@ -370,11 +354,10 @@ public class SchedulingService {
         public final String assignedTo;
         public final String notes;
 
-        public ReminderRequest(long id, String patientId, Long medicationId, String reminderType, String title,
+        public ReminderRequest(long id, String patientId, String reminderType, String title,
                                String dueTime, String repeatRule, String status, String assignedTo, String notes) {
             this.id = id;
             this.patientId = patientId;
-            this.medicationId = medicationId;
             this.reminderType = reminderType;
             this.title = title;
             this.dueTime = dueTime;
@@ -389,19 +372,19 @@ public class SchedulingService {
         private final int appointmentsToday;
         private final int upcomingSurgeries;
         private final int overdueReminders;
-        private final int medicationRemindersToday;
+        private final int patientRemindersToday;
         private final int cancelledMissedItems;
         private final List<SqliteAppointmentDao.AppointmentRow> appointments;
         private final List<SqliteReminderDao.ReminderRow> reminders;
 
         public SchedulingOverview(int appointmentsToday, int upcomingSurgeries, int overdueReminders,
-                                  int medicationRemindersToday, int cancelledMissedItems,
+                                  int patientRemindersToday, int cancelledMissedItems,
                                   List<SqliteAppointmentDao.AppointmentRow> appointments,
                                   List<SqliteReminderDao.ReminderRow> reminders) {
             this.appointmentsToday = appointmentsToday;
             this.upcomingSurgeries = upcomingSurgeries;
             this.overdueReminders = overdueReminders;
-            this.medicationRemindersToday = medicationRemindersToday;
+            this.patientRemindersToday = patientRemindersToday;
             this.cancelledMissedItems = cancelledMissedItems;
             this.appointments = appointments;
             this.reminders = reminders;
@@ -410,7 +393,7 @@ public class SchedulingService {
         public int getAppointmentsToday() { return appointmentsToday; }
         public int getUpcomingSurgeries() { return upcomingSurgeries; }
         public int getOverdueReminders() { return overdueReminders; }
-        public int getMedicationRemindersToday() { return medicationRemindersToday; }
+        public int getPatientRemindersToday() { return patientRemindersToday; }
         public int getCancelledMissedItems() { return cancelledMissedItems; }
         public List<SqliteAppointmentDao.AppointmentRow> getAppointments() { return appointments; }
         public List<SqliteReminderDao.ReminderRow> getReminders() { return reminders; }

@@ -21,11 +21,6 @@
             <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
         </VBox>
 
-        <VBox fx:id="medicationIdBox" spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label styleClass="field-label" text="Medication ID (optional)" />
-            <TextField fx:id="medicationIdField" promptText="SQLite medication ID" styleClass="control-input" />
-        </VBox>
-
         <VBox fx:id="reminderTypeContainer" spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label styleClass="field-label" text="Reminder Type" />
             <ComboBox fx:id="reminderTypeBox" maxWidth="Infinity" styleClass="control-input" />
@@ -38,7 +33,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
             <Label styleClass="field-label" text="Title" />
-            <TextField fx:id="reminderTitleField" promptText="Medication review reminder" styleClass="control-input" />
+            <TextField fx:id="reminderTitleField" promptText="Patient follow-up reminder" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
@@ -102,7 +97,7 @@
                     <Label styleClass="field-label" text="General" />
                     <CheckBox fx:id="doctorReviewCheckBox" text="Doctor Review" />
                     <CheckBox fx:id="nurseFollowUpCheckBox" text="Nurse Follow-up" />
-                    <CheckBox fx:id="medicationReviewCheckBox" text="Medication Review" />
+                    <CheckBox fx:id="treatmentReviewCheckBox" text="Treatment Review" />
                     <CheckBox fx:id="painAssessmentCheckBox" text="Pain Assessment" />
                 </VBox>
             </GridPane>

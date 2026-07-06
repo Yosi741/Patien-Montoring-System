@@ -133,7 +133,7 @@
                 <Label text="Admin Audit Test"
                        styleClass="section-title" />
 
-                <Label text="Admin-only safe test write. This creates a local database audit log row only; no patient, vitals, medication, or user data is changed."
+                <Label text="Admin-only safe test write. This creates a local database audit log row only; no patient, vitals, reminder, or user data is changed."
                        wrapText="true"
                        styleClass="muted-text" />
 

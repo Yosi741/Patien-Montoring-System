@@ -83,8 +83,8 @@ public class MessagingService {
         if (text.contains("checkup") || text.contains("check-up")) {
             return "CHECKUP_REQUEST";
         }
-        if (text.contains("medication review") || text.contains("medication")) {
-            return "MEDICATION_REVIEW";
+        if (text.contains("treatment review")) {
+            return "TREATMENT_REVIEW";
         }
         if (text.contains("request")) {
             return "REQUEST";
@@ -101,7 +101,7 @@ public class MessagingService {
                 || text.contains("death certificate")
                 || text.contains("checkup")
                 || text.contains("check-up")
-                || text.contains("medication review");
+                || text.contains("treatment review");
     }
 
     public void markRead(User currentUser, long messageId) throws SQLException {

@@ -33,7 +33,6 @@ public class ClinicalTimelineDao {
             addAlertEvents(connection, patientId, events);
             addMedicalFileEvents(connection, patientId, events);
             addMedicalHistoryEvents(connection, patientId, events);
-            addMedicationEvents(connection, patientId, events);
             addShiftHandoverEvents(connection, patientId, events);
         }
 
@@ -59,8 +58,6 @@ public class ClinicalTimelineDao {
                     return findMedicalFileDetail(connection, event);
                 case "medical_history":
                     return findMedicalHistoryDetail(connection, event);
-                case "medication_events":
-                    return findMedicationDetail(connection, event);
                 case "shift_handover_notes":
                     return findShiftHandoverDetail(connection, event);
                 default:
@@ -161,30 +158,6 @@ public class ClinicalTimelineDao {
                 field(fields, "Created At", resultSet.getString("created_at"));
                 return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
                         resultSet.getString("created_at"), event.getSourceTable(), event.getSourceId(), resultSet.getString("details"),
-                        "", "", fields));
-            }
-        }
-    }
-
-    private Optional<TimelineEventDetail> findMedicationDetail(Connection connection, TimelineEvent event) throws SQLException {
-        String sql = "SELECT e.id, e.patient_id, e.given_by, e.given_at, e.notes, m.name, m.dose, m.route, m.frequency "
-                + "FROM medication_events e LEFT JOIN medications m ON m.id = e.medication_id WHERE e.id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, event.getSourceId());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    return Optional.empty();
-                }
-                LinkedHashMap<String, String> fields = baseFields(event, resultSet.getString("patient_id"), resultSet.getString("given_at"));
-                field(fields, "Medication Name", resultSet.getString("name"));
-                field(fields, "Dose", resultSet.getString("dose"));
-                field(fields, "Route", resultSet.getString("route"));
-                field(fields, "Frequency", resultSet.getString("frequency"));
-                field(fields, "Given By", resultSet.getString("given_by"));
-                field(fields, "Given At", resultSet.getString("given_at"));
-                field(fields, "Notes", resultSet.getString("notes"));
-                return Optional.of(new TimelineEventDetail(event.getEventType(), event.getTitle(), resultSet.getString("patient_id"),
-                        resultSet.getString("given_at"), event.getSourceTable(), event.getSourceId(), resultSet.getString("notes"),
                         "", "", fields));
             }
         }
@@ -312,36 +285,6 @@ public class ClinicalTimelineDao {
                                     createdBy.isBlank() ? "" : "Recorded by: " + createdBy),
                             "",
                             "medical_history",
-                            String.valueOf(resultSet.getLong("id"))
-                    ));
-                }
-            }
-        }
-    }
-
-    private void addMedicationEvents(Connection connection, String patientId, List<TimelineEvent> events) throws SQLException {
-        String sql = "SELECT e.id, e.given_by, e.given_at, e.notes, m.name, m.dose, m.route "
-                + "FROM medication_events e LEFT JOIN medications m ON m.id = e.medication_id "
-                + "WHERE e.patient_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, patientId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    String medicationName = fallback(resultSet.getString("name"), "Medication administered");
-                    String dose = value(resultSet.getString("dose"));
-                    String route = value(resultSet.getString("route"));
-                    String givenBy = value(resultSet.getString("given_by"));
-                    String notes = value(resultSet.getString("notes"));
-                    events.add(new TimelineEvent(
-                            value(resultSet.getString("given_at")),
-                            "Medications",
-                            medicationName,
-                            joinDetails(dose.isBlank() ? "" : "Dose: " + dose,
-                                    route.isBlank() ? "" : "Route: " + route,
-                                    givenBy.isBlank() ? "" : "Given by: " + givenBy,
-                                    notes.isBlank() ? "" : "Notes: " + notes),
-                            "",
-                            "medication_events",
                             String.valueOf(resultSet.getLong("id"))
                     ));
                 }

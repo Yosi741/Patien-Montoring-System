@@ -1,6 +1,5 @@
 package pages.patient;
 
-import pages.medication.Medication;
 import pages.patient.VitalSign;
 import users.Doctor;
 
@@ -35,7 +34,6 @@ public class Patient {
 
     private Doctor doctor;
     private VitalSign vitalSign;
-    private Medication medication;
 
     public Patient(String patientId, String firstName, String lastName,
                    String birthDate, String gender, String room) {
@@ -186,13 +184,6 @@ public class Patient {
         this.vitalSign = vitalSign;
     }
 
-    public Medication getMedication() {
-        return medication;
-    }
-
-    public void setMedication(Medication medication) {
-        this.medication = medication;
-    }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }

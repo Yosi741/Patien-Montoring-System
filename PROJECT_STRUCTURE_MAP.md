@@ -1,6 +1,15 @@
-# Smart Patient Monitoring System - Project Structure Map
+# Smart Clinic Patient Monitoring System - Project Structure Map
 
-This file is a short guide for explaining the project structure during the teacher review.
+This file is a short guide for explaining the clinic-focused project structure during the teacher review.
+
+Core clinic workflows:
+- Login
+- Dashboard
+- Patients
+- Vitals
+- Alerts
+- Scheduling
+- Users
 
 ## 1. Project entry point
 
@@ -65,16 +74,7 @@ This file is a short guide for explaining the project structure during the teach
 - `src/pages/alert`
   - Critical alerts, alert persistence, alert sound, and alert services.
 
-## 8. Medications
-
-- `src/pages/medication`
-  - Medication overview
-  - Medication order form
-  - Medication catalog
-  - Record medication given
-  - Medication services and DAO classes
-
-## 9. Scheduling
+## 8. Scheduling
 
 - `src/pages/scheduling`
   - Scheduling overview
@@ -82,7 +82,7 @@ This file is a short guide for explaining the project structure during the teach
   - Reminder form
   - Scheduling services and reminder engine
 
-## 10. Rooms and sections
+## 9. Rooms and sections
 
 - `src/pages/room_section`
   - Room occupancy
@@ -91,7 +91,7 @@ This file is a short guide for explaining the project structure during the teach
   - Room assignment
   - Related services and DAO classes
 
-## 11. Certificates and deceased records
+## 10. Certificates and deceased records
 
 - `src/pages/certificate`
   - Certificate registry
@@ -100,14 +100,14 @@ This file is a short guide for explaining the project structure during the teach
 - `src/pages/deceased`
   - Deceased records workflow and supporting service/DAO code
 
-## 12. Newborns
+## 11. Newborns
 
 - `src/pages/newborn`
   - Newborn records
   - Newborn form
   - Mother linking and newborn services/DAO code
 
-## 13. Timeline, messages, notifications, audit logs, nurse work
+## 12. Timeline, messages, notifications, audit logs, nurse work
 
 - `src/pages/clinical_timeline`
   - Patient clinical timeline
@@ -120,7 +120,7 @@ This file is a short guide for explaining the project structure during the teach
 - `src/pages/nurse_work`
   - Nurse work queue and handover support
 
-## 14. Resources
+## 13. Resources
 
 - `src/photo`
   - Logo and branding image assets used by the login page and app shell
@@ -129,7 +129,7 @@ This file is a short guide for explaining the project structure during the teach
 - `src/app/styles/dark-theme.css`
   - Main Hospital Navy presentation theme
 
-## 15. How to answer teacher questions
+## 14. How to answer teacher questions
 
 - "Where is the Login button code?"
   - `src/pages/login/LoginController.java`

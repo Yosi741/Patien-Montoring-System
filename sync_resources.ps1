@@ -5,7 +5,6 @@ $targetUsers = "out/production/untitledSmartPatientMonitoringSystem/pages/user"
 $targetLogin = "out/production/untitledSmartPatientMonitoringSystem/pages/login"
 $targetDashboard = "out/production/untitledSmartPatientMonitoringSystem/pages/dashboard"
 $targetAlert = "out/production/untitledSmartPatientMonitoringSystem/pages/alert"
-$targetMedication = "out/production/untitledSmartPatientMonitoringSystem/pages/medication"
 $targetScheduling = "out/production/untitledSmartPatientMonitoringSystem/pages/scheduling"
 $targetCertificate = "out/production/untitledSmartPatientMonitoringSystem/pages/certificate"
 $targetRoomSection = "out/production/untitledSmartPatientMonitoringSystem/pages/room_section"
@@ -26,7 +25,6 @@ New-Item -ItemType Directory -Force -Path $targetUsers
 New-Item -ItemType Directory -Force -Path $targetLogin
 New-Item -ItemType Directory -Force -Path $targetDashboard
 New-Item -ItemType Directory -Force -Path $targetAlert
-New-Item -ItemType Directory -Force -Path $targetMedication
 New-Item -ItemType Directory -Force -Path $targetScheduling
 New-Item -ItemType Directory -Force -Path $targetCertificate
 New-Item -ItemType Directory -Force -Path $targetRoomSection
@@ -58,9 +56,6 @@ if (Test-Path "src/pages/dashboard") {
 }
 if (Test-Path "src/pages/alert") {
     Copy-Item -Path "src/pages/alert/*" -Destination $targetAlert -Force -Recurse
-}
-if (Test-Path "src/pages/medication") {
-    Copy-Item -Path "src/pages/medication/*" -Destination $targetMedication -Force -Recurse
 }
 if (Test-Path "src/pages/scheduling") {
     Copy-Item -Path "src/pages/scheduling/*" -Destination $targetScheduling -Force -Recurse
@@ -174,14 +169,6 @@ $legacyUserFormView = Join-Path $targetViews "UserFormView.fxml"
 if (Test-Path $legacyUserFormView) {
     Remove-Item -Path $legacyUserFormView -Force
 }
-$legacyMedicationOverviewView = Join-Path $targetViews "MedicationOverviewView.fxml"
-if (Test-Path $legacyMedicationOverviewView) {
-    Remove-Item -Path $legacyMedicationOverviewView -Force
-}
-$legacyMedicationFormView = Join-Path $targetViews "MedicationFormView.fxml"
-if (Test-Path $legacyMedicationFormView) {
-    Remove-Item -Path $legacyMedicationFormView -Force
-}
 $legacySchedulingView = Join-Path $targetViews "SchedulingView.fxml"
 if (Test-Path $legacySchedulingView) {
     Remove-Item -Path $legacySchedulingView -Force
@@ -221,14 +208,6 @@ if (Test-Path $legacyDeathRecordFormView) {
 $legacyDeceasedRecordsView = Join-Path $targetViews "DeceasedRecordsView.fxml"
 if (Test-Path $legacyDeceasedRecordsView) {
     Remove-Item -Path $legacyDeceasedRecordsView -Force
-}
-$legacyMedicationCatalogView = Join-Path $targetViews "MedicationCatalogView.fxml"
-if (Test-Path $legacyMedicationCatalogView) {
-    Remove-Item -Path $legacyMedicationCatalogView -Force
-}
-$legacyMedicationGivenView = Join-Path $targetViews "MedicationGivenView.fxml"
-if (Test-Path $legacyMedicationGivenView) {
-    Remove-Item -Path $legacyMedicationGivenView -Force
 }
 $legacyMessagingView = Join-Path $targetViews "MessagingView.fxml"
 if (Test-Path $legacyMessagingView) {
@@ -276,7 +255,6 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/users",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/Alert",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/medications",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/scheduling",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/certificates",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/rooms_sections",

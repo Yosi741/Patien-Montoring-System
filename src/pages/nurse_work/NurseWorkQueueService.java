@@ -63,10 +63,10 @@ public class NurseWorkQueueService {
             int weight;
             if ("OVERDUE".equals(status) || due.map(value -> value.isBefore(now)).orElse(false)) {
                 actionStatus = "OVERDUE";
-                weight = "MEDICATION".equalsIgnoreCase(reminder.getReminderType()) ? 10 : 20;
+                weight = "CHECKUP".equalsIgnoreCase(reminder.getReminderType()) ? 10 : 20;
             } else if (due.map(value -> !value.isAfter(now.plusHours(4))).orElse(false)) {
                 actionStatus = "UPCOMING";
-                weight = "MEDICATION".equalsIgnoreCase(reminder.getReminderType()) ? 30 : 45;
+                weight = "CHECKUP".equalsIgnoreCase(reminder.getReminderType()) ? 30 : 45;
             } else {
                 actionStatus = "PENDING";
                 weight = 60;

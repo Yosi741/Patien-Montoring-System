@@ -19,13 +19,13 @@ public class SqliteReminderDao {
     }
 
     public long insertReminder(ReminderRecord reminder) throws SQLException {
-        String sql = "INSERT INTO reminders(patient_id, medication_id, reminder_type, title, due_time, repeat_rule, status, "
-                + "assigned_to, created_by, notes, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        String sql = "INSERT INTO reminders(patient_id, reminder_type, title, due_time, repeat_rule, status, "
+                + "assigned_to, created_by, notes, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             bindMutableFields(statement, reminder);
-            statement.setString(9, value(reminder.getCreatedBy()));
-            statement.setString(10, value(reminder.getNotes()));
+            statement.setString(8, value(reminder.getCreatedBy()));
+            statement.setString(9, value(reminder.getNotes()));
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -37,13 +37,13 @@ public class SqliteReminderDao {
     }
 
     public void updateReminder(ReminderRecord reminder) throws SQLException {
-        String sql = "UPDATE reminders SET patient_id = ?, medication_id = ?, reminder_type = ?, title = ?, due_time = ?, "
+        String sql = "UPDATE reminders SET patient_id = ?, reminder_type = ?, title = ?, due_time = ?, "
                 + "repeat_rule = ?, status = ?, assigned_to = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             bindMutableFields(statement, reminder);
-            statement.setString(9, value(reminder.getNotes()));
-            statement.setLong(10, reminder.getId());
+            statement.setString(8, value(reminder.getNotes()));
+            statement.setLong(9, reminder.getId());
             statement.executeUpdate();
         }
     }
@@ -84,7 +84,7 @@ public class SqliteReminderDao {
     }
 
     public Optional<ReminderRecord> findById(long reminderId) throws SQLException {
-        String sql = "SELECT id, patient_id, medication_id, reminder_type, title, due_time, repeat_rule, status, "
+        String sql = "SELECT id, patient_id, reminder_type, title, due_time, repeat_rule, status, "
                 + "assigned_to, created_by, notes, created_at, updated_at FROM reminders WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -101,10 +101,9 @@ public class SqliteReminderDao {
     public List<ReminderRow> findReminders(String search, String type, String status, String patientId) throws SQLException {
         ArrayList<ReminderRow> reminders = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT r.id, r.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
-                + "r.medication_id, COALESCE(m.name, '') AS medication_name, r.reminder_type, r.title, r.due_time, "
+                + "r.reminder_type, r.title, r.due_time, "
                 + "r.repeat_rule, r.status, r.assigned_to, r.created_by, r.notes, r.created_at, r.updated_at "
-                + "FROM reminders r LEFT JOIN patients p ON p.patient_id = r.patient_id "
-                + "LEFT JOIN medications m ON m.id = r.medication_id WHERE 1=1 ");
+                + "FROM reminders r LEFT JOIN patients p ON p.patient_id = r.patient_id WHERE 1=1 ");
         ArrayList<String> params = new ArrayList<>();
         addFilters(sql, params, search, type, status, patientId);
         sql.append("ORDER BY datetime(r.due_time) DESC, r.id DESC");
@@ -129,8 +128,8 @@ public class SqliteReminderDao {
                 + "AND (date(due_time) = date('now') OR substr(due_time, 1, 10) = strftime('%d-%m-%Y', 'now'))");
     }
 
-    public int countMedicationToday() throws SQLException {
-        return count("SELECT COUNT(*) FROM reminders WHERE UPPER(reminder_type) = 'MEDICATION' "
+    public int countToday() throws SQLException {
+        return count("SELECT COUNT(*) FROM reminders WHERE UPPER(reminder_type) IN ('CHECKUP', 'CUSTOM', 'APPOINTMENT') "
                 + "AND (date(due_time) = date('now') OR substr(due_time, 1, 10) = strftime('%d-%m-%Y', 'now'))");
     }
 
@@ -157,9 +156,8 @@ public class SqliteReminderDao {
         }
         if (hasText(search)) {
             sql.append("AND (UPPER(r.patient_id) LIKE ? OR UPPER(r.title) LIKE ? OR UPPER(r.assigned_to) LIKE ? "
-                    + "OR UPPER(COALESCE(m.name, '')) LIKE ? OR UPPER(COALESCE(p.first_name || ' ' || p.last_name, '')) LIKE ?) ");
+                    + "OR UPPER(COALESCE(p.first_name || ' ' || p.last_name, '')) LIKE ?) ");
             String like = "%" + search.trim().toUpperCase() + "%";
-            params.add(like);
             params.add(like);
             params.add(like);
             params.add(like);
@@ -169,17 +167,12 @@ public class SqliteReminderDao {
 
     private void bindMutableFields(PreparedStatement statement, ReminderRecord reminder) throws SQLException {
         statement.setString(1, reminder.getPatientId());
-        if (reminder.getMedicationId() == null || reminder.getMedicationId() <= 0) {
-            statement.setNull(2, java.sql.Types.INTEGER);
-        } else {
-            statement.setLong(2, reminder.getMedicationId());
-        }
-        statement.setString(3, value(reminder.getReminderType()));
-        statement.setString(4, value(reminder.getTitle()));
-        statement.setString(5, value(reminder.getDueTime()));
-        statement.setString(6, value(reminder.getRepeatRule()));
-        statement.setString(7, value(reminder.getStatus()));
-        statement.setString(8, value(reminder.getAssignedTo()));
+        statement.setString(2, value(reminder.getReminderType()));
+        statement.setString(3, value(reminder.getTitle()));
+        statement.setString(4, value(reminder.getDueTime()));
+        statement.setString(5, value(reminder.getRepeatRule()));
+        statement.setString(6, value(reminder.getStatus()));
+        statement.setString(7, value(reminder.getAssignedTo()));
     }
 
     private void bindParams(PreparedStatement statement, List<String> params) throws SQLException {
@@ -189,11 +182,9 @@ public class SqliteReminderDao {
     }
 
     private ReminderRecord mapRecord(ResultSet resultSet) throws SQLException {
-        Long medicationId = resultSet.getObject("medication_id") == null ? null : resultSet.getLong("medication_id");
         return new ReminderRecord(
                 resultSet.getLong("id"),
                 resultSet.getString("patient_id"),
-                medicationId,
                 resultSet.getString("reminder_type"),
                 resultSet.getString("title"),
                 resultSet.getString("due_time"),
@@ -208,13 +199,10 @@ public class SqliteReminderDao {
     }
 
     private ReminderRow mapRow(ResultSet resultSet) throws SQLException {
-        Long medicationId = resultSet.getObject("medication_id") == null ? null : resultSet.getLong("medication_id");
         return new ReminderRow(
                 resultSet.getLong("id"),
                 resultSet.getString("patient_id"),
                 resultSet.getString("patient_name"),
-                medicationId,
-                resultSet.getString("medication_name"),
                 resultSet.getString("reminder_type"),
                 resultSet.getString("title"),
                 resultSet.getString("due_time"),
@@ -255,7 +243,6 @@ public class SqliteReminderDao {
     public static class ReminderRecord {
         private final long id;
         private final String patientId;
-        private final Long medicationId;
         private final String reminderType;
         private final String title;
         private final String dueTime;
@@ -267,12 +254,11 @@ public class SqliteReminderDao {
         private final String createdAt;
         private final String updatedAt;
 
-        public ReminderRecord(long id, String patientId, Long medicationId, String reminderType, String title,
+        public ReminderRecord(long id, String patientId, String reminderType, String title,
                               String dueTime, String repeatRule, String status, String assignedTo, String createdBy,
                               String notes, String createdAt, String updatedAt) {
             this.id = id;
             this.patientId = patientId;
-            this.medicationId = medicationId;
             this.reminderType = reminderType;
             this.title = title;
             this.dueTime = dueTime;
@@ -287,7 +273,6 @@ public class SqliteReminderDao {
 
         public long getId() { return id; }
         public String getPatientId() { return patientId; }
-        public Long getMedicationId() { return medicationId; }
         public String getReminderType() { return reminderType; }
         public String getTitle() { return title; }
         public String getDueTime() { return dueTime; }
@@ -302,23 +287,17 @@ public class SqliteReminderDao {
 
     public static class ReminderRow extends ReminderRecord {
         private final String patientName;
-        private final String medicationName;
 
-        public ReminderRow(long id, String patientId, String patientName, Long medicationId, String medicationName,
+        public ReminderRow(long id, String patientId, String patientName,
                            String reminderType, String title, String dueTime, String repeatRule, String status,
                            String assignedTo, String createdBy, String notes, String createdAt, String updatedAt) {
-            super(id, patientId, medicationId, reminderType, title, dueTime, repeatRule, status, assignedTo, createdBy,
+            super(id, patientId, reminderType, title, dueTime, repeatRule, status, assignedTo, createdBy,
                     notes, createdAt, updatedAt);
             this.patientName = patientName;
-            this.medicationName = medicationName;
         }
 
         public String getPatientName() {
             return patientName == null || patientName.isBlank() ? "Unknown patient" : patientName;
-        }
-
-        public String getMedicationName() {
-            return medicationName == null || medicationName.isBlank() ? "-" : medicationName;
         }
     }
 }

@@ -44,7 +44,7 @@ public class SchedulingController implements FxController {
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label upcomingSurgeriesLabel;
     @FXML private Label overdueRemindersLabel;
-    @FXML private Label medicationRemindersTodayLabel;
+    @FXML private Label patientRemindersTodayLabel;
     @FXML private Label cancelledMissedLabel;
     @FXML private Button newAppointmentButton;
     @FXML private Button editAppointmentButton;
@@ -71,7 +71,6 @@ public class SchedulingController implements FxController {
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, Long> reminderIdColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientIdColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientNameColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderMedicationColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderTypeColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderTitleColumn;
     @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderDueColumn;
@@ -81,7 +80,6 @@ public class SchedulingController implements FxController {
     @FXML private Label reminderDetailIdLabel;
     @FXML private Label reminderDetailPatientIdLabel;
     @FXML private Label reminderDetailPatientNameLabel;
-    @FXML private Label reminderDetailMedicationLabel;
     @FXML private Label reminderDetailTypeLabel;
     @FXML private Label reminderDetailDueLabel;
     @FXML private Label reminderDetailAssignedLabel;
@@ -127,7 +125,7 @@ public class SchedulingController implements FxController {
             appointmentsTodayLabel.setText(String.valueOf(overview.getAppointmentsToday()));
             upcomingSurgeriesLabel.setText(String.valueOf(overview.getUpcomingSurgeries()));
             overdueRemindersLabel.setText(String.valueOf(overview.getOverdueReminders()));
-            medicationRemindersTodayLabel.setText(String.valueOf(overview.getMedicationRemindersToday()));
+            patientRemindersTodayLabel.setText(String.valueOf(overview.getPatientRemindersToday()));
             cancelledMissedLabel.setText(String.valueOf(overview.getCancelledMissedItems()));
             SelectionHelper.runWhenTablesStable(() -> {
                 SelectionHelper.safeReplaceItems(appointmentTable, appointments, overview.getAppointments());
@@ -217,7 +215,7 @@ public class SchedulingController implements FxController {
             return;
         }
         try {
-            if (ReminderFormController.showCreateDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter, null, "")) {
+            if (ReminderFormController.showCreateDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter)) {
                 loadScheduling();
                 NotificationHelper.showSuccess(statusLabel, "Reminder saved.");
             }
@@ -310,9 +308,9 @@ public class SchedulingController implements FxController {
     }
 
     private void configureFilters() {
-        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "MEDICATION_REVIEW", "OTHER"));
+        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER"));
         appointmentStatusFilter.setItems(FXCollections.observableArrayList("All", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"));
-        reminderTypeFilter.setItems(FXCollections.observableArrayList("All", "MEDICATION", "APPOINTMENT", "CHECKUP", "CUSTOM"));
+        reminderTypeFilter.setItems(FXCollections.observableArrayList("All", "APPOINTMENT", "CHECKUP", "CUSTOM"));
         reminderStatusFilter.setItems(FXCollections.observableArrayList("All", "PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED"));
         appointmentTypeFilter.getSelectionModel().select("All");
         appointmentStatusFilter.getSelectionModel().select("All");
@@ -354,7 +352,6 @@ public class SchedulingController implements FxController {
         reminderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         reminderPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         reminderPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
-        reminderMedicationColumn.setCellValueFactory(new PropertyValueFactory<>("medicationName"));
         reminderTypeColumn.setCellValueFactory(new PropertyValueFactory<>("reminderType"));
         reminderTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         reminderDueColumn.setCellValueFactory(new PropertyValueFactory<>("dueTime"));
@@ -425,7 +422,6 @@ public class SchedulingController implements FxController {
             setLabel(reminderDetailIdLabel, "-");
             setLabel(reminderDetailPatientIdLabel, "-");
             setLabel(reminderDetailPatientNameLabel, "-");
-            setLabel(reminderDetailMedicationLabel, "-");
             setLabel(reminderDetailTypeLabel, "-");
             setLabel(reminderDetailDueLabel, "-");
             setLabel(reminderDetailAssignedLabel, "-");
@@ -438,7 +434,6 @@ public class SchedulingController implements FxController {
         setLabel(reminderDetailIdLabel, String.valueOf(reminder.getId()));
         setLabel(reminderDetailPatientIdLabel, nullTo(reminder.getPatientId(), "-"));
         setLabel(reminderDetailPatientNameLabel, nullTo(reminder.getPatientName(), "-"));
-        setLabel(reminderDetailMedicationLabel, nullTo(reminder.getMedicationName(), "-"));
         setLabel(reminderDetailTypeLabel, nullTo(reminder.getReminderType(), "-"));
         setLabel(reminderDetailDueLabel, nullTo(reminder.getDueTime(), "-"));
         setLabel(reminderDetailAssignedLabel, nullTo(reminder.getAssignedTo(), "-"));

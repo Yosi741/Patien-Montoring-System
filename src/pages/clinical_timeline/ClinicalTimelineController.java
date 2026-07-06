@@ -48,7 +48,7 @@ public class ClinicalTimelineController implements FxController {
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
         eventTypeFilter.setItems(FXCollections.observableArrayList(
-                "All Events", "Vitals", "Alerts", "Files", "Medical History", "Medications", "Shift Handover"));
+                "All Events", "Vitals", "Alerts", "Files", "Medical History", "Shift Handover"));
         eventTypeFilter.getSelectionModel().select("All Events");
         eventTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadTimeline());
         searchField.textProperty().addListener((observable, oldValue, newValue) -> loadTimeline());
@@ -243,8 +243,6 @@ public class ClinicalTimelineController implements FxController {
                     return "timeline-type-file";
                 case "Medical History":
                     return "timeline-type-history";
-                case "Medications":
-                    return "timeline-type-medication";
                 case "Shift Handover":
                     return "timeline-type-handover";
                 default:

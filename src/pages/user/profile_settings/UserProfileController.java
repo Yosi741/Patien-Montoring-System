@@ -91,8 +91,6 @@ public class UserProfileController implements FxController {
             addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
             addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");
             addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
-            addPermission("Add medications", PermissionHelper.canAddMedication(user), "Future JavaFX write workflow");
-            addPermission("Give medications", PermissionHelper.canGiveMedication(user), "Future JavaFX write workflow");
             addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
             addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
         }
