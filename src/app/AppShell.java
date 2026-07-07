@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import pages.audit_log.SqliteAuditLogDao;
 import pages.messages.MessagingController;
 import pages.notification.NotificationCenterController;
 import pages.patient.medical_files.MedicalFilesController;
@@ -21,7 +20,7 @@ public class AppShell extends Application {
     private AppNavigator navigator;
     private AppLayoutController layoutController;
     private FxController currentContentController;
-    private String databaseStatus = "Local database not initialized";
+    private String databaseStatus = "Local clinic database not initialized";
 
     public static void launchApp(String[] args) {
         launch(args);
@@ -34,13 +33,13 @@ public class AppShell extends Application {
         app.helpers.FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
-        primaryStage.setTitle("Smart Patient Monitoring System");
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System");
         showLogin();
         primaryStage.show();
     }
 
     public void showLogin() {
-        setView("/pages/login/LoginView.fxml", "Smart Patient Monitoring System - Login");
+        setView("/pages/login/LoginView.fxml", "Smart Clinic Patient Monitoring System - Login");
         configureLoginWindow();
     }
 
@@ -53,37 +52,36 @@ public class AppShell extends Application {
         if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
             SessionContext.start(user, authSource);
         }
-        setShellContent("/pages/dashboard/DashboardView.fxml", "Smart Patient Monitoring System - Dashboard");
+        setShellContent("/pages/dashboard/DashboardView.fxml", "Smart Clinic Patient Monitoring System - Dashboard");
         primaryStage.setMaximized(true);
     }
 
     public void showPatientList() {
-        setShellContent("/pages/patient/patient_board/PatientListView.fxml", "Smart Patient Monitoring System - Patients");
+        setShellContent("/pages/patient/patient_board/PatientListView.fxml", "Smart Clinic Patient Monitoring System - Patients");
     }
 
     public void showPatientDetail(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Patient Detail");
+        ensureShell("Smart Clinic Patient Monitoring System - Patient File");
         AppNavigator.LoadedView detail = navigator.loadView("/pages/patient/patient_detail/PatientDetailView.fxml");
         if (detail.getController() instanceof PatientDetailController) {
             ((PatientDetailController) detail.getController()).loadPatient(patientId);
         }
-        logAudit("JavaFX PATIENT opened detail for " + patientId);
         setShellLoadedContent(detail);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Detail");
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System - Patient File");
     }
 
     public void showMessaging() {
-        setShellContent("/pages/messages/MessagingView.fxml", "Smart Patient Monitoring System - Messaging");
+        setShellContent("/pages/messages/MessagingView.fxml", "Smart Clinic Patient Monitoring System - Messaging");
     }
 
     public void showNotificationCenter() {
-        setShellContent("/pages/notification/NotificationCenterView.fxml", "Smart Patient Monitoring System - Notification Center");
+        setShellContent("/pages/notification/NotificationCenterView.fxml", "Smart Clinic Patient Monitoring System - Alerts & Notifications");
     }
 
     public void showCertificateSourceRecord(String sourceType, String sourceId) {
         showPlaceholder(
-                "Certificate Module Removed",
-                "Certificate workflows are not part of the clinic presentation build.",
+                "Linked Record Unavailable",
+                "That linked record is not part of the current clinic presentation build.",
                 "Requested source: " + safe(sourceType) + " #" + safe(sourceId)
         );
     }
@@ -98,24 +96,24 @@ public class AppShell extends Application {
 
     public void showNewbornRecord(long recordId) {
         showPlaceholder(
-                "Newborn Module Removed",
-                "Newborn workflows were removed from this clinic version.",
+                "Record Unavailable",
+                "That record is not available in this clinic presentation build.",
                 "Requested record: " + recordId
         );
     }
 
     public void showDeceasedRecord(long recordId) {
         showPlaceholder(
-                "Deceased Module Removed",
-                "Deceased workflows were removed from this clinic version.",
+                "Record Unavailable",
+                "That record is not available in this clinic presentation build.",
                 "Requested record: " + recordId
         );
     }
 
     public void showNewbornRecordsForMother(String patientId) {
         showPlaceholder(
-                "Newborn Module Removed",
-                "Linked newborn records are not available in this clinic version.",
+                "Linked Record Unavailable",
+                "Linked records of that type are not available in this clinic presentation build.",
                 "Requested patient: " + safe(patientId)
         );
     }
@@ -133,63 +131,59 @@ public class AppShell extends Application {
     }
 
     public void showScheduling() {
-        setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", "Smart Patient Monitoring System - Appointments & Reminders");
+        setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", "Smart Clinic Patient Monitoring System - Appointments & Checkups");
     }
 
     public void showSchedulingForPatient(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Patient Scheduling");
+        ensureShell("Smart Clinic Patient Monitoring System - Patient Scheduling");
         AppNavigator.LoadedView scheduling = navigator.loadView("/pages/scheduling/schedule_overview/SchedulingView.fxml");
         if (scheduling.getController() instanceof SchedulingController) {
             ((SchedulingController) scheduling.getController()).openForPatient(patientId);
         }
         setShellLoadedContent(scheduling);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Scheduling");
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System - Patient Scheduling");
     }
 
     public void showMedicalFiles() {
-        setShellContent("/pages/patient/medical_files/MedicalFilesView.fxml", "Smart Patient Monitoring System - Medical Files");
+        setShellContent("/pages/patient/medical_files/MedicalFilesView.fxml", "Smart Clinic Patient Monitoring System - Medical Files");
     }
 
     public void showMedicalFilesForPatient(String patientId) {
-        ensureShell("Smart Patient Monitoring System - Patient Medical Files");
+        ensureShell("Smart Clinic Patient Monitoring System - Patient Medical Files");
         AppNavigator.LoadedView files = navigator.loadView("/pages/patient/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForPatient(patientId);
         }
         setShellLoadedContent(files);
-        primaryStage.setTitle("Smart Patient Monitoring System - Patient Medical Files");
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System - Patient Medical Files");
     }
 
     public void showMedicalFileDetails(String patientId, String fileId) {
-        ensureShell("Smart Patient Monitoring System - Medical File Details");
+        ensureShell("Smart Clinic Patient Monitoring System - Medical File Details");
         AppNavigator.LoadedView files = navigator.loadView("/pages/patient/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
         }
         setShellLoadedContent(files);
-        primaryStage.setTitle("Smart Patient Monitoring System - Medical File Details");
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System - Medical File Details");
     }
 
     public void showUserProfile() {
-        setShellContent("/pages/user/profile_settings/UserProfileView.fxml", "Smart Patient Monitoring System - Staff Profile");
-    }
-
-    public void showAuditLogs() {
-        setShellContent("/pages/audit_log/AuditLogView.fxml", "Smart Patient Monitoring System - Audit Logs");
+        setShellContent("/pages/user/profile_settings/UserProfileView.fxml", "Smart Clinic Patient Monitoring System - Staff Profile");
     }
 
     public void showUserDirectory() {
-        setShellContent("/pages/user/user_directory/UserDirectoryManagementView.fxml", "Smart Patient Monitoring System - Staff/User Directory");
+        setShellContent("/pages/user/user_directory/UserDirectoryManagementView.fxml", "Smart Clinic Patient Monitoring System - Staff / Users");
     }
 
     public void showPlaceholder(String title, String subtitle, String body) {
-        ensureShell("Smart Patient Monitoring System - " + title);
+        ensureShell("Smart Clinic Patient Monitoring System - " + title);
         AppNavigator.LoadedView placeholder = navigator.loadView("/app/PlaceholderView.fxml");
         if (placeholder.getController() instanceof PlaceholderController) {
             ((PlaceholderController) placeholder.getController()).setContent(title, subtitle, body);
         }
         setShellLoadedContent(placeholder);
-        primaryStage.setTitle("Smart Patient Monitoring System - " + title);
+        primaryStage.setTitle("Smart Clinic Patient Monitoring System - " + title);
     }
 
     public void refreshNotificationCount() {
@@ -199,12 +193,6 @@ public class AppShell extends Application {
     }
 
     public void logout() {
-        String username = SessionContext.username();
-        try {
-            new SqliteAuditLogDao().log(username, "JavaFX logout");
-        } catch (Exception e) {
-            System.out.println("SQLite logout audit skipped: " + e.getMessage());
-        }
         disposeCurrentContent();
         disposeLayout();
         SessionContext.clear();
@@ -224,10 +212,10 @@ public class AppShell extends Application {
         try {
             SchemaInitializer.initialize();
             databaseStatus = DatabaseManager.testConnection()
-                    ? "Local database ready: " + DatabaseManager.getDatabasePath()
-                    : "Local database schema initialized, connection check failed";
+                    ? "Local clinic database ready: " + DatabaseManager.getDatabasePath()
+                    : "Local clinic database schema initialized, connection check failed";
         } catch (Exception e) {
-            databaseStatus = "Local database initialization failed: " + e.getMessage();
+            databaseStatus = "Local clinic database initialization failed: " + e.getMessage();
             System.out.println(databaseStatus);
         }
     }
@@ -313,14 +301,6 @@ public class AppShell extends Application {
         }
         scene.getStylesheets().clear();
         scene.getStylesheets().add(AppNavigator.resolve(PRESENTATION_THEME).toExternalForm());
-    }
-
-    private void logAudit(String action) {
-        try {
-            new SqliteAuditLogDao().log(SessionContext.username(), action);
-        } catch (Exception e) {
-            System.out.println("SQLite JavaFX audit skipped: " + e.getMessage());
-        }
     }
 
     private String safe(String value) {

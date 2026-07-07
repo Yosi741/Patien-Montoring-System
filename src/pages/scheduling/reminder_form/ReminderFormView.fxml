@@ -6,8 +6,8 @@
 <VBox prefWidth="760.0" spacing="16.0" styleClass="panel-card dialog-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.scheduling.reminder_form.ReminderFormController">
 
     <VBox spacing="4.0" styleClass="dialog-header-card">
-        <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Reminder" />
-        <Label text="Create a local patient reminder or checkup task." wrapText="true" styleClass="muted-text dialog-subtitle" />
+        <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Checkup / Reminder" />
+        <Label text="Create a local clinic checkup or follow-up task." wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -22,7 +22,7 @@
         </VBox>
 
         <VBox fx:id="reminderTypeContainer" spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label styleClass="field-label" text="Reminder Type" />
+            <Label styleClass="field-label" text="Type" />
             <ComboBox fx:id="reminderTypeBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
@@ -47,8 +47,8 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
-            <Label styleClass="field-label" text="Assigned Staff" />
-            <TextField fx:id="assignedToField" promptText="Doctor or nurse username" styleClass="control-input" />
+            <Label styleClass="field-label" text="Assigned To" />
+            <TextField fx:id="assignedToField" promptText="Doctor or staff username" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">

@@ -2,8 +2,6 @@ package pages.messages;
 
 import pages.patient.dao.SqlitePatientDao;
 import pages.user.dao.SqliteUserDao;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -39,10 +37,7 @@ public class MessagingService {
         }
         validate(record);
         validateTargetPermission(sender, record);
-        long id = messageDao.insert(record);
-        AuditWriteHelper.write(username(sender), AuditAction.SEND_MESSAGE,
-                "message_id=" + id + ", target=" + targetSummary(record) + ", subject=" + record.getSubject());
-        return id;
+        return messageDao.insert(record);
     }
 
     public List<SqliteMessageDao.MessageRow> inbox(User currentUser, String search, String status) throws SQLException {
@@ -106,12 +101,10 @@ public class MessagingService {
 
     public void markRead(User currentUser, long messageId) throws SQLException {
         messageDao.markRead(messageId, username(currentUser));
-        AuditWriteHelper.write(username(currentUser), AuditAction.READ_MESSAGE, "message_id=" + messageId);
     }
 
     public void archive(User currentUser, long messageId) throws SQLException {
         messageDao.archive(messageId, username(currentUser));
-        AuditWriteHelper.write(username(currentUser), AuditAction.ARCHIVE_MESSAGE, "message_id=" + messageId);
     }
 
     private void validate(SqliteMessageDao.MessageWriteRecord record) throws SQLException {

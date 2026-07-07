@@ -217,7 +217,7 @@ public class SchedulingController implements FxController {
         try {
             if (ReminderFormController.showCreateDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter)) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Reminder saved.");
+                NotificationHelper.showSuccess(statusLabel, "Checkup reminder saved.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -237,7 +237,7 @@ public class SchedulingController implements FxController {
         try {
             if (ReminderFormController.showEditDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
                 loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Reminder updated.");
+                NotificationHelper.showSuccess(statusLabel, "Checkup reminder updated.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
@@ -253,7 +253,7 @@ public class SchedulingController implements FxController {
         try {
             schedulingService.markReminderDone(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Reminder marked done.");
+            NotificationHelper.showSuccess(statusLabel, "Checkup reminder marked done.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -265,13 +265,13 @@ public class SchedulingController implements FxController {
         if (selected == null) {
             return;
         }
-        if (!DialogHelper.confirm("Cancel Reminder", "Cancel reminder " + selected.getTitle() + "?")) {
+        if (!DialogHelper.confirm("Cancel Checkup", "Cancel checkup reminder " + selected.getTitle() + "?")) {
             return;
         }
         try {
             schedulingService.cancelReminder(Session.getCurrentUser(), selected.getId());
             loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Reminder cancelled.");
+            NotificationHelper.showSuccess(statusLabel, "Checkup reminder cancelled.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -308,9 +308,9 @@ public class SchedulingController implements FxController {
     }
 
     private void configureFilters() {
-        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER"));
+        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY"));
         appointmentStatusFilter.setItems(FXCollections.observableArrayList("All", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"));
-        reminderTypeFilter.setItems(FXCollections.observableArrayList("All", "APPOINTMENT", "CHECKUP", "CUSTOM"));
+        reminderTypeFilter.setItems(FXCollections.observableArrayList("All", "APPOINTMENT", "CHECKUP", "FOLLOW_UP", "CUSTOM"));
         reminderStatusFilter.setItems(FXCollections.observableArrayList("All", "PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED"));
         appointmentTypeFilter.getSelectionModel().select("All");
         appointmentStatusFilter.getSelectionModel().select("All");
@@ -418,7 +418,7 @@ public class SchedulingController implements FxController {
 
     private void showReminderDetail(SqliteReminderDao.ReminderRow reminder) {
         if (reminder == null) {
-            setLabel(reminderDetailTitleLabel, "Select a reminder");
+            setLabel(reminderDetailTitleLabel, "Select a checkup");
             setLabel(reminderDetailIdLabel, "-");
             setLabel(reminderDetailPatientIdLabel, "-");
             setLabel(reminderDetailPatientNameLabel, "-");
@@ -430,7 +430,7 @@ public class SchedulingController implements FxController {
             setTextArea(reminderDetailNotesArea, "-");
             return;
         }
-        setLabel(reminderDetailTitleLabel, nullTo(reminder.getTitle(), "Reminder"));
+        setLabel(reminderDetailTitleLabel, nullTo(reminder.getTitle(), "Checkup"));
         setLabel(reminderDetailIdLabel, String.valueOf(reminder.getId()));
         setLabel(reminderDetailPatientIdLabel, nullTo(reminder.getPatientId(), "-"));
         setLabel(reminderDetailPatientNameLabel, nullTo(reminder.getPatientName(), "-"));

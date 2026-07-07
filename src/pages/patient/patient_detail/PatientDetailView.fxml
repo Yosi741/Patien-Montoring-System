@@ -30,15 +30,15 @@
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <Label text="Patient ID" styleClass="patient-file-meta-label" />
                                     <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
-                                    <Label text="Section" styleClass="patient-file-meta-label" />
+                                    <Label text="Clinic Area" styleClass="patient-file-meta-label" />
                                     <Label fx:id="sectionLabel" text="-" styleClass="patient-file-meta-value" />
-                                    <Label text="Room" styleClass="patient-file-meta-label" />
+                                    <Label text="Location" styleClass="patient-file-meta-label" />
                                     <Label fx:id="roomLabel" text="-" styleClass="patient-file-meta-value" />
                                 </HBox>
                             </VBox>
                             <VBox alignment="CENTER_RIGHT" spacing="8.0">
                                 <Button text="Back to Patient Board" onAction="#backToPatients" styleClass="patient-file-ghost-button" />
-                                <Label text="Local database clinical record" styleClass="patient-file-muted" />
+                                <Label text="Local clinic record" styleClass="patient-file-muted" />
                             </VBox>
                         </HBox>
 
@@ -97,6 +97,7 @@
                             <Button fx:id="editPatientButton" text="Edit Patient" onAction="#editPatient" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                             <Button fx:id="createAppointmentButton" text="Schedule Visit" onAction="#createPatientAppointment" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                             <Button fx:id="uploadMedicalFileButton" text="Upload File" onAction="#uploadPatientMedicalFile" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
+                            <Button fx:id="dischargePatientButton" text="Discharge Patient" onAction="#dischargePatient" maxWidth="Infinity" styleClass="patient-file-danger-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -117,7 +118,7 @@
 
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-card">
                             <Label text="Basic Information" styleClass="patient-file-section-title" />
-                            <Label text="Current Diagnosis" styleClass="patient-file-field-label" />
+                            <Label text="Visit Reason / Diagnosis" styleClass="patient-file-field-label" />
                             <Label fx:id="diagnosisLabel" text="No diagnosis recorded" wrapText="true" styleClass="patient-file-body" />
                         </VBox>
 
@@ -133,15 +134,22 @@
 
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="patient-file-card">
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Uploaded Medical Files" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
+                                <Label text="Medical Files" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
                                 <Button text="Upload" onAction="#uploadPatientMedicalFile" styleClass="patient-file-mini-button" />
                             </HBox>
                             <Label text="Use the Files record tab to view reports, scans, and uploaded clinical documents." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="patient-file-card">
-                            <Label text="Past Hospital Visits" styleClass="patient-file-section-title" />
-                            <Label text="No past hospital visits recorded" wrapText="true" styleClass="patient-file-empty" />
+                            <Label text="Past Visits" styleClass="patient-file-section-title" />
+                            <TableView fx:id="pastVisitsTable" prefHeight="180.0" styleClass="patient-file-table clinical-table">
+                                <columns>
+                                    <TableColumn fx:id="visitDateColumn" text="Visit Date" prefWidth="140.0" />
+                                    <TableColumn fx:id="dischargeDateColumn" text="Discharge Date" prefWidth="150.0" />
+                                    <TableColumn fx:id="visitStatusColumn" text="Status" prefWidth="110.0" />
+                                    <TableColumn fx:id="visitReportColumn" text="Visit Report" prefWidth="360.0" />
+                                </columns>
+                            </TableView>
                         </VBox>
 
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="patient-file-card">
@@ -167,7 +175,7 @@
                     <HBox spacing="16.0" styleClass="patient-file-card">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                             <Label text="Alert Summary" styleClass="patient-file-section-title" />
-                            <Label text="SQLite alert context. JavaFX acknowledgement stops JavaFX alert sound." wrapText="true" styleClass="patient-file-muted" />
+                            <Label text="Clinic alert summary. Acknowledging an alert stops the local JavaFX alarm sound." wrapText="true" styleClass="patient-file-muted" />
                         </VBox>
                         <VBox spacing="5.0" styleClass="patient-file-soft-card">
                             <Label text="Active Alerts" styleClass="patient-file-field-label" />
@@ -185,7 +193,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                 <Label text="Vital Trends" styleClass="patient-file-section-title" />
-                                <Label text="Read-only local database visualization with basic rule-based status indicators." styleClass="patient-file-muted" />
+                                <Label text="Recent clinic vitals with simple local trend indicators." styleClass="patient-file-muted" />
                             </VBox>
                             <Label text="Vital" styleClass="field-label" />
                             <ComboBox fx:id="trendVitalTypeFilter" prefWidth="175.0" styleClass="patient-input" />
@@ -228,7 +236,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                 <Label text="Vitals Timeline" styleClass="patient-file-section-title" />
-                                <Label text="Recent readings from the local database, newest first." styleClass="patient-file-muted" />
+                                <Label text="Recent vitals from the local clinic database, newest first." styleClass="patient-file-muted" />
                             </VBox>
                             <Label text="Type" styleClass="field-label" />
                             <ComboBox fx:id="vitalTypeFilter" prefWidth="190.0" styleClass="patient-input" />

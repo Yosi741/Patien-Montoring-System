@@ -219,7 +219,7 @@ public class NotificationCenterController implements FxController {
             return;
         }
         if (!isCertificateSource(row)) {
-            NotificationHelper.showInfo(statusLabel, "This notification is not linked to a certificate.");
+            NotificationHelper.showInfo(statusLabel, "This notification is not linked to a file.");
             return;
         }
         appShell.showCertificateFromNotification(row.getSourceType(), row.getSourceId());

@@ -1,6 +1,5 @@
 package pages.alert;
 
-import pages.audit_log.SqliteAuditLogDao;
 import pages.patient.Patient;
 import pages.notification.NotificationCenterService;
 import pages.patient.VitalSign;
@@ -45,7 +44,6 @@ public class AlarmService {
             state = AlarmState.ACTIVE;
             alertShownForActiveAlarm = false;
             startAlarm();
-            logAudit("System", "Alarm ACTIVE for patient: " + patient.getName());
             AlertPersistenceService.persistCriticalPatientAlert(patient);
             new NotificationCenterService().notifyCriticalAlert(patient.getPatientId(), "CRITICAL",
                     "Critical alert active for patient " + patient.getName() + " in " + patient.getSection() + " room " + patient.getRoom(),
@@ -62,7 +60,6 @@ public class AlarmService {
         stopSoundOnly();
         state = AlarmState.ACKNOWLEDGED;
         alertShownForActiveAlarm = true;
-        logAudit("System", "Alarm ACKNOWLEDGED");
     }
 
     public static synchronized void stopAlarm() {
@@ -70,7 +67,6 @@ public class AlarmService {
         stopSoundOnly();
         state = AlarmState.STOPPED;
         alertShownForActiveAlarm = false;
-        logAudit("System", "Alarm STOPPED");
     }
 
     public static synchronized void resolveAlarm() {
@@ -79,7 +75,6 @@ public class AlarmService {
         state = AlarmState.RESOLVED;
         activePatientId = "";
         alertShownForActiveAlarm = false;
-        logAudit("System", "Alarm RESOLVED");
     }
 
     public static synchronized AlarmState getState() {
@@ -156,11 +151,4 @@ public class AlarmService {
         alert.showAndWait();
     }
 
-    private static void logAudit(String username, String action) {
-        try {
-            new SqliteAuditLogDao().log(username, action);
-        } catch (Exception e) {
-            System.out.println("SQLite alarm audit skipped: " + e.getMessage());
-        }
-    }
 }

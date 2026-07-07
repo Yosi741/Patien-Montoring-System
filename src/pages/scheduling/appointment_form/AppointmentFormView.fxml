@@ -25,7 +25,7 @@
                     text="Appointment" styleClass="screen-title dialog-title" />
 
             <Label
-                    text="Local database appointment scheduling. No external calendar integration in this phase."
+                    text="Local clinic appointment scheduling. No external calendar integration in this phase."
                     wrapText="true" styleClass="muted-text dialog-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
@@ -44,7 +44,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label text="Title" styleClass="field-label" />
-            <TextField fx:id="appointmentTitleField" promptText="Cardiology follow-up" styleClass="control-input" />
+            <TextField fx:id="appointmentTitleField" promptText="Follow-up visit" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
@@ -69,12 +69,12 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Location" styleClass="field-label" />
-            <TextField fx:id="locationField" promptText="Clinic / OR / Lab" styleClass="control-input" />
+            <TextField fx:id="locationField" promptText="Clinic room / Lab" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <Label text="Assigned Staff" styleClass="field-label" />
-            <TextField fx:id="assignedStaffField" promptText="Doctor or nurse username" styleClass="control-input" />
+            <TextField fx:id="assignedStaffField" promptText="Doctor or staff username" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">

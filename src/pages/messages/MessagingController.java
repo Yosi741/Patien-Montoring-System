@@ -17,8 +17,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import app.AppShell;
 import app.FxController;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FxFileOpenHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
@@ -192,7 +190,7 @@ public class MessagingController implements FxController {
         SqliteMessageDao.MessageRow row = selectedMessage();
         CertificateMetadata metadata = metadataFrom(row);
         if (metadata == null) {
-            NotificationHelper.showInfo(statusLabel, "This message does not include certificate source metadata.");
+            NotificationHelper.showInfo(statusLabel, "This message does not include linked record metadata.");
             return;
         }
         appShell.showMessageCertificateSourceRecord(metadata.sourceType, metadata.sourceId);
@@ -203,15 +201,13 @@ public class MessagingController implements FxController {
         SqliteMessageDao.MessageRow row = selectedMessage();
         CertificateMetadata metadata = metadataFrom(row);
         if (metadata == null) {
-            NotificationHelper.showInfo(statusLabel, "This message does not include certificate metadata.");
+            NotificationHelper.showInfo(statusLabel, "This message does not include a linked file path.");
             return;
         }
         try {
             Path certificate = validateCertificatePath(metadata);
             FxFileOpenHelper.open(certificate);
-            AuditWriteHelper.write(Session.getUsername(), AuditAction.OPEN_CERTIFICATE_FROM_MESSAGE,
-                    "source=" + metadata.sourceType + ":" + metadata.sourceId + ", path=" + certificate);
-            NotificationHelper.showSuccess(statusLabel, "Opening certificate with the local desktop handler.");
+            NotificationHelper.showSuccess(statusLabel, "Opening linked file with the local desktop handler.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, certificateError(e));
         }
@@ -384,14 +380,13 @@ public class MessagingController implements FxController {
         detailBodyArea.setText(row.getBody());
         CertificateMetadata metadata = metadataFrom(row);
         if (metadata == null) {
-            detailSourceLabel.setText("Certificate source: none");
+            detailSourceLabel.setText("Linked record: none");
             certificateButtonPane.setVisible(false);
             certificateButtonPane.setManaged(false);
         } else {
-            detailSourceLabel.setText("Certificate source: " + metadata.certificateType
+            detailSourceLabel.setText("Linked record: " + metadata.certificateType
                     + " | Source ID: " + metadata.sourceId
-                    + " | Patient: " + emptyTo(metadata.patientId, "-")
-                    + " | Newborn: " + emptyTo(metadata.newbornId, "-"));
+                    + " | Patient: " + emptyTo(metadata.patientId, "-"));
             certificateButtonPane.setVisible(true);
             certificateButtonPane.setManaged(true);
         }
@@ -400,7 +395,7 @@ public class MessagingController implements FxController {
     private void clearDetail() {
         detailTitleLabel.setText("Select a message");
         detailMetaLabel.setText("-");
-        detailSourceLabel.setText("Certificate source: none");
+        detailSourceLabel.setText("Linked record: none");
         detailBodyArea.clear();
         certificateButtonPane.setVisible(false);
         certificateButtonPane.setManaged(false);
@@ -466,14 +461,14 @@ public class MessagingController implements FxController {
     private Path validateCertificatePath(CertificateMetadata metadata) {
         String rawPath = metadata == null ? "" : metadata.certificatePath;
         if (rawPath == null || rawPath.isBlank() || "-".equals(rawPath.trim())) {
-            throw new IllegalArgumentException("Certificate file was not found.");
+            throw new IllegalArgumentException("Linked file was not found.");
         }
         Path path = Path.of(rawPath.trim()).toAbsolutePath().normalize();
         if (!path.startsWith(DEATH_CERTIFICATE_DIR) && !path.startsWith(BIRTH_CERTIFICATE_DIR)) {
-            throw new SecurityException("Certificate path is outside the generated certificate folders.");
+            throw new SecurityException("Linked file path is outside the generated certificate folders.");
         }
         if (!Files.exists(path)) {
-            throw new IllegalArgumentException("Certificate file was not found.");
+            throw new IllegalArgumentException("Linked file was not found.");
         }
         return path;
     }
@@ -481,7 +476,7 @@ public class MessagingController implements FxController {
     private String certificateError(Exception e) {
         String message = e == null ? "" : e.getMessage();
         if (message == null || message.isBlank() || message.toLowerCase().contains("does not exist")) {
-            return "Certificate file was not found.";
+            return "Linked file was not found.";
         }
         return message;
     }

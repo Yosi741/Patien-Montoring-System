@@ -49,8 +49,8 @@ public class DemoLargeDataSeeder {
     private static final String[] MESSAGE_PRIORITIES = {"NORMAL", "HIGH", "URGENT"};
     private static final String[] USERS = {"admin", "doctor", "nurse", "staff"};
 
-    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 300, 20, 40, 15);
-    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 5000, 250, 800, 180);
+    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 20, 40, 15);
+    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 250, 800, 180);
 
     public static void main(String[] args) throws Exception {
         SeedConfig config = parseConfig(args);
@@ -80,7 +80,6 @@ public class DemoLargeDataSeeder {
             insertAlerts(connection, config, random, patients, summary);
             insertNotifications(connection, config, random, patients, summary);
             insertMessages(connection, config, random, patients, summary);
-            insertAuditLogs(connection, config, random, patients, summary);
             connection.commit();
         }
 
@@ -327,34 +326,6 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private void insertAuditLogs(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
-                                 SeedSummary summary) throws Exception {
-        String[] actions = {
-                "LOGIN",
-                "VIEW_PATIENT_FILE",
-                "ENTER_VITALS",
-                "CREATE_REMINDER",
-                "CREATE_APPOINTMENT",
-                "OPEN_NOTIFICATION_CENTER",
-                "OPEN_SCHEDULING"
-        };
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO audit_logs(username, action, created_at) VALUES(?, ?, ?)")) {
-            for (int i = 1; i <= config.auditLogCount; i++) {
-                SeedPatient patient = patients.get(i % patients.size());
-                String action = actions[i % actions.length] + " demo_patient_id=" + patient.patientId
-                        + " demo_index=" + String.format(Locale.ROOT, "%04d", i);
-                LocalDateTime createdAt = LocalDateTime.now().minusMinutes((i * 29L) % (60L * 24 * 45));
-
-                statement.setString(1, USERS[i % USERS.length]);
-                statement.setString(2, action);
-                statement.setString(3, createdAt.format(ISO_DATE_TIME));
-                statement.executeUpdate();
-                summary.auditLogsInserted++;
-            }
-        }
-    }
-
     private static List<SeedPatient> activePatients(List<SeedPatient> patients) {
         ArrayList<SeedPatient> active = new ArrayList<>();
         for (SeedPatient patient : patients) {
@@ -485,7 +456,6 @@ public class DemoLargeDataSeeder {
         System.out.println("vitals inserted=" + summary.vitalsInserted);
         System.out.println("reminders inserted=" + summary.remindersInserted);
         System.out.println("appointments inserted=" + summary.appointmentsInserted);
-        System.out.println("audit logs inserted=" + summary.auditLogsInserted);
         System.out.println("alerts inserted=" + summary.alertsInserted);
         System.out.println("notifications inserted=" + summary.notificationsInserted);
         System.out.println("messages inserted=" + summary.messagesInserted);
@@ -499,20 +469,17 @@ public class DemoLargeDataSeeder {
         private final int vitalCount;
         private final int reminderCount;
         private final int appointmentCount;
-        private final int auditLogCount;
         private final int messageCount;
         private final int notificationCount;
         private final int alertCount;
 
         private SeedConfig(String label, int patientCount, int vitalCount, int reminderCount,
-                           int appointmentCount, int auditLogCount,
-                           int messageCount, int notificationCount, int alertCount) {
+                           int appointmentCount, int messageCount, int notificationCount, int alertCount) {
             this.label = label;
             this.patientCount = patientCount;
             this.vitalCount = vitalCount;
             this.reminderCount = reminderCount;
             this.appointmentCount = appointmentCount;
-            this.auditLogCount = auditLogCount;
             this.messageCount = messageCount;
             this.notificationCount = notificationCount;
             this.alertCount = alertCount;
@@ -527,7 +494,6 @@ public class DemoLargeDataSeeder {
         private int vitalsInserted;
         private int remindersInserted;
         private int appointmentsInserted;
-        private int auditLogsInserted;
         private int alertsInserted;
         private int notificationsInserted;
         private int messagesInserted;

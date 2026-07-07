@@ -13,7 +13,7 @@
             <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                     <Label styleClass="screen-title" text="Messaging" />
-                    <Label styleClass="muted-text" text="Local internal hospital messages." wrapText="true" />
+                    <Label styleClass="muted-text" text="Local internal staff messages." wrapText="true" />
                 </VBox>
                 <Button onAction="#showDashboard" styleClass="secondary-button" text="Back to Dashboard" />
             </HBox>
@@ -30,7 +30,7 @@
                 <VBox spacing="10" styleClass="panel-card patient-filter-panel">
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label styleClass="field-label" text="Search" />
-                        <TextField fx:id="searchField" promptText="Subject, body, sender, patient" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="searchField" promptText="Subject, message, sender, patient" HBox.hgrow="ALWAYS" />
                         <Label styleClass="field-label" text="Status" />
                         <ComboBox fx:id="statusFilter" prefWidth="150" />
                         <Label styleClass="field-label" text="Requests" />
@@ -89,9 +89,9 @@
                                     <content>
                                         <VBox spacing="12" styleClass="panel-card">
                                             <HBox spacing="10">
-                                                <Label styleClass="field-label" text="Target" />
+                                                <Label styleClass="field-label" text="Recipient" />
                                                 <ComboBox fx:id="targetTypeBox" managed="false" prefWidth="120" visible="false" />
-                                                <ComboBox fx:id="targetUserBox" maxWidth="Infinity" promptText="Select exact recipient account" HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="targetUserBox" maxWidth="Infinity" promptText="Select exact staff recipient" HBox.hgrow="ALWAYS" />
                                                 <ComboBox fx:id="targetRoleBox" managed="false" prefWidth="140" visible="false" />
                                                 <TextField fx:id="targetSectionField" managed="false" promptText="Section / Department" visible="false" />
                                             </HBox>
@@ -112,16 +112,16 @@
                     <VBox spacing="12" styleClass="panel-card">
                         <Label fx:id="detailTitleLabel" styleClass="section-title" text="Select a message" wrapText="true" />
                         <Label fx:id="detailMetaLabel" styleClass="muted-text" text="-" wrapText="true" />
-                        <Label fx:id="detailSourceLabel" styleClass="muted-text" text="Certificate source: none" wrapText="true" />
+                        <Label fx:id="detailSourceLabel" styleClass="muted-text" text="Linked record: none" wrapText="true" />
                         <TextArea fx:id="detailBodyArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
                         <FlowPane fx:id="certificateButtonPane" hgap="10" managed="false" vgap="10" visible="false">
                             <Button onAction="#openSourceRecord" styleClass="secondary-button" text="Open Related Record" />
-                            <Button onAction="#openCertificate" styleClass="primary-button" text="Open Certificate" />
+                            <Button onAction="#openCertificate" styleClass="primary-button" text="Open Linked File" />
                         </FlowPane>
                         <FlowPane hgap="10" vgap="10">
                             <Button onAction="#markRead" styleClass="secondary-button" text="Mark Read" />
                             <Button onAction="#archiveMessage" styleClass="danger-button" text="Archive" />
-                            <Button onAction="#openLinkedPatient" styleClass="secondary-button" text="Open Patient" />
+                            <Button onAction="#openLinkedPatient" styleClass="secondary-button" text="Open Patient File" />
                         </FlowPane>
                     </VBox>
                 </SplitPane>

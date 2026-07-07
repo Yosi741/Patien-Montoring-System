@@ -78,7 +78,7 @@ public class AppointmentFormController {
 
     @FXML
     private void initialize() {
-        typeBox.getItems().setAll("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER");
+        typeBox.getItems().setAll("CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY");
         statusBox.getItems().setAll("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
         typeBox.getSelectionModel().select("CHECKUP");
         statusBox.getSelectionModel().select("SCHEDULED");
@@ -103,7 +103,7 @@ public class AppointmentFormController {
         }
         if (appointment == null) {
             titleLabel.setText("Create Appointment");
-            NotificationHelper.showInfo(statusLabel, "Local database scheduling. External calendar integration is future work.");
+            NotificationHelper.showInfo(statusLabel, "Local clinic scheduling. External calendar integration is future work.");
             return;
         }
         titleLabel.setText("Edit Appointment");

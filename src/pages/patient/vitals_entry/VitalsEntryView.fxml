@@ -13,7 +13,7 @@
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label text="Enter Vitals" styleClass="screen-title dialog-title" />
 
-        <Label text="Manual JavaFX vitals entry writes to SQLite. Abnormal readings create alerts, notifications, and a local JavaFX alarm sound."
+        <Label text="Manual clinic vitals entry writes to SQLite. Abnormal readings create alerts, notifications, and a local JavaFX alarm sound."
                wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 

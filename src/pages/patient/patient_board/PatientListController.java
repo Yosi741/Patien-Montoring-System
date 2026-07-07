@@ -11,18 +11,22 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import pages.alert.AlertSoundService;
-import pages.audit_log.AuditAction;
-import pages.audit_log.SqliteAuditLogDao;
 import pages.notification.NotificationHelper;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.patient_form.PatientFormController;
@@ -38,7 +42,6 @@ import java.util.List;
 public class PatientListController implements FxController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
-    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final ObservableList<SqlitePatientDao.PatientListRow> patients = FXCollections.observableArrayList();
     private AppShell appShell;
@@ -125,9 +128,8 @@ public class PatientListController implements FxController {
         if (selected == null) {
             return;
         }
-        if (isDeceased(selected)) {
-            logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + selected.getPatientId() + ", action=enter_vitals");
-            NotificationHelper.showError(statusLabel, "Clinical actions are blocked for deceased patients.");
+        if (isInactiveForClinicalActions(selected)) {
+            NotificationHelper.showError(statusLabel, "Clinical actions are blocked for inactive patient records.");
             return;
         }
         try {
@@ -179,7 +181,6 @@ public class PatientListController implements FxController {
             return;
         }
         if (isDeceased(selected)) {
-            logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + selected.getPatientId() + ", action=edit_patient");
             NotificationHelper.showError(statusLabel, "Editing is blocked for deceased patients.");
             return;
         }
@@ -208,21 +209,25 @@ public class PatientListController implements FxController {
             return;
         }
         if (isDeceased(selected)) {
-            logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + selected.getPatientId() + ", action=discharge");
             NotificationHelper.showError(statusLabel, "Discharge/deactivate is blocked for deceased patients.");
             return;
         }
-        boolean confirmed = DialogHelper.confirm(
+        if (isDischarged(selected)) {
+            NotificationHelper.showInfo(statusLabel, "This patient is already discharged.");
+            return;
+        }
+        String dischargeSummary = promptVisitReport(
+                patientTable.getScene() == null ? null : patientTable.getScene().getWindow(),
                 "Discharge Patient",
-                "Discharge " + selected.getName() + "? This updates the patient status to DISCHARGED.");
-        if (!confirmed) {
+                "Visit report / discharge summary");
+        if (dischargeSummary == null) {
             return;
         }
         try {
-            patientWriteService.deactivateOrDischargePatient(Session.getCurrentUser(), selected.getPatientId());
+            patientWriteService.dischargePatient(Session.getCurrentUser(), selected.getPatientId(), dischargeSummary);
             configureFilters();
             loadPatients();
-            NotificationHelper.showSuccess(statusLabel, "Patient discharged: " + selected.getPatientId());
+            NotificationHelper.showSuccess(statusLabel, "Patient discharged and visit summary saved.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
@@ -341,7 +346,7 @@ public class PatientListController implements FxController {
             roomFilter.setItems(FXCollections.observableArrayList("All"));
             statusLabel.setText("Could not load filter choices: " + e.getMessage());
         }
-        statusFilter.setItems(FXCollections.observableArrayList("All", "ACTIVE", "DISCHARGED", "DECEASED"));
+        statusFilter.setItems(FXCollections.observableArrayList("All", "ACTIVE", "DISCHARGED"));
         priorityFilter.setItems(FXCollections.observableArrayList("All", "NORMAL", "HIGH", "CRITICAL", "EMERGENCY"));
         sectionFilter.getSelectionModel().select("All");
         roomFilter.getSelectionModel().select("All");
@@ -418,8 +423,8 @@ public class PatientListController implements FxController {
         filterChipsBox.getChildren().clear();
         addChip("Quick: " + quickFilter);
         addChipIfPresent("Search", searchField.getText());
-        addChipIfSelected("Section", value(sectionFilter));
-        addChipIfSelected("Room", value(roomFilter));
+        addChipIfSelected("Clinic Area", value(sectionFilter));
+        addChipIfSelected("Location", value(roomFilter));
         addChipIfSelected("Status", value(statusFilter));
         addChipIfSelected("Priority", value(priorityFilter));
     }
@@ -481,8 +486,8 @@ public class PatientListController implements FxController {
         boolean hasSelection = selected != null;
         boolean deceased = isDeceased(selected);
         setDisabledIfPresent(editSelectedPatientButton, !hasSelection || deceased);
-        setDisabledIfPresent(dischargePatientButton, !hasSelection || deceased);
-        setDisabledIfPresent(enterVitalsButton, !hasSelection || deceased);
+        setDisabledIfPresent(dischargePatientButton, !hasSelection || deceased || isDischarged(selected));
+        setDisabledIfPresent(enterVitalsButton, !hasSelection || isInactiveForClinicalActions(selected));
         setDisabledIfPresent(viewPatientFileButton, !hasSelection);
     }
 
@@ -539,6 +544,14 @@ public class PatientListController implements FxController {
         return row != null && "DECEASED".equalsIgnoreCase(row.getStatus());
     }
 
+    private boolean isDischarged(SqlitePatientDao.PatientListRow row) {
+        return row != null && "DISCHARGED".equalsIgnoreCase(row.getStatus());
+    }
+
+    private boolean isInactiveForClinicalActions(SqlitePatientDao.PatientListRow row) {
+        return isDeceased(row) || isDischarged(row);
+    }
+
     private void setButtonVisible(Button button, boolean visible) {
         if (button != null) {
             button.setVisible(visible);
@@ -546,11 +559,23 @@ public class PatientListController implements FxController {
         }
     }
 
-    private void logAudit(String action) {
-        try {
-            auditLogDao.log(Session.getUsername(), action);
-        } catch (Exception e) {
-            System.out.println("SQLite patient board audit skipped: " + e.getMessage());
+    private String promptVisitReport(Window owner, String title, String prompt) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle(title);
+        app.helpers.DialogThemeHelper.apply(dialog);
+        if (owner != null) {
+            dialog.initOwner(owner);
         }
+        TextArea reportArea = new TextArea();
+        reportArea.setWrapText(true);
+        reportArea.setPromptText("Enter a short visit summary");
+        reportArea.setPrefRowCount(6);
+        VBox content = new VBox(10.0, new Label(prompt), reportArea);
+        dialog.getDialogPane().setContent(content);
+        ButtonType saveButton = new ButtonType("Save Summary", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButton);
+        dialog.setResultConverter(buttonType -> buttonType == saveButton ? reportArea.getText() : null);
+        return dialog.showAndWait().orElse(null);
     }
+
 }

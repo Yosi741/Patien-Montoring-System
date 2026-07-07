@@ -2,7 +2,6 @@ package pages.login;
 
 import pages.login.dao.SqliteEmailOutboxDao;
 import pages.user.dao.SqliteUserDao;
-import pages.audit_log.AuditWriteHelper;
 
 import java.sql.SQLException;
 
@@ -20,15 +19,16 @@ public class ForgotPasswordService {
         this.emailOutboxDao = emailOutboxDao;
     }
 
-    public ForgotPasswordResult requestReset(String username) throws SQLException {
+    public ForgotPasswordResult requestReset(String username, String staffId) throws SQLException {
         String cleanUsername = username == null ? "" : username.trim();
-        if (cleanUsername.isEmpty()) {
-            return ForgotPasswordResult.emptyUsername();
+        String cleanStaffId = staffId == null ? "" : staffId.trim();
+        if (cleanUsername.isEmpty() || cleanStaffId.isEmpty()) {
+            return ForgotPasswordResult.emptyCredentials();
         }
 
-        SqliteUserDao.PasswordResetContact contact = userDao.findPasswordResetContact(cleanUsername).orElse(null);
+        SqliteUserDao.PasswordResetContact contact = userDao.findPasswordResetContact(cleanUsername, cleanStaffId).orElse(null);
         if (contact == null) {
-            return ForgotPasswordResult.userNotFound(cleanUsername);
+            return ForgotPasswordResult.credentialsMismatch();
         }
         if (contact.email().isBlank()) {
             return ForgotPasswordResult.noEmailConfigured(contact.username());
@@ -36,16 +36,14 @@ public class ForgotPasswordService {
 
         emailOutboxDao.queueEmail(
                 contact.email(),
-                "SPMS password reset request",
+                "Clinic password reset request",
                 buildResetMessage(contact.username())
         );
-        AuditWriteHelper.write(contact.username(), "QUEUE_PASSWORD_RESET_EMAIL",
-                "Password reset email queued for " + maskEmail(contact.email()));
         return ForgotPasswordResult.emailQueued(contact.username(), maskEmail(contact.email()));
     }
 
     private String buildResetMessage(String username) {
-        return "A password reset request was received for SPMS account '" + username + "'.\n\n"
+        return "A password reset request was received for clinic account '" + username + "'.\n\n"
                 + "For this local academic demo, password reset requests are queued for administrator review. "
                 + "Please contact an administrator to complete the reset.";
     }
@@ -66,19 +64,19 @@ public class ForgotPasswordService {
     }
 
     public enum Status {
-        EMPTY_USERNAME,
-        USER_NOT_FOUND,
+        EMPTY_CREDENTIALS,
+        CREDENTIALS_MISMATCH,
         NO_EMAIL_CONFIGURED,
         EMAIL_QUEUED
     }
 
     public record ForgotPasswordResult(Status status, String username, String maskedEmail) {
-        public static ForgotPasswordResult emptyUsername() {
-            return new ForgotPasswordResult(Status.EMPTY_USERNAME, "", "");
+        public static ForgotPasswordResult emptyCredentials() {
+            return new ForgotPasswordResult(Status.EMPTY_CREDENTIALS, "", "");
         }
 
-        public static ForgotPasswordResult userNotFound(String username) {
-            return new ForgotPasswordResult(Status.USER_NOT_FOUND, username, "");
+        public static ForgotPasswordResult credentialsMismatch() {
+            return new ForgotPasswordResult(Status.CREDENTIALS_MISMATCH, "", "");
         }
 
         public static ForgotPasswordResult noEmailConfigured(String username) {

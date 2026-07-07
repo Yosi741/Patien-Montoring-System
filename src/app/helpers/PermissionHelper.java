@@ -139,10 +139,6 @@ public final class PermissionHelper {
         return user != null;
     }
 
-    public static boolean canCreateTestAuditEvent(User user) {
-        return isAdmin(user);
-    }
-
     public static boolean isReadOnly(User user) {
         return !isAdmin(user) && !isDoctor(user) && !isNurse(user);
     }

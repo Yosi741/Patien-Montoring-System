@@ -1,8 +1,6 @@
 package pages.scheduling;
 
 import pages.patient.dao.SqlitePatientDao;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -40,10 +38,7 @@ public class SchedulingService {
         requireAppointmentPermission(currentUser);
         validateAppointment(request, false);
         SqliteAppointmentDao.AppointmentRecord record = cleanAppointment(request, 0, username(currentUser));
-        long id = appointmentDao.insertAppointment(record);
-        AuditWriteHelper.write(username(currentUser), AuditAction.CREATE_APPOINTMENT,
-                "patient_id=" + record.getPatientId() + ", title=" + record.getTitle() + ", start=" + record.getStartTime());
-        return id;
+        return appointmentDao.insertAppointment(record);
     }
 
     public void updateAppointment(User currentUser, AppointmentRequest request) throws SQLException {
@@ -53,8 +48,6 @@ public class SchedulingService {
         }
         validateAppointment(request, true);
         appointmentDao.updateAppointment(cleanAppointment(request, request.id, username(currentUser)));
-        AuditWriteHelper.write(username(currentUser), AuditAction.UPDATE_APPOINTMENT,
-                "appointment_id=" + request.id + ", patient_id=" + request.patientId + ", title=" + request.title);
     }
 
     public void cancelAppointment(User currentUser, long appointmentId) throws SQLException {
@@ -62,8 +55,6 @@ public class SchedulingService {
         SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
         appointmentDao.updateStatus(appointmentId, "CANCELLED");
-        AuditWriteHelper.write(username(currentUser), AuditAction.CANCEL_APPOINTMENT,
-                "appointment_id=" + appointmentId + ", patient_id=" + appointment.getPatientId() + ", title=" + appointment.getTitle());
     }
 
     public void markAppointmentCompleted(User currentUser, long appointmentId) throws SQLException {
@@ -74,18 +65,13 @@ public class SchedulingService {
             throw new IllegalArgumentException("Cannot complete a cancelled appointment.");
         }
         appointmentDao.updateStatus(appointmentId, "COMPLETED");
-        AuditWriteHelper.write(username(currentUser), AuditAction.COMPLETE_APPOINTMENT,
-                "appointment_id=" + appointmentId + ", patient_id=" + appointment.getPatientId() + ", title=" + appointment.getTitle());
     }
 
     public long createReminder(User currentUser, ReminderRequest request) throws SQLException {
         requireReminderPermission(currentUser);
         validateReminder(request, false);
         SqliteReminderDao.ReminderRecord record = cleanReminder(request, 0, username(currentUser));
-        long id = reminderDao.insertReminder(record);
-        AuditWriteHelper.write(username(currentUser), AuditAction.CREATE_REMINDER,
-                "patient_id=" + record.getPatientId() + ", title=" + record.getTitle() + ", due=" + record.getDueTime());
-        return id;
+        return reminderDao.insertReminder(record);
     }
 
     public void updateReminder(User currentUser, ReminderRequest request) throws SQLException {
@@ -95,8 +81,6 @@ public class SchedulingService {
         }
         validateReminder(request, true);
         reminderDao.updateReminder(cleanReminder(request, request.id, username(currentUser)));
-        AuditWriteHelper.write(username(currentUser), AuditAction.UPDATE_REMINDER,
-                "reminder_id=" + request.id + ", patient_id=" + request.patientId + ", title=" + request.title);
     }
 
     public void markReminderDone(User currentUser, long reminderId) throws SQLException {
@@ -109,8 +93,6 @@ public class SchedulingService {
             throw new IllegalArgumentException("Cannot mark a cancelled reminder done.");
         }
         reminderDao.updateStatus(reminderId, "DONE");
-        AuditWriteHelper.write(username(currentUser), AuditAction.MARK_REMINDER_DONE,
-                "reminder_id=" + reminderId + ", patient_id=" + reminder.getPatientId() + ", title=" + reminder.getTitle());
     }
 
     public void markReminderMissed(User currentUser, long reminderId) throws SQLException {
@@ -123,9 +105,6 @@ public class SchedulingService {
             throw new IllegalArgumentException("Cannot mark a completed or cancelled reminder missed.");
         }
         reminderDao.updateStatus(reminderId, "MISSED");
-        AuditWriteHelper.write(username(currentUser), AuditAction.MARK_REMINDER_MISSED,
-                "reminder_id=" + reminderId + ", patient_id=" + reminder.getPatientId()
-                        + ", type=" + reminder.getReminderType());
     }
 
     public void cancelReminder(User currentUser, long reminderId) throws SQLException {
@@ -133,8 +112,6 @@ public class SchedulingService {
         SqliteReminderDao.ReminderRecord reminder = reminderDao.findById(reminderId)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found in SQLite: " + reminderId));
         reminderDao.updateStatus(reminderId, "CANCELLED");
-        AuditWriteHelper.write(username(currentUser), AuditAction.CANCEL_REMINDER,
-                "reminder_id=" + reminderId + ", patient_id=" + reminder.getPatientId() + ", title=" + reminder.getTitle());
     }
 
     public SchedulingOverview loadOverview(String search, String appointmentType, String appointmentStatus,

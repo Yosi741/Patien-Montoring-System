@@ -1,6 +1,5 @@
 package pages.patient.patient_detail;
 
-import pages.audit_log.AuditAction;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.alert.SqliteAlertDao;
@@ -11,14 +10,22 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
+import pages.patient.PatientVisit;
 import pages.patient.VitalRecord;
-import pages.audit_log.SqliteAuditLogDao;
 import pages.alert.AlertSoundService;
+import pages.patient.services.PatientVisitService;
+import pages.patient.services.PatientWriteService;
 import pages.patient.services.VitalThresholdService;
 import pages.patient.services.VitalTypeCatalog;
 import pages.patient.services.VitalsTrendService;
@@ -44,12 +51,15 @@ public class PatientDetailController implements FxController {
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();
     private final SqliteAlertDao alertDao = new SqliteAlertDao();
-    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
+    private final PatientWriteService patientWriteService = new PatientWriteService();
+    private final PatientVisitService patientVisitService = new PatientVisitService();
     private final VitalsTrendService vitalsTrendService = new VitalsTrendService();
     private final ObservableList<VitalRecord> vitals = FXCollections.observableArrayList();
+    private final ObservableList<PatientVisit> visits = FXCollections.observableArrayList();
     private AppShell appShell;
     private String patientId;
     private boolean deceasedPatient;
+    private boolean dischargedPatient;
 
     @FXML private Label nameLabel;
     @FXML private Label patientIdLabel;
@@ -75,6 +85,7 @@ public class PatientDetailController implements FxController {
     @FXML private ComboBox<String> trendVitalTypeFilter;
     @FXML private ComboBox<String> trendRangeFilter;
     @FXML private TableView<VitalRecord> vitalsTable;
+    @FXML private TableView<PatientVisit> pastVisitsTable;
     @FXML private TableColumn<VitalRecord, String> typeColumn;
     @FXML private TableColumn<VitalRecord, String> valueColumn;
     @FXML private TableColumn<VitalRecord, String> unitColumn;
@@ -82,6 +93,10 @@ public class PatientDetailController implements FxController {
     @FXML private TableColumn<VitalRecord, String> sourceColumn;
     @FXML private TableColumn<VitalRecord, String> staffColumn;
     @FXML private TableColumn<VitalRecord, String> deviceColumn;
+    @FXML private TableColumn<PatientVisit, String> visitDateColumn;
+    @FXML private TableColumn<PatientVisit, String> dischargeDateColumn;
+    @FXML private TableColumn<PatientVisit, String> visitStatusColumn;
+    @FXML private TableColumn<PatientVisit, String> visitReportColumn;
     @FXML private LineChart<Number, Number> vitalsTrendChart;
     @FXML private NumberAxis trendXAxis;
     @FXML private NumberAxis trendYAxis;
@@ -90,11 +105,13 @@ public class PatientDetailController implements FxController {
     @FXML private Button createAppointmentButton;
     @FXML private Button createReminderButton;
     @FXML private Button uploadMedicalFileButton;
+    @FXML private Button dischargePatientButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
         configureTable();
+        configureVisitTable();
         configureWritePermissions();
         vitalTypeFilter.setItems(FXCollections.observableArrayList(VitalTypeCatalog.javaFxFilterTypes()));
         vitalTypeFilter.getSelectionModel().select("All");
@@ -121,8 +138,11 @@ public class PatientDetailController implements FxController {
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
             deceasedPatient = "DECEASED".equalsIgnoreCase(detail.getStatus());
+            dischargedPatient = "DISCHARGED".equalsIgnoreCase(detail.getStatus());
+            configureWritePermissions();
             updateClinicalActionBlocks();
             loadVitals();
+            loadVisitHistory();
             loadTrendChart();
             loadAlertSummary();
         } catch (Exception e) {
@@ -222,8 +242,42 @@ public class PatientDetailController implements FxController {
         try {
             boolean saved = ReminderFormController.showOrderCheckupDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Checkup order saved. Open Scheduling to view.");
+                NotificationHelper.showSuccess(timelineStatusLabel, "Checkup request saved. Open Scheduling to view.");
             }
+        } catch (Exception e) {
+            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void dischargePatient() {
+        if (!PermissionHelper.canDeactivatePatient(Session.getCurrentUser())) {
+            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        if (patientId == null || patientId.isBlank()) {
+            timelineStatusLabel.setText("No patient selected for discharge.");
+            return;
+        }
+        if (deceasedPatient) {
+            NotificationHelper.showError(timelineStatusLabel, "Deceased patient files cannot be discharged.");
+            return;
+        }
+        if (dischargedPatient) {
+            NotificationHelper.showInfo(timelineStatusLabel, "This patient is already discharged.");
+            return;
+        }
+        String dischargeSummary = promptVisitReport(
+                nameLabel.getScene() == null ? null : nameLabel.getScene().getWindow(),
+                "Discharge Patient",
+                "Visit report / discharge summary");
+        if (dischargeSummary == null) {
+            return;
+        }
+        try {
+            patientWriteService.dischargePatient(Session.getCurrentUser(), patientId, dischargeSummary);
+            loadPatient(patientId);
+            NotificationHelper.showSuccess(timelineStatusLabel, "Patient discharged and visit summary saved.");
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
         }
@@ -355,6 +409,18 @@ public class PatientDetailController implements FxController {
         deviceColumn.setCellValueFactory(new PropertyValueFactory<>("deviceId"));
     }
 
+    private void configureVisitTable() {
+        if (pastVisitsTable == null) {
+            return;
+        }
+        visitDateColumn.setCellValueFactory(new PropertyValueFactory<>("visitDate"));
+        dischargeDateColumn.setCellValueFactory(new PropertyValueFactory<>("dischargeDate"));
+        visitStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        visitReportColumn.setCellValueFactory(new PropertyValueFactory<>("report"));
+        pastVisitsTable.setItems(visits);
+        pastVisitsTable.setPlaceholder(new Label("No past visits recorded"));
+    }
+
     private void configureTrendControls() {
         trendVitalTypeFilter.setItems(FXCollections.observableArrayList(
                 VitalTypeCatalog.javaFxEntryTypes()));
@@ -382,15 +448,18 @@ public class PatientDetailController implements FxController {
         setButtonVisible(createReminderButton, canReminders);
         boolean canUploadFiles = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         setButtonVisible(uploadMedicalFileButton, canUploadFiles);
+        boolean canDischarge = PermissionHelper.canDeactivatePatient(Session.getCurrentUser());
+        setButtonVisible(dischargePatientButton, canDischarge);
     }
 
     private void updateClinicalActionBlocks() {
-        if (!deceasedPatient) {
+        if (!deceasedPatient && !dischargedPatient) {
             return;
         }
         setButtonVisible(enterVitalsButton, false);
         setButtonVisible(createAppointmentButton, false);
         setButtonVisible(createReminderButton, false);
+        setButtonVisible(dischargePatientButton, false);
     }
 
     private void setButtonVisible(Button button, boolean visible) {
@@ -441,19 +510,21 @@ public class PatientDetailController implements FxController {
     }
 
     private boolean blockIfDeceased(String action) {
-        if (!deceasedPatient) {
+        if (!deceasedPatient && !dischargedPatient) {
             return false;
         }
-        logAudit(AuditAction.BLOCK_DECEASED_CLINICAL_ACTION + " patient_id=" + patientId + ", action=" + action);
-        NotificationHelper.showError(timelineStatusLabel, "Clinical actions are blocked for deceased patients.");
+        NotificationHelper.showError(timelineStatusLabel, "Clinical actions are blocked for inactive patient records.");
         return true;
     }
 
-    private void logAudit(String action) {
+    private void loadVisitHistory() {
+        if (patientId == null || patientId.isBlank() || pastVisitsTable == null) {
+            return;
+        }
         try {
-            auditLogDao.log(SessionContext.username(), action);
+            visits.setAll(patientVisitService.getVisitHistory(patientId));
         } catch (Exception e) {
-            System.out.println("SQLite patient detail audit skipped: " + e.getMessage());
+            timelineStatusLabel.setText("Could not load visit history: " + e.getMessage());
         }
     }
 
@@ -525,5 +596,24 @@ public class PatientDetailController implements FxController {
 
     private String fallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String promptVisitReport(Window owner, String title, String prompt) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle(title);
+        app.helpers.DialogThemeHelper.apply(dialog);
+        if (owner != null) {
+            dialog.initOwner(owner);
+        }
+        TextArea reportArea = new TextArea();
+        reportArea.setWrapText(true);
+        reportArea.setPromptText("Enter a short visit summary");
+        reportArea.setPrefRowCount(6);
+        VBox content = new VBox(10.0, new Label(prompt), reportArea);
+        dialog.getDialogPane().setContent(content);
+        ButtonType saveButton = new ButtonType("Save Summary", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButton);
+        dialog.setResultConverter(buttonType -> buttonType == saveButton ? reportArea.getText() : null);
+        return dialog.showAndWait().orElse(null);
     }
 }

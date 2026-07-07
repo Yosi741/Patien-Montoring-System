@@ -23,8 +23,6 @@ import pages.patient.services.MedicalFileUploadService;
 import app.AppShell;
 import app.FxController;
 import app.SessionContext;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
@@ -170,12 +168,6 @@ public class MedicalFilesController implements FxController {
         ClipboardContent content = new ClipboardContent();
         content.putString(summary);
         Clipboard.getSystemClipboard().setContent(content);
-        try {
-            AuditWriteHelper.write(SessionContext.username(), AuditAction.COPY_FILE_SUMMARY,
-                    "patient_id=" + selected.getPatientId() + ", file_id=" + selected.getFileId());
-        } catch (Exception e) {
-            System.out.println("SQLite copy file summary audit skipped: " + e.getMessage());
-        }
         NotificationHelper.showSuccess(statusLabel, "Copied file summary/preview to clipboard.");
     }
 
@@ -323,12 +315,6 @@ public class MedicalFilesController implements FxController {
             return;
         }
         lastViewedFileId = file.getFileId();
-        try {
-            AuditWriteHelper.write(SessionContext.username(), AuditAction.VIEW_MEDICAL_FILE,
-                    "patient_id=" + file.getPatientId() + ", file_id=" + file.getFileId());
-        } catch (Exception e) {
-            System.out.println("SQLite medical file view audit skipped: " + e.getMessage());
-        }
     }
 
     private SqliteMedicalFileDao.MedicalFileRecord selectedFile() {

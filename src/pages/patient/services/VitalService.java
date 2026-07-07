@@ -1,7 +1,6 @@
 package pages.patient.services;
 
 import pages.alert.CriticalAlertManager;
-import pages.audit_log.SqliteAuditLogDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.patient.Patient;
 import pages.patient.VitalRecord;
@@ -40,7 +39,6 @@ public class VitalService {
         patient.setVitalSign(vitalSign);
         saveVitalSet(patient, vitalSign, "Manual", Session.getUsername(), "", "", "", "");
         CriticalAlertManager.checkPatient(patient);
-        logAudit(Session.getUsername(), "Added manual vital signs for: " + patient.getName());
     }
 
     private static void saveVitalSet(Patient patient, VitalSign vitalSign, String sourceType, String staffName,
@@ -76,11 +74,4 @@ public class VitalService {
         }
     }
 
-    private static void logAudit(String username, String action) {
-        try {
-            new SqliteAuditLogDao().log(username, action);
-        } catch (Exception e) {
-            System.out.println("SQLite vital audit skipped: " + e.getMessage());
-        }
-    }
 }

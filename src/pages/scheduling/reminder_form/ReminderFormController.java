@@ -94,7 +94,7 @@ public class ReminderFormController {
 
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
             Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setTitle(orderCheckupMode ? "Order Checkup" : reminder == null ? "Create Reminder" : "Edit Reminder");
+            dialog.setTitle(orderCheckupMode ? "Order Checkup" : reminder == null ? "Create Checkup / Reminder" : "Edit Checkup / Reminder");
             app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
@@ -113,7 +113,7 @@ public class ReminderFormController {
 
     @FXML
     private void initialize() {
-        reminderTypeBox.getItems().setAll("APPOINTMENT", "CHECKUP", "CUSTOM");
+        reminderTypeBox.getItems().setAll("APPOINTMENT", "CHECKUP", "FOLLOW_UP", "CUSTOM");
         statusBox.getItems().setAll("PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED");
         reminderTypeBox.getSelectionModel().select("CUSTOM");
         statusBox.getSelectionModel().select("PENDING");
@@ -121,7 +121,7 @@ public class ReminderFormController {
         reminderTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> updateTypeVisibility());
         installNineDigitFilter(patientIdField);
         updateTypeVisibility();
-        NotificationHelper.showInfo(statusLabel, "Local database reminder. External calendar integration is future work.");
+        NotificationHelper.showInfo(statusLabel, "Local clinic reminder. External calendar integration is future work.");
     }
 
     private void prepare(User currentUser, String patientId,
@@ -147,16 +147,16 @@ public class ReminderFormController {
                 reminderTypeContainer.setVisible(false);
                 reminderTypeContainer.setManaged(false);
             }
-            NotificationHelper.showInfo(statusLabel, "Select one or more requested checkups/tests for this patient.");
+            NotificationHelper.showInfo(statusLabel, "Select one or more requested checkups or tests for this patient.");
             updateTypeVisibility();
         }
         if (reminder == null) {
             if (!orderCheckupMode) {
-                titleLabel.setText("Create Reminder");
+                titleLabel.setText("Create Checkup / Reminder");
             }
             return;
         }
-        titleLabel.setText("Edit Reminder");
+        titleLabel.setText("Edit Checkup / Reminder");
         patientIdField.setText(reminder.getPatientId());
         reminderTypeBox.getSelectionModel().select(reminder.getReminderType());
         reminderTitleField.setText(reminder.getTitle());

@@ -46,9 +46,6 @@ public class AppLayoutController implements FxController {
     private Button messagesButton;
 
     @FXML
-    private Button auditLogsButton;
-
-    @FXML
     private Button userDirectoryButton;
 
     @FXML
@@ -86,15 +83,13 @@ public class AppLayoutController implements FxController {
         boolean admin = isAdmin();
         boolean clinical = isClinical();
         boolean loggedIn = Session.getCurrentUser() != null;
-        setButtonVisible(messagesButton, false);
+        setButtonVisible(messagesButton, loggedIn && AppFeatures.messagesEnabled());
         topNotificationButton.setVisible(loggedIn);
         topNotificationButton.setManaged(loggedIn);
         unreadCountLabel.setVisible(loggedIn);
         unreadCountLabel.setManaged(loggedIn);
         schedulingButton.setVisible(admin || clinical);
         schedulingButton.setManaged(admin || clinical);
-        auditLogsButton.setVisible(admin);
-        auditLogsButton.setManaged(admin);
         userDirectoryButton.setVisible(admin);
         userDirectoryButton.setManaged(admin);
         refreshNotificationCount();
@@ -140,11 +135,6 @@ public class AppLayoutController implements FxController {
     }
 
     @FXML
-    private void showAuditLogs() {
-        appShell.showAuditLogs();
-    }
-
-    @FXML
     private void showUserDirectory() {
         appShell.showUserDirectory();
     }
@@ -170,7 +160,7 @@ public class AppLayoutController implements FxController {
     public void refreshNotificationCount() {
         int count = new NotificationCenterService().unreadCount(Session.getCurrentUser());
         unreadCountLabel.setText(String.valueOf(count));
-        topNotificationButton.setText("Notifications");
+        topNotificationButton.setText("Alerts");
     }
 
     private void startNotificationRefresh() {

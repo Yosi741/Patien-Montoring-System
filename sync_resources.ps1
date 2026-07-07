@@ -8,7 +8,6 @@ $targetAlert = "out/production/untitledSmartPatientMonitoringSystem/pages/alert"
 $targetScheduling = "out/production/untitledSmartPatientMonitoringSystem/pages/scheduling"
 $targetMessages = "out/production/untitledSmartPatientMonitoringSystem/pages/messages"
 $targetNotification = "out/production/untitledSmartPatientMonitoringSystem/pages/notification"
-$targetAuditLog = "out/production/untitledSmartPatientMonitoringSystem/pages/audit_log"
 $targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
 $targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
 $targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
@@ -22,7 +21,6 @@ New-Item -ItemType Directory -Force -Path $targetAlert
 New-Item -ItemType Directory -Force -Path $targetScheduling
 New-Item -ItemType Directory -Force -Path $targetMessages
 New-Item -ItemType Directory -Force -Path $targetNotification
-New-Item -ItemType Directory -Force -Path $targetAuditLog
 New-Item -ItemType Directory -Force -Path $targetApp
 New-Item -ItemType Directory -Force -Path $targetAppStyles
 New-Item -ItemType Directory -Force -Path $targetSound
@@ -53,9 +51,6 @@ if (Test-Path "src/pages/messages") {
 }
 if (Test-Path "src/pages/notification") {
     Copy-Item -Path "src/pages/notification/*" -Destination $targetNotification -Force -Recurse
-}
-if (Test-Path "src/pages/audit_log") {
-    Copy-Item -Path "src/pages/audit_log/*" -Destination $targetAuditLog -Force -Recurse
 }
 if (Test-Path "src/app") {
     Copy-Item -Path "src/app/*.fxml" -Destination $targetApp -Force
@@ -151,10 +146,6 @@ $legacyReminderFormView = Join-Path $targetViews "ReminderFormView.fxml"
 if (Test-Path $legacyReminderFormView) {
     Remove-Item -Path $legacyReminderFormView -Force
 }
-$legacyAuditLogView = Join-Path $targetViews "AuditLogView.fxml"
-if (Test-Path $legacyAuditLogView) {
-    Remove-Item -Path $legacyAuditLogView -Force
-}
 $legacyAppLayoutView = Join-Path $targetViews "AppLayout.fxml"
 if (Test-Path $legacyAppLayoutView) {
     Remove-Item -Path $legacyAppLayoutView -Force
@@ -182,8 +173,7 @@ $legacyPatientPages = @(
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/Alert",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/scheduling",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/messages",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/notifications",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/audit_logs"
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/notifications"
 )
 
 foreach ($legacyFolder in $legacyPatientPages) {

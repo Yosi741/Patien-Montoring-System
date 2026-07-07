@@ -84,10 +84,6 @@ public class RolePermissionService {
         return hasAnyRole(user, "Admin", "System Admin");
     }
 
-    public static boolean canViewAuditLogs(User user) {
-        return hasAnyRole(user, "Admin", "System Admin", "Hospital Director");
-    }
-
     private static boolean hasAnyRole(User user, String... roles) {
         if (user == null) {
             return false;

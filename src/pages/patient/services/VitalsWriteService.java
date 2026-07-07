@@ -4,8 +4,6 @@ import pages.alert.SqliteAlertDao;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
 import pages.patient.VitalRecord;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.alert.AlertPersistenceService;
@@ -97,13 +95,6 @@ public class VitalsWriteService {
         } else {
             attemptStablePriorityDowngrade(staffUser, patient, birthDate);
         }
-
-        AuditWriteHelper.write(
-                staffUser,
-                AuditAction.ENTER_VITALS,
-                "patient_id=" + request.patientId + ", vital=" + normalizedType + ", value=" + displayValue(request)
-                        + " " + unit + ", status=" + status
-        );
 
         return new VitalsWriteResult(status, normalizedType, displayValue(request), unit, recordedAtText);
     }
@@ -218,14 +209,7 @@ public class VitalsWriteService {
 
     private void syncPatientPriority(String staffUser, String patientId, String severity, String vitalType, String value, String unit) throws SQLException {
         String priority = priorityForSeverity(severity);
-        if (patientDao.updatePriorityIfHigher(patientId, priority)) {
-            AuditWriteHelper.write(
-                    staffUser,
-                    AuditAction.UPDATE_PATIENT,
-                    "patient_id=" + patientId + ", priority=" + priority + ", source=vital_alert"
-                            + ", vital=" + vitalType + ", value=" + value + " " + unit
-            );
-        }
+        patientDao.updatePriorityIfHigher(patientId, priority);
     }
 
     private String priorityForSeverity(String severity) {
@@ -289,14 +273,7 @@ public class VitalsWriteService {
             return;
         }
         // Demo decision-support rule. Real hospitals use local clinical protocols.
-        if (patientDao.updatePriorityIfLower(patient.getPatientId(), nextPriority)) {
-            AuditWriteHelper.write(
-                    staffUser,
-                    AuditAction.UPDATE_PATIENT,
-                    "patient_id=" + patient.getPatientId() + ", priority=" + nextPriority
-                            + ", source=stable_vitals_demo_rule"
-            );
-        }
+        patientDao.updatePriorityIfLower(patient.getPatientId(), nextPriority);
     }
 
     private VitalThresholdService.VitalStatus evaluateExistingReading(VitalRecord reading, String birthDate) {

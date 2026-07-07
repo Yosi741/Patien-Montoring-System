@@ -1,4 +1,3 @@
-import pages.audit_log.SqliteAuditLogDao;
 import app.DatabaseManager;
 import app.SchemaInitializer;
 import pages.dashboard.services.DashboardMetricsService;
@@ -26,7 +25,6 @@ public class DemoPerformanceCheck {
         SqlitePatientDao patientDao = new SqlitePatientDao();
         SqliteVitalReadingDao vitalDao = new SqliteVitalReadingDao();
         SchedulingService schedulingService = new SchedulingService();
-        SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
         NotificationCenterService notificationCenterService = new NotificationCenterService();
         DashboardMetricsService dashboardMetricsService = new DashboardMetricsService();
 
@@ -87,10 +85,6 @@ public class DemoPerformanceCheck {
         results.add(check("Scheduling/reminders load", () -> {
             SchedulingService.SchedulingOverview overview = schedulingService.loadOverview("", "All", "All", "All", "All", "");
             return "Appointments=" + overview.getAppointments().size() + ", reminders=" + overview.getReminders().size();
-        }));
-        results.add(check("Audit logs load", () -> {
-            List<SqliteAuditLogDao.AuditLogRow> rows = auditLogDao.findRows("", "All", "All");
-            return "Audit rows=" + rows.size();
         }));
         results.add(check("Notifications load", () -> {
             return "Notification rows=" + notificationCenterService

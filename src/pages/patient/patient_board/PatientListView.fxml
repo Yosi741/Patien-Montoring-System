@@ -15,8 +15,8 @@
 
             <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                    <Label styleClass="screen-title" text="Patient Board" />
-                    <Label styleClass="muted-text" text="Find patients, review status, and start common clinical actions from one patient board." wrapText="true" />
+                    <Label styleClass="screen-title" text="Patients" />
+                    <Label styleClass="muted-text" text="Find patients, review status, and start common clinic actions from one patient board." wrapText="true" />
                     <Label fx:id="statusLabel" styleClass="patient-status-line" text="Patients loaded: 0" />
                 </VBox>
                 <Button onAction="#backToDashboard" styleClass="secondary-button" text="Back to Dashboard" />
@@ -46,12 +46,12 @@
                     </VBox>
 
                     <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Section" />
+                        <Label styleClass="field-label" text="Clinic Area" />
                         <ComboBox fx:id="sectionFilter" maxWidth="Infinity" styleClass="patient-input" />
                     </VBox>
 
                     <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Room" />
+                        <Label styleClass="field-label" text="Location" />
                         <ComboBox fx:id="roomFilter" maxWidth="Infinity" styleClass="patient-input" />
                     </VBox>
 
@@ -83,7 +83,7 @@
 
                     <Button fx:id="viewPatientFileButton" onAction="#viewDetails" styleClass="patient-action-primary" text="View Patient File" />
 
-                    <Button fx:id="dischargePatientButton" onAction="#dischargeSelectedPatient" styleClass="patient-action-danger" text="Discharge / Deactivate" />
+                    <Button fx:id="dischargePatientButton" onAction="#dischargeSelectedPatient" styleClass="patient-action-danger" text="Discharge Patient" />
                 </HBox>
 
                 <FlowPane fx:id="filterChipsBox" hgap="8.0" vgap="8.0" />
@@ -104,8 +104,8 @@
                         <TableColumn fx:id="nameColumn" prefWidth="210.0" text="Name" />
                         <TableColumn fx:id="birthDateColumn" prefWidth="120.0" text="Birth Date" />
                         <TableColumn fx:id="genderColumn" prefWidth="100.0" text="Gender" />
-                        <TableColumn fx:id="sectionColumn" prefWidth="150.0" text="Section" />
-                        <TableColumn fx:id="roomColumn" prefWidth="105.0" text="Room" />
+                        <TableColumn fx:id="sectionColumn" prefWidth="150.0" text="Clinic Area" />
+                        <TableColumn fx:id="roomColumn" prefWidth="105.0" text="Location" />
                         <TableColumn fx:id="statusColumn" prefWidth="130.0" text="Status" />
                         <TableColumn fx:id="priorityColumn" prefWidth="130.0" text="Priority" />
                     </columns>

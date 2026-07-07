@@ -1,8 +1,6 @@
 package pages.notification;
 
 import pages.messages.SqliteMessageDao;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -69,7 +67,6 @@ public class NotificationCenterService {
     public void markRead(User user, long id) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
         notificationDao.markRead(id);
-        AuditWriteHelper.write(username(user), AuditAction.MARK_NOTIFICATION_READ, "notification_id=" + id);
     }
 
     public void markRead(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
@@ -77,7 +74,6 @@ public class NotificationCenterService {
         if (isMessageRow(row)) {
             long messageId = parseSourceId(row);
             messageDao.markRead(messageId, username(user));
-            AuditWriteHelper.write(username(user), AuditAction.READ_MESSAGE, "message_id=" + messageId);
             return;
         }
         markRead(user, row.getId());
@@ -86,7 +82,6 @@ public class NotificationCenterService {
     public void dismiss(User user, long id) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
         notificationDao.dismiss(id);
-        AuditWriteHelper.write(username(user), AuditAction.DISMISS_NOTIFICATION, "notification_id=" + id);
     }
 
     public void dismiss(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
@@ -94,7 +89,6 @@ public class NotificationCenterService {
         if (isMessageRow(row)) {
             long messageId = parseSourceId(row);
             messageDao.archive(messageId, username(user));
-            AuditWriteHelper.write(username(user), AuditAction.ARCHIVE_MESSAGE, "message_id=" + messageId);
             return;
         }
         dismiss(user, row.getId());

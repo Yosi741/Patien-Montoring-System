@@ -2,8 +2,6 @@ package pages.user.services;
 
 import pages.user.dao.SqliteUserDao;
 import app.PasswordHasher;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -31,20 +29,17 @@ public class UserWriteService {
 
     public void createUser(User admin, SqliteUserDao.UserWriteRecord record, char[] password) throws SQLException {
         require(PermissionHelper.canCreateUser(admin), "Only ADMIN users can create staff accounts.");
-        SqliteUserDao.UserWriteRecord preparedRecord = withGeneratedStaffId(record);
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
-                validateRecord(preparedRecord, true),
+                validateRecord(record, true),
                 validatePassword(password)
         );
         requireValid(validation);
-        require(!userDao.usernameExists(preparedRecord.getUsername()), "Username already exists.");
-        require(!userDao.staffIdExists(preparedRecord.getStaffId()), "Staff ID already exists.");
+        require(!userDao.usernameExists(record.getUsername()), "Username already exists.");
+        require(!userDao.staffIdExists(record.getStaffId()), "A staff member with this ID already exists.");
 
         try {
             String hash = PasswordHasher.hash(password);
-            userDao.insertUser(preparedRecord, hash);
-            audit(admin, AuditAction.CREATE_USER, "Admin " + username(admin) + " created user "
-                    + preparedRecord.getUsername() + " with Staff ID " + preparedRecord.getStaffId());
+            userDao.insertUser(record, hash);
         } finally {
             clear(password);
         }
@@ -63,11 +58,9 @@ public class UserWriteService {
         if (!record.getUsername().equalsIgnoreCase(original)) {
             throw new IllegalArgumentException("Username cannot be changed after creation. Create a new user if a different username is needed.");
         }
-        require(!userDao.staffIdExistsExcept(record.getStaffId(), original), "Staff ID already exists.");
+        require(!userDao.staffIdExistsExcept(record.getStaffId(), original), "A staff member with this ID already exists.");
 
         userDao.updateUser(original, record);
-        audit(admin, AuditAction.UPDATE_USER,
-                "Admin " + username(admin) + " updated user " + original + " (" + record.getStaffId() + ")");
     }
 
     public void deactivateUser(User admin, String affectedUsername, boolean confirmedSelfDeactivation) throws SQLException {
@@ -83,7 +76,6 @@ public class UserWriteService {
         }
 
         userDao.deactivateUser(affectedUsername.trim());
-        audit(admin, AuditAction.DEACTIVATE_USER, "Admin " + username(admin) + " deactivated user " + affectedUsername.trim());
     }
 
     public void resetPassword(User admin, String affectedUsername, char[] newPassword) throws SQLException {
@@ -99,7 +91,6 @@ public class UserWriteService {
         try {
             String hash = PasswordHasher.hash(newPassword);
             userDao.resetPasswordHash(affectedUsername.trim(), hash);
-            audit(admin, AuditAction.RESET_USER_PASSWORD, "Admin " + username(admin) + " reset password for " + affectedUsername.trim());
         } finally {
             clear(newPassword);
         }
@@ -182,14 +173,6 @@ public class UserWriteService {
         }
     }
 
-    private void audit(User admin, String action, String detail) {
-        try {
-            AuditWriteHelper.write(username(admin), action, detail);
-        } catch (Exception e) {
-            System.out.println("SQLite user write audit skipped: " + e.getMessage());
-        }
-    }
-
     private boolean isSameUser(User admin, String username) {
         return admin != null
                 && admin.getUsername() != null
@@ -209,22 +192,6 @@ public class UserWriteService {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
-    }
-
-    private SqliteUserDao.UserWriteRecord withGeneratedStaffId(SqliteUserDao.UserWriteRecord record) throws SQLException {
-        if (record == null) {
-            return null;
-        }
-        if (hasText(record.getStaffId())) {
-            return record;
-        }
-        return new SqliteUserDao.UserWriteRecord(
-                userDao.generateNextStaffId(),
-                record.getUsername(),
-                record.getRole(),
-                record.getSection(),
-                record.isActive()
-        );
     }
 
     private void clear(char[] password) {

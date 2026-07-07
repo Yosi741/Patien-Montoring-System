@@ -3,7 +3,6 @@ package pages.user.services;
 import pages.user.dao.SqliteUserDao;
 import pages.user.dao.SqliteUserProfileDao;
 import app.PasswordHasher;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import pages.user.User;
 
@@ -33,7 +32,6 @@ public class UserProfileService {
         validateProfile(email, phone);
         profileDao.upsert(username, email, phone);
         userDao.updateEmail(username, email);
-        AuditWriteHelper.write(username, "UPDATE_PROFILE", "Updated safe profile fields for " + username);
     }
 
     public void changeOwnPassword(User user, char[] currentPassword, char[] newPassword) throws SQLException {
@@ -43,7 +41,6 @@ public class UserProfileService {
         }
         validatePassword(newPassword);
         userDao.resetPasswordHash(username, PasswordHasher.hash(newPassword));
-        AuditWriteHelper.write(username, "CHANGE_PASSWORD", "Changed own JavaFX SQLite password");
     }
 
     private void validateProfile(String email, String phone) {

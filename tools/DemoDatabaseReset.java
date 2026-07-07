@@ -31,7 +31,6 @@ public class DemoDatabaseReset {
             seedAlerts(connection);
             seedReminders(connection);
             seedNotifications(connection);
-            seedAuditLogs(connection);
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON");
             }
@@ -42,7 +41,7 @@ public class DemoDatabaseReset {
 
     private static void clearOperationalData(Connection connection) throws Exception {
         String[] tables = {
-                "notifications", "messages", "audit_logs",
+                "notifications", "messages",
                 "medical_files", "medical_history", "reminders", "appointments",
                 "alerts", "vital_readings",
                 "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
@@ -212,22 +211,6 @@ public class DemoDatabaseReset {
             statement.setString(7, message);
             statement.setString(8, sourceType);
             statement.setString(9, sourceId);
-            statement.executeUpdate();
-        }
-    }
-
-    private static void seedAuditLogs(Connection connection) throws Exception {
-        insertAudit(connection, "admin", "LOGIN");
-        insertAudit(connection, "nurse", "ENTER_VITALS patient_id=100000002 status=CRITICAL");
-        insertAudit(connection, "doctor", "CREATE_REMINDER patient_id=100000002 title=Checkup order");
-        insertAudit(connection, "doctor", "SCHEDULE_APPOINTMENT patient_id=100000004");
-        insertAudit(connection, "staff", "VIEW_PATIENT_FILE patient_id=100000001");
-    }
-
-    private static void insertAudit(Connection connection, String username, String action) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO audit_logs(username, action, created_at) VALUES(?, ?, CURRENT_TIMESTAMP)")) {
-            statement.setString(1, username);
-            statement.setString(2, action);
             statement.executeUpdate();
         }
     }

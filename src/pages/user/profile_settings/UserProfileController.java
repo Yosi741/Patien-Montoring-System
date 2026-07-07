@@ -14,8 +14,6 @@ import pages.user.services.UserProfileService;
 import app.AppShell;
 import app.FxController;
 import app.SessionContext;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import users.Session;
@@ -38,9 +36,6 @@ public class UserProfileController implements FxController {
     @FXML private TextField phoneField;
     @FXML private Label profileStatusLabel;
     @FXML private VBox permissionListBox;
-    @FXML private VBox writeFoundationBox;
-    @FXML private Button createTestAuditButton;
-    @FXML private Label writeFoundationStatusLabel;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -93,18 +88,6 @@ public class UserProfileController implements FxController {
             addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
             addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
             addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
-        }
-
-        boolean canTestWrite = PermissionHelper.canCreateTestAuditEvent(user);
-        if (writeFoundationBox != null) {
-            writeFoundationBox.setVisible(canTestWrite);
-            writeFoundationBox.setManaged(canTestWrite);
-        }
-        if (createTestAuditButton != null) {
-            createTestAuditButton.setDisable(!canTestWrite);
-        }
-        if (canTestWrite && writeFoundationStatusLabel != null) {
-            NotificationHelper.showInfo(writeFoundationStatusLabel, "Ready for an admin-only safe audit write.");
         }
     }
 
@@ -166,26 +149,6 @@ public class UserProfileController implements FxController {
             }
         });
         dialog.showAndWait();
-    }
-
-    @FXML
-    private void createTestAuditEvent() {
-        User user = Session.getCurrentUser();
-        if (!PermissionHelper.canCreateTestAuditEvent(user)) {
-            showError(writeFoundationStatusLabel, "Access denied. Admin role is required.");
-            return;
-        }
-
-        try {
-            AuditWriteHelper.write(
-                    SessionContext.username(),
-                    AuditAction.CREATE_TEST_AUDIT_EVENT,
-                    "JavaFX Profile/Settings write foundation smoke test"
-            );
-            showSuccess(writeFoundationStatusLabel, "Test audit event created. Check Audit Logs.");
-        } catch (Exception e) {
-            showError(writeFoundationStatusLabel, "Could not create audit event: " + e.getMessage());
-        }
     }
 
     private void addPermission(String label, boolean allowed, String note) {

@@ -21,7 +21,7 @@
 
             <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="panel-card">
                 <Label text="Access denied" styleClass="section-title" />
-                <Label text="Staff/User Directory management is visible only for Admin users for authorized hospital roles." wrapText="true" styleClass="body-text" />
+                <Label text="Staff/User Directory management is visible only for Admin users for authorized clinic roles." wrapText="true" styleClass="body-text" />
             </VBox>
 
             <VBox fx:id="directoryContentPane" spacing="16.0">

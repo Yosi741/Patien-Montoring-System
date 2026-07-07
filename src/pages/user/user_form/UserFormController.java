@@ -105,12 +105,13 @@ public class UserFormController {
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add User");
             helpLabel.setText("Create a staff account with role and section access.");
-            staffIdField.setEditable(false);
+            staffIdField.setEditable(true);
             staffIdField.setDisable(false);
-            staffIdField.setText(loadNextStaffId());
+            staffIdField.clear();
             usernameField.setEditable(true);
             usernameField.setDisable(false);
             usernameHelpLabel.setText("Enter a unique username for this new account.");
+            NotificationHelper.showInfo(statusLabel, "Staff ID is required.");
             passwordHelpLabel.setText("Password is stored safely and not displayed.");
             return;
         }
@@ -279,12 +280,4 @@ public class UserFormController {
         return "Edit User";
     }
 
-    private String loadNextStaffId() {
-        try {
-            return userWriteService.generateNextStaffId();
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, "Could not generate Staff ID: " + e.getMessage());
-            return "";
-        }
-    }
 }

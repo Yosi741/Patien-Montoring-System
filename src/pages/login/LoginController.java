@@ -1,6 +1,5 @@
 package pages.login;
 
-import pages.audit_log.SqliteAuditLogDao;
 import pages.user.dao.SqliteUserDao;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -24,7 +23,6 @@ public class LoginController implements FxController {
 
     private AppShell appShell;
     private final SqliteUserDao sqliteUserDao = new SqliteUserDao();
-    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final ForgotPasswordService forgotPasswordService = new ForgotPasswordService();
 
     @FXML
@@ -64,7 +62,6 @@ public class LoginController implements FxController {
                     statusLabel.setText("Invalid username or password.");
                     return;
                 }
-                logLogin(user.getUsername(), "Local database");
                 appShell.showDashboard(user, "Local database");
                 return;
             }
@@ -91,11 +88,15 @@ public class LoginController implements FxController {
         requestDialog.initOwner(usernameField.getScene().getWindow());
         TextField resetUsername = new TextField(usernameField.getText());
         resetUsername.setPromptText("Username");
+        TextField staffIdField = new TextField();
+        staffIdField.setPromptText("Staff ID");
         GridPane requestGrid = new GridPane();
         requestGrid.setHgap(12);
         requestGrid.setVgap(10);
         requestGrid.add(new Label("Enter your username"), 0, 0);
         requestGrid.add(resetUsername, 1, 0);
+        requestGrid.add(new Label("Enter your Staff ID"), 0, 1);
+        requestGrid.add(staffIdField, 1, 1);
         requestDialog.getDialogPane().setContent(requestGrid);
         ButtonType submitType = new ButtonType("Request Reset", ButtonBar.ButtonData.OK_DONE);
         requestDialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, submitType);
@@ -105,7 +106,9 @@ public class LoginController implements FxController {
         }
 
         try {
-            ForgotPasswordService.ForgotPasswordResult result = forgotPasswordService.requestReset(resetUsername.getText());
+            ForgotPasswordService.ForgotPasswordResult result = forgotPasswordService.requestReset(
+                    resetUsername.getText(),
+                    staffIdField.getText());
             showForgotPasswordResult(result);
         } catch (Exception e) {
             statusLabel.setText("Could not process password reset request: " + e.getMessage());
@@ -118,8 +121,8 @@ public class LoginController implements FxController {
             return;
         }
         switch (result.status()) {
-            case EMPTY_USERNAME -> statusLabel.setText("Username is required.");
-            case USER_NOT_FOUND -> statusLabel.setText("No account was found for this username.");
+            case EMPTY_CREDENTIALS -> statusLabel.setText("Username and Staff ID are required.");
+            case CREDENTIALS_MISMATCH -> statusLabel.setText("The username and staff ID do not match our records.");
             case NO_EMAIL_CONFIGURED -> statusLabel.setText("No email is configured for this account. Please contact an administrator.");
             case EMAIL_QUEUED -> {
                 statusLabel.setText("Password reset email was queued for the registered email address.");
@@ -136,14 +139,6 @@ public class LoginController implements FxController {
                 alert.initOwner(usernameField.getScene().getWindow());
                 alert.showAndWait();
             }
-        }
-    }
-
-    private void logLogin(String username, String source) {
-        try {
-            auditLogDao.log(username, "JavaFX login via " + source);
-        } catch (Exception e) {
-            System.out.println("SQLite login audit skipped: " + e.getMessage());
         }
     }
 

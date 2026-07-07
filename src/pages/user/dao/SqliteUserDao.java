@@ -300,12 +300,21 @@ public class SqliteUserDao implements UserDao {
     }
 
     public Optional<PasswordResetContact> findPasswordResetContact(String username) throws SQLException {
+        return findPasswordResetContact(username, null);
+    }
+
+    public Optional<PasswordResetContact> findPasswordResetContact(String username, String staffId) throws SQLException {
         String sql = "SELECT u.username, COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email "
                 + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username "
-                + "WHERE LOWER(u.username) = LOWER(?) AND u.active = 1";
+                + "WHERE LOWER(u.username) = LOWER(?) "
+                + "AND (? IS NULL OR UPPER(COALESCE(u.staff_id, '')) = UPPER(?)) "
+                + "AND u.active = 1";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username == null ? "" : username.trim());
+            String normalizedStaffId = staffId == null || staffId.trim().isEmpty() ? null : staffId.trim();
+            statement.setString(2, normalizedStaffId);
+            statement.setString(3, normalizedStaffId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return Optional.of(new PasswordResetContact(

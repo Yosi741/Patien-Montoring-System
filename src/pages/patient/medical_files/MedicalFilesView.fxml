@@ -11,7 +11,7 @@
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="top-bar compact-top-bar page-header-card">
             <VBox spacing="4.0">
                 <Label styleClass="screen-title" text="Medical Files" />
-                <Label styleClass="muted-text" text="Local upload and basic analysis" />
+                <Label styleClass="muted-text" text="Local file upload and basic preview" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Button onAction="#showDashboard" styleClass="secondary-button" text="Dashboard" />
@@ -28,13 +28,13 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
                         <Label styleClass="warning-value" text="Access denied" />
-                        <Label styleClass="body-text" text="Medical Files is available to Admin, Doctor, and Nurse roles for authorized hospital roles." wrapText="true" />
+                        <Label styleClass="body-text" text="Medical Files is available to Admin, Doctor, and Nurse roles for authorized clinic roles." wrapText="true" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label styleClass="status-info metric-value compact-metric-value" text="Local database upload. Preview extracts text where possible; no external ui.javafx.services." />
+                            <Label styleClass="status-info metric-value compact-metric-value" text="Local clinic file upload. Preview extracts text where possible." />
                             <Label fx:id="patientFilterChip" managed="false" styleClass="status-success success-value" text="" visible="false" />
                             <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="transparent-pane secondary-button" text="Clear Patient Filter" visible="false" />
                         </HBox>
@@ -61,7 +61,7 @@
 
                         <SplitPane dividerPositions="0.62" prefHeight="630.0" styleClass="transparent-pane">
                             <VBox spacing="10.0" styleClass="panel-card">
-                                <Label styleClass="section-title" text="Uploaded Files" />
+                                <Label styleClass="section-title" text="Patient Files" />
                                 <TableView fx:id="filesTable" styleClass="dialog-card clinical-table" VBox.vgrow="ALWAYS">
                                     <columns>
                                         <TableColumn fx:id="rowNumberColumn" prefWidth="66.0" sortable="false" text="#" />

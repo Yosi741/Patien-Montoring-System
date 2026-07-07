@@ -13,7 +13,7 @@
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label fx:id="titleLabel" text="Patient" styleClass="screen-title dialog-title" />
 
-        <Label fx:id="helpLabel" text="Patient record form" wrapText="true" styleClass="muted-text dialog-subtitle" />
+        <Label fx:id="helpLabel" text="Patient file form" wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -24,7 +24,10 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Patient ID" styleClass="field-label" />
-            <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" />
+            <HBox spacing="8.0">
+                <TextField fx:id="patientIdField" promptText="9-digit patient ID" styleClass="control-input" HBox.hgrow="ALWAYS" />
+                <Button fx:id="checkPatientIdButton" onAction="#checkExistingPatientId" styleClass="secondary-button" text="Check ID" />
+            </HBox>
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -53,13 +56,13 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Section" styleClass="field-label" />
-            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type section" maxWidth="Infinity" styleClass="control-input" />
+            <Label text="Clinic Area" styleClass="field-label" />
+            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type clinic area" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Label text="Room" styleClass="field-label" />
-            <ComboBox fx:id="roomBox" editable="true" promptText="Room / bed" maxWidth="Infinity" styleClass="control-input" />
+            <Label text="Visit Location" styleClass="field-label" />
+            <ComboBox fx:id="roomBox" editable="true" promptText="Visit location" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
@@ -74,17 +77,17 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
             <Label text="Assigned Doctor" styleClass="field-label" />
-            <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected section" maxWidth="Infinity" styleClass="control-input" />
+            <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected clinic area" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
-            <Label text="Assigned Nurse / Staff" styleClass="field-label" />
-            <ComboBox fx:id="assignedStaffBox" promptText="Nurse or staff in selected section" maxWidth="Infinity" styleClass="control-input" />
+            <Label text="Assigned Staff" styleClass="field-label" />
+            <ComboBox fx:id="assignedStaffBox" promptText="Staff in selected clinic area" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
-            <Label text="Diagnosis" styleClass="field-label" />
-            <TextArea fx:id="diagnosisArea" promptText="Short diagnosis or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
+            <Label text="Visit Reason / Diagnosis" styleClass="field-label" />
+            <TextArea fx:id="diagnosisArea" promptText="Short visit reason, diagnosis, or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
         </VBox>
     </GridPane>
 

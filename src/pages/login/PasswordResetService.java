@@ -3,7 +3,6 @@ package pages.login;
 import pages.login.dao.SqlitePasswordResetDao;
 import pages.user.dao.SqliteUserDao;
 import app.PasswordHasher;
-import pages.audit_log.AuditWriteHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -41,7 +40,6 @@ public class PasswordResetService {
         String expiresAt = LocalDateTime.now().plusMinutes(20).format(SQLITE_TIME);
         resetDao.expireOpenTokens(cleanUsername, now);
         resetDao.insertToken(cleanUsername, hashToken(token), expiresAt);
-        AuditWriteHelper.write(cleanUsername, "CREATE_PASSWORD_RESET_TOKEN", "Local demo password reset token created for " + cleanUsername);
         return new ResetTokenResult(cleanUsername, token, expiresAt);
     }
 
@@ -52,7 +50,6 @@ public class PasswordResetService {
                 .orElseThrow(() -> new IllegalArgumentException("Reset token is invalid, expired, or already used."));
         userDao.resetPasswordHash(cleanUsername, PasswordHasher.hash(newPassword));
         resetDao.markUsed(row.getId(), now());
-        AuditWriteHelper.write(cleanUsername, "RESET_PASSWORD_WITH_TOKEN", "Local demo password reset completed for " + cleanUsername);
     }
 
     private String cleanUsername(String username) {

@@ -21,15 +21,15 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
                         <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                            <Label text="Appointments &amp; Reminders" styleClass="screen-title" />
-                            <Label text="Scheduling foundation for appointments and patient reminders" styleClass="muted-text" wrapText="true" />
+                            <Label text="Appointments &amp; Checkups" styleClass="screen-title" />
+                            <Label text="Clinic scheduling for appointments, follow-ups, and patient checkups." styleClass="muted-text" wrapText="true" />
                         </VBox>
                         <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
                     </HBox>
 
                     <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Scheduling is available to Admin, Doctor, and Nurse roles for authorized hospital roles."
+                        <Label text="Scheduling is available to Admin, Doctor, and Nurse roles for authorized clinic roles."
                                wrapText="true" styleClass="body-text" />
                     </VBox>
 
@@ -49,7 +49,7 @@
                             </VBox>
 
                             <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Upcoming Surgeries" styleClass="metric-label" />
+                                <Label text="Upcoming Follow-ups" styleClass="metric-label" />
                                 <Label fx:id="upcomingSurgeriesLabel" text="0" styleClass="danger-value" />
                             </VBox>
 
@@ -59,7 +59,7 @@
                             </VBox>
 
                             <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Patient Reminders Today" styleClass="metric-label" />
+                                <Label text="Checkups Today" styleClass="metric-label" />
                                 <Label fx:id="patientRemindersTodayLabel" text="0" styleClass="success-value" />
                             </VBox>
 
@@ -73,7 +73,7 @@
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient, title, staff, location" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField" promptText="Patient, title, doctor, location" HBox.hgrow="ALWAYS" styleClass="control-input" />
                             </HBox>
 
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -83,10 +83,10 @@
                                 <Label text="Appointment Status" styleClass="field-label" />
                                 <ComboBox fx:id="appointmentStatusFilter" prefWidth="145.0" styleClass="control-input" />
 
-                                <Label text="Reminder Type" styleClass="field-label" />
+                                <Label text="Checkup Type" styleClass="field-label" />
                                 <ComboBox fx:id="reminderTypeFilter" prefWidth="145.0" styleClass="control-input" />
 
-                                <Label text="Reminder Status" styleClass="field-label" />
+                                <Label text="Checkup Status" styleClass="field-label" />
                                 <ComboBox fx:id="reminderStatusFilter" prefWidth="140.0" styleClass="control-input" />
 
                                 <Region HBox.hgrow="ALWAYS" />
@@ -126,9 +126,9 @@
 
                         <VBox spacing="10.0" styleClass="panel-card">
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Patient Reminders" styleClass="section-title" />
+                                <Label text="Checkups &amp; Follow-ups" styleClass="section-title" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="newReminderButton" text="New Reminder" onAction="#createReminder" styleClass="primary-button" />
+                                <Button fx:id="newReminderButton" text="New Checkup" onAction="#createReminder" styleClass="primary-button" />
                                 <Button fx:id="editReminderButton" text="Edit Selected" onAction="#editReminder" styleClass="secondary-button" />
                                 <Button fx:id="doneReminderButton" text="Mark Done" onAction="#markReminderDone" styleClass="secondary-button" />
                                 <Button fx:id="cancelReminderButton" text="Cancel" onAction="#cancelReminder" styleClass="danger-button" />
@@ -150,11 +150,11 @@
                                 </TableView>
 
                                 <VBox spacing="10.0" prefWidth="340.0" styleClass="panel-card">
-                                    <Label text="Reminder Detail" styleClass="section-title" />
-                                    <Label fx:id="reminderDetailTitleLabel" text="Select a reminder" wrapText="true" styleClass="section-title" />
+                                    <Label text="Checkup Detail" styleClass="section-title" />
+                                    <Label fx:id="reminderDetailTitleLabel" text="Select a checkup" wrapText="true" styleClass="section-title" />
 
                                     <GridPane hgap="10.0" vgap="8.0">
-                                        <Label text="Reminder ID" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
+                                        <Label text="Checkup ID" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
                                         <Label fx:id="reminderDetailIdLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-field-value" />
                                         <Label text="Patient ID" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-field-name" />
                                         <Label fx:id="reminderDetailPatientIdLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-field-value" />

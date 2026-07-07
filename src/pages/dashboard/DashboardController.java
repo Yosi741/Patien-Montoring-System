@@ -10,7 +10,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import pages.dashboard.services.DashboardMetricsService;
-import app.AppFeatures;
 import app.AppShell;
 import app.FxController;
 import users.Session;
@@ -34,12 +33,6 @@ public class DashboardController implements FxController {
     @FXML private Label activePatientsLabel;
     @FXML private Label criticalPatientsLabel;
     @FXML private Label activeAlertsLabel;
-    @FXML private Label acknowledgedTodayLabel;
-    @FXML private Label resolvedTodayLabel;
-    @FXML private Label medicalFilesLabel;
-    @FXML private VBox acknowledgedAlertsCard;
-    @FXML private VBox resolvedAlertsCard;
-    @FXML private VBox medicalFilesCard;
     @FXML private Label recentVitalsTodayLabel;
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label pendingRemindersLabel;
@@ -65,7 +58,7 @@ public class DashboardController implements FxController {
         String section = user == null ? "Unknown" : user.getSection();
 
         welcomeLabel.setText("Welcome, " + username);
-        roleLabel.setText(role + " | Section: " + section);
+        roleLabel.setText(role + " | Clinic Area: " + section);
         databaseStatusLabel.setText(appShell.getDatabaseStatus());
 
         try {
@@ -101,12 +94,6 @@ public class DashboardController implements FxController {
         activePatientsLabel.setText(String.valueOf(metrics.getActivePatients()));
         criticalPatientsLabel.setText(String.valueOf(metrics.getCriticalEmergencyPatients()));
         activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
-        acknowledgedTodayLabel.setText(String.valueOf(metrics.getAcknowledgedAlertsToday()));
-        resolvedTodayLabel.setText(String.valueOf(metrics.getResolvedAlertsToday()));
-        medicalFilesLabel.setText(String.valueOf(metrics.getImportedMedicalFiles()));
-        setCardVisible(acknowledgedAlertsCard, !AppFeatures.DEMO_MODE);
-        setCardVisible(resolvedAlertsCard, !AppFeatures.DEMO_MODE);
-        setCardVisible(medicalFilesCard, AppFeatures.medicalFilesEnabled());
         recentVitalsTodayLabel.setText(String.valueOf(metrics.getRecentVitalsToday()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
         pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));
@@ -125,7 +112,7 @@ public class DashboardController implements FxController {
 
         recentAlertsBox.getChildren().setAll();
         if (metrics.getRecentAlerts().isEmpty()) {
-            recentAlertsBox.getChildren().add(emptyRow("No SQLite alerts found."));
+            recentAlertsBox.getChildren().add(emptyRow("No clinic alerts found."));
         } else {
             for (DashboardMetricsService.RecentAlert alert : metrics.getRecentAlerts()) {
                 recentAlertsBox.getChildren().add(alertRow(alert));
@@ -193,13 +180,6 @@ public class DashboardController implements FxController {
         HBox row = new HBox(label);
         row.getStyleClass().add("dashboard-list-row");
         return row;
-    }
-
-    private void setCardVisible(VBox card, boolean visible) {
-        if (card != null) {
-            card.setVisible(visible);
-            card.setManaged(visible);
-        }
     }
 
     private void startAutoRefresh() {

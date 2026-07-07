@@ -25,6 +25,7 @@ public class SchemaInitializer {
             createEmailOutbox(statement);
             createPatients(statement);
             migratePatients(statement);
+            createPatientVisits(statement);
             createVitalReadings(statement);
             createAlerts(statement);
             migrateAlerts(statement);
@@ -33,7 +34,6 @@ public class SchemaInitializer {
             createMedicalHistory(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
-            createAuditLogs(statement);
             createMessages(statement);
             createNotifications(statement);
             migrateNotifications(statement);
@@ -262,6 +262,19 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    private static void createPatientVisits(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS patient_visits ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "patient_id TEXT NOT NULL,"
+                + "visit_date TEXT NOT NULL,"
+                + "discharge_date TEXT,"
+                + "status TEXT NOT NULL,"
+                + "report TEXT,"
+                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
     private static void createMedicalHistory(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS medical_history ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -395,15 +408,6 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, table, "reviewed_at", "TEXT");
         addColumnIfMissing(statement, table, "rejection_reason", "TEXT");
         statement.execute("UPDATE " + table + " SET review_status = 'DRAFT' WHERE review_status IS NULL OR TRIM(review_status) = ''");
-    }
-
-    private static void createAuditLogs(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS audit_logs ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "username TEXT NOT NULL,"
-                + "action TEXT NOT NULL,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                + ")");
     }
 
     private static void createNotifications(Statement statement) throws SQLException {

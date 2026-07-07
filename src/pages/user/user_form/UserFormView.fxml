@@ -12,7 +12,7 @@
 
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label fx:id="titleLabel" text="User" styleClass="screen-title dialog-title" />
-        <Label fx:id="helpLabel" text="Manage a staff account for role-based hospital access." wrapText="true" styleClass="muted-text dialog-subtitle" />
+        <Label fx:id="helpLabel" text="Manage a staff account for role-based clinic access." wrapText="true" styleClass="muted-text dialog-subtitle" />
     </VBox>
 
     <GridPane hgap="14.0" vgap="13.0">
@@ -23,7 +23,7 @@
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Staff ID" styleClass="field-label" />
-            <TextField fx:id="staffIdField" promptText="U0001" editable="false" styleClass="control-input" />
+            <TextField fx:id="staffIdField" promptText="U0001" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">

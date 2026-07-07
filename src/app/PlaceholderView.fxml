@@ -44,7 +44,7 @@
 
             <Label text="• SQLite integration and safer storage" styleClass="muted-text" />
 
-            <Label text="• Responsive hospital workflow design" styleClass="muted-text" />
+            <Label text="• Responsive clinic workflow design" styleClass="muted-text" />
 
             <Label text="• Improved patient monitoring experience" styleClass="muted-text" />
         </VBox>

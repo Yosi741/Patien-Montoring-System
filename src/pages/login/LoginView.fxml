@@ -24,7 +24,7 @@
 
                         <VBox alignment="CENTER" spacing="14.0">
                             <Label styleClass="login-brand-title" text="SPMS" />
-                            <Label alignment="CENTER" styleClass="login-brand-subtitle" text="Smart Patient Monitoring System" textAlignment="CENTER" />
+                            <Label alignment="CENTER" styleClass="login-brand-subtitle" text="Smart Clinic Patient Monitoring System" textAlignment="CENTER" />
                         </VBox>
                     </VBox>
 
@@ -33,7 +33,7 @@
                     <VBox alignment="CENTER" maxWidth="340.0" spacing="18.0">
                         <Label alignment="CENTER" styleClass="login-brand-message" text="Clinical workspace for patient monitoring" textAlignment="CENTER" wrapText="true" />
 
-                        <Label alignment="CENTER" styleClass="login-brand-helper" text="Patients | Alerts | Clinical records" textAlignment="CENTER" wrapText="true" />
+                        <Label alignment="CENTER" styleClass="login-brand-helper" text="Patients | Alerts | Appointments | Medical Files" textAlignment="CENTER" wrapText="true" />
                     </VBox>
 
                     <Region VBox.vgrow="ALWAYS" />
@@ -42,7 +42,7 @@
                         <Label styleClass="login-security-icon" text="OK" />
                         <VBox spacing="2.0">
                             <Label styleClass="login-security-title" text="Protected clinical access" />
-                            <Label styleClass="login-security-text" text="Private | Reliable | Local hospital system" />
+                            <Label styleClass="login-security-text" text="Private | Reliable | Local clinic system" />
                         </VBox>
                     </HBox>
                 </VBox>
@@ -55,7 +55,7 @@
                         </StackPane>
 
                         <Label styleClass="login-title" text="Welcome Back" />
-                        <Label alignment="CENTER" styleClass="login-subtitle" text="Login to continue to your medical workspace" textAlignment="CENTER" wrapText="true" />
+                        <Label alignment="CENTER" styleClass="login-subtitle" text="Login to continue to your clinic workspace" textAlignment="CENTER" wrapText="true" />
                     </VBox>
 
                     <VBox fillWidth="true" maxWidth="470.0" spacing="18.0">

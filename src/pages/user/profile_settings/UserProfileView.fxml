@@ -90,7 +90,7 @@
 
                     <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                         <Label text="Email" styleClass="metric-label" />
-                        <TextField fx:id="emailField" promptText="name@hospital.local"
+                        <TextField fx:id="emailField" promptText="name@clinic.local"
                                    styleClass="control-input" />
                     </VBox>
 
@@ -124,30 +124,6 @@
                 <VBox fx:id="permissionListBox" spacing="8.0" />
             </VBox>
 
-            <VBox fx:id="writeFoundationBox"
-                  managed="false"
-                  visible="false"
-                  spacing="12.0"
-                  styleClass="panel-card">
-
-                <Label text="Admin Audit Test"
-                       styleClass="section-title" />
-
-                <Label text="Admin-only safe test write. This creates a local database audit log row only; no patient, vitals, reminder, or user data is changed."
-                       wrapText="true"
-                       styleClass="muted-text" />
-
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <Button fx:id="createTestAuditButton"
-                            text="Create Test Audit Event"
-                            onAction="#createTestAuditEvent"
-                            styleClass="primary-button" />
-
-                    <Label fx:id="writeFoundationStatusLabel"
-                           text="-"
-                           wrapText="true" styleClass="status-success success-value" />
-                </HBox>
-            </VBox>
         </VBox>
     </center>
 </BorderPane>

@@ -1,8 +1,6 @@
 package pages.patient.services;
 
 import pages.patient.dao.SqlitePatientDao;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -22,20 +20,26 @@ public class PatientWriteService {
     private static final Set<String> VALID_BLOOD_TYPES = Set.of("UNKNOWN", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
     private final SqlitePatientDao patientDao;
+    private final PatientVisitService patientVisitService;
 
     public PatientWriteService() {
-        this(new SqlitePatientDao());
+        this(new SqlitePatientDao(), new PatientVisitService());
     }
 
     public PatientWriteService(SqlitePatientDao patientDao) {
+        this(patientDao, new PatientVisitService());
+    }
+
+    public PatientWriteService(SqlitePatientDao patientDao, PatientVisitService patientVisitService) {
         this.patientDao = patientDao;
+        this.patientVisitService = patientVisitService;
     }
 
     public void createPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, true);
         patientDao.insertPatient(clean(patient));
-        AuditWriteHelper.write(currentUser.getUsername(), AuditAction.CREATE_PATIENT, "patient_id=" + patient.getPatientId());
+        patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
     public void updatePatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
@@ -45,10 +49,13 @@ public class PatientWriteService {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId());
         }
         patientDao.updatePatient(clean(patient));
-        AuditWriteHelper.write(currentUser.getUsername(), AuditAction.UPDATE_PATIENT, "patient_id=" + patient.getPatientId());
     }
 
     public void deactivateOrDischargePatient(User currentUser, String patientId) throws SQLException {
+        dischargePatient(currentUser, patientId, "");
+    }
+
+    public void dischargePatient(User currentUser, String patientId, String dischargeSummary) throws SQLException {
         if (!PermissionHelper.canDeactivatePatient(currentUser)) {
             throw new SecurityException("Only Admin and Doctor users can discharge or deactivate patients.");
         }
@@ -59,8 +66,41 @@ public class PatientWriteService {
         if (!patientDao.existsByPatientId(patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
         }
+        SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patientId));
+        if ("DECEASED".equalsIgnoreCase(detail.getStatus())) {
+            throw new IllegalArgumentException("Deceased patient files cannot be discharged.");
+        }
         patientDao.deactivatePatient(patientId, "DISCHARGED");
-        AuditWriteHelper.write(currentUser.getUsername(), AuditAction.DISCHARGE_PATIENT, "patient_id=" + patientId);
+        patientVisitService.dischargeVisit(patientId, dischargeSummary);
+    }
+
+    public void reactivateReturningPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
+        requireWritePermission(currentUser);
+        validatePatient(patient, false);
+        SqlitePatientDao.PatientDetail existing = patientDao.findDetailById(patient.getPatientId())
+                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId()));
+        if ("DECEASED".equalsIgnoreCase(existing.getStatus())) {
+            throw new IllegalArgumentException("Deceased patient files cannot be reactivated as returning visits.");
+        }
+
+        SqlitePatientDao.PatientWriteRecord activeVisitRecord = new SqlitePatientDao.PatientWriteRecord(
+                patient.getPatientId(),
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getBirthDate(),
+                patient.getGender(),
+                patient.getSection(),
+                patient.getRoom(),
+                "ACTIVE",
+                patient.getPriority(),
+                patient.getBloodType(),
+                patient.getDiagnosis(),
+                patient.getAssignedDoctorUsername(),
+                patient.getAssignedStaffUsername()
+        );
+        patientDao.updatePatient(clean(activeVisitRecord));
+        patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
     private void requireWritePermission(User currentUser) {
@@ -96,7 +136,7 @@ public class PatientWriteService {
         validateChoice("Priority", normalize(patient.getPriority()), VALID_PRIORITIES);
         validateChoice("Blood type", normalizeBloodType(patient.getBloodType()).toUpperCase(Locale.ROOT), VALID_BLOOD_TYPES);
         if (create && patientDao.existsByPatientId(patient.getPatientId())) {
-            throw new IllegalArgumentException("Patient ID already exists in SQLite.");
+            throw new IllegalArgumentException("A patient file already exists for this ID. Use Check ID to load the existing profile.");
         }
     }
 

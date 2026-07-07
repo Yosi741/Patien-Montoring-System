@@ -18,6 +18,7 @@ import javafx.stage.Window;
 import pages.patient.services.PatientWriteService;
 import app.AppNavigator;
 import app.helpers.DatePickerHelper;
+import app.helpers.DialogHelper;
 import pages.notification.NotificationHelper;
 import pages.user.User;
 
@@ -37,11 +38,13 @@ public class PatientFormController {
     private final SqliteUserDao userDao = new SqliteUserDao();
     private User currentUser;
     private SqlitePatientDao.PatientDetail existingPatient;
+    private boolean returningPatientMode;
     private boolean saved;
 
     @FXML private Label titleLabel;
     @FXML private Label helpLabel;
     @FXML private TextField patientIdField;
+    @FXML private javafx.scene.control.Button checkPatientIdButton;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private DatePicker birthDatePicker;
@@ -107,43 +110,34 @@ public class PatientFormController {
             loadRoomsForSection(newValue);
             loadAssignedStaffForSection(newValue);
         });
-        NotificationHelper.showInfo(statusLabel, "Patient record form. System data is stored in the local database.");
+        NotificationHelper.showInfo(statusLabel, "Patient file form. System data is stored in the local clinic database.");
     }
 
     private void prepare(User currentUser, SqlitePatientDao.PatientDetail patient) {
         this.currentUser = currentUser;
         this.existingPatient = patient;
+        this.returningPatientMode = false;
         if (patient == null) {
             titleLabel.setText("Add Patient");
-            helpLabel.setText("Create a patient record in the local database.");
+            helpLabel.setText("Create a patient record in the local clinic database.");
+            patientIdField.setDisable(false);
+            setCheckIdVisible(true);
             return;
         }
 
         titleLabel.setText("Edit Patient");
-        helpLabel.setText("Update this patient record only. System data is stored in the local database.");
-        patientIdField.setText(patient.getPatientId());
-        patientIdField.setDisable(true);
-        firstNameField.setText(patient.getFirstName());
-        lastNameField.setText(patient.getLastName());
-        birthDatePicker.setValue(parseBirthDate(patient.getBirthDate()));
-        genderBox.getSelectionModel().select(blankTo(patient.getGender(), "Unknown"));
-        selectOrSet(sectionBox, patient.getSection());
-        loadRoomsForSection(patient.getSection());
-        selectOrSet(roomBox, patient.getRoom());
-        loadAssignedStaffForSection(patient.getSection());
-        selectOrSet(assignedDoctorBox, patient.getAssignedDoctorUsername());
-        selectOrSet(assignedStaffBox, patient.getAssignedStaffUsername());
-        statusBox.getSelectionModel().select(normalizeStatus(patient.getStatus()));
-        priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
-        bloodTypeBox.getSelectionModel().select(normalizeBloodType(patient.getBloodType()));
-        diagnosisArea.setText(patient.getDiagnosis());
+        helpLabel.setText("Update this patient record only. System data is stored in the local clinic database.");
+        populateFromPatientDetail(patient, false);
+        setCheckIdVisible(false);
     }
 
     private boolean save() {
         try {
             DatePickerHelper.commitEditorText(birthDatePicker);
             SqlitePatientDao.PatientWriteRecord record = buildRecord();
-            if (existingPatient == null) {
+            if (returningPatientMode) {
+                patientWriteService.reactivateReturningPatient(currentUser, record);
+            } else if (existingPatient == null) {
                 patientWriteService.createPatient(currentUser, record);
             } else {
                 patientWriteService.updatePatient(currentUser, record);
@@ -188,6 +182,46 @@ public class PatientFormController {
         installNameFilter(lastNameField);
     }
 
+    @FXML
+    private void checkExistingPatientId() {
+        if (existingPatient != null && !returningPatientMode) {
+            return;
+        }
+        String patientId = patientIdField.getText() == null ? "" : patientIdField.getText().trim();
+        if (patientId.isBlank()) {
+            NotificationHelper.showError(statusLabel, "Patient ID is required.");
+            return;
+        }
+        if (!patientId.matches("\\d{9}")) {
+            NotificationHelper.showError(statusLabel, "Patient ID must contain only digits and exactly 9 digits.");
+            return;
+        }
+        try {
+            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId).orElse(null);
+            if (detail == null) {
+                NotificationHelper.showInfo(statusLabel, "No existing patient file was found for this ID.");
+                return;
+            }
+            boolean confirmed = DialogHelper.confirm(
+                    "Existing Patient File",
+                    "A patient file already exists for this ID. Do you want to load the existing profile and create a new visit?");
+            if (!confirmed) {
+                patientIdField.clear();
+                patientIdField.requestFocus();
+                NotificationHelper.showInfo(statusLabel, "Patient ID cleared. Enter a different ID or continue with a new patient.");
+                return;
+            }
+            existingPatient = detail;
+            returningPatientMode = true;
+            titleLabel.setText("Returning Patient");
+            helpLabel.setText("Existing patient file loaded. Review the profile and save to create a new clinic visit.");
+            populateFromPatientDetail(detail, true);
+            NotificationHelper.showSuccess(statusLabel, "Existing patient file loaded. Save to create or resume the clinic visit.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
     private void installNameFilter(TextField field) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             String clean = cleanName(newValue);
@@ -220,7 +254,7 @@ public class PatientFormController {
         try {
             sections.addAll(patientDao.findDistinctSections());
         } catch (Exception e) {
-            NotificationHelper.showInfo(statusLabel, "Active section list unavailable: " + e.getMessage());
+            NotificationHelper.showInfo(statusLabel, "Active clinic area list unavailable: " + e.getMessage());
         }
         sectionBox.getItems().setAll(sections);
     }
@@ -231,7 +265,7 @@ public class PatientFormController {
         try {
             rooms.addAll(patientDao.findDistinctRooms());
         } catch (Exception e) {
-            NotificationHelper.showInfo(statusLabel, "Room choices unavailable: " + e.getMessage());
+            NotificationHelper.showInfo(statusLabel, "Visit location choices unavailable: " + e.getMessage());
         }
         roomBox.getItems().setAll(rooms);
         if (selected != null && !selected.isBlank()) {
@@ -266,7 +300,34 @@ public class PatientFormController {
             selectOrSet(assignedStaffBox, selectedStaff);
         }
         if (doctors.isEmpty() && nursesAndStaff.isEmpty() && section != null && !section.isBlank()) {
-            NotificationHelper.showInfo(statusLabel, "No active doctor, nurse, or staff accounts found for " + section + ".");
+            NotificationHelper.showInfo(statusLabel, "No active doctor or staff accounts found for clinic area " + section + ".");
+        }
+    }
+
+    private void populateFromPatientDetail(SqlitePatientDao.PatientDetail patient, boolean returningVisit) {
+        patientIdField.setText(patient.getPatientId());
+        patientIdField.setDisable(true);
+        firstNameField.setText(patient.getFirstName());
+        lastNameField.setText(patient.getLastName());
+        birthDatePicker.setValue(parseBirthDate(patient.getBirthDate()));
+        genderBox.getSelectionModel().select(blankTo(patient.getGender(), "Unknown"));
+        selectOrSet(sectionBox, patient.getSection());
+        loadRoomsForSection(patient.getSection());
+        selectOrSet(roomBox, patient.getRoom());
+        loadAssignedStaffForSection(patient.getSection());
+        selectOrSet(assignedDoctorBox, patient.getAssignedDoctorUsername());
+        selectOrSet(assignedStaffBox, patient.getAssignedStaffUsername());
+        statusBox.getSelectionModel().select(returningVisit ? "ACTIVE" : normalizeStatus(patient.getStatus()));
+        priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
+        bloodTypeBox.getSelectionModel().select(normalizeBloodType(patient.getBloodType()));
+        diagnosisArea.setText(returningVisit ? "" : patient.getDiagnosis());
+        setCheckIdVisible(!returningVisit);
+    }
+
+    private void setCheckIdVisible(boolean visible) {
+        if (checkPatientIdButton != null) {
+            checkPatientIdButton.setVisible(visible);
+            checkPatientIdButton.setManaged(visible);
         }
     }
 

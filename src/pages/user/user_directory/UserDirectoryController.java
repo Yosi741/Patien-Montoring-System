@@ -1,6 +1,5 @@
 package pages.user.user_directory;
 
-import pages.audit_log.SqliteAuditLogDao;
 import pages.user.dao.SqliteUserDao;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 public class UserDirectoryController implements FxController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
-    private final SqliteAuditLogDao auditLogDao = new SqliteAuditLogDao();
     private final UserWriteService userWriteService = new UserWriteService();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
     private AppShell appShell;
@@ -78,7 +76,6 @@ public class UserDirectoryController implements FxController {
         configureSelection();
         clearDetail();
         if (isAdmin()) {
-            logAudit("JavaFX USER_DIRECTORY opened staff/user directory");
             loadUsers();
         }
     }
@@ -233,7 +230,6 @@ public class UserDirectoryController implements FxController {
                 clearDetail();
             } else {
                 renderDetail(newValue);
-                logAudit("JavaFX USER_DIRECTORY viewed user detail for " + newValue.getUsername());
             }
         });
     }
@@ -266,7 +262,6 @@ public class UserDirectoryController implements FxController {
         addPermission("Review alerts through Notifications", true);
         addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user));
         addPermission("Manage rooms and sections", adminRole);
-        addPermission("View audit logs", adminRole || RolePermissionService.canViewAuditLogs(user));
     }
 
     private void clearDetail() {
@@ -294,14 +289,6 @@ public class UserDirectoryController implements FxController {
         row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
         row.setWrapText(true);
         permissionListBox.getChildren().add(row);
-    }
-
-    private void logAudit(String action) {
-        try {
-            auditLogDao.log(SessionContext.username(), action);
-        } catch (Exception e) {
-            System.out.println("Staff directory audit skipped: " + e.getMessage());
-        }
     }
 
     private SqliteUserDao.UserDirectoryRow selectedUser() {

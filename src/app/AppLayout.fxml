@@ -30,7 +30,7 @@
 
                 <VBox spacing="2.0">
                     <Label text="SPMS" styleClass="shell-brand-title" />
-                    <Label text="Smart Patient Monitoring System"
+                    <Label text="Smart Clinic Patient Monitoring System"
                            wrapText="true" styleClass="shell-brand-subtitle" />
                 </VBox>
             </HBox>
@@ -63,9 +63,6 @@
                 <Button fx:id="userDirectoryButton" text="Staff / Users" onAction="#showUserDirectory" maxWidth="Infinity"
                         managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
 
-                <Button fx:id="auditLogsButton" text="Audit Logs" onAction="#showAuditLogs" maxWidth="Infinity"
-                        managed="false" visible="false" styleClass="transparent-pane nav-button-blue" />
-
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
@@ -89,7 +86,7 @@
 
                     <Label fx:id="roleBadgeLabel" text="UNKNOWN" styleClass="role-unknown" />
 
-                    <Button fx:id="topNotificationButton" text="Notifications" onAction="#showNotifications" styleClass="shell-bell-button" />
+                    <Button fx:id="topNotificationButton" text="Alerts" onAction="#showNotifications" styleClass="shell-bell-button" />
 
                     <Label fx:id="unreadCountLabel" text="0" styleClass="notification-badge" />
 

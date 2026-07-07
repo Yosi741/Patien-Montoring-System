@@ -3,8 +3,6 @@ package pages.patient.services;
 import pages.patient.dao.SqliteMedicalFileDao;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FxFileOpenHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -59,8 +57,6 @@ public class MedicalFilePreviewService {
         SqliteMedicalFileDao.MedicalFileRecord file = loadFile(fileId);
         Path path = validateStoredPath(file);
         String result = FxFileOpenHelper.open(path);
-        AuditWriteHelper.write(username(currentUser), AuditAction.OPEN_MEDICAL_FILE,
-                "patient_id=" + file.getPatientId() + ", file_id=" + file.getFileId());
         return result;
     }
 
@@ -153,12 +149,6 @@ public class MedicalFilePreviewService {
     private String extension(String name) {
         int dot = name == null ? -1 : name.lastIndexOf('.');
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
-    }
-
-    private String username(User currentUser) {
-        return currentUser == null || currentUser.getUsername() == null || currentUser.getUsername().isBlank()
-                ? "Unknown"
-                : currentUser.getUsername();
     }
 
     public static class PreviewResult {

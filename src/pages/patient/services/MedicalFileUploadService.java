@@ -5,8 +5,6 @@ import pages.patient.dao.SqlitePatientDao;
 import pages.patient.MedicalFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -96,12 +94,6 @@ public class MedicalFileUploadService {
         } catch (SQLException e) {
             cleanupCopiedFile(destination);
             throw new SQLException("File copy completed, but SQLite record insert failed. The copied file was removed to prevent an orphan upload. " + e.getMessage(), e);
-        }
-        try {
-            AuditWriteHelper.write(username(currentUser), AuditAction.UPLOAD_MEDICAL_FILE,
-                    "patient_id=" + request.patientId + ", file_id=" + fileId + ", name=" + sourceFile.getName());
-        } catch (Exception e) {
-            System.out.println("SQLite medical file upload audit skipped: " + e.getMessage());
         }
         return new UploadResult(fileId, destination.toString(), summary);
     }

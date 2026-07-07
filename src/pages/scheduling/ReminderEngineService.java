@@ -1,7 +1,5 @@
 package pages.scheduling;
 
-import pages.audit_log.AuditAction;
-import pages.audit_log.AuditWriteHelper;
 import pages.notification.NotificationCenterService;
 
 import java.sql.SQLException;
@@ -45,9 +43,6 @@ public class ReminderEngineService {
                 boolean updated = reminderDao.updateStatusIfCurrent(reminder.getId(), "OVERDUE", "PENDING");
                 if (updated) {
                     overdueDetected++;
-                    AuditWriteHelper.write(usernameOrSystem(username), AuditAction.REMINDER_OVERDUE_DETECTED,
-                            "reminder_id=" + reminder.getId() + ", patient_id=" + reminder.getPatientId()
-                                    + ", type=" + reminder.getReminderType());
                     new NotificationCenterService().notifyOverdueReminder(
                             reminder.getPatientId(),
                             reminder.getTitle(),
@@ -133,10 +128,6 @@ public class ReminderEngineService {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim().toUpperCase();
-    }
-
-    private String usernameOrSystem(String username) {
-        return username == null || username.isBlank() ? "System" : username;
     }
 
     public static class EngineResult {

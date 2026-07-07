@@ -27,8 +27,8 @@
                                                 <VBox spacing="16.0">
                             <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Notification Center" styleClass="screen-title" />
-                                    <Label text="Unified hospital event inbox for alerts, reminders, messages, and system updates." styleClass="muted-text" wrapText="true" />
+                                    <Label text="Alerts &amp; Notifications" styleClass="screen-title" />
+                                    <Label text="Clinic event inbox for alerts, checkups, messages, and system updates." styleClass="muted-text" wrapText="true" />
                                 </VBox>
                                 <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
                             </HBox>
@@ -147,7 +147,7 @@
                                 <FlowPane fx:id="sourceButtonPane" hgap="10.0" vgap="10.0" managed="false" visible="false">
                                     <Button text="Open Related Patient" onAction="#openRelatedPatient" styleClass="notification-action-secondary" />
                                     <Button text="Open Related Record" onAction="#openSourceRecord" styleClass="notification-action-secondary" />
-                                    <Button text="Open Certificate" onAction="#openCertificate" styleClass="notification-action-primary" />
+                                    <Button text="Open Linked File" onAction="#openCertificate" styleClass="notification-action-primary" />
                                 </FlowPane>
 
                                 <VBox spacing="9.0">
