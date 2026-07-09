@@ -1,11 +1,13 @@
 package pages.user.user_form;
 
-import pages.user.dao.SqliteUserDao;
+import app.AppNavigator;
+import app.SessionContext;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -13,12 +15,20 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import pages.user.services.UserWriteService;
-import app.AppNavigator;
 import pages.notification.NotificationHelper;
-import app.SessionContext;
 import pages.user.User;
+import pages.user.dao.SqliteUserDao;
+import pages.user.dao.SqliteUserProfileDao;
+import pages.user.services.UserProfileService;
+import pages.user.services.UserWriteService;
+
+import java.io.File;
 
 public class UserFormController {
 
@@ -29,22 +39,34 @@ public class UserFormController {
     }
 
     private final UserWriteService userWriteService = new UserWriteService();
-    private final SqliteUserDao userDao = new SqliteUserDao();
+    private final UserProfileService profileService = new UserProfileService();
     private User currentUser;
     private SqliteUserDao.UserDirectoryRow existingUser;
     private Mode mode;
     private boolean saved;
+    private File selectedPhotoFile;
+    private String existingPhotoPath = "";
+    private String preservedSection = "";
 
     @FXML private Label titleLabel;
     @FXML private Label helpLabel;
-    @FXML private javafx.scene.control.TextField staffIdField;
-    @FXML private javafx.scene.control.TextField usernameField;
+    @FXML private TextField staffIdField;
+    @FXML private TextField fullNameField;
+    @FXML private TextField usernameField;
     @FXML private Label usernameHelpLabel;
     @FXML private ComboBox<String> roleBox;
-    @FXML private ComboBox<String> sectionBox;
+    @FXML private ComboBox<String> dutyStatusBox;
+    @FXML private TextField emailField;
+    @FXML private TextField phoneField;
+    @FXML private TextArea addressArea;
     @FXML private CheckBox activeCheckBox;
+    @FXML private Button uploadPhotoButton;
+    @FXML private Button removePhotoButton;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private ImageView photoPreviewImage;
+    @FXML private Label photoInitialsLabel;
+    @FXML private Label photoPathLabel;
     @FXML private Label passwordHelpLabel;
     @FXML private Label statusLabel;
 
@@ -89,11 +111,18 @@ public class UserFormController {
 
     @FXML
     private void initialize() {
-        roleBox.setItems(FXCollections.observableArrayList("ADMIN", "DOCTOR", "NURSE", "STAFF"));
-        roleBox.getSelectionModel().select("STAFF");
-        loadSectionsForRole("STAFF");
-        roleBox.valueProperty().addListener((observable, oldValue, newValue) -> loadSectionsForRole(newValue));
+        roleBox.setItems(FXCollections.observableArrayList("Admin", "Doctor", "Nurse", "Secretary"));
+        roleBox.getSelectionModel().select("Secretary");
+        dutyStatusBox.setItems(FXCollections.observableArrayList("On Duty", "Off Duty", "On Leave"));
+        dutyStatusBox.getSelectionModel().select("On Duty");
+        if (fullNameField != null) {
+            fullNameField.textProperty().addListener((observable, oldValue, newValue) -> refreshPhotoPreview());
+        }
+        if (usernameField != null) {
+            usernameField.textProperty().addListener((observable, oldValue, newValue) -> refreshPhotoPreview());
+        }
         activeCheckBox.setSelected(true);
+        refreshPhotoPreview();
         NotificationHelper.showInfo(statusLabel, "Staff account form. Passwords are not displayed.");
     }
 
@@ -101,23 +130,24 @@ public class UserFormController {
         this.currentUser = currentUser;
         this.existingUser = user;
         this.mode = mode;
+        this.preservedSection = user == null ? "" : safe(user.getSection());
 
         if (mode == Mode.CREATE) {
-            titleLabel.setText("Add User");
-            helpLabel.setText("Create a staff account with role and section access.");
+            titleLabel.setText("Add Staff");
+            helpLabel.setText("Create a clinic staff account with role and duty status.");
             staffIdField.setEditable(true);
             staffIdField.setDisable(false);
-            staffIdField.clear();
             usernameField.setEditable(true);
             usernameField.setDisable(false);
-            usernameHelpLabel.setText("Enter a unique username for this new account.");
-            NotificationHelper.showInfo(statusLabel, "Staff ID is required.");
-            passwordHelpLabel.setText("Password is stored safely and not displayed.");
+            usernameHelpLabel.setText("Enter a unique username for login.");
+            NotificationHelper.showInfo(statusLabel, "Staff ID and Full Name are required.");
+            passwordHelpLabel.setText("Password is used for local demo login and is never shown on screen.");
+            setProfileFieldsForCreate();
             return;
         }
 
         if (user == null) {
-            throw new IllegalArgumentException("A selected user is required.");
+            throw new IllegalArgumentException("A selected staff account is required.");
         }
 
         staffIdField.setEditable(false);
@@ -127,59 +157,163 @@ public class UserFormController {
         usernameField.setEditable(false);
         usernameField.setDisable(mode == Mode.RESET_PASSWORD);
         usernameHelpLabel.setText("Username cannot be changed after creation because it is used in system records.");
-        roleBox.getSelectionModel().select(normalizeRole(user.getRole()));
-        loadSectionsForRole(roleBox.getValue());
-        selectSection(user.getSection());
+        roleBox.getSelectionModel().select(visibleRole(user.getRole()));
         activeCheckBox.setSelected(user.isActive());
+        populateProfileFields(user);
 
         if (mode == Mode.EDIT) {
-            titleLabel.setText("Edit User");
-            helpLabel.setText("Update role, section, and active status.");
-            passwordField.setVisible(false);
-            passwordField.setManaged(false);
-            confirmPasswordField.setVisible(false);
-            confirmPasswordField.setManaged(false);
-            passwordHelpLabel.setText("Password is stored safely and not displayed. Use Reset Password to change it.");
+            titleLabel.setText("Edit Staff");
+            helpLabel.setText("Update profile details and duty status.");
+            hidePasswordFields();
+            passwordHelpLabel.setText("Password is used for local demo login. Use Reset Password to change it.");
             return;
         }
 
-        titleLabel.setText("Reset Password");
-        helpLabel.setText("Set a new password for this staff account.");
+        titleLabel.setText("Reset Staff Password");
+        helpLabel.setText("Set a new password for this clinic staff account.");
         roleBox.setDisable(true);
-        sectionBox.setDisable(true);
+        dutyStatusBox.setDisable(true);
         activeCheckBox.setDisable(true);
+        fullNameField.setDisable(true);
+        emailField.setDisable(true);
+        phoneField.setDisable(true);
+        addressArea.setDisable(true);
+        if (uploadPhotoButton != null) {
+            uploadPhotoButton.setDisable(true);
+        }
+        if (removePhotoButton != null) {
+            removePhotoButton.setDisable(true);
+        }
         passwordHelpLabel.setText("Enter the new password twice. Minimum length is 8 characters.");
+    }
+
+    private void setProfileFieldsForCreate() {
+        fullNameField.clear();
+        emailField.clear();
+        phoneField.clear();
+        addressArea.clear();
+        selectedPhotoFile = null;
+        existingPhotoPath = "";
+        preservedSection = "";
+        photoPathLabel.setText("No profile photo selected");
+        dutyStatusBox.getSelectionModel().select("On Duty");
+        refreshPhotoPreview();
+    }
+
+    private void populateProfileFields(SqliteUserDao.UserDirectoryRow user) {
+        try {
+            SqliteUserProfileDao.UserProfileRow profile = profileService.findProfile(user.getUsername()).orElse(null);
+            fullNameField.setText(profile != null && !profile.getFullName().isBlank() ? profile.getFullName() : user.getDisplayName());
+            emailField.setText(profile != null ? safe(profile.getEmail()) : safe(user.getEmail()));
+            phoneField.setText(profile != null ? safe(profile.getPhone()) : safe(user.getPhone()));
+            addressArea.setText(profile != null ? safe(profile.getAddress()) : safe(user.getAddress()));
+            dutyStatusBox.getSelectionModel().select(profile != null && !profile.getDutyStatus().isBlank() ? profile.getDutyStatus() : safeDutyStatus(user.getDutyStatus()));
+            existingPhotoPath = profile != null ? safe(profile.getProfilePhotoPath()) : safe(user.getProfilePhotoPath());
+            photoPathLabel.setText(existingPhotoPath.isBlank() ? "No profile photo selected" : existingPhotoPath);
+            refreshPhotoPreview();
+        } catch (Exception e) {
+            NotificationHelper.showInfo(statusLabel, "Could not load staff profile extras: " + e.getMessage());
+            fullNameField.setText(user.getDisplayName());
+            emailField.setText(safe(user.getEmail()));
+            phoneField.setText(safe(user.getPhone()));
+            addressArea.setText(safe(user.getAddress()));
+            dutyStatusBox.getSelectionModel().select(safeDutyStatus(user.getDutyStatus()));
+            existingPhotoPath = safe(user.getProfilePhotoPath());
+            photoPathLabel.setText(existingPhotoPath.isBlank() ? "No profile photo selected" : existingPhotoPath);
+            refreshPhotoPreview();
+        }
+    }
+
+    private void hidePasswordFields() {
+        passwordField.setVisible(false);
+        passwordField.setManaged(false);
+        confirmPasswordField.setVisible(false);
+        confirmPasswordField.setManaged(false);
+    }
+
+    @FXML
+    private void chooseProfilePhoto() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose Staff Profile Photo");
+        chooser.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        Window owner = statusLabel != null && statusLabel.getScene() != null ? statusLabel.getScene().getWindow() : null;
+        File selected = chooser.showOpenDialog(owner);
+        if (selected == null) {
+            return;
+        }
+        selectedPhotoFile = selected;
+        photoPathLabel.setText(selected.getAbsolutePath());
+        refreshPhotoPreview();
+    }
+
+    @FXML
+    private void removeProfilePhoto() {
+        selectedPhotoFile = null;
+        existingPhotoPath = "";
+        photoPathLabel.setText("No profile photo selected");
+        refreshPhotoPreview();
     }
 
     private boolean save() {
         try {
             if (mode == Mode.RESET_PASSWORD) {
+                return savePasswordReset();
+            }
+
+            String username = normalizedUsername();
+            if (username.isBlank()) {
+                NotificationHelper.showError(statusLabel, "Username is required.");
+                return false;
+            }
+            if (fullNameField.getText() == null || fullNameField.getText().trim().isEmpty()) {
+                NotificationHelper.showError(statusLabel, "Full Name is required.");
+                return false;
+            }
+
+            SqliteUserDao.UserWriteRecord record = buildRecord();
+            if (mode == Mode.CREATE) {
                 char[] password = passwordChars();
                 if (!passwordsMatch()) {
                     NotificationHelper.showError(statusLabel, "Passwords do not match.");
                     clear(password);
                     return false;
                 }
-                userWriteService.resetPassword(currentUser, usernameField.getText(), password);
+                userWriteService.createUser(currentUser, record, password);
             } else {
-                SqliteUserDao.UserWriteRecord record = buildRecord();
-                if (mode == Mode.CREATE) {
-                    char[] password = passwordChars();
-                    if (!passwordsMatch()) {
-                        NotificationHelper.showError(statusLabel, "Passwords do not match.");
-                        clear(password);
-                        return false;
-                    }
-                    userWriteService.createUser(currentUser, record, password);
-                } else {
-                    userWriteService.updateUser(currentUser, existingUser == null ? record.getUsername() : existingUser.getUsername(), record);
-                    if (existingUser != null
-                            && existingUser.getUsername().equalsIgnoreCase(SessionContext.username())
-                            && !existingUser.getUsername().equalsIgnoreCase(record.getUsername())) {
-                        NotificationHelper.showInfo(statusLabel, "Current session display updates after logout/login.");
-                    }
-                }
+                userWriteService.updateUser(currentUser, existingUser == null ? record.getUsername() : existingUser.getUsername(), record);
             }
+
+            String photoPath = selectedPhotoFile != null
+                    ? profileService.copyProfilePhoto(username, selectedPhotoFile)
+                    : existingPhotoPath;
+            profileService.upsertStaffProfile(new SqliteUserProfileDao.UserProfileWriteRecord(
+                    username,
+                    fullNameField.getText(),
+                    emailField.getText(),
+                    phoneField.getText(),
+                    addressArea.getText(),
+                    dutyStatusBox.getValue(),
+                    photoPath
+            ));
+            saved = true;
+            return true;
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean savePasswordReset() {
+        char[] password = passwordChars();
+        if (!passwordsMatch()) {
+            NotificationHelper.showError(statusLabel, "Passwords do not match.");
+            clear(password);
+            return false;
+        }
+        try {
+            userWriteService.resetPassword(currentUser, usernameField.getText(), password);
             saved = true;
             return true;
         } catch (Exception e) {
@@ -190,51 +324,107 @@ public class UserFormController {
 
     private SqliteUserDao.UserWriteRecord buildRecord() {
         String username = mode == Mode.CREATE || existingUser == null
-                ? usernameField.getText()
+                ? normalizedUsername()
                 : existingUser.getUsername();
         return new SqliteUserDao.UserWriteRecord(
                 staffIdField.getText(),
                 username,
-                roleBox.getValue(),
-                sectionValue(),
+                internalRole(roleBox.getValue()),
+                preservedSectionValue(),
                 activeCheckBox.isSelected()
         );
     }
 
-    private void loadSectionsForRole(String role) {
-        String current = sectionValue();
-        java.util.LinkedHashSet<String> sections = new java.util.LinkedHashSet<>();
-        if ("ADMIN".equalsIgnoreCase(role)) {
-            sections.add("All");
+    private void refreshPhotoPreview() {
+        String initials = initials(fullNameField == null ? "" : fullNameField.getText(), normalizedUsername());
+        if (photoInitialsLabel != null) {
+            photoInitialsLabel.setText(initials);
+            photoInitialsLabel.setVisible(true);
+            photoInitialsLabel.setManaged(true);
+        }
+        if (photoPreviewImage == null) {
+            return;
+        }
+        String imagePath = selectedPhotoFile != null ? selectedPhotoFile.getAbsolutePath() : existingPhotoPath;
+        if (imagePath == null || imagePath.isBlank()) {
+            photoPreviewImage.setImage(null);
+            photoPreviewImage.setVisible(false);
+            photoPreviewImage.setManaged(false);
+            return;
         }
         try {
-            sections.addAll(userDao.findDistinctSections());
-        } catch (Exception e) {
-            NotificationHelper.showInfo(statusLabel, "Active sections unavailable: " + e.getMessage());
-        }
-        sectionBox.setItems(FXCollections.observableArrayList(sections));
-        if (current != null && !current.isBlank() && sections.contains(current)) {
-            sectionBox.getSelectionModel().select(current);
-        } else if ("ADMIN".equalsIgnoreCase(role)) {
-            sectionBox.getSelectionModel().select("All");
-        } else {
-            sectionBox.getSelectionModel().clearSelection();
-        }
-    }
-
-    private void selectSection(String section) {
-        String value = section == null || section.isBlank() ? "" : section.trim();
-        if (!value.isBlank() && !sectionBox.getItems().contains(value)) {
-            sectionBox.getItems().add(value);
-        }
-        if (!value.isBlank()) {
-            sectionBox.getSelectionModel().select(value);
+            File file = new File(imagePath);
+            if (!file.exists()) {
+                photoPreviewImage.setImage(null);
+                photoPreviewImage.setVisible(false);
+                photoPreviewImage.setManaged(false);
+                return;
+            }
+            photoPreviewImage.setImage(new Image(file.toURI().toString(), 112, 112, true, true));
+            photoPreviewImage.setVisible(true);
+            photoPreviewImage.setManaged(true);
+            if (photoInitialsLabel != null) {
+                photoInitialsLabel.setVisible(false);
+                photoInitialsLabel.setManaged(false);
+            }
+        } catch (Exception ignored) {
+            photoPreviewImage.setImage(null);
+            photoPreviewImage.setVisible(false);
+            photoPreviewImage.setManaged(false);
         }
     }
 
-    private String sectionValue() {
-        String value = sectionBox == null ? "" : sectionBox.getValue();
-        return value == null ? "" : value.trim();
+    private String initials(String fullName, String username) {
+        String source = fullName == null || fullName.trim().isEmpty() ? username : fullName;
+        if (source == null || source.isBlank()) {
+            return "SC";
+        }
+        String[] parts = source.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        }
+        return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+    }
+
+    private String visibleRole(String internalRole) {
+        if (internalRole == null || internalRole.isBlank()) {
+            return "Secretary";
+        }
+        String upper = internalRole.toUpperCase();
+        if (upper.contains("ADMIN")) {
+            return "Admin";
+        }
+        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
+            return "Doctor";
+        }
+        if (upper.contains("NURSE") || upper.contains("NURSING")) {
+            return "Nurse";
+        }
+        return "Secretary";
+    }
+
+    private String internalRole(String visibleRole) {
+        if ("Admin".equalsIgnoreCase(visibleRole)) {
+            return "ADMIN";
+        }
+        if ("Doctor".equalsIgnoreCase(visibleRole)) {
+            return "DOCTOR";
+        }
+        if ("Nurse".equalsIgnoreCase(visibleRole)) {
+            return "NURSE";
+        }
+        return "STAFF";
+    }
+
+    private String normalizedUsername() {
+        return usernameField.getText() == null ? "" : usernameField.getText().trim();
+    }
+
+    private String preservedSectionValue() {
+        if (mode == Mode.CREATE) {
+            return "";
+        }
+        return safe(preservedSection);
     }
 
     private char[] passwordChars() {
@@ -253,31 +443,27 @@ public class UserFormController {
         }
     }
 
-    private String normalizeRole(String role) {
-        if (role == null || role.isBlank()) {
-            return "STAFF";
+    private String safe(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String safeDutyStatus(String value) {
+        if ("Off Duty".equalsIgnoreCase(value)) {
+            return "Off Duty";
         }
-        String upper = role.toUpperCase();
-        if (upper.contains("ADMIN")) {
-            return "ADMIN";
+        if ("On Leave".equalsIgnoreCase(value)) {
+            return "On Leave";
         }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "DOCTOR";
-        }
-        if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "NURSE";
-        }
-        return "STAFF";
+        return "On Duty";
     }
 
     private static String dialogTitle(Mode mode) {
         if (mode == Mode.CREATE) {
-            return "Add User";
+            return "Add Staff";
         }
         if (mode == Mode.RESET_PASSWORD) {
-            return "Reset User Password";
+            return "Reset Staff Password";
         }
-        return "Edit User";
+        return "Edit Staff";
     }
-
 }

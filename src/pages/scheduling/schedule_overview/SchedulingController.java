@@ -2,33 +2,53 @@ package pages.scheduling.schedule_overview;
 
 import pages.scheduling.*;
 import pages.scheduling.appointment_form.AppointmentFormController;
-import pages.scheduling.reminder_form.ReminderFormController;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import app.AppShell;
 import app.FxController;
 import app.helpers.DialogHelper;
+import app.helpers.DialogThemeHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import users.Session;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
+
 public class SchedulingController implements FxController {
+
+    private static final DateTimeFormatter TIME_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("h:mm a");
+    private static final DateTimeFormatter[] DATE_TIME_FORMATS = new DateTimeFormatter[] {
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"),
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    };
 
     private final SchedulingService schedulingService = new SchedulingService();
     private final ObservableList<SqliteAppointmentDao.AppointmentRow> appointments = FXCollections.observableArrayList();
-    private final ObservableList<SqliteReminderDao.ReminderRow> reminders = FXCollections.observableArrayList();
     private AppShell appShell;
     private String patientIdFilter = "";
 
@@ -39,53 +59,17 @@ public class SchedulingController implements FxController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> appointmentTypeFilter;
     @FXML private ComboBox<String> appointmentStatusFilter;
-    @FXML private ComboBox<String> reminderTypeFilter;
-    @FXML private ComboBox<String> reminderStatusFilter;
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label upcomingSurgeriesLabel;
     @FXML private Label overdueRemindersLabel;
-    @FXML private Label patientRemindersTodayLabel;
     @FXML private Label cancelledMissedLabel;
     @FXML private Button newAppointmentButton;
-    @FXML private Button editAppointmentButton;
-    @FXML private Button completeAppointmentButton;
-    @FXML private Button cancelAppointmentButton;
-    @FXML private Button newReminderButton;
-    @FXML private Button editReminderButton;
-    @FXML private Button doneReminderButton;
-    @FXML private Button cancelReminderButton;
     @FXML private TableView<SqliteAppointmentDao.AppointmentRow> appointmentTable;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, Number> appointmentRowNumberColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, Long> appointmentIdColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentPatientIdColumn;
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentPatientNameColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentTitleColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentTypeColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentStartColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentEndColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentLocationColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentStaffColumn;
-    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, String> appointmentStatusColumn;
-    @FXML private TableView<SqliteReminderDao.ReminderRow> reminderTable;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, Number> reminderRowNumberColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, Long> reminderIdColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientIdColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderPatientNameColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderTypeColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderTitleColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderDueColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderAssignedColumn;
-    @FXML private TableColumn<SqliteReminderDao.ReminderRow, String> reminderStatusColumn;
-    @FXML private Label reminderDetailTitleLabel;
-    @FXML private Label reminderDetailIdLabel;
-    @FXML private Label reminderDetailPatientIdLabel;
-    @FXML private Label reminderDetailPatientNameLabel;
-    @FXML private Label reminderDetailTypeLabel;
-    @FXML private Label reminderDetailDueLabel;
-    @FXML private Label reminderDetailAssignedLabel;
-    @FXML private Label reminderDetailStatusLabel;
-    @FXML private Label reminderDetailRepeatRuleLabel;
-    @FXML private TextArea reminderDetailNotesArea;
+    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, SqliteAppointmentDao.AppointmentRow> appointmentTypeColumn;
+    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, SqliteAppointmentDao.AppointmentRow> appointmentDateTimeColumn;
+    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, SqliteAppointmentDao.AppointmentRow> appointmentStatusColumn;
+    @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, SqliteAppointmentDao.AppointmentRow> appointmentActionsColumn;
     @FXML private Label statusLabel;
 
     @Override
@@ -119,21 +103,18 @@ public class SchedulingController implements FxController {
                     searchField.getText(),
                     appointmentTypeFilter.getValue(),
                     appointmentStatusFilter.getValue(),
-                    reminderTypeFilter.getValue(),
-                    reminderStatusFilter.getValue(),
+                    "All",
+                    "All",
                     patientIdFilter);
             appointmentsTodayLabel.setText(String.valueOf(overview.getAppointmentsToday()));
-            upcomingSurgeriesLabel.setText(String.valueOf(overview.getUpcomingSurgeries()));
-            overdueRemindersLabel.setText(String.valueOf(overview.getOverdueReminders()));
-            patientRemindersTodayLabel.setText(String.valueOf(overview.getPatientRemindersToday()));
+            upcomingSurgeriesLabel.setText(String.valueOf(countAppointmentsByStatus(overview, "SCHEDULED")));
+            overdueRemindersLabel.setText(String.valueOf(countAppointmentsByStatus(overview, "COMPLETED")));
             cancelledMissedLabel.setText(String.valueOf(overview.getCancelledMissedItems()));
-            SelectionHelper.runWhenTablesStable(() -> {
+            SelectionHelper.runWhenTableStable(appointmentTable, () -> {
                 SelectionHelper.safeReplaceItems(appointmentTable, appointments, overview.getAppointments());
-                SelectionHelper.safeReplaceItems(reminderTable, reminders, overview.getReminders());
-                showReminderDetail(null);
-                NotificationHelper.showInfo(statusLabel, "Scheduling refreshed from the local database. Appointments: "
-                        + appointments.size() + ", reminders: " + reminders.size());
-            }, appointmentTable, reminderTable);
+                NotificationHelper.showInfo(statusLabel, "Appointments refreshed from the local database. Appointments: "
+                        + appointments.size());
+            });
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load scheduling data: " + e.getMessage());
         }
@@ -209,81 +190,10 @@ public class SchedulingController implements FxController {
     }
 
     @FXML
-    private void createReminder() {
-        if (!PermissionHelper.canManageReminder(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        try {
-            if (ReminderFormController.showCreateDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), patientIdFilter)) {
-                loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Checkup reminder saved.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void editReminder() {
-        if (!PermissionHelper.canManageReminder(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        SqliteReminderDao.ReminderRow selected = selectedReminder();
-        if (selected == null) {
-            return;
-        }
-        try {
-            if (ReminderFormController.showEditDialog(reminderTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
-                loadScheduling();
-                NotificationHelper.showSuccess(statusLabel, "Checkup reminder updated.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void markReminderDone() {
-        SqliteReminderDao.ReminderRow selected = selectedReminder();
-        if (selected == null) {
-            return;
-        }
-        try {
-            schedulingService.markReminderDone(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Checkup reminder marked done.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void cancelReminder() {
-        SqliteReminderDao.ReminderRow selected = selectedReminder();
-        if (selected == null) {
-            return;
-        }
-        if (!DialogHelper.confirm("Cancel Checkup", "Cancel checkup reminder " + selected.getTitle() + "?")) {
-            return;
-        }
-        try {
-            schedulingService.cancelReminder(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Checkup reminder cancelled.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
     private void clearFilters() {
         searchField.clear();
         appointmentTypeFilter.getSelectionModel().select("All");
         appointmentStatusFilter.getSelectionModel().select("All");
-        reminderTypeFilter.getSelectionModel().select("All");
-        reminderStatusFilter.getSelectionModel().select("All");
         loadScheduling();
     }
 
@@ -292,11 +202,6 @@ public class SchedulingController implements FxController {
         patientIdFilter = "";
         updatePatientFilterChip();
         loadScheduling();
-    }
-
-    @FXML
-    private void showDashboard() {
-        appShell.showDashboard(Session.getCurrentUser());
     }
 
     private void configureAccess() {
@@ -310,78 +215,113 @@ public class SchedulingController implements FxController {
     private void configureFilters() {
         appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY"));
         appointmentStatusFilter.setItems(FXCollections.observableArrayList("All", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"));
-        reminderTypeFilter.setItems(FXCollections.observableArrayList("All", "APPOINTMENT", "CHECKUP", "FOLLOW_UP", "CUSTOM"));
-        reminderStatusFilter.setItems(FXCollections.observableArrayList("All", "PENDING", "OVERDUE", "DONE", "MISSED", "CANCELLED"));
         appointmentTypeFilter.getSelectionModel().select("All");
         appointmentStatusFilter.getSelectionModel().select("All");
-        reminderTypeFilter.getSelectionModel().select("All");
-        reminderStatusFilter.getSelectionModel().select("All");
         searchField.textProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
         appointmentTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
         appointmentStatusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
-        reminderTypeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
-        reminderStatusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
     }
 
     private void configureTables() {
-        if (appointmentRowNumberColumn != null) {
-            appointmentRowNumberColumn.setCellValueFactory(cell -> {
-                int index = appointmentTable.getItems() == null ? -1 : appointmentTable.getItems().indexOf(cell.getValue());
-                Number rowNumber = index >= 0 ? index + 1 : null;
-                return new ReadOnlyObjectWrapper<>(rowNumber);
-            });
+        if (appointmentTable != null) {
+            appointmentTable.setFixedCellSize(52);
         }
-        appointmentIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        appointmentPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         appointmentPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
-        appointmentTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-        appointmentTypeColumn.setCellValueFactory(new PropertyValueFactory<>("appointmentType"));
-        appointmentStartColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        appointmentEndColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        appointmentLocationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
-        appointmentStaffColumn.setCellValueFactory(new PropertyValueFactory<>("assignedStaff"));
-        appointmentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-
-        if (reminderRowNumberColumn != null) {
-            reminderRowNumberColumn.setCellValueFactory(cell -> {
-                int index = reminderTable.getItems() == null ? -1 : reminderTable.getItems().indexOf(cell.getValue());
-                Number rowNumber = index >= 0 ? index + 1 : null;
-                return new ReadOnlyObjectWrapper<>(rowNumber);
+        appointmentPatientNameColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                SqliteAppointmentDao.AppointmentRow row = getTableRow().getItem();
+                setText(nullTo(row.getPatientName(), "Unknown Patient"));
+                getStyleClass().remove("appointments-patient-name-cell");
+                getStyleClass().add("appointments-patient-name-cell");
+                setGraphic(null);
+            }
+        });
+        appointmentTypeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        appointmentTypeColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
+                super.updateItem(row, empty);
+                if (empty || row == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                setGraphic(createBadgeLabel(formatEnumValue(row.getAppointmentType()), badgeStyleForType(row.getAppointmentType())));
+                setText(null);
+            }
+        });
+        appointmentDateTimeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        appointmentDateTimeColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
+                super.updateItem(row, empty);
+                if (empty || row == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(createAppointmentTimeCell(row));
+            }
+        });
+        appointmentStatusColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        appointmentStatusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
+                super.updateItem(row, empty);
+                if (empty || row == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                setGraphic(createBadgeLabel(formatEnumValue(row.getStatus()), badgeStyleForAppointmentStatus(row.getStatus())));
+                setText(null);
+            }
+        });
+        appointmentActionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        appointmentActionsColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
+                super.updateItem(row, empty);
+                if (empty || row == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                Button viewButton = actionButton("\uD83D\uDC41", "appointment-action-icon-button", event -> viewAppointment(row));
+                viewButton.setAccessibleText("View appointment details");
+                Button editButton = actionButton("\u270E", "appointment-action-icon-button", event -> editAppointment(row));
+                editButton.setAccessibleText("Edit appointment");
+                boolean canManage = PermissionHelper.canManageAppointment(Session.getCurrentUser());
+                editButton.setDisable(!canManage);
+                HBox actions = new HBox(8, viewButton, editButton);
+                actions.setAlignment(Pos.CENTER);
+                setGraphic(actions);
+                setText(null);
+            }
+        });
+        appointmentTable.setRowFactory(table -> {
+            TableRow<SqliteAppointmentDao.AppointmentRow> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    viewAppointment(row.getItem());
+                }
             });
-        }
-        reminderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        reminderPatientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
-        reminderPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
-        reminderTypeColumn.setCellValueFactory(new PropertyValueFactory<>("reminderType"));
-        reminderTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-        reminderDueColumn.setCellValueFactory(new PropertyValueFactory<>("dueTime"));
-        reminderAssignedColumn.setCellValueFactory(new PropertyValueFactory<>("assignedTo"));
-        reminderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        reminderTable.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> showReminderDetail(newValue));
-        showReminderDetail(null);
+            return row;
+        });
     }
 
     private void configureWriteButtons() {
         boolean canManageAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
-        boolean canManageReminders = PermissionHelper.canManageReminder(Session.getCurrentUser());
-        boolean canCompleteReminders = PermissionHelper.canCompleteReminder(Session.getCurrentUser());
         newAppointmentButton.setVisible(canManageAppointments);
         newAppointmentButton.setManaged(canManageAppointments);
-        editAppointmentButton.setVisible(canManageAppointments);
-        editAppointmentButton.setManaged(canManageAppointments);
-        completeAppointmentButton.setVisible(canManageAppointments);
-        completeAppointmentButton.setManaged(canManageAppointments);
-        cancelAppointmentButton.setVisible(canManageAppointments);
-        cancelAppointmentButton.setManaged(canManageAppointments);
-        newReminderButton.setVisible(canManageReminders);
-        newReminderButton.setManaged(canManageReminders);
-        editReminderButton.setVisible(canManageReminders);
-        editReminderButton.setManaged(canManageReminders);
-        cancelReminderButton.setVisible(canManageReminders);
-        cancelReminderButton.setManaged(canManageReminders);
-        doneReminderButton.setVisible(canCompleteReminders);
-        doneReminderButton.setManaged(canCompleteReminders);
         updatePatientFilterChip();
     }
 
@@ -403,58 +343,262 @@ public class SchedulingController implements FxController {
         return selected;
     }
 
-    private SqliteReminderDao.ReminderRow selectedReminder() {
-        SqliteReminderDao.ReminderRow selected = reminderTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            NotificationHelper.showError(statusLabel, "Select a reminder first.");
-            return null;
-        }
-        return selected;
-    }
-
     private boolean isAuthorized() {
         return PermissionHelper.canViewScheduling(Session.getCurrentUser());
     }
 
-    private void showReminderDetail(SqliteReminderDao.ReminderRow reminder) {
-        if (reminder == null) {
-            setLabel(reminderDetailTitleLabel, "Select a checkup");
-            setLabel(reminderDetailIdLabel, "-");
-            setLabel(reminderDetailPatientIdLabel, "-");
-            setLabel(reminderDetailPatientNameLabel, "-");
-            setLabel(reminderDetailTypeLabel, "-");
-            setLabel(reminderDetailDueLabel, "-");
-            setLabel(reminderDetailAssignedLabel, "-");
-            setLabel(reminderDetailStatusLabel, "-");
-            setLabel(reminderDetailRepeatRuleLabel, "-");
-            setTextArea(reminderDetailNotesArea, "-");
+    private void viewAppointment(SqliteAppointmentDao.AppointmentRow appointment) {
+        if (appointment == null || appointmentTable == null || appointmentTable.getScene() == null) {
             return;
         }
-        setLabel(reminderDetailTitleLabel, nullTo(reminder.getTitle(), "Checkup"));
-        setLabel(reminderDetailIdLabel, String.valueOf(reminder.getId()));
-        setLabel(reminderDetailPatientIdLabel, nullTo(reminder.getPatientId(), "-"));
-        setLabel(reminderDetailPatientNameLabel, nullTo(reminder.getPatientName(), "-"));
-        setLabel(reminderDetailTypeLabel, nullTo(reminder.getReminderType(), "-"));
-        setLabel(reminderDetailDueLabel, nullTo(reminder.getDueTime(), "-"));
-        setLabel(reminderDetailAssignedLabel, nullTo(reminder.getAssignedTo(), "-"));
-        setLabel(reminderDetailStatusLabel, nullTo(reminder.getStatus(), "-"));
-        setLabel(reminderDetailRepeatRuleLabel, nullTo(reminder.getRepeatRule(), "-"));
-        setTextArea(reminderDetailNotesArea, nullTo(reminder.getNotes(), "-"));
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Appointment Details");
+        DialogThemeHelper.apply(dialog);
+        dialog.initOwner(appointmentTable.getScene().getWindow());
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE, ButtonType.APPLY);
+
+        Button closeButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
+        if (closeButton != null) {
+            closeButton.setText("Close");
+            closeButton.getStyleClass().add("secondary-button");
+        }
+        Button editButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.APPLY);
+        if (editButton != null) {
+            editButton.setText("Edit Appointment");
+            editButton.getStyleClass().add("primary-button");
+            editButton.setDisable(!PermissionHelper.canManageAppointment(Session.getCurrentUser()));
+        }
+
+        VBox content = new VBox(12,
+                detailLine("Patient", appointment.getPatientName()),
+                detailLine("Patient ID", appointment.getPatientId()),
+                detailLine("Title", appointment.getTitle()),
+                detailLine("Type", formatEnumValue(appointment.getAppointmentType())),
+                detailLine("Start", appointment.getStartTime()),
+                detailLine("End", appointment.getEndTime()),
+                detailLine("Location", appointment.getLocation()),
+                detailLine("Assigned Staff", appointment.getAssignedStaff()),
+                detailLine("Status", formatEnumValue(appointment.getStatus())),
+                detailLine("Notes", nullTo(appointment.getNotes(), "-"))
+        );
+        content.setPadding(new Insets(6));
+        content.getStyleClass().add("record-detail-dialog");
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.getStyleClass().add("scroll-clear");
+
+        dialog.getDialogPane().setContent(scrollPane);
+        dialog.getDialogPane().setPrefSize(560, 520);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.APPLY) {
+            editAppointment(appointment);
+        }
     }
 
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
-    private void setLabel(Label label, String value) {
-        if (label != null) {
-            label.setText(value);
+    private void editAppointment(SqliteAppointmentDao.AppointmentRow selected) {
+        if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canManageAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            return;
+        }
+        try {
+            if (AppointmentFormController.showEditDialog(appointmentTable.getScene().getWindow(), Session.getCurrentUser(), selected)) {
+                loadScheduling();
+                NotificationHelper.showSuccess(statusLabel, "Appointment updated.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
         }
     }
 
-    private void setTextArea(TextArea textArea, String value) {
-        if (textArea != null) {
-            textArea.setText(value);
+    private void completeAppointment(SqliteAppointmentDao.AppointmentRow selected) {
+        if (selected == null) {
+            return;
         }
+        try {
+            schedulingService.markAppointmentCompleted(Session.getCurrentUser(), selected.getId());
+            loadScheduling();
+            NotificationHelper.showSuccess(statusLabel, "Appointment marked completed.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private void cancelAppointment(SqliteAppointmentDao.AppointmentRow selected) {
+        if (selected == null) {
+            return;
+        }
+        if (!DialogHelper.confirm("Cancel Appointment", "Cancel appointment " + selected.getTitle() + "?")) {
+            return;
+        }
+        try {
+            schedulingService.cancelAppointment(Session.getCurrentUser(), selected.getId());
+            loadScheduling();
+            NotificationHelper.showSuccess(statusLabel, "Appointment cancelled.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private Button actionButton(String text, String styleClass, javafx.event.EventHandler<javafx.event.ActionEvent> handler) {
+        Button button = new Button(text);
+        for (String token : styleClass.split(" ")) {
+            if (!token.isBlank()) {
+                button.getStyleClass().add(token);
+            }
+        }
+        button.setOnAction(handler);
+        return button;
+    }
+
+    private Label createBadgeLabel(String text, String styleClass) {
+        Label label = new Label(text);
+        label.getStyleClass().addAll("badge-pill");
+        for (String token : styleClass.split(" ")) {
+            if (!token.isBlank()) {
+                label.getStyleClass().add(token);
+            }
+        }
+        return label;
+    }
+
+    private VBox detailLine(String name, String value) {
+        Label title = new Label(name);
+        title.getStyleClass().add("detail-field-name");
+        Label content = new Label(blankTo(value, "-"));
+        content.getStyleClass().add("detail-field-value");
+        content.setWrapText(true);
+        VBox box = new VBox(4, title, content);
+        box.setFillWidth(true);
+        return box;
+    }
+
+    private String blankTo(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String formatEnumValue(String value) {
+        if (value == null || value.isBlank()) {
+            return "-";
+        }
+        String[] tokens = value.split("_");
+        StringBuilder builder = new StringBuilder();
+        for (String token : tokens) {
+            if (token.isBlank()) {
+                continue;
+            }
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(token.charAt(0)).append(token.substring(1).toLowerCase());
+        }
+        return builder.toString();
+    }
+
+    private VBox createAppointmentTimeCell(SqliteAppointmentDao.AppointmentRow row) {
+        Label timeLabel = new Label(formatAppointmentStart(row));
+        timeLabel.getStyleClass().addAll("appointments-primary-text", "appointment-time-primary");
+
+        Label durationLabel = new Label(formatAppointmentDuration(row));
+        durationLabel.getStyleClass().addAll("appointments-secondary-text", "appointment-time-duration");
+
+        VBox box = new VBox(2, timeLabel, durationLabel);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setFillWidth(false);
+        return box;
+    }
+
+    private String formatAppointmentStart(SqliteAppointmentDao.AppointmentRow row) {
+        if (row == null) {
+            return "-";
+        }
+        LocalDateTime start = parseDateTime(row.getStartTime());
+        if (start != null) {
+            return start.format(TIME_DISPLAY_FORMAT);
+        }
+        String fallback = nullTo(row.getStartTime(), "").trim();
+        return fallback.isBlank() ? "-" : fallback;
+    }
+
+    private String formatAppointmentDuration(SqliteAppointmentDao.AppointmentRow row) {
+        if (row == null) {
+            return "\u2014";
+        }
+        LocalDateTime start = parseDateTime(row.getStartTime());
+        LocalDateTime end = parseDateTime(row.getEndTime());
+        if (start == null || end == null) {
+            return "\u2014";
+        }
+        long minutes = Duration.between(start, end).toMinutes();
+        if (minutes < 0) {
+            return "\u2014";
+        }
+        return minutes + " min";
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String trimmed = value.trim();
+        for (DateTimeFormatter formatter : DATE_TIME_FORMATS) {
+            try {
+                return LocalDateTime.parse(trimmed, formatter);
+            } catch (DateTimeParseException ignored) {
+                // Try the next supported date-time format.
+            }
+        }
+        try {
+            return LocalDateTime.parse(trimmed);
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
+    private String badgeStyleForType(String type) {
+        if (type == null) {
+            return "appointment-type-badge appointment-type-neutral";
+        }
+        return switch (type.toUpperCase()) {
+            case "CHECKUP" -> "appointment-type-badge appointment-type-blue";
+            case "FOLLOW_UP" -> "appointment-type-badge appointment-type-purple";
+            case "LAB_TEST" -> "appointment-type-badge appointment-type-cyan";
+            case "SURGERY" -> "appointment-type-badge appointment-type-danger";
+            default -> "appointment-type-badge appointment-type-neutral";
+        };
+    }
+
+    private String badgeStyleForAppointmentStatus(String status) {
+        if (status == null) {
+            return "appointment-status-badge appointment-status-neutral";
+        }
+        return switch (status.toUpperCase()) {
+            case "SCHEDULED" -> "appointment-status-badge appointment-status-scheduled";
+            case "COMPLETED" -> "appointment-status-badge appointment-status-completed";
+            case "CANCELLED" -> "appointment-status-badge appointment-status-cancelled";
+            case "MISSED" -> "appointment-status-badge appointment-status-missed";
+            default -> "appointment-status-badge appointment-status-neutral";
+        };
+    }
+
+    private int countAppointmentsByStatus(SchedulingService.SchedulingOverview overview, String status) {
+        if (overview == null || overview.getAppointments() == null || status == null) {
+            return 0;
+        }
+        int count = 0;
+        for (SqliteAppointmentDao.AppointmentRow row : overview.getAppointments()) {
+            if (row != null && status.equalsIgnoreCase(row.getStatus())) {
+                count++;
+            }
+        }
+        return count;
     }
 }

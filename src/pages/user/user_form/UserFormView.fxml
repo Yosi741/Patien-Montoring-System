@@ -1,64 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox
-        spacing="16.0"
-        prefWidth="620.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.user.user_form.UserFormController" styleClass="panel-card dialog-root">
+<ScrollPane fitToWidth="true" prefHeight="780.0" prefWidth="816.0" styleClass="detail-scroll-pane" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.user.user_form.UserFormController">
+    <content>
+        <VBox spacing="18.0" styleClass="panel-card dialog-root staff-form-root">
+            <padding>
+                <Insets bottom="8.0" left="4.0" right="4.0" top="4.0" />
+            </padding>
 
-    <VBox spacing="4.0" styleClass="dialog-header-card">
-        <Label fx:id="titleLabel" text="User" styleClass="screen-title dialog-title" />
-        <Label fx:id="helpLabel" text="Manage a staff account for role-based clinic access." wrapText="true" styleClass="muted-text dialog-subtitle" />
-    </VBox>
+            <VBox spacing="4.0" styleClass="dialog-header-card">
+                <Label fx:id="titleLabel" styleClass="screen-title dialog-title" text="Add Staff" />
+                <Label fx:id="helpLabel" styleClass="muted-text dialog-subtitle" text="Create a clinic staff account with role and duty status." wrapText="true" />
+            </VBox>
 
-    <GridPane hgap="14.0" vgap="13.0">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="50.0" />
-            <ColumnConstraints percentWidth="50.0" />
-        </columnConstraints>
+            <HBox spacing="18.0" styleClass="staff-form-hero">
+                <VBox alignment="CENTER" prefHeight="476.0" prefWidth="221.0" spacing="10.0" styleClass="staff-photo-card">
+                    <StackPane styleClass="staff-form-avatar-frame">
+                        <ImageView fx:id="photoPreviewImage" fitHeight="112.0" fitWidth="112.0" managed="false" preserveRatio="true" smooth="true" visible="false" />
+                        <Label fx:id="photoInitialsLabel" styleClass="staff-avatar-initials staff-form-avatar-initials" text="SC" />
+                    </StackPane>
+                    <Label fx:id="photoPathLabel" styleClass="muted-text staff-photo-path-label" text="No profile photo selected" wrapText="true" />
+                    <VBox alignment="CENTER" spacing="8.0">
+                        <Button fx:id="uploadPhotoButton"
+                                minWidth="108.0"
+                                prefWidth="108.0"
+                                onAction="#chooseProfilePhoto"
+                                styleClass="secondary-button photo-action-button"
+                                text="Upload" />
+                        <Button fx:id="removePhotoButton"
+                                minWidth="108.0"
+                                prefWidth="108.0"
+                                onAction="#removeProfilePhoto"
+                                styleClass="secondary-button photo-action-button"
+                                text="Remove" />
+                    </VBox>
+                </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Staff ID" styleClass="field-label" />
-            <TextField fx:id="staffIdField" promptText="U0001" styleClass="control-input" />
+                <GridPane hgap="14.0" styleClass="staff-form-grid" vgap="13.0" HBox.hgrow="ALWAYS">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" />
+                        <ColumnConstraints percentWidth="50.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label styleClass="field-label" text="Staff ID" />
+                        <TextField fx:id="staffIdField" promptText="U0001" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label styleClass="field-label" text="Full Name" />
+                        <TextField fx:id="fullNameField" promptText="Dr. Sarah Johnson" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label styleClass="field-label" text="Username" />
+                        <TextField fx:id="usernameField" promptText="username" styleClass="control-input" />
+                        <Label fx:id="usernameHelpLabel" styleClass="muted-text" text="" wrapText="true" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label styleClass="field-label" text="Role" />
+                        <ComboBox fx:id="roleBox" maxWidth="Infinity" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <Label styleClass="field-label" text="Duty Status" />
+                        <ComboBox fx:id="dutyStatusBox" maxWidth="Infinity" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Label styleClass="field-label" text="Email" />
+                        <TextField fx:id="emailField" promptText="name@clinic.local" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <Label styleClass="field-label" text="Phone" />
+                        <TextField fx:id="phoneField" promptText="+970 59 000 0000" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                        <Label styleClass="field-label" text="Address" />
+                        <TextArea fx:id="addressArea" prefRowCount="3" promptText="Clinic address or staff contact address" styleClass="control-input" wrapText="true" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
+                        <Label styleClass="field-label" text="Account Status" />
+                        <CheckBox fx:id="activeCheckBox" styleClass="compact-detail-value" text="Active account" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="6">
+                        <Label styleClass="field-label" text="Password" />
+                        <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="control-input" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                        <Label styleClass="field-label" text="Confirm Password" />
+                        <PasswordField fx:id="confirmPasswordField" promptText="Repeat password" styleClass="control-input" />
+                    </VBox>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+            </HBox>
+
+            <Label fx:id="passwordHelpLabel" styleClass="muted-text" text="Password is used for local demo login and is never shown on screen." wrapText="true" />
+            <Label fx:id="statusLabel" styleClass="status-success success-value staff-form-status" text="-" wrapText="true" />
         </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Username" styleClass="field-label" />
-            <TextField fx:id="usernameField" promptText="username" styleClass="control-input" />
-            <Label fx:id="usernameHelpLabel" text="" wrapText="true" styleClass="muted-text" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="Role" styleClass="field-label" />
-            <ComboBox fx:id="roleBox" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Section / Department" styleClass="field-label" />
-            <ComboBox fx:id="sectionBox" promptText="Select active section" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Active Status" styleClass="field-label" />
-            <CheckBox fx:id="activeCheckBox" text="Active account" styleClass="compact-detail-value" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Password / New Password" styleClass="field-label" />
-            <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Label text="Confirm Password" styleClass="field-label" />
-            <PasswordField fx:id="confirmPasswordField" promptText="Repeat password" styleClass="control-input" />
-        </VBox>
-    </GridPane>
-
-    <Label fx:id="passwordHelpLabel" text="Password is stored safely and not displayed." wrapText="true" styleClass="muted-text" />
-
-    <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-success success-value" />
-</VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fitToWidth="true"
+            prefWidth="700.0"
+            prefHeight="760.0"
+            xmlns="http://javafx.com/javafx/17.0.15"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pages.user.user_directory.StaffProfileDialogController"
+            styleClass="detail-scroll-pane">
+    <content>
+        <VBox spacing="18.0" styleClass="panel-card dialog-root profile-dialog">
+            <padding>
+                <Insets bottom="8.0" left="4.0" right="4.0" top="4.0" />
+            </padding>
+
+            <VBox spacing="4.0" styleClass="dialog-header-card">
+                <Label text="Staff Profile" styleClass="screen-title dialog-title" />
+                <Label text="Staff account details, contact information, and access summary." wrapText="true" styleClass="muted-text dialog-subtitle" />
+            </VBox>
+
+            <VBox alignment="CENTER" spacing="12.0" styleClass="profile-info-card">
+                <StackPane styleClass="staff-profile-avatar-frame">
+                    <ImageView fx:id="profilePhotoView"
+                               fitWidth="136.0"
+                               fitHeight="136.0"
+                               preserveRatio="true"
+                               smooth="true"
+                               visible="false"
+                               managed="false" />
+                    <Label fx:id="profileInitialsLabel" text="SC" styleClass="staff-avatar-initials staff-profile-avatar-initials" />
+                </StackPane>
+                <Label fx:id="fullNameLabel" text="Select Staff" styleClass="section-title staff-profile-name" />
+                <HBox alignment="CENTER" spacing="10.0">
+                    <Label fx:id="roleBadgeLabel" text="Role" styleClass="badge-pill role-unknown role-badge" />
+                    <Label fx:id="dutyStatusBadgeLabel" text="On Duty" styleClass="badge-pill staff-status-pill status-badge staff-status-active" />
+                </HBox>
+            </VBox>
+
+            <GridPane hgap="14.0" vgap="12.0" styleClass="profile-info-card">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="38.0" />
+                    <ColumnConstraints percentWidth="62.0" />
+                </columnConstraints>
+
+                <Label text="Staff ID" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
+                <Label fx:id="staffIdLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-field-value" />
+                <Label text="Username" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-field-name" />
+                <Label fx:id="usernameLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-field-value" />
+                <Label text="Clinic Area" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="detail-field-name" />
+                <Label fx:id="sectionLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="detail-field-value" />
+                <Label text="Email" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="detail-field-name" />
+                <Label fx:id="emailLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="detail-field-value" />
+                <Label text="Phone" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="detail-field-name" />
+                <Label fx:id="phoneLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="detail-field-value" />
+                <Label text="Address" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="detail-field-name" />
+                <Label fx:id="addressLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="detail-field-value" />
+                <Label text="Account Status" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="detail-field-name" />
+                <Label fx:id="accountStatusLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="detail-field-value" />
+                <Label text="Created" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="detail-field-name" />
+                <Label fx:id="createdAtLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="detail-field-value" />
+            </GridPane>
+
+            <VBox spacing="10.0" styleClass="profile-info-card">
+                <Label text="Permissions" styleClass="section-title" />
+                <VBox fx:id="permissionListBox" spacing="8.0" />
+            </VBox>
+
+            <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                <Button text="Close" onAction="#closeDialog" styleClass="secondary-button" />
+                <Button text="Edit Staff" onAction="#editStaff" styleClass="primary-button" />
+            </HBox>
+        </VBox>
+    </content>
+</ScrollPane>

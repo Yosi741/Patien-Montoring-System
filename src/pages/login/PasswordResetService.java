@@ -2,7 +2,6 @@ package pages.login;
 
 import pages.login.dao.SqlitePasswordResetDao;
 import pages.user.dao.SqliteUserDao;
-import app.PasswordHasher;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -48,7 +47,7 @@ public class PasswordResetService {
         validatePassword(newPassword);
         SqlitePasswordResetDao.TokenRow row = resetDao.findValidToken(cleanUsername, hashToken(token), now())
                 .orElseThrow(() -> new IllegalArgumentException("Reset token is invalid, expired, or already used."));
-        userDao.resetPasswordHash(cleanUsername, PasswordHasher.hash(newPassword));
+        userDao.updatePassword(cleanUsername, newPassword == null ? "" : new String(newPassword));
         resetDao.markUsed(row.getId(), now());
     }
 

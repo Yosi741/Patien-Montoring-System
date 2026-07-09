@@ -23,24 +23,14 @@
                     </padding>
 
                     <VBox spacing="18.0" styleClass="patient-file-hero">
-                        <HBox alignment="CENTER_LEFT" spacing="18.0">
-                            <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                <Label text="Patient File" styleClass="patient-file-title" />
-                                <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <Label text="Patient ID" styleClass="patient-file-meta-label" />
-                                    <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
-                                    <Label text="Clinic Area" styleClass="patient-file-meta-label" />
-                                    <Label fx:id="sectionLabel" text="-" styleClass="patient-file-meta-value" />
-                                    <Label text="Location" styleClass="patient-file-meta-label" />
-                                    <Label fx:id="roomLabel" text="-" styleClass="patient-file-meta-value" />
-                                </HBox>
-                            </VBox>
-                            <VBox alignment="CENTER_RIGHT" spacing="8.0">
-                                <Button text="Back to Patient Board" onAction="#backToPatients" styleClass="patient-file-ghost-button" />
-                                <Label text="Local clinic record" styleClass="patient-file-muted" />
-                            </VBox>
-                        </HBox>
+                        <VBox spacing="6.0">
+                            <Label text="Patient File" styleClass="patient-file-title" />
+                            <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="Patient ID" styleClass="patient-file-meta-label" />
+                                <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />
+                            </HBox>
+                        </VBox>
 
                         <GridPane hgap="12.0" vgap="12.0">
                             <columnConstraints>

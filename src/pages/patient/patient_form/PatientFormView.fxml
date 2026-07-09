@@ -56,36 +56,16 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Clinic Area" styleClass="field-label" />
-            <ComboBox fx:id="sectionBox" editable="true" promptText="Search or type clinic area" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Label text="Visit Location" styleClass="field-label" />
-            <ComboBox fx:id="roomBox" editable="true" promptText="Visit location" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
             <Label text="Priority" styleClass="field-label" />
             <ComboBox fx:id="priorityBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
             <Label text="Blood Type" styleClass="field-label" />
             <ComboBox fx:id="bloodTypeBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="5">
-            <Label text="Assigned Doctor" styleClass="field-label" />
-            <ComboBox fx:id="assignedDoctorBox" promptText="Doctor in selected clinic area" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
-            <Label text="Assigned Staff" styleClass="field-label" />
-            <ComboBox fx:id="assignedStaffBox" promptText="Staff in selected clinic area" maxWidth="Infinity" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
             <Label text="Visit Reason / Diagnosis" styleClass="field-label" />
             <TextArea fx:id="diagnosisArea" promptText="Short visit reason, diagnosis, or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
         </VBox>

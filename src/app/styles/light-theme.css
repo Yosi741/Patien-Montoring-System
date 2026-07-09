@@ -1,0 +1,1394 @@
+@import "dark-theme.css";
+
+.root,
+.app-root,
+.page-container,
+.content-root,
+.dashboard-page {
+    -fx-background-color: linear-gradient(to bottom right, #eef4fb, #f8fbff);
+    -fx-background: linear-gradient(to bottom right, #eef4fb, #f8fbff);
+}
+
+.app-sidebar {
+    -fx-background-color: linear-gradient(to bottom, #dbeafe, #eff6ff);
+    -fx-border-color: transparent #cbd5e1 transparent transparent;
+}
+
+.shell-brand-title,
+.shell-user-name,
+.screen-title,
+.section-title,
+.metric-value,
+.dashboard-welcome,
+.dashboard-list-text {
+    -fx-text-fill: #0f172a;
+}
+
+.shell-brand-subtitle,
+.shell-user-meta,
+.muted-text,
+.dashboard-role-text,
+.dashboard-page-subtitle,
+.metric-title {
+    -fx-text-fill: #475569;
+}
+
+/* Keep all runtime text fills as solid colors only. */
+.label,
+.menu-item .label,
+.check-box,
+.check-box .text,
+.radio-button,
+.radio-button .text,
+.hyperlink,
+.tooltip,
+.chart-legend-item,
+.chart-legend-item .label {
+    -fx-text-fill: #1E293B;
+}
+
+.axis .axis-label,
+.axis .tick-label,
+.chart-legend {
+    -fx-text-fill: #64748B;
+}
+
+.sidebar-nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-text-fill: #0f172a;
+}
+
+.sidebar-nav-button:hover {
+    -fx-background-color: rgba(191, 219, 254, 0.95);
+    -fx-text-fill: #0f172a;
+}
+
+.sidebar-user-card,
+.chart-card,
+.metric-card,
+.app-top-bar {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-border-color: rgba(148, 163, 184, 0.35);
+}
+
+.global-search-field,
+.quick-actions-button,
+.top-icon-button,
+.theme-toggle-button,
+.profile-chip,
+.text-field,
+.password-field,
+.text-area,
+.text-area .content,
+.control-input,
+.combo-box,
+.choice-box,
+.date-picker,
+.date-picker .text-field {
+    -fx-background-color: #ffffff;
+    -fx-background: #ffffff;
+    -fx-border-color: #cbd5e1;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.table-view,
+.table-row-cell,
+.list-view,
+.list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #0f172a;
+}
+
+.table-row-cell:odd,
+.list-cell:odd {
+    -fx-background-color: #f8fafc;
+}
+
+.dashboard-summary-row,
+.dashboard-list-row {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: rgba(203, 213, 225, 0.75);
+}
+
+.dashboard-line-chart .chart-vertical-grid-lines,
+.dashboard-line-chart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(148, 163, 184, 0.35);
+}
+
+.staff-metric-blue {
+    -fx-background-color: linear-gradient(to bottom right, rgba(59, 130, 246, 0.14), rgba(255, 255, 255, 0.96));
+}
+
+.staff-metric-purple {
+    -fx-background-color: linear-gradient(to bottom right, rgba(168, 85, 247, 0.12), rgba(255, 255, 255, 0.96));
+}
+
+.staff-metric-cyan {
+    -fx-background-color: linear-gradient(to bottom right, rgba(14, 165, 233, 0.12), rgba(255, 255, 255, 0.96));
+}
+
+.staff-metric-green {
+    -fx-background-color: linear-gradient(to bottom right, rgba(34, 197, 94, 0.12), rgba(255, 255, 255, 0.96));
+}
+
+.staff-directory-secondary-cell {
+    -fx-text-fill: #475569;
+}
+
+.staff-status-active {
+    -fx-background-color: rgba(34, 197, 94, 0.14);
+    -fx-text-fill: #166534;
+    -fx-border-color: rgba(34, 197, 94, 0.28);
+}
+
+.staff-status-inactive {
+    -fx-background-color: rgba(239, 68, 68, 0.12);
+    -fx-text-fill: #991b1b;
+    -fx-border-color: rgba(239, 68, 68, 0.22);
+}
+
+.staff-permission-card {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: rgba(203, 213, 225, 0.75);
+}
+
+.staff-filter-bar,
+.staff-table-card,
+.profile-dialog,
+.profile-info-card,
+.staff-photo-card {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(203, 213, 225, 0.82);
+}
+
+.staff-name,
+.staff-profile-name {
+    -fx-text-fill: #0f172a;
+}
+
+.staff-subtitle,
+.staff-photo-path-label {
+    -fx-text-fill: #64748b;
+}
+
+.photo-action-button {
+    -fx-min-width: 108;
+    -fx-pref-width: 108;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 8 14;
+}
+
+.staff-avatar,
+.staff-form-avatar-frame,
+.staff-profile-avatar-frame {
+    -fx-background-color: linear-gradient(to bottom right, rgba(59, 130, 246, 0.14), rgba(168, 85, 247, 0.10));
+    -fx-border-color: rgba(148, 163, 184, 0.30);
+}
+
+.staff-avatar-initials,
+.staff-form-avatar-initials,
+.staff-profile-avatar-initials {
+    -fx-text-fill: #1e293b;
+}
+
+.staff-status-on-duty {
+    -fx-background-color: rgba(34, 197, 94, 0.12);
+    -fx-border-color: rgba(34, 197, 94, 0.25);
+    -fx-text-fill: #166534;
+}
+
+.staff-status-off-duty {
+    -fx-background-color: rgba(245, 158, 11, 0.14);
+    -fx-border-color: rgba(245, 158, 11, 0.28);
+    -fx-text-fill: #92400e;
+}
+
+.staff-status-on-leave {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(37, 99, 235, 0.24);
+    -fx-text-fill: #1d4ed8;
+}
+
+.action-icon-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(148, 163, 184, 0.45);
+    -fx-text-fill: #0f172a;
+}
+
+.action-icon-button:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.95);
+    -fx-border-color: rgba(96, 165, 250, 0.45);
+}
+
+.staff-directory-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent rgba(226, 232, 240, 0.95) transparent;
+}
+
+.staff-directory-table .table-row-cell:odd {
+    -fx-background-color: #f8fafc;
+}
+
+.staff-directory-table .table-row-cell:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.65);
+}
+
+.staff-directory-table .table-row-cell:selected {
+    -fx-background-color: rgba(191, 219, 254, 0.85);
+}
+
+.staff-directory-table .table-cell {
+    -fx-text-fill: #0f172a;
+}
+
+.root,
+.app-root,
+.page-container,
+.content-root,
+.content-page,
+.dashboard-page,
+.dashboard-scroll,
+.dashboard-scroll > .viewport,
+.scroll-pane,
+.scroll-pane > .viewport,
+.split-pane,
+.tab-pane,
+.tab-pane .tab-content-area {
+    -fx-background-color: #f3f7fb;
+    -fx-background: #f3f7fb;
+}
+
+.page-container,
+.content-root,
+.dashboard-content {
+    -fx-background-color: transparent;
+}
+
+.app-sidebar {
+    -fx-background-color: linear-gradient(to bottom, #eaf3ff, #e6f0fa);
+    -fx-border-color: transparent #cbd5e1 transparent transparent;
+}
+
+.sidebar-user-card,
+.chart-card,
+.metric-card,
+.app-top-bar,
+.panel-card,
+.detail-card,
+.dashboard-kpi-card,
+.dashboard-mini-card,
+.dashboard-panel-card,
+.dashboard-system-card,
+.patient-filter-card,
+.patient-table-card,
+.patient-file-card,
+.patient-file-soft-card,
+.alert-filter-card,
+.alert-list-card,
+.alert-detail-card,
+.alert-summary-card,
+.alert-detail-soft-card,
+.notification-hero,
+.notification-filter-card,
+.notification-list-card,
+.notification-detail-card,
+.notification-card,
+.notification-counter-card,
+.notification-detail-soft-card,
+.form-card,
+.card,
+.panel,
+.page-header-card,
+.management-panel,
+.summary-card,
+.actions-card,
+.filter-toolbar,
+.table-section,
+.dashboard-summary-row,
+.dashboard-list-row,
+.detail-field-row,
+.notification-card-row,
+.timeline-card,
+.shell-status-card,
+.shell-user-block,
+.staff-filter-bar,
+.staff-table-card,
+.profile-dialog,
+.profile-info-card,
+.staff-photo-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.86);
+}
+
+.screen-title,
+.section-title,
+.field-label,
+.detail-value,
+.dashboard-row-count,
+.dashboard-list-text,
+.notification-page-title,
+.notification-section-title,
+.notification-counter-value,
+.notification-detail-value,
+.notification-card-title,
+.timeline-title,
+.shell-brand-title,
+.shell-user-name,
+.shell-status-title,
+.dashboard-welcome,
+.profile-chip-name,
+.staff-name,
+.staff-profile-name {
+    -fx-text-fill: #0f172a;
+}
+
+.muted-text,
+.metric-label,
+.body-text,
+.notification-subtitle,
+.notification-muted,
+.notification-card-preview,
+.notification-card-meta,
+.timeline-time,
+.timeline-source,
+.timeline-description,
+.shell-brand-subtitle,
+.shell-user-meta,
+.shell-status-text,
+.metric-title,
+.dashboard-role-text,
+.dashboard-page-subtitle,
+.profile-chip-meta,
+.staff-subtitle,
+.staff-photo-path-label,
+.top-bar-datetime {
+    -fx-text-fill: #64748b;
+}
+
+.app-top-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.9);
+}
+
+.global-search-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.quick-actions-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-text-fill: #ffffff;
+}
+
+.top-icon-button,
+.notification-icon-button,
+.message-icon-button,
+.theme-icon-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+    -fx-text-fill: #0f172a;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-max-height: 42;
+    -fx-padding: 0 12;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.notification-icon-button,
+.message-icon-button {
+    -fx-min-width: 72;
+    -fx-pref-width: 72;
+}
+
+.theme-icon-button {
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+    -fx-max-width: 42;
+    -fx-padding: 0;
+}
+
+.top-icon-button:hover,
+.notification-icon-button:hover,
+.message-icon-button:hover,
+.theme-icon-button:hover,
+.profile-chip:hover {
+    -fx-background-color: #eff6ff;
+    -fx-border-color: #93c5fd;
+}
+
+.profile-chip {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+}
+
+.badge-pill,
+.status-pill,
+.status-info,
+.status-success,
+.status-error,
+.info-pill,
+.success-pill,
+.warning-pill,
+.danger-pill,
+.muted-pill {
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+}
+
+.info-pill,
+.status-info {
+    -fx-background-color: rgba(37, 99, 235, 0.10);
+    -fx-border-color: rgba(37, 99, 235, 0.22);
+    -fx-text-fill: #1d4ed8;
+}
+
+.success-pill,
+.status-success,
+.priority-normal,
+.notification-badge-status {
+    -fx-background-color: rgba(34, 197, 94, 0.12);
+    -fx-border-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #166534;
+}
+
+.warning-pill,
+.status-warning,
+.priority-high,
+.severity-warning,
+.notification-badge-warning,
+.warning-panel {
+    -fx-background-color: rgba(245, 158, 11, 0.12);
+    -fx-border-color: rgba(245, 158, 11, 0.22);
+    -fx-text-fill: #92400e;
+}
+
+.danger-pill,
+.status-error,
+.priority-critical,
+.priority-emergency,
+.severity-critical,
+.severity-emergency,
+.notification-badge-critical,
+.patient-status-deceased {
+    -fx-background-color: rgba(239, 68, 68, 0.10);
+    -fx-border-color: rgba(239, 68, 68, 0.20);
+    -fx-text-fill: #b91c1c;
+}
+
+.table-view,
+.table-surface,
+.list-view,
+.timeline-list,
+.sections-table,
+.rooms-table {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7e0ea;
+    -fx-table-cell-border-color: #e2e8f0;
+}
+
+.table-view .column-header-background,
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: #f8fafc;
+}
+
+.table-view .column-header .label,
+.table-cell,
+.table-row-cell,
+.table-row-cell:selected .table-cell,
+.table-row-cell:selected .text,
+.list-cell,
+.combo-box-popup .list-cell,
+.menu-item,
+.menu-item .label,
+.dialog-pane .header-panel .label,
+.dialog-pane .content.label,
+.detail-field-name,
+.detail-field-value {
+    -fx-text-fill: #0f172a;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-row-cell:odd,
+.list-cell:odd {
+    -fx-background-color: #f8fafc;
+}
+
+.table-row-cell:hover,
+.list-cell:hover {
+    -fx-background-color: #eff6ff;
+}
+
+.table-row-cell:selected,
+.list-cell:selected {
+    -fx-background-color: #dbeafe;
+}
+
+.chart,
+.chart-content,
+.chart-plot-background {
+    -fx-background-color: #ffffff;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: rgba(148, 163, 184, 0.32);
+}
+
+.axis,
+.axis-label,
+.axis .tick-label,
+.chart-legend,
+.chart-legend-item {
+    -fx-text-fill: #64748b;
+    -fx-tick-label-fill: #64748b;
+}
+
+.chart-series-line {
+    -fx-stroke: #2563eb;
+}
+
+.chart-line-symbol {
+    -fx-background-color: #60a5fa, #ffffff;
+}
+
+.dashboard-line-chart .default-color0.chart-series-line {
+    -fx-stroke: #2563eb;
+}
+
+.dashboard-line-chart .default-color1.chart-series-line {
+    -fx-stroke: #7c3aed;
+}
+
+.dashboard-line-chart .default-color0.chart-line-symbol {
+    -fx-background-color: #2563eb, #ffffff;
+}
+
+.dashboard-line-chart .default-color1.chart-line-symbol {
+    -fx-background-color: #7c3aed, #ffffff;
+}
+
+.dashboard-summary-row,
+.dashboard-list-row,
+.detail-field-row,
+.timeline-card,
+.shell-status-card,
+.shell-user-block {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: rgba(203, 213, 225, 0.82);
+}
+
+.dialog-root,
+.dialog-header-card,
+.dialog-pane,
+.dialog-pane .header-panel {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+}
+
+.message-row {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.82);
+}
+
+.message-row:hover {
+    -fx-background-color: #f8fbff;
+    -fx-border-color: rgba(96, 165, 250, 0.34);
+}
+
+.message-row-selected {
+    -fx-background-color: linear-gradient(to right, rgba(219, 234, 254, 0.95), rgba(238, 242, 255, 0.92));
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+}
+
+.message-avatar {
+    -fx-background-color: linear-gradient(to bottom right, rgba(59, 130, 246, 0.18), rgba(168, 85, 247, 0.12));
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.message-initials,
+.message-sender,
+.message-detail-title {
+    -fx-text-fill: #0f172a;
+}
+
+.message-subject {
+    -fx-text-fill: #1e293b;
+}
+
+.message-preview,
+.message-time {
+    -fx-text-fill: #64748b;
+}
+
+.new-message-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-text-fill: #ffffff;
+}
+
+.message-filter-pill {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.86);
+    -fx-text-fill: #334155;
+}
+
+.message-filter-pill:hover {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #0f172a;
+}
+
+.message-filter-pill-active {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-text-fill: #ffffff;
+}
+
+.messages-overlay {
+    -fx-background-color: rgba(148, 163, 184, 0.32);
+}
+
+.message-detail-dialog {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.92);
+}
+
+.records-toolbar,
+.records-table-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.86);
+}
+
+.toolbar-text-field,
+.toolbar-combo,
+.toolbar-secondary-button,
+.toolbar-primary-button {
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+}
+
+.toolbar-text-field {
+    -fx-padding: 11 14;
+}
+
+.toolbar-combo {
+    -fx-min-width: 180px;
+}
+
+.toolbar-secondary-button {
+    -fx-min-width: 120px;
+    -fx-padding: 11 18;
+}
+
+.appointment-toolbar-button {
+    -fx-min-width: 145px;
+    -fx-pref-width: 145px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+    -fx-padding: 12 20;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.toolbar-primary-button {
+    -fx-padding: 12 22;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.records-table .column-header-background,
+.records-table .column-header,
+.records-table .filler {
+    -fx-background-color: #f8fafc;
+}
+
+.records-table .column-header .label {
+    -fx-text-fill: #64748b;
+}
+
+.records-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent rgba(226, 232, 240, 0.90) transparent;
+}
+
+.records-table .table-row-cell:odd {
+    -fx-background-color: #f8fafc;
+}
+
+.records-table .table-row-cell:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.64);
+}
+
+.records-table .table-row-cell:selected {
+    -fx-background-color: rgba(191, 219, 254, 0.82);
+}
+
+.records-table .table-cell {
+    -fx-text-fill: #0f172a;
+}
+
+.record-type-badge {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(96, 165, 250, 0.20);
+    -fx-text-fill: #1d4ed8;
+}
+
+.record-action-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(148, 163, 184, 0.45);
+    -fx-text-fill: #0f172a;
+}
+
+.record-action-button:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.95);
+    -fx-border-color: rgba(96, 165, 250, 0.42);
+}
+
+.new-record-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-min-width: 168px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+    -fx-padding: 12 22;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.record-detail-dialog {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.92);
+}
+
+.appointments-page {
+    -fx-background-color: transparent;
+}
+
+.appointments-header {
+    -fx-padding: 22 24;
+}
+
+.appointment-metric-card {
+    -fx-padding: 18 20;
+    -fx-spacing: 6;
+    -fx-min-height: 128;
+}
+
+.appointments-metric-value {
+    -fx-font-size: 30px;
+}
+
+.appointments-metric-note {
+    -fx-font-size: 12px;
+}
+
+.appointment-metric-blue {
+    -fx-background-color: linear-gradient(to bottom right, rgba(219, 234, 254, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.appointment-metric-purple {
+    -fx-background-color: linear-gradient(to bottom right, rgba(237, 233, 254, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.appointment-metric-amber {
+    -fx-background-color: linear-gradient(to bottom right, rgba(254, 243, 199, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.appointment-metric-danger {
+    -fx-background-color: linear-gradient(to bottom right, rgba(254, 226, 226, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.appointments-toolbar,
+.appointments-table-card,
+.appointments-detail-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(203, 213, 225, 0.86);
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+}
+
+.appointments-toolbar,
+.appointments-table-card {
+    -fx-padding: 16;
+}
+
+.appointments-detail-card {
+    -fx-padding: 18;
+}
+
+.appointments-search-field {
+    -fx-pref-height: 42;
+}
+
+.appointments-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.appointments-table .column-header-background,
+.appointments-table .column-header,
+.appointments-table .filler {
+    -fx-background-color: #f8fafc;
+}
+
+.appointments-table .column-header .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.appointments-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent rgba(226, 232, 240, 0.90) transparent;
+    -fx-cell-size: 52px;
+    -fx-pref-height: 52px;
+}
+
+.appointments-table .table-row-cell:odd {
+    -fx-background-color: #f8fafc;
+}
+
+.appointments-table .table-row-cell:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.64);
+}
+
+.appointments-table .table-row-cell:selected {
+    -fx-background-color: rgba(191, 219, 254, 0.82);
+}
+
+.appointments-table .table-cell {
+    -fx-text-fill: #0f172a;
+    -fx-padding: 8 12;
+    -fx-border-color: transparent;
+    -fx-alignment: CENTER-LEFT;
+}
+
+.appointments-patient-name,
+.appointments-patient-name-cell,
+.appointments-time-cell,
+.appointments-primary-text {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.appointment-time-primary {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.appointment-time-duration {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.appointments-time-cell {
+    -fx-wrap-text: false;
+}
+
+.appointment-type-badge,
+.appointment-status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.appointment-type-blue,
+.appointment-status-scheduled {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(96, 165, 250, 0.20);
+    -fx-text-fill: #1d4ed8;
+}
+
+.appointment-type-purple {
+    -fx-background-color: rgba(124, 58, 237, 0.10);
+    -fx-border-color: rgba(167, 139, 250, 0.20);
+    -fx-text-fill: #6d28d9;
+}
+
+.appointment-type-cyan {
+    -fx-background-color: rgba(8, 145, 178, 0.10);
+    -fx-border-color: rgba(34, 211, 238, 0.20);
+    -fx-text-fill: #0f766e;
+}
+
+.appointment-type-danger,
+.appointment-status-cancelled {
+    -fx-background-color: rgba(239, 68, 68, 0.10);
+    -fx-border-color: rgba(248, 113, 113, 0.20);
+    -fx-text-fill: #b91c1c;
+}
+
+.appointment-type-neutral,
+.appointment-status-neutral {
+    -fx-background-color: rgba(226, 232, 240, 0.92);
+    -fx-border-color: rgba(203, 213, 225, 0.92);
+    -fx-text-fill: #334155;
+}
+
+.appointment-status-completed {
+    -fx-background-color: rgba(34, 197, 94, 0.12);
+    -fx-border-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #166534;
+}
+
+.appointment-status-missed {
+    -fx-background-color: rgba(245, 158, 11, 0.12);
+    -fx-border-color: rgba(245, 158, 11, 0.22);
+    -fx-text-fill: #92400e;
+}
+
+.appointment-action-icon-button {
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+    -fx-max-width: 32;
+    -fx-max-height: 32;
+    -fx-alignment: center;
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(148, 163, 184, 0.45);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-padding: 0;
+}
+
+.appointment-action-icon-button:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.95);
+    -fx-border-color: rgba(96, 165, 250, 0.42);
+}
+
+.new-appointment-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-min-width: 190px;
+    -fx-pref-width: 200px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+    -fx-padding: 12 22;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.patient-management-page {
+    -fx-background-color: transparent;
+}
+
+.patient-header,
+.patient-toolbar,
+.patient-management-table,
+.patient-table-card {
+    -fx-background-color: #ffffff;
+}
+
+.patient-header {
+    -fx-padding: 24 26;
+}
+
+.patient-toolbar {
+    -fx-padding: 2 0;
+}
+
+.add-patient-button {
+    -fx-background-color: linear-gradient(to right, #4f46e5, #2563eb);
+    -fx-border-color: rgba(99, 102, 241, 0.26);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 12 22;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-min-width: 156;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+}
+
+.patient-search-field,
+.patient-status-filter {
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+}
+
+.patient-toolbar-button {
+    -fx-min-width: 110;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-padding: 10 18;
+}
+
+.patient-status-filter {
+    -fx-min-width: 180;
+}
+
+.patient-management-table {
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+}
+
+.patient-management-table .table-row-cell {
+    -fx-cell-size: 58px;
+    -fx-pref-height: 58px;
+    -fx-min-height: 58px;
+    -fx-max-height: 58px;
+}
+
+.patient-management-table .table-cell {
+    -fx-padding: 8 10;
+    -fx-alignment: CENTER-LEFT;
+    -fx-content-display: GRAPHIC_ONLY;
+}
+
+.patient-avatar {
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+    -fx-background-color: linear-gradient(to bottom right, rgba(59, 130, 246, 0.18), rgba(168, 85, 247, 0.12));
+    -fx-border-color: rgba(148, 163, 184, 0.24);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+}
+
+.patient-initials {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.patient-name,
+.patient-primary-text {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.patient-name {
+    -fx-max-height: 18;
+}
+
+.patient-primary-text {
+    -fx-max-height: 18;
+}
+
+.patient-subtitle {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-max-height: 16;
+}
+
+.patient-status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 4 10;
+    -fx-min-height: 24;
+    -fx-pref-height: 24;
+    -fx-max-height: 24;
+}
+
+.patient-status-active-badge {
+    -fx-background-color: rgba(34, 197, 94, 0.12);
+    -fx-border-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #166534;
+}
+
+.patient-status-critical-badge {
+    -fx-background-color: rgba(239, 68, 68, 0.10);
+    -fx-border-color: rgba(248, 113, 113, 0.20);
+    -fx-text-fill: #b91c1c;
+}
+
+.patient-status-discharged-badge {
+    -fx-background-color: rgba(245, 158, 11, 0.12);
+    -fx-border-color: rgba(245, 158, 11, 0.22);
+    -fx-text-fill: #92400e;
+}
+
+.patient-status-archived-badge {
+    -fx-background-color: rgba(226, 232, 240, 0.92);
+    -fx-border-color: rgba(203, 213, 225, 0.92);
+    -fx-text-fill: #334155;
+}
+
+.patient-action-button {
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+    -fx-max-width: 32;
+    -fx-max-height: 32;
+    -fx-alignment: center;
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(148, 163, 184, 0.45);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.patient-action-button:hover {
+    -fx-background-color: rgba(219, 234, 254, 0.95);
+    -fx-border-color: rgba(96, 165, 250, 0.42);
+}
+
+.patient-action-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+.patient-action-view {
+    -fx-text-fill: #1d4ed8;
+}
+
+.patient-action-edit {
+    -fx-text-fill: #6d28d9;
+}
+
+.patient-action-delete {
+    -fx-text-fill: #b91c1c;
+}
+
+.alerts-header,
+.alerts-page,
+.alerts-filter-card,
+.alerts-list-card {
+    -fx-background-color: transparent;
+}
+
+.records-toolbar .text-field,
+.records-toolbar .combo-box,
+.staff-filter-bar .text-field,
+.staff-filter-bar .combo-box,
+.alerts-filter-card .text-field,
+.alerts-filter-card .combo-box,
+.notification-filter-card .text-field,
+.notification-filter-card .combo-box {
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+}
+
+.add-staff-button {
+    -fx-min-width: 160px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+}
+
+.alerts-metric-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D8E1EC;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.alerts-list-card .list-view,
+.alerts-list-card .list-view .virtual-flow,
+.alerts-list-card .list-view .clipped-container,
+.alerts-list-card .list-view .sheet {
+    -fx-background-color: transparent;
+}
+
+.alert-row {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 18;
+    -fx-border-color: #D8E1EC;
+    -fx-border-radius: 18;
+    -fx-padding: 16;
+}
+
+.alert-row:hover {
+    -fx-background-color: #F8FBFF;
+    -fx-border-color: #93C5FD;
+}
+
+.alert-type-badge,
+.alert-severity-badge,
+.unread-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 5 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+}
+
+.alert-type-alert {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(96, 165, 250, 0.28);
+    -fx-text-fill: #1D4ED8;
+}
+
+.alert-type-system {
+    -fx-background-color: rgba(148, 163, 184, 0.18);
+    -fx-border-color: rgba(148, 163, 184, 0.30);
+    -fx-text-fill: #334155;
+}
+
+.alert-severity-info,
+.alert-status-read {
+    -fx-background-color: #EEF2F7;
+    -fx-border-color: #CBD5E1;
+    -fx-text-fill: #334155;
+}
+
+.alert-severity-warning {
+    -fx-background-color: #FEF3C7;
+    -fx-border-color: #FCD34D;
+    -fx-text-fill: #B45309;
+}
+
+.alert-severity-critical {
+    -fx-background-color: #FEE2E2;
+    -fx-border-color: #FCA5A5;
+    -fx-text-fill: #B91C1C;
+}
+
+.alert-status-unread,
+.unread-badge {
+    -fx-background-color: #DBEAFE;
+    -fx-border-color: #93C5FD;
+    -fx-text-fill: #1D4ED8;
+}
+
+.alert-action-button {
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-max-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+    -fx-padding: 0;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-alignment: center;
+}
+
+.alert-detail-dialog {
+    -fx-background-color: #F3F6FA;
+}
+
+.alert-detail-dialog .header-panel {
+    -fx-background-color: #FFFFFF;
+}
+
+.alert-detail-dialog .content.label,
+.alert-detail-title,
+.alert-detail-dialog .label {
+    -fx-text-fill: #0F172A;
+}
+
+.alert-detail-scroll,
+.alert-detail-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+.billing-page {
+    -fx-background-color: transparent;
+}
+
+.billing-header {
+    -fx-background-color: transparent;
+}
+
+.billing-metric-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d8e0ee;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.billing-toolbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7deeb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.billing-table-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7deeb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.billing-table {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7deeb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.billing-status-badge {
+    -fx-font-weight: 700;
+}
+
+.billing-status-paid {
+    -fx-background-color: #daf5e7;
+    -fx-text-fill: #1d6a43;
+}
+
+.billing-status-unpaid {
+    -fx-background-color: #ffe8c7;
+    -fx-text-fill: #9b5d06;
+}
+
+.billing-status-cancelled {
+    -fx-background-color: #e6e9ef;
+    -fx-text-fill: #556070;
+}
+
+.billing-action-button {
+    -fx-min-width: 32;
+    -fx-pref-width: 32;
+    -fx-min-height: 32;
+    -fx-pref-height: 32;
+    -fx-background-color: #f3f6fb;
+    -fx-text-fill: #21324a;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #d0d9e8;
+    -fx-border-width: 1;
+    -fx-padding: 0 0 0 0;
+}
+
+.billing-action-button:hover {
+    -fx-background-color: #e6ecf7;
+}
+
+.billing-action-button:disabled {
+    -fx-opacity: 0.42;
+}
+
+.new-invoice-button {
+    -fx-background-color: linear-gradient(to right, #5f79ff, #7b62ff);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+}
+
+.invoice-detail-dialog {
+    -fx-background-color: #ffffff;
+}

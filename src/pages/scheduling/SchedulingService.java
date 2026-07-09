@@ -146,14 +146,11 @@ public class SchedulingService {
     private void validateAppointment(AppointmentRequest request, boolean update) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validatePatientId(request.patientId),
-                FormValidationHelper.validateRequired("Appointment title", request.title),
                 FormValidationHelper.validateRequired("Appointment type", request.appointmentType),
                 FormValidationHelper.validateRequired("Appointment status", request.status),
                 FormValidationHelper.validateDateTime("Start time", request.startTime),
                 FormValidationHelper.validateDateTime("End time", request.endTime),
                 FormValidationHelper.validateMaxLength("Appointment title", request.title, 120),
-                FormValidationHelper.validateMaxLength("Location", request.location, 120),
-                FormValidationHelper.validateMaxLength("Assigned staff", request.assignedStaff, 80),
                 FormValidationHelper.validateMaxLength("Notes", request.notes, 400)
         );
         if (!validation.isValid()) {
@@ -177,6 +174,9 @@ public class SchedulingService {
         LocalDateTime end = parseDateTime(request.endTime);
         if (!start.isBefore(end)) {
             throw new IllegalArgumentException("Appointment start time must be before end time.");
+        }
+        if (shouldCheckOverlap(status) && hasOverlappingAppointment(request.patientId, start, end, request.id)) {
+            throw new IllegalArgumentException("This patient already has an appointment during the selected time.");
         }
     }
 
@@ -269,6 +269,32 @@ public class SchedulingService {
 
     private String normalizeAppointmentStatus(String value) {
         return normalize(value, "SCHEDULED");
+    }
+
+    private boolean hasOverlappingAppointment(String patientId, LocalDateTime newStart, LocalDateTime newEnd, long excludeAppointmentId)
+            throws SQLException {
+        List<SqliteAppointmentDao.AppointmentRecord> appointments = appointmentDao.findAppointmentsForPatient(trim(patientId));
+        for (SqliteAppointmentDao.AppointmentRecord appointment : appointments) {
+            if (appointment == null || appointment.getId() == excludeAppointmentId) {
+                continue;
+            }
+            if (!shouldCheckOverlap(appointment.getStatus())) {
+                continue;
+            }
+            LocalDateTime existingStart = parseDateTime(appointment.getStartTime());
+            LocalDateTime existingEnd = parseDateTime(appointment.getEndTime());
+            if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldCheckOverlap(String status) {
+        String normalized = normalizeAppointmentStatus(status);
+        return !"CANCELLED".equalsIgnoreCase(normalized)
+                && !"COMPLETED".equalsIgnoreCase(normalized)
+                && !"MISSED".equalsIgnoreCase(normalized);
     }
 
     private String normalizeReminderType(String value) {

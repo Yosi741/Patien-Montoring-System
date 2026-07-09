@@ -2,7 +2,6 @@ package pages.user.dao;
 
 import app.DatabaseManager;
 import app.SchemaInitializer;
-import app.PasswordHasher;
 import pages.user.User;
 
 import java.sql.Connection;
@@ -81,10 +80,8 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public void save(User user) throws SQLException {
-        String passwordHash = PasswordHasher.isHashed(user.getPassword())
-                ? user.getPassword()
-                : PasswordHasher.hash(user.getPassword().toCharArray());
-        saveHashed(user.getUsername(), passwordHash, user.getRole(), user.getSection());
+        String storedPassword = user.getPassword() == null ? "" : user.getPassword();
+        saveHashed(user.getUsername(), storedPassword, user.getRole(), user.getSection());
     }
 
     public void saveHashed(String username, String passwordHash, String role, String section) throws SQLException {
@@ -129,8 +126,20 @@ public class SqliteUserDao implements UserDao {
     }
 
     public boolean verifyPassword(String username, char[] password) throws SQLException {
-        return findByUsername(username)
-                .map(user -> PasswordHasher.verify(password, user.getPassword()))
+        return verifyPassword(username, password == null ? "" : new String(password));
+    }
+
+    public boolean verifyPassword(String username, String password) throws SQLException {
+        String cleanUsername = username == null ? "" : username.trim();
+        String inputPassword = password == null ? "" : password;
+        if (cleanUsername.isEmpty() || inputPassword.isBlank()) {
+            return false;
+        }
+        return findByUsername(cleanUsername)
+                .map(user -> {
+                    String storedPassword = user.getPassword();
+                    return storedPassword != null && !storedPassword.isBlank() && storedPassword.equals(inputPassword);
+                })
                 .orElse(false);
     }
 
@@ -146,13 +155,21 @@ public class SqliteUserDao implements UserDao {
     public List<UserDirectoryRow> findDirectoryRows(UserDirectoryFilter filter) throws SQLException {
         ArrayList<UserDirectoryRow> rows = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT u.id, u.staff_id, u.username, u.role, u.section, "
-                + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email, u.active, u.created_at "
+                + "COALESCE(NULLIF(p.full_name, ''), u.username) AS full_name, "
+                + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email, "
+                + "COALESCE(NULLIF(p.phone, ''), '') AS phone, "
+                + "COALESCE(NULLIF(p.address, ''), '') AS address, "
+                + "COALESCE(NULLIF(p.profile_photo_path, ''), '') AS profile_photo_path, "
+                + "COALESCE(NULLIF(p.duty_status, ''), 'On Duty') AS duty_status, "
+                + "u.active, u.created_at "
                 + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username WHERE 1 = 1 ");
         ArrayList<String> params = new ArrayList<>();
 
         if (filter != null && filter.getSearch() != null && !filter.getSearch().trim().isEmpty()) {
-            sql.append("AND (u.staff_id LIKE ? OR u.username LIKE ? OR COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') LIKE ?) ");
+            sql.append("AND (u.staff_id LIKE ? OR u.username LIKE ? OR COALESCE(NULLIF(p.full_name, ''), u.username) LIKE ? "
+                    + "OR COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') LIKE ?) ");
             String like = "%" + filter.getSearch().trim() + "%";
+            params.add(like);
             params.add(like);
             params.add(like);
             params.add(like);
@@ -162,10 +179,10 @@ public class SqliteUserDao implements UserDao {
             sql.append("AND u.section = ? ");
             params.add(filter.getSection());
         }
-        if (filter != null && filter.getActiveStatus() != null && !filter.getActiveStatus().isBlank()
-                && !"All".equalsIgnoreCase(filter.getActiveStatus())) {
-            sql.append("AND u.active = ? ");
-            params.add("Active".equalsIgnoreCase(filter.getActiveStatus()) ? "1" : "0");
+        if (filter != null && filter.getDutyStatus() != null && !filter.getDutyStatus().isBlank()
+                && !"All".equalsIgnoreCase(filter.getDutyStatus())) {
+            sql.append("AND COALESCE(NULLIF(p.duty_status, ''), 'On Duty') = ? ");
+            params.add(normalizeDutyStatus(filter.getDutyStatus()));
         }
         if (filter != null && filter.getRoleGroup() != null && !filter.getRoleGroup().isBlank()
                 && !"All".equalsIgnoreCase(filter.getRoleGroup())) {
@@ -189,7 +206,12 @@ public class SqliteUserDao implements UserDao {
                             resultSet.getString("username"),
                             resultSet.getString("role"),
                             resultSet.getString("section"),
+                            blank(resultSet.getString("full_name")),
                             blank(resultSet.getString("email")),
+                            blank(resultSet.getString("phone")),
+                            blank(resultSet.getString("address")),
+                            blank(resultSet.getString("profile_photo_path")),
+                            normalizeDutyStatus(resultSet.getString("duty_status")),
                             resultSet.getInt("active") == 1,
                             resultSet.getString("created_at")
                     ));
@@ -276,7 +298,13 @@ public class SqliteUserDao implements UserDao {
 
     public Optional<UserDirectoryRow> findDirectoryRowByUsername(String username) throws SQLException {
         String sql = "SELECT u.id, u.staff_id, u.username, u.role, u.section, "
-                + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email, u.active, u.created_at "
+                + "COALESCE(NULLIF(p.full_name, ''), u.username) AS full_name, "
+                + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email, "
+                + "COALESCE(NULLIF(p.phone, ''), '') AS phone, "
+                + "COALESCE(NULLIF(p.address, ''), '') AS address, "
+                + "COALESCE(NULLIF(p.profile_photo_path, ''), '') AS profile_photo_path, "
+                + "COALESCE(NULLIF(p.duty_status, ''), 'On Duty') AS duty_status, "
+                + "u.active, u.created_at "
                 + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username WHERE u.username = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -289,7 +317,12 @@ public class SqliteUserDao implements UserDao {
                             resultSet.getString("username"),
                             resultSet.getString("role"),
                             resultSet.getString("section"),
+                            blank(resultSet.getString("full_name")),
                             blank(resultSet.getString("email")),
+                            blank(resultSet.getString("phone")),
+                            blank(resultSet.getString("address")),
+                            blank(resultSet.getString("profile_photo_path")),
+                            normalizeDutyStatus(resultSet.getString("duty_status")),
                             resultSet.getInt("active") == 1,
                             resultSet.getString("created_at")
                     ));
@@ -301,6 +334,28 @@ public class SqliteUserDao implements UserDao {
 
     public Optional<PasswordResetContact> findPasswordResetContact(String username) throws SQLException {
         return findPasswordResetContact(username, null);
+    }
+
+    public Optional<User> findActiveUserByUsernameAndStaffId(String username, String staffId) throws SQLException {
+        String cleanUsername = username == null ? "" : username.trim();
+        String cleanStaffId = staffId == null ? "" : staffId.trim();
+        if (cleanUsername.isEmpty() || cleanStaffId.isEmpty()) {
+            return Optional.empty();
+        }
+        String sql = "SELECT username, password_hash, role, section, staff_id "
+                + "FROM users WHERE LOWER(username) = LOWER(?) "
+                + "AND UPPER(COALESCE(staff_id, '')) = UPPER(?) AND active = 1";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, cleanUsername);
+            statement.setString(2, cleanStaffId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(mapUser(resultSet));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<PasswordResetContact> findPasswordResetContact(String username, String staffId) throws SQLException {
@@ -368,10 +423,14 @@ public class SqliteUserDao implements UserDao {
     }
 
     public void resetPasswordHash(String username, String passwordHash) throws SQLException {
+        updatePassword(username, passwordHash);
+    }
+
+    public void updatePassword(String username, String newPassword) throws SQLException {
         String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, passwordHash);
+            statement.setString(1, newPassword == null ? "" : newPassword);
             statement.setString(2, username);
             statement.executeUpdate();
         }
@@ -471,6 +530,19 @@ public class SqliteUserDao implements UserDao {
         return section == null || section.isBlank() ? "All" : section.trim();
     }
 
+    private String normalizeDutyStatus(String dutyStatus) {
+        if (dutyStatus == null || dutyStatus.isBlank()) {
+            return "On Duty";
+        }
+        if ("Off Duty".equalsIgnoreCase(dutyStatus)) {
+            return "Off Duty";
+        }
+        if ("On Leave".equalsIgnoreCase(dutyStatus)) {
+            return "On Leave";
+        }
+        return "On Duty";
+    }
+
     private void appendRoleGroupFilter(StringBuilder sql, ArrayList<String> params, String roleGroup) {
         String group = roleGroup.toUpperCase();
         if ("ADMIN".equals(group)) {
@@ -520,19 +592,19 @@ public class SqliteUserDao implements UserDao {
         private final String search;
         private final String roleGroup;
         private final String section;
-        private final String activeStatus;
+        private final String dutyStatus;
 
-        public UserDirectoryFilter(String search, String roleGroup, String section, String activeStatus) {
+        public UserDirectoryFilter(String search, String roleGroup, String section, String dutyStatus) {
             this.search = search;
             this.roleGroup = roleGroup;
             this.section = section;
-            this.activeStatus = activeStatus;
+            this.dutyStatus = dutyStatus;
         }
 
         public String getSearch() { return search; }
         public String getRoleGroup() { return roleGroup; }
         public String getSection() { return section; }
-        public String getActiveStatus() { return activeStatus; }
+        public String getDutyStatus() { return dutyStatus; }
     }
 
     public static class UserDirectoryRow {
@@ -541,17 +613,29 @@ public class SqliteUserDao implements UserDao {
         private final String username;
         private final String role;
         private final String section;
+        private final String fullName;
         private final String email;
+        private final String phone;
+        private final String address;
+        private final String profilePhotoPath;
+        private final String dutyStatus;
         private final boolean active;
         private final String createdAt;
 
-        public UserDirectoryRow(long id, String staffId, String username, String role, String section, String email, boolean active, String createdAt) {
+        public UserDirectoryRow(long id, String staffId, String username, String role, String section, String fullName,
+                                String email, String phone, String address, String profilePhotoPath, String dutyStatus,
+                                boolean active, String createdAt) {
             this.id = id;
             this.staffId = staffId == null ? "" : staffId;
             this.username = username;
             this.role = role;
             this.section = section;
+            this.fullName = fullName == null ? "" : fullName;
             this.email = email == null ? "" : email;
+            this.phone = phone == null ? "" : phone;
+            this.address = address == null ? "" : address;
+            this.profilePhotoPath = profilePhotoPath == null ? "" : profilePhotoPath;
+            this.dutyStatus = dutyStatus == null ? "On Duty" : dutyStatus;
             this.active = active;
             this.createdAt = createdAt;
         }
@@ -561,10 +645,19 @@ public class SqliteUserDao implements UserDao {
         public String getUsername() { return username; }
         public String getRole() { return role; }
         public String getSection() { return section; }
+        public String getFullName() { return fullName; }
         public String getEmail() { return email; }
+        public String getPhone() { return phone; }
+        public String getAddress() { return address; }
+        public String getProfilePhotoPath() { return profilePhotoPath; }
+        public String getDutyStatus() { return dutyStatus; }
         public boolean isActive() { return active; }
         public String getActiveStatus() { return active ? "Active" : "Inactive"; }
         public String getCreatedAt() { return createdAt; }
+
+        public String getDisplayName() {
+            return fullName == null || fullName.isBlank() ? username : fullName;
+        }
     }
 
     public static class UserWriteRecord {

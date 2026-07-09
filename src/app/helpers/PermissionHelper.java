@@ -139,6 +139,14 @@ public final class PermissionHelper {
         return user != null;
     }
 
+    public static boolean canViewBilling(User user) {
+        return user != null;
+    }
+
+    public static boolean canManageBilling(User user) {
+        return user != null;
+    }
+
     public static boolean isReadOnly(User user) {
         return !isAdmin(user) && !isDoctor(user) && !isNurse(user);
     }

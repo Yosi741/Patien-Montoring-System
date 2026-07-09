@@ -75,6 +75,27 @@ public class PatientWriteService {
         patientVisitService.dischargeVisit(patientId, dischargeSummary);
     }
 
+    public void archivePatient(User currentUser, String patientId, String archiveSummary) throws SQLException {
+        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
+            throw new SecurityException("Only Admin and Doctor users can remove patients from the active list.");
+        }
+        FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException(validation.getMessage());
+        }
+        SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patientId));
+        if ("DECEASED".equalsIgnoreCase(detail.getStatus())
+                || "INACTIVE".equalsIgnoreCase(detail.getStatus())
+                || "DEACTIVATED".equalsIgnoreCase(detail.getStatus())) {
+            throw new IllegalArgumentException("This patient is already archived.");
+        }
+        patientDao.deactivatePatient(patientId, "INACTIVE");
+        patientVisitService.dischargeVisit(patientId, archiveSummary == null || archiveSummary.isBlank()
+                ? "Patient removed from the active clinic list."
+                : archiveSummary);
+    }
+
     public void reactivateReturningPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);

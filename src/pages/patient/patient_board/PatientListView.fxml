@@ -8,110 +8,45 @@
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="patient-board-scroll">
-        <VBox spacing="18.0" styleClass="patient-board-page">
-            <padding>
-                <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
-            </padding>
+            <content>
+                <VBox spacing="18.0" styleClass="patient-management-page">
+                    <padding>
+                        <Insets bottom="26.0" left="26.0" right="26.0" top="26.0" />
+                    </padding>
 
-            <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
-                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                    <Label styleClass="screen-title" text="Patients" />
-                    <Label styleClass="muted-text" text="Find patients, review status, and start common clinic actions from one patient board." wrapText="true" />
-                    <Label fx:id="statusLabel" styleClass="patient-status-line" text="Patients loaded: 0" />
+                    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card patient-header">
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <Label styleClass="screen-title patient-page-title" text="Patient Management" />
+                            <Label styleClass="muted-text patient-page-subtitle" text="Manage patient records and urgent care visits." wrapText="true" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="14.0" styleClass="patient-table-card">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="patient-toolbar">
+                            <TextField fx:id="searchField" prefHeight="30.0" prefWidth="713.0" promptText="Search by name, patient ID, or phone..." styleClass="global-search-field patient-search-field" HBox.hgrow="ALWAYS" />
+                            <ComboBox fx:id="statusFilter" prefHeight="30.0" prefWidth="180.0" styleClass="control-input patient-status-filter" />
+                            <Button onAction="#clearFilters" prefHeight="32.0" prefWidth="65.0" styleClass="secondary-button patient-toolbar-button" text="Clear" />
+                            <Button fx:id="addPatientButton" onAction="#addPatient" prefHeight="32.0" prefWidth="106.0" styleClass="primary-button add-patient-button patient-toolbar-button" text="+ Add Patient" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label fx:id="statusLabel" styleClass="patient-status-line" text="Showing 0 patient records" />
+                            <Region HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <TableView fx:id="patientTable" prefHeight="520.0" styleClass="patient-table clinical-table patient-management-table" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="patientColumn" prefWidth="330.0" text="Patient" />
+                                <TableColumn fx:id="idColumn" prefWidth="135.0" text="ID" />
+                                <TableColumn fx:id="ageGenderColumn" prefWidth="140.0" text="Age / Gender" />
+                                <TableColumn fx:id="contactColumn" prefWidth="190.0" text="Contact" />
+                                <TableColumn fx:id="statusColumn" prefWidth="140.0" text="Status" />
+                                <TableColumn fx:id="actionsColumn" prefWidth="150.0" sortable="false" text="Actions" />
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </VBox>
-                <Button onAction="#backToDashboard" styleClass="secondary-button" text="Back to Dashboard" />
-            </HBox>
-
-            <FlowPane hgap="10.0" styleClass="patient-quick-filter-row" vgap="10.0">
-                <Button onAction="#showAllPatients" styleClass="patient-filter-chip-button" text="All Patients" />
-                <Button onAction="#showActivePatients" styleClass="patient-filter-chip-button" text="Active Patients" />
-                <Button onAction="#showCriticalEmergency" styleClass="patient-filter-chip-danger" text="Critical / Emergency" />
-                <Button onAction="#showHighPriority" styleClass="patient-filter-chip-warning" text="High Priority" />
-                <Button onAction="#showRecentlyUpdated" styleClass="patient-filter-chip-button" text="Recently Updated" />
-            </FlowPane>
-
-            <VBox spacing="16.0" styleClass="patient-filter-card">
-                <GridPane hgap="14.0" vgap="12.0">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="36.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.0" />
-                    </columnConstraints>
-
-                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Search" />
-                        <TextField fx:id="searchField" promptText="Patient ID or name" styleClass="patient-input" />
-                    </VBox>
-
-                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Clinic Area" />
-                        <ComboBox fx:id="sectionFilter" maxWidth="Infinity" styleClass="patient-input" />
-                    </VBox>
-
-                    <VBox spacing="6.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Location" />
-                        <ComboBox fx:id="roomFilter" maxWidth="Infinity" styleClass="patient-input" />
-                    </VBox>
-
-                    <VBox spacing="6.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Status" />
-                        <ComboBox fx:id="statusFilter" maxWidth="Infinity" styleClass="patient-input" />
-                    </VBox>
-
-                    <VBox spacing="6.0" GridPane.columnIndex="4" GridPane.rowIndex="0">
-                        <Label styleClass="field-label" text="Priority" />
-                        <ComboBox fx:id="priorityFilter" maxWidth="Infinity" styleClass="patient-input" />
-                    </VBox>
-                  <rowConstraints>
-                     <RowConstraints />
-                  </rowConstraints>
-                </GridPane>
-
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="patient-action-row">
-                    <Button onAction="#clearFilters" styleClass="patient-action-ghost" text="Clear Filters" />
-                    <Button onAction="#loadPatients" styleClass="patient-action-ghost" text="Refresh" />
-
-                    <Region HBox.hgrow="ALWAYS" />
-
-                    <Button fx:id="addPatientButton" onAction="#addPatient" styleClass="patient-action-primary" text="Add Patient" />
-
-                    <Button fx:id="editSelectedPatientButton" onAction="#editSelectedPatient" styleClass="patient-action-secondary" text="Edit Patient" />
-
-                    <Button fx:id="enterVitalsButton" onAction="#enterVitalsForSelectedPatient" styleClass="patient-action-secondary" text="Enter Vitals" />
-
-                    <Button fx:id="viewPatientFileButton" onAction="#viewDetails" styleClass="patient-action-primary" text="View Patient File" />
-
-                    <Button fx:id="dischargePatientButton" onAction="#dischargeSelectedPatient" styleClass="patient-action-danger" text="Discharge Patient" />
-                </HBox>
-
-                <FlowPane fx:id="filterChipsBox" hgap="8.0" vgap="8.0" />
-            </VBox>
-
-            <VBox spacing="10.0" styleClass="patient-table-card" VBox.vgrow="ALWAYS">
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                        <Label fx:id="boardTitleLabel" styleClass="patient-section-title" text="Patients" />
-                        <Label fx:id="boardSubtitleLabel" styleClass="patient-page-subtitle" text="Double-click a row to open the full patient file." />
-                    </VBox>
-                </HBox>
-
-                <TableView fx:id="patientTable" prefHeight="420.0" styleClass="patient-table clinical-table" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="rowNumberColumn" prefWidth="52.0" reorderable="false" sortable="false" text="#" />
-                        <TableColumn fx:id="idColumn" prefWidth="130.0" text="ID" />
-                        <TableColumn fx:id="nameColumn" prefWidth="210.0" text="Name" />
-                        <TableColumn fx:id="birthDateColumn" prefWidth="120.0" text="Birth Date" />
-                        <TableColumn fx:id="genderColumn" prefWidth="100.0" text="Gender" />
-                        <TableColumn fx:id="sectionColumn" prefWidth="150.0" text="Clinic Area" />
-                        <TableColumn fx:id="roomColumn" prefWidth="105.0" text="Location" />
-                        <TableColumn fx:id="statusColumn" prefWidth="130.0" text="Status" />
-                        <TableColumn fx:id="priorityColumn" prefWidth="130.0" text="Priority" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </VBox>
+            </content>
         </ScrollPane>
     </center>
 </BorderPane>

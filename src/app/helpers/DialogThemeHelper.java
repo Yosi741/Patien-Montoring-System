@@ -15,6 +15,6 @@ public final class DialogThemeHelper {
         }
         dialog.getDialogPane().getStyleClass().add("dialog-root");
         dialog.getDialogPane().getStylesheets().clear();
-        dialog.getDialogPane().getStylesheets().add(AppNavigator.resolve(AppShell.PRESENTATION_THEME).toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(AppNavigator.resolve(AppShell.getActiveThemePath()).toExternalForm());
     }
 }

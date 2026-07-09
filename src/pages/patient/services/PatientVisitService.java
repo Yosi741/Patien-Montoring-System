@@ -37,10 +37,11 @@ public class PatientVisitService {
     }
 
     public void dischargeVisit(String patientId, String dischargeSummary) throws SQLException {
-        boolean updated = patientVisitDao.dischargeActiveVisit(patientId, now(), blank(dischargeSummary));
+        String summary = defaultDischargeSummary(dischargeSummary);
+        boolean updated = patientVisitDao.dischargeActiveVisit(patientId, now(), summary);
         if (!updated) {
-            patientVisitDao.createVisit(patientId, now(), "DISCHARGED", blank(dischargeSummary));
-            patientVisitDao.dischargeActiveVisit(patientId, now(), blank(dischargeSummary));
+            patientVisitDao.createVisit(patientId, now(), "DISCHARGED", summary);
+            patientVisitDao.dischargeActiveVisit(patientId, now(), summary);
         }
     }
 
@@ -50,5 +51,10 @@ public class PatientVisitService {
 
     private String blank(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String defaultDischargeSummary(String value) {
+        String trimmed = blank(value);
+        return trimmed.isEmpty() ? "Visit closed without a summary." : trimmed;
     }
 }

@@ -1,80 +1,66 @@
 package pages.user.user_directory;
 
-import pages.user.dao.SqliteUserDao;
+import app.AppShell;
+import app.FxController;
+import app.SessionContext;
+import app.helpers.PermissionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import users.roles.RolePermissionService;
-import pages.user.user_form.UserFormController;
-import pages.user.services.UserWriteService;
-import app.AppShell;
-import app.FxController;
-import app.SessionContext;
-import app.helpers.DialogHelper;
 import pages.notification.NotificationHelper;
-import app.helpers.PermissionHelper;
-import app.helpers.SelectionHelper;
+import pages.user.dao.SqliteUserDao;
+import pages.user.user_form.UserFormController;
 import users.Session;
-import pages.user.User;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.Locale;
 
 public class UserDirectoryController implements FxController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
-    private final UserWriteService userWriteService = new UserWriteService();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
+
     private AppShell appShell;
 
     @FXML private VBox accessDeniedPane;
     @FXML private VBox directoryContentPane;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> roleFilter;
-    @FXML private ComboBox<String> sectionFilter;
     @FXML private ComboBox<String> activeFilter;
     @FXML private Button addUserButton;
-    @FXML private Button editUserButton;
-    @FXML private Button deactivateUserButton;
-    @FXML private Button resetPasswordButton;
+    @FXML private Label totalStaffMetricLabel;
+    @FXML private Label onDutyMetricLabel;
+    @FXML private Label offDutyMetricLabel;
+    @FXML private Label onLeaveMetricLabel;
     @FXML private TableView<SqliteUserDao.UserDirectoryRow> userTable;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Number> rowNumberColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, Long> idColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> staffIdColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> usernameColumn;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, SqliteUserDao.UserDirectoryRow> usernameColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> roleColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> sectionColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> emailColumn;
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> activeColumn;
-    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, String> createdAtColumn;
-    @FXML private Label detailTitleLabel;
-    @FXML private Label detailStaffIdLabel;
-    @FXML private Label detailUsernameLabel;
-    @FXML private Label detailRoleLabel;
-    @FXML private Label detailRoleBadgeLabel;
-    @FXML private Label detailSectionLabel;
-    @FXML private Label detailEmailLabel;
-    @FXML private Label detailStatusLabel;
-    @FXML private Label detailAuthSourceLabel;
-    @FXML private Label detailCreatedAtLabel;
-    @FXML private VBox permissionListBox;
+    @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, SqliteUserDao.UserDirectoryRow> actionsColumn;
     @FXML private Label statusLabel;
 
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
         configureAccess();
+        configureFilters();
         configureTable();
-        configureSelection();
-        clearDetail();
         if (isAdmin()) {
             loadUsers();
         }
@@ -83,286 +69,382 @@ public class UserDirectoryController implements FxController {
     @FXML
     private void loadUsers() {
         if (!isAdmin()) {
-            statusLabel.setText("Access denied.");
+            NotificationHelper.showError(statusLabel, "Access denied.");
             return;
         }
         try {
             SqliteUserDao.UserDirectoryFilter filter = new SqliteUserDao.UserDirectoryFilter(
-                    searchField.getText(),
-                    roleFilter.getValue(),
-                    sectionFilter.getValue(),
-                    activeFilter.getValue()
+                    text(searchField),
+                    internalRoleFilter(roleFilter == null ? null : roleFilter.getValue()),
+                    null,
+                    activeFilter == null ? null : activeFilter.getValue()
             );
-            var loadedRows = userDao.findDirectoryRows(filter);
-            SelectionHelper.runWhenTableStable(userTable, () -> {
-                SelectionHelper.safeReplaceItems(userTable, rows, loadedRows);
-                statusLabel.setText(rows.isEmpty()
-                        ? "No users match the selected filters."
-                        : "Users loaded: " + rows.size() + " | Sorted by role, section, username");
-            });
+            rows.setAll(userDao.findDirectoryRows(filter));
+            userTable.setItems(rows);
+            userTable.refresh();
+            updateMetrics();
+            if (rows.isEmpty()) {
+                NotificationHelper.showInfo(statusLabel, "No staff members match the selected filters.");
+            } else {
+                NotificationHelper.showInfo(statusLabel, "Staff records loaded: " + rows.size());
+            }
         } catch (Exception e) {
-            statusLabel.setText("Could not load users: " + e.getMessage());
+            NotificationHelper.showError(statusLabel, "Could not load staff records: " + e.getMessage());
         }
     }
 
     @FXML
     private void clearFilters() {
-        searchField.clear();
-        roleFilter.getSelectionModel().select("All");
-        sectionFilter.getSelectionModel().select("All");
-        activeFilter.getSelectionModel().select("All");
+        if (searchField != null) {
+            searchField.clear();
+        }
+        if (roleFilter != null) {
+            roleFilter.getSelectionModel().select("All");
+        }
+        if (activeFilter != null) {
+            activeFilter.getSelectionModel().select("All");
+        }
         loadUsers();
     }
 
     @FXML
-    private void showDashboard() {
-        appShell.showDashboard(Session.getCurrentUser());
+    private void addUser() {
+        if (!PermissionHelper.canCreateUser(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only administrators can add staff.");
+            return;
+        }
+        if (UserFormController.showCreateDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser())) {
+            loadUsers();
+            NotificationHelper.showSuccess(statusLabel, "Staff profile created.");
+        }
     }
 
     private void configureAccess() {
         boolean admin = isAdmin();
-        accessDeniedPane.setVisible(!admin);
-        accessDeniedPane.setManaged(!admin);
-        directoryContentPane.setVisible(admin);
-        directoryContentPane.setManaged(admin);
-        setButtonVisible(addUserButton, admin);
-        setButtonVisible(editUserButton, admin);
-        setButtonVisible(deactivateUserButton, admin);
-        setButtonVisible(resetPasswordButton, admin);
+        if (accessDeniedPane != null) {
+            accessDeniedPane.setVisible(!admin);
+            accessDeniedPane.setManaged(!admin);
+        }
+        if (directoryContentPane != null) {
+            directoryContentPane.setVisible(admin);
+            directoryContentPane.setManaged(admin);
+        }
+        if (addUserButton != null) {
+            addUserButton.setVisible(admin);
+            addUserButton.setManaged(admin);
+        }
+    }
+
+    private void configureFilters() {
+        if (roleFilter != null) {
+            roleFilter.setItems(FXCollections.observableArrayList("All", "Admin", "Doctor", "Nurse", "Secretary"));
+            roleFilter.getSelectionModel().select("All");
+            roleFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (appShell != null && isAdmin()) {
+                    loadUsers();
+                }
+            });
+        }
+        if (activeFilter != null) {
+            activeFilter.setItems(FXCollections.observableArrayList("All", "On Duty", "Off Duty", "On Leave"));
+            activeFilter.getSelectionModel().select("All");
+            activeFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (appShell != null && isAdmin()) {
+                    loadUsers();
+                }
+            });
+        }
+        if (searchField != null) {
+            searchField.setOnAction(event -> loadUsers());
+        }
     }
 
     private void configureTable() {
-        if (rowNumberColumn != null) {
-            rowNumberColumn.setCellValueFactory(cell -> {
-                int index = userTable.getItems() == null ? -1 : userTable.getItems().indexOf(cell.getValue());
-                Number rowNumber = index >= 0 ? index + 1 : null;
-                return new ReadOnlyObjectWrapper<>(rowNumber);
+        if (userTable != null) {
+            userTable.setItems(rows);
+            userTable.setPlaceholder(new Label("No staff members found."));
+        }
+        if (usernameColumn != null) {
+            usernameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+            usernameColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setGraphic(buildStaffCell(item));
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
             });
         }
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        staffIdColumn.setCellValueFactory(new PropertyValueFactory<>("staffId"));
-        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-        sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
-        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        activeColumn.setCellValueFactory(new PropertyValueFactory<>("activeStatus"));
-        createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        if (roleColumn != null) {
+            roleColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(visibleRole(cell.getValue().getRole())));
+            roleColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null || item.isBlank()) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    Label badge = new Label(item);
+                    badge.getStyleClass().addAll("badge-pill", "role-badge", roleStyle(item));
+                    setGraphic(badge);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+            });
+        }
+        if (activeColumn != null) {
+            activeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(dutyStatus(cell.getValue())));
+            activeColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null || item.isBlank()) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    Label badge = new Label(item);
+                    badge.getStyleClass().addAll("badge-pill", "status-badge", dutyStatusStyle(item));
+                    setGraphic(badge);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+            });
+        }
+        if (actionsColumn != null) {
+            actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+            actionsColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    Button viewButton = new Button("\uD83D\uDC41");
+                    viewButton.getStyleClass().add("action-icon-button");
+                    viewButton.setOnAction(event -> openProfile(item));
+
+                    Button editButton = new Button("\u270E");
+                    editButton.getStyleClass().add("action-icon-button");
+                    editButton.setDisable(!PermissionHelper.canUpdateUser(Session.getCurrentUser()));
+                    editButton.setOnAction(event -> editStaff(item));
+
+                    HBox actions = new HBox(10.0, viewButton, editButton);
+                    actions.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(actions);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+            });
+        }
     }
 
+    private HBox buildStaffCell(SqliteUserDao.UserDirectoryRow row) {
+        StackPane avatar = new StackPane();
+        avatar.getStyleClass().add("staff-avatar");
 
-    @FXML
-    private void addUser() {
-        if (!PermissionHelper.canCreateUser(Session.getCurrentUser())) {
-            showDenied();
-            return;
+        ImageView photoView = buildAvatarImage(row.getProfilePhotoPath());
+        if (photoView != null) {
+            avatar.getChildren().add(photoView);
+        } else {
+            Label initials = new Label(initials(row));
+            initials.getStyleClass().add("staff-avatar-initials");
+            avatar.getChildren().add(initials);
         }
-        if (UserFormController.showCreateDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser())) {
 
-            loadUsers();
-            NotificationHelper.showSuccess(statusLabel, "User account saved.");
+        Label nameLabel = new Label(displayName(row));
+        nameLabel.getStyleClass().add("staff-name");
+
+        String subtitleText = row.getUsername();
+        if (!blank(row.getStaffId()).equals("-")) {
+            subtitleText = row.getStaffId() + "  |  " + row.getUsername();
         }
+        Label subtitleLabel = new Label(subtitleText);
+        subtitleLabel.getStyleClass().add("staff-subtitle");
+
+        VBox textBox = new VBox(4.0, nameLabel, subtitleLabel);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        HBox wrapper = new HBox(14.0, avatar, textBox);
+        wrapper.setAlignment(Pos.CENTER_LEFT);
+        wrapper.getStyleClass().add("staff-row");
+        return wrapper;
     }
 
-    @FXML
-    private void editSelectedUser() {
-        SqliteUserDao.UserDirectoryRow selected = selectedUser();
-        if (selected == null) {
-            return;
+    private ImageView buildAvatarImage(String pathValue) {
+        if (pathValue == null || pathValue.isBlank()) {
+            return null;
         }
-        if (!PermissionHelper.canUpdateUser(Session.getCurrentUser())) {
-            showDenied();
-            return;
-        }
-        if (UserFormController.showEditDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
-            loadUsers();
-            selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "User updated.");
-        }
-    }
-
-    @FXML
-    private void deactivateSelectedUser() {
-        SqliteUserDao.UserDirectoryRow selected = selectedUser();
-        if (selected == null) {
-            return;
-        }
-        if (!PermissionHelper.canDeactivateUser(Session.getCurrentUser())) {
-            showDenied();
-            return;
-        }
-        boolean self = selected.getUsername().equalsIgnoreCase(SessionContext.username());
-        String message = self
-                ? "You are deactivating your own active account. Continue only if you have another admin account available."
-                : "Deactivate user " + selected.getUsername() + "?";
-        if (!DialogHelper.confirm("Deactivate User", message)) {
-            return;
+        File file = new File(pathValue);
+        if (!file.exists() || !file.isFile()) {
+            return null;
         }
         try {
-            userWriteService.deactivateUser(Session.getCurrentUser(), selected.getUsername(), self);
+            ImageView view = new ImageView(new Image(file.toURI().toString(), 48, 48, true, true));
+            view.setFitWidth(48);
+            view.setFitHeight(48);
+            view.setPreserveRatio(true);
+            view.getStyleClass().add("profile-photo");
+            return view;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private void openProfile(SqliteUserDao.UserDirectoryRow row) {
+        boolean edited = StaffProfileDialogController.showDialog(
+                statusLabel.getScene().getWindow(),
+                Session.getCurrentUser(),
+                row
+        );
+        if (edited) {
             loadUsers();
-            selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "User deactivated.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
         }
     }
 
-    @FXML
-    private void resetSelectedPassword() {
-        SqliteUserDao.UserDirectoryRow selected = selectedUser();
-        if (selected == null) {
+    private void editStaff(SqliteUserDao.UserDirectoryRow row) {
+        if (!PermissionHelper.canUpdateUser(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only administrators can edit staff.");
             return;
         }
-        if (!PermissionHelper.canResetUserPassword(Session.getCurrentUser())) {
-            showDenied();
-            return;
-        }
-        if (UserFormController.showResetPasswordDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), selected)) {
+        if (UserFormController.showEditDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), row)) {
             loadUsers();
-            selectUser(selected.getUsername());
-            NotificationHelper.showSuccess(statusLabel, "Password reset. Raw password was not logged.");
+            NotificationHelper.showSuccess(statusLabel, "Staff profile updated.");
         }
     }
 
-    private void configureSelection() {
-        userTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null) {
-                clearDetail();
-            } else {
-                renderDetail(newValue);
-            }
-        });
-    }
-
-    private void renderDetail(SqliteUserDao.UserDirectoryRow row) {
-        detailTitleLabel.setText(row.getUsername());
-        detailStaffIdLabel.setText(blank(row.getStaffId()));
-        detailUsernameLabel.setText(row.getUsername());
-        detailRoleLabel.setText(row.getRole());
-        detailSectionLabel.setText(row.getSection());
-        detailEmailLabel.setText(blank(row.getEmail()));
-        detailStatusLabel.setText(row.getActiveStatus());
-        detailAuthSourceLabel.setText(row.getUsername().equalsIgnoreCase(SessionContext.username())
-                ? SessionContext.authSource()
-                : "SQLite user table");
-        detailCreatedAtLabel.setText(row.getCreatedAt() == null ? "Unknown" : row.getCreatedAt());
-
-        String group = roleGroup(row.getRole());
-        detailRoleBadgeLabel.setText(group);
-        detailRoleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
-        detailRoleBadgeLabel.getStyleClass().add(roleStyle(group));
-
-        permissionListBox.getChildren().clear();
-        User user = new User(row.getUsername(), "", row.getRole(), row.getSection());
-        boolean adminRole = "ADMIN".equals(group);
-        addPermission("View patients", true);
-        addPermission("Enter vitals", PermissionHelper.canEnterVitals(user));
-        addPermission("Manage patient reminders", "ADMIN".equals(group) || "DOCTOR".equals(group) || "NURSE".equals(group));
-        addPermission("Manage appointments", "ADMIN".equals(group) || "DOCTOR".equals(group));
-        addPermission("Review alerts through Notifications", true);
-        addPermission("Manage users", adminRole || RolePermissionService.canManageUsers(user));
-        addPermission("Manage rooms and sections", adminRole);
-    }
-
-    private void clearDetail() {
-        detailTitleLabel.setText("Select a staff user");
-        detailStaffIdLabel.setText("-");
-        detailUsernameLabel.setText("-");
-        detailRoleLabel.setText("-");
-        detailSectionLabel.setText("-");
-        detailEmailLabel.setText("-");
-        detailStatusLabel.setText("-");
-        detailAuthSourceLabel.setText("-");
-        detailCreatedAtLabel.setText("-");
-        detailRoleBadgeLabel.setText("UNKNOWN");
-        detailRoleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
-        detailRoleBadgeLabel.getStyleClass().add("role-unknown");
-        permissionListBox.getChildren().clear();
-        Label empty = new Label("Select a user to preview role-based access.");
-        empty.getStyleClass().add("muted-text");
-        empty.setWrapText(true);
-        permissionListBox.getChildren().add(empty);
-    }
-
-    private void addPermission(String label, boolean allowed) {
-        Label row = new Label((allowed ? "Allowed: " : "Restricted: ") + label);
-        row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
-        row.setWrapText(true);
-        permissionListBox.getChildren().add(row);
-    }
-
-    private SqliteUserDao.UserDirectoryRow selectedUser() {
-        SqliteUserDao.UserDirectoryRow selected = userTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            NotificationHelper.showError(statusLabel, "Select a user first.");
-        }
-        return selected;
-    }
-
-    private void selectUser(String username) {
-        if (username == null) {
-            return;
-        }
+    private void updateMetrics() {
+        int total = rows.size();
+        int onDuty = 0;
+        int offDuty = 0;
+        int onLeave = 0;
         for (SqliteUserDao.UserDirectoryRow row : rows) {
-            if (username.equalsIgnoreCase(row.getUsername())) {
-                int index = userTable.getItems() == null ? -1 : userTable.getItems().indexOf(row);
-                SelectionHelper.safeSelectIndex(userTable, index);
-                return;
+            String status = dutyStatus(row);
+            if ("Off Duty".equalsIgnoreCase(status)) {
+                offDuty++;
+            } else if ("On Leave".equalsIgnoreCase(status)) {
+                onLeave++;
+            } else {
+                onDuty++;
             }
         }
-    }
-
-
-
-    private void showDenied() {
-        NotificationHelper.showError(statusLabel, "Access denied. Admin role is required.");
+        if (totalStaffMetricLabel != null) {
+            totalStaffMetricLabel.setText(String.valueOf(total));
+        }
+        if (onDutyMetricLabel != null) {
+            onDutyMetricLabel.setText(String.valueOf(onDuty));
+        }
+        if (offDutyMetricLabel != null) {
+            offDutyMetricLabel.setText(String.valueOf(offDuty));
+        }
+        if (onLeaveMetricLabel != null) {
+            onLeaveMetricLabel.setText(String.valueOf(onLeave));
+        }
     }
 
     private boolean isAdmin() {
-        return "ADMIN".equals(roleGroup(SessionContext.role()));
+        String role = SessionContext.role();
+        return role != null && role.toUpperCase(Locale.ROOT).contains("ADMIN");
     }
 
-    private void setButtonVisible(Button button, boolean visible) {
-        if (button == null) {
-            return;
+    private String internalRoleFilter(String visibleRole) {
+        if (visibleRole == null || visibleRole.isBlank() || "All".equalsIgnoreCase(visibleRole)) {
+            return "All";
         }
-        button.setVisible(visible);
-        button.setManaged(visible);
+        if ("Secretary".equalsIgnoreCase(visibleRole)) {
+            return "STAFF";
+        }
+        return visibleRole.toUpperCase(Locale.ROOT);
     }
 
-    private String roleGroup(String role) {
-        if (role == null) {
-            return "UNKNOWN";
+    private String visibleRole(String internalRole) {
+        if (internalRole == null || internalRole.isBlank()) {
+            return "Secretary";
         }
-        String upper = role.toUpperCase();
+        String upper = internalRole.toUpperCase(Locale.ROOT);
         if (upper.contains("ADMIN")) {
-            return "ADMIN";
+            return "Admin";
         }
         if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "DOCTOR";
+            return "Doctor";
         }
         if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "NURSE";
+            return "Nurse";
         }
-        if (upper.isBlank() || upper.equals("UNKNOWN")) {
-            return "UNKNOWN";
-        }
-        return "STAFF";
+        return "Secretary";
     }
 
-    private String roleStyle(String group) {
-        switch (group) {
-            case "ADMIN":
-                return "role-admin";
-            case "DOCTOR":
-                return "role-doctor";
-            case "NURSE":
-                return "role-nurse";
-            case "STAFF":
-                return "role-staff";
-            default:
-                return "role-unknown";
+    private String roleStyle(String visibleRole) {
+        if ("Admin".equalsIgnoreCase(visibleRole)) {
+            return "role-admin";
         }
+        if ("Doctor".equalsIgnoreCase(visibleRole)) {
+            return "role-doctor";
+        }
+        if ("Nurse".equalsIgnoreCase(visibleRole)) {
+            return "role-nurse";
+        }
+        return "role-staff";
+    }
+
+    private String dutyStatus(SqliteUserDao.UserDirectoryRow row) {
+        if (row == null) {
+            return "On Duty";
+        }
+        String status = row.getDutyStatus();
+        if ("Off Duty".equalsIgnoreCase(status)) {
+            return "Off Duty";
+        }
+        if ("On Leave".equalsIgnoreCase(status)) {
+            return "On Leave";
+        }
+        return "On Duty";
+    }
+
+    private String dutyStatusStyle(String status) {
+        if ("Off Duty".equalsIgnoreCase(status)) {
+            return "staff-status-off-duty";
+        }
+        if ("On Leave".equalsIgnoreCase(status)) {
+            return "staff-status-on-leave";
+        }
+        return "staff-status-on-duty";
+    }
+
+    private String displayName(SqliteUserDao.UserDirectoryRow row) {
+        if (row == null) {
+            return "-";
+        }
+        String value = row.getDisplayName();
+        if (value == null || value.isBlank()) {
+            return row.getUsername();
+        }
+        return value;
+    }
+
+    private String initials(SqliteUserDao.UserDirectoryRow row) {
+        String source = displayName(row);
+        if (source == null || source.isBlank() || "-".equals(source)) {
+            source = row == null ? "" : row.getUsername();
+        }
+        if (source == null || source.isBlank()) {
+            return "SC";
+        }
+        String[] parts = source.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase(Locale.ROOT);
+        }
+        return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase(Locale.ROOT);
+    }
+
+    private String text(TextField field) {
+        return field == null || field.getText() == null ? "" : field.getText().trim();
     }
 
     private String blank(String value) {

@@ -1,7 +1,6 @@
 package pages.patient.patient_form;
 
 import pages.patient.dao.SqlitePatientDao;
-import pages.user.dao.SqliteUserDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,9 +21,6 @@ import app.helpers.DialogHelper;
 import pages.notification.NotificationHelper;
 import pages.user.User;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -35,7 +31,6 @@ public class PatientFormController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
-    private final SqliteUserDao userDao = new SqliteUserDao();
     private User currentUser;
     private SqlitePatientDao.PatientDetail existingPatient;
     private boolean returningPatientMode;
@@ -49,13 +44,9 @@ public class PatientFormController {
     @FXML private TextField lastNameField;
     @FXML private DatePicker birthDatePicker;
     @FXML private ComboBox<String> genderBox;
-    @FXML private ComboBox<String> sectionBox;
-    @FXML private ComboBox<String> roomBox;
     @FXML private ComboBox<String> statusBox;
     @FXML private ComboBox<String> priorityBox;
     @FXML private ComboBox<String> bloodTypeBox;
-    @FXML private ComboBox<String> assignedDoctorBox;
-    @FXML private ComboBox<String> assignedStaffBox;
     @FXML private TextArea diagnosisArea;
     @FXML private Label statusLabel;
 
@@ -103,13 +94,8 @@ public class PatientFormController {
         statusBox.getSelectionModel().select("ACTIVE");
         priorityBox.getSelectionModel().select("NORMAL");
         bloodTypeBox.getSelectionModel().select("Unknown");
-        loadSections();
         configureInputFilters();
         DatePickerHelper.configureDdMmYyyy(birthDatePicker);
-        sectionBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            loadRoomsForSection(newValue);
-            loadAssignedStaffForSection(newValue);
-        });
         NotificationHelper.showInfo(statusLabel, "Patient file form. System data is stored in the local clinic database.");
     }
 
@@ -157,14 +143,14 @@ public class PatientFormController {
                 lastNameField.getText(),
                 birthDatePicker.getValue() == null ? "" : birthDatePicker.getValue().format(DISPLAY_DATE),
                 genderBox.getValue(),
-                comboValue(sectionBox),
-                comboValue(roomBox),
+                resolvedSection(),
+                resolvedRoom(),
                 statusBox.getValue(),
                 priorityBox.getValue(),
                 bloodTypeBox.getValue(),
                 diagnosisArea.getText(),
-                comboValue(assignedDoctorBox),
-                comboValue(assignedStaffBox)
+                resolvedAssignedDoctor(),
+                resolvedAssignedStaff()
         );
     }
 
@@ -249,61 +235,6 @@ public class PatientFormController {
         return builder.toString();
     }
 
-    private void loadSections() {
-        LinkedHashSet<String> sections = new LinkedHashSet<>();
-        try {
-            sections.addAll(patientDao.findDistinctSections());
-        } catch (Exception e) {
-            NotificationHelper.showInfo(statusLabel, "Active clinic area list unavailable: " + e.getMessage());
-        }
-        sectionBox.getItems().setAll(sections);
-    }
-
-    private void loadRoomsForSection(String section) {
-        String selected = comboValue(roomBox);
-        List<String> rooms = new ArrayList<>();
-        try {
-            rooms.addAll(patientDao.findDistinctRooms());
-        } catch (Exception e) {
-            NotificationHelper.showInfo(statusLabel, "Visit location choices unavailable: " + e.getMessage());
-        }
-        roomBox.getItems().setAll(rooms);
-        if (selected != null && !selected.isBlank()) {
-            selectOrSet(roomBox, selected);
-        }
-    }
-
-    private void loadAssignedStaffForSection(String section) {
-        String selectedDoctor = comboValue(assignedDoctorBox);
-        String selectedStaff = comboValue(assignedStaffBox);
-        List<String> doctors = new ArrayList<>();
-        List<String> nursesAndStaff = new ArrayList<>();
-        if (section != null && !section.isBlank()) {
-            try {
-                doctors.addAll(userDao.findActiveUsernamesByRoleGroupAndSection("DOCTOR", section));
-                nursesAndStaff.addAll(userDao.findActiveUsernamesByRoleGroupAndSection("NURSE", section));
-                for (String username : userDao.findActiveUsernamesByRoleGroupAndSection("STAFF", section)) {
-                    if (!nursesAndStaff.contains(username)) {
-                        nursesAndStaff.add(username);
-                    }
-                }
-            } catch (Exception e) {
-                NotificationHelper.showInfo(statusLabel, "Assigned staff choices unavailable: " + e.getMessage());
-            }
-        }
-        assignedDoctorBox.getItems().setAll(doctors);
-        assignedStaffBox.getItems().setAll(nursesAndStaff);
-        if (selectedDoctor != null && !selectedDoctor.isBlank()) {
-            selectOrSet(assignedDoctorBox, selectedDoctor);
-        }
-        if (selectedStaff != null && !selectedStaff.isBlank()) {
-            selectOrSet(assignedStaffBox, selectedStaff);
-        }
-        if (doctors.isEmpty() && nursesAndStaff.isEmpty() && section != null && !section.isBlank()) {
-            NotificationHelper.showInfo(statusLabel, "No active doctor or staff accounts found for clinic area " + section + ".");
-        }
-    }
-
     private void populateFromPatientDetail(SqlitePatientDao.PatientDetail patient, boolean returningVisit) {
         patientIdField.setText(patient.getPatientId());
         patientIdField.setDisable(true);
@@ -311,12 +242,6 @@ public class PatientFormController {
         lastNameField.setText(patient.getLastName());
         birthDatePicker.setValue(parseBirthDate(patient.getBirthDate()));
         genderBox.getSelectionModel().select(blankTo(patient.getGender(), "Unknown"));
-        selectOrSet(sectionBox, patient.getSection());
-        loadRoomsForSection(patient.getSection());
-        selectOrSet(roomBox, patient.getRoom());
-        loadAssignedStaffForSection(patient.getSection());
-        selectOrSet(assignedDoctorBox, patient.getAssignedDoctorUsername());
-        selectOrSet(assignedStaffBox, patient.getAssignedStaffUsername());
         statusBox.getSelectionModel().select(returningVisit ? "ACTIVE" : normalizeStatus(patient.getStatus()));
         priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
         bloodTypeBox.getSelectionModel().select(normalizeBloodType(patient.getBloodType()));
@@ -331,31 +256,20 @@ public class PatientFormController {
         }
     }
 
-    private void selectOrSet(ComboBox<String> comboBox, String value) {
-        String safeValue = value == null ? "" : value.trim();
-        if (safeValue.isBlank()) {
-            comboBox.getSelectionModel().clearSelection();
-            comboBox.getEditor().clear();
-            return;
-        }
-        if (!comboBox.getItems().contains(safeValue)) {
-            comboBox.getItems().add(safeValue);
-        }
-        comboBox.getSelectionModel().select(safeValue);
-        if (comboBox.isEditable() && comboBox.getEditor() != null) {
-            comboBox.getEditor().setText(safeValue);
-        }
+    private String resolvedSection() {
+        return existingPatient == null ? "" : blankTo(existingPatient.getSection(), "");
     }
 
-    private String comboValue(ComboBox<String> comboBox) {
-        if (comboBox == null) {
-            return "";
-        }
-        String editorText = comboBox.getEditor() == null ? "" : comboBox.getEditor().getText();
-        if (editorText != null && !editorText.isBlank()) {
-            return editorText.trim();
-        }
-        return comboBox.getValue() == null ? "" : comboBox.getValue().trim();
+    private String resolvedRoom() {
+        return existingPatient == null ? "" : blankTo(existingPatient.getRoom(), "");
+    }
+
+    private String resolvedAssignedDoctor() {
+        return existingPatient == null ? "" : blankTo(existingPatient.getAssignedDoctorUsername(), "");
+    }
+
+    private String resolvedAssignedStaff() {
+        return existingPatient == null ? "" : blankTo(existingPatient.getAssignedStaffUsername(), "");
     }
 
     private LocalDate parseBirthDate(String value) {

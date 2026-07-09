@@ -1,6 +1,5 @@
 import app.DatabaseManager;
 import app.SchemaInitializer;
-import app.PasswordHasher;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -69,7 +68,7 @@ public class DemoDatabaseReset {
                 "INSERT INTO users(staff_id, username, password_hash, role, section, email, active, created_at) VALUES(?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)")) {
             statement.setString(1, staffId);
             statement.setString(2, username);
-            statement.setString(3, PasswordHasher.hash(password.toCharArray()));
+            statement.setString(3, password);
             statement.setString(4, role);
             statement.setString(5, section);
             statement.setString(6, email);

@@ -1,7 +1,6 @@
 package pages.user.services;
 
 import pages.user.dao.SqliteUserDao;
-import app.PasswordHasher;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
@@ -38,8 +37,7 @@ public class UserWriteService {
         require(!userDao.staffIdExists(record.getStaffId()), "A staff member with this ID already exists.");
 
         try {
-            String hash = PasswordHasher.hash(password);
-            userDao.insertUser(record, hash);
+            userDao.insertUser(record, password == null ? "" : new String(password));
         } finally {
             clear(password);
         }
@@ -89,8 +87,7 @@ public class UserWriteService {
         require(userDao.usernameExists(affectedUsername.trim()), "User does not exist: " + affectedUsername);
 
         try {
-            String hash = PasswordHasher.hash(newPassword);
-            userDao.resetPasswordHash(affectedUsername.trim(), hash);
+            userDao.updatePassword(affectedUsername.trim(), newPassword == null ? "" : new String(newPassword));
         } finally {
             clear(newPassword);
         }
@@ -111,13 +108,6 @@ public class UserWriteService {
         if (!base.isValid()) {
             return base;
         }
-        String role = normalizeRole(record.getRole());
-        if ("ADMIN".equals(role)) {
-            return FormValidationHelper.ValidationResult.ok();
-        }
-        if (!hasText(record.getSection()) || "All".equalsIgnoreCase(record.getSection())) {
-            return FormValidationHelper.ValidationResult.error("A real active section is required for Doctor, Nurse, and Staff users.");
-        }
         return base;
     }
 
@@ -134,7 +124,7 @@ public class UserWriteService {
 
     private FormValidationHelper.ValidationResult validateStaffId(String staffId) {
         if (!hasText(staffId)) {
-            return FormValidationHelper.ValidationResult.error("Staff ID is required.");
+            return FormValidationHelper.ValidationResult.ok();
         }
         String trimmed = staffId.trim().toUpperCase(Locale.ROOT);
         if (!trimmed.matches("U\\d{4,}")) {

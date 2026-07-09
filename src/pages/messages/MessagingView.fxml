@@ -1,132 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.messages.MessagingController">
-    
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pages.messages.MessagingController"
+            styleClass="content-page messages-page">
     <center>
-                <VBox spacing="16.0">
-            <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
+        <StackPane>
+            <VBox spacing="16.0">
+                <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                </padding>
 
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
-                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                    <Label styleClass="screen-title" text="Messaging" />
-                    <Label styleClass="muted-text" text="Local internal staff messages." wrapText="true" />
+                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card messages-header">
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label styleClass="screen-title" text="Messages" />
+                        <Label styleClass="muted-text" text="Internal staff messaging system" wrapText="true" />
+                    </VBox>
+                    <Button onAction="#showComposeOverlay" styleClass="new-message-button" text="+ New Message" />
+                </HBox>
+
+                <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="panel-card" visible="false">
+                    <Label styleClass="section-title" text="Access denied" />
+                    <Label styleClass="body-text" text="Login is required to view messages." wrapText="true" />
+                    <Button onAction="#showDashboard" styleClass="secondary-button" text="Back to Dashboard" />
                 </VBox>
-                <Button onAction="#showDashboard" styleClass="secondary-button" text="Back to Dashboard" />
-            </HBox>
 
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
-                <VBox spacing="4.0" HBox.hgrow="ALWAYS" />
-            <VBox layoutX="10.0" layoutY="10.0" spacing="4.0" />
-            </HBox>
-            <VBox fx:id="accessDeniedPane" managed="false" spacing="10" styleClass="panel-card" visible="false">
-                <Label styleClass="section-title" text="Access denied" />
-                <Label styleClass="body-text" text="Login is required to view messages." wrapText="true" />
+                <VBox fx:id="contentPane" spacing="14.0">
+                    <VBox spacing="14.0" styleClass="panel-card messages-list-card" VBox.vgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                <Button fx:id="inboxFilterButton" onAction="#showInbox" styleClass="message-filter-pill" text="Inbox" />
+                                <Button fx:id="sentFilterButton" onAction="#showSent" styleClass="message-filter-pill" text="Sent" />
+                                <Button fx:id="requestFilterButton" onAction="#showRequests" styleClass="message-filter-pill" text="Requests" />
+                            </HBox>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <TextField fx:id="searchField" promptText="Search messages, senders, patients" styleClass="global-search-field" />
+                            <ComboBox fx:id="statusFilter" prefWidth="140.0" />
+                            <ComboBox fx:id="requestStatusFilter" managed="false" prefWidth="160.0" visible="false" />
+                            <Button onAction="#loadMessages" styleClass="secondary-button" text="Refresh" />
+                        </HBox>
+
+                        <ListView fx:id="messageListView" styleClass="message-list-view" VBox.vgrow="ALWAYS" />
+
+                        <Label fx:id="statusLabel" styleClass="muted-text" text="Messages not loaded yet." wrapText="true" />
+                    </VBox>
+                </VBox>
             </VBox>
-            <VBox fx:id="contentPane" spacing="14">
-                <VBox spacing="10" styleClass="panel-card patient-filter-panel">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label styleClass="field-label" text="Search" />
-                        <TextField fx:id="searchField" promptText="Subject, message, sender, patient" HBox.hgrow="ALWAYS" />
-                        <Label styleClass="field-label" text="Status" />
-                        <ComboBox fx:id="statusFilter" prefWidth="150" />
-                        <Label styleClass="field-label" text="Requests" />
-                        <ComboBox fx:id="requestFilter" prefWidth="160" />
-                        <Button onAction="#loadMessages" styleClass="secondary-button" text="Refresh" />
+
+            <StackPane fx:id="detailOverlay" managed="false" styleClass="messages-overlay" visible="false">
+                <VBox maxWidth="700.0" spacing="14.0" styleClass="panel-card message-detail-dialog">
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label styleClass="section-title" text="Message Details" />
+                            <Label fx:id="detailDialogTitleLabel" styleClass="message-detail-title" text="Select a message" wrapText="true" />
+                        </VBox>
+                        <Button onAction="#hideDetailOverlay" styleClass="secondary-button" text="Close" />
+                    </HBox>
+
+                    <GridPane hgap="12.0" vgap="10.0">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="120.0" prefWidth="120.0" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <Label styleClass="field-label" text="Sender" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="detailSenderValueLabel" styleClass="body-text" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="field-label" text="Recipient" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="detailRecipientValueLabel" styleClass="body-text" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="field-label" text="Created" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="detailCreatedValueLabel" styleClass="body-text" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="field-label" text="Linked Patient" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="detailPatientValueLabel" styleClass="body-text" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label styleClass="field-label" text="Priority" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="detailPriorityValueLabel" styleClass="badge-pill muted-pill" text="NORMAL" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                        <Label styleClass="field-label" text="Status" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <Label fx:id="detailStatusValueLabel" styleClass="badge-pill muted-pill" text="READ" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    </GridPane>
+
+                    <Label fx:id="detailLinkedItemLabel" styleClass="muted-text" text="Linked item: none" wrapText="true" />
+
+                    <TextArea fx:id="detailBodyArea" editable="false" prefRowCount="11" wrapText="true" />
+
+                    <FlowPane fx:id="detailLinkedActionsPane" hgap="10.0" managed="false" vgap="10.0" visible="false">
+                        <Button fx:id="detailOpenSourceButton" managed="false" onAction="#openSourceRecord" styleClass="secondary-button" text="Open Linked Item" visible="false" />
+                        <Button fx:id="detailOpenFileButton" managed="false" onAction="#openCertificate" styleClass="primary-button" text="Open Linked File" visible="false" />
+                    </FlowPane>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="detailOpenPatientButton" managed="false" onAction="#openLinkedPatient" styleClass="secondary-button" text="Open Patient File" visible="false" />
+                        <Button fx:id="detailMarkReadButton" managed="false" onAction="#markRead" styleClass="secondary-button" text="Mark Read" visible="false" />
+                        <Button fx:id="detailArchiveButton" onAction="#archiveMessage" styleClass="danger-button" text="Archive" />
                     </HBox>
                 </VBox>
-                <SplitPane dividerPositions="0.66" prefHeight="600">
-                    <TabPane>
-                        <tabs>
-                            <Tab closable="false" text="Inbox">
-                                <TableView fx:id="inboxTable" styleClass="clinical-table">
-                                    <columns>
-                                        <TableColumn fx:id="inboxRowNumberColumn" prefWidth="55" sortable="false" text="#" />
-                                        <TableColumn fx:id="inboxIdColumn" prefWidth="70" text="ID" visible="false" />
-                                        <TableColumn fx:id="inboxSenderColumn" prefWidth="140" text="Sender" />
-                                        <TableColumn fx:id="inboxSubjectColumn" prefWidth="240" text="Subject" />
-                                        <TableColumn fx:id="inboxPriorityColumn" prefWidth="100" text="Priority" />
-                                        <TableColumn fx:id="inboxStatusColumn" prefWidth="100" text="Status" />
-                                        <TableColumn fx:id="inboxPatientColumn" prefWidth="110" text="Patient ID" />
-                                        <TableColumn fx:id="inboxCreatedColumn" prefWidth="170" text="Created" />
-                                    </columns>
-                                </TableView>
-                            </Tab>
-                            <Tab closable="false" text="Sent">
-                                <TableView fx:id="sentTable" styleClass="clinical-table">
-                                    <columns>
-                                        <TableColumn fx:id="sentRowNumberColumn" prefWidth="55" sortable="false" text="#" />
-                                        <TableColumn fx:id="sentIdColumn" prefWidth="70" text="ID" visible="false" />
-                                        <TableColumn fx:id="sentTargetColumn" prefWidth="160" text="Recipient" />
-                                        <TableColumn fx:id="sentSubjectColumn" prefWidth="240" text="Subject" />
-                                        <TableColumn fx:id="sentPriorityColumn" prefWidth="100" text="Priority" />
-                                        <TableColumn fx:id="sentStatusColumn" prefWidth="100" text="Status" />
-                                        <TableColumn fx:id="sentPatientColumn" prefWidth="110" text="Patient ID" />
-                                        <TableColumn fx:id="sentCreatedColumn" prefWidth="170" text="Created" />
-                                    </columns>
-                                </TableView>
-                            </Tab>
-                            <Tab closable="false" text="Requests">
-                                <TableView fx:id="requestTable" styleClass="clinical-table">
-                                    <columns>
-                                        <TableColumn fx:id="requestRowNumberColumn" prefWidth="55" sortable="false" text="#" />
-                                        <TableColumn fx:id="requestTypeColumn" prefWidth="150" text="Type" />
-                                        <TableColumn fx:id="requestFromColumn" prefWidth="120" text="From" />
-                                        <TableColumn fx:id="requestToColumn" prefWidth="160" text="To" />
-                                        <TableColumn fx:id="requestPatientColumn" prefWidth="110" text="Patient ID" />
-                                        <TableColumn fx:id="requestSubjectColumn" prefWidth="220" text="Subject" />
-                                        <TableColumn fx:id="requestPriorityColumn" prefWidth="90" text="Priority" />
-                                        <TableColumn fx:id="requestStatusColumn" prefWidth="90" text="Status" />
-                                        <TableColumn fx:id="requestCreatedColumn" prefWidth="160" text="Created" />
-                                    </columns>
-                                </TableView>
-                            </Tab>
-                            <Tab closable="false" text="Compose">
-                                <ScrollPane fitToWidth="true" styleClass="detail-scroll-pane">
-                                    <content>
-                                        <VBox spacing="12" styleClass="panel-card">
-                                            <HBox spacing="10">
-                                                <Label styleClass="field-label" text="Recipient" />
-                                                <ComboBox fx:id="targetTypeBox" managed="false" prefWidth="120" visible="false" />
-                                                <ComboBox fx:id="targetUserBox" maxWidth="Infinity" promptText="Select exact staff recipient" HBox.hgrow="ALWAYS" />
-                                                <ComboBox fx:id="targetRoleBox" managed="false" prefWidth="140" visible="false" />
-                                                <TextField fx:id="targetSectionField" managed="false" promptText="Section / Department" visible="false" />
-                                            </HBox>
-                                            <Label styleClass="muted-text" text="Choose the exact staff account. Free-text recipient names are disabled for safety." wrapText="true" />
-                                            <HBox spacing="10">
-                                                <TextField fx:id="patientIdField" prefWidth="180" promptText="Optional Patient ID" />
-                                                <ComboBox fx:id="priorityBox" prefWidth="140" />
-                                                <TextField fx:id="subjectField" promptText="Subject" HBox.hgrow="ALWAYS" />
-                                            </HBox>
-                                            <TextArea fx:id="bodyArea" prefRowCount="12" promptText="Message body" wrapText="true" />
-                                            <Button onAction="#sendMessage" styleClass="primary-button" text="Send Message" />
-                                        </VBox>
-                                    </content>
-                                </ScrollPane>
-                            </Tab>
-                        </tabs>
-                    </TabPane>
-                    <VBox spacing="12" styleClass="panel-card">
-                        <Label fx:id="detailTitleLabel" styleClass="section-title" text="Select a message" wrapText="true" />
-                        <Label fx:id="detailMetaLabel" styleClass="muted-text" text="-" wrapText="true" />
-                        <Label fx:id="detailSourceLabel" styleClass="muted-text" text="Linked record: none" wrapText="true" />
-                        <TextArea fx:id="detailBodyArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
-                        <FlowPane fx:id="certificateButtonPane" hgap="10" managed="false" vgap="10" visible="false">
-                            <Button onAction="#openSourceRecord" styleClass="secondary-button" text="Open Related Record" />
-                            <Button onAction="#openCertificate" styleClass="primary-button" text="Open Linked File" />
-                        </FlowPane>
-                        <FlowPane hgap="10" vgap="10">
-                            <Button onAction="#markRead" styleClass="secondary-button" text="Mark Read" />
-                            <Button onAction="#archiveMessage" styleClass="danger-button" text="Archive" />
-                            <Button onAction="#openLinkedPatient" styleClass="secondary-button" text="Open Patient File" />
-                        </FlowPane>
-                    </VBox>
-                </SplitPane>
-                <Label fx:id="statusLabel" styleClass="status-pill" text="Messages not loaded yet." wrapText="true" />
-            </VBox>
-        </VBox>
+            </StackPane>
+
+            <StackPane fx:id="composeOverlay" managed="false" styleClass="messages-overlay" visible="false">
+                <VBox maxWidth="700.0" spacing="14.0" styleClass="panel-card message-detail-dialog">
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <Label styleClass="section-title" text="New Message" />
+                            <Label styleClass="muted-text" text="Choose the exact staff account and send an internal clinic message." wrapText="true" />
+                        </VBox>
+                        <Button onAction="#hideComposeOverlay" styleClass="secondary-button" text="Cancel" />
+                    </HBox>
+
+                    <Label styleClass="field-label" text="Recipient" />
+                    <ComboBox fx:id="targetUserBox" maxWidth="Infinity" promptText="Select exact staff recipient" />
+
+                    <HBox spacing="10.0">
+                        <TextField fx:id="patientIdField" prefWidth="180.0" promptText="Optional Patient ID" />
+                        <ComboBox fx:id="priorityBox" prefWidth="140.0" />
+                    </HBox>
+
+                    <TextField fx:id="subjectField" promptText="Subject" />
+                    <TextArea fx:id="bodyArea" prefRowCount="12" promptText="Message body" wrapText="true" />
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#hideComposeOverlay" styleClass="secondary-button" text="Cancel" />
+                        <Button onAction="#sendMessage" styleClass="new-message-button" text="Send Message" />
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </StackPane>
     </center>
 </BorderPane>

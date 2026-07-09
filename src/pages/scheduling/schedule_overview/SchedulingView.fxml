@@ -9,176 +9,131 @@
         prefHeight="760.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.scheduling.schedule_overview.SchedulingController" styleClass="content-page">
+        fx:controller="pages.scheduling.schedule_overview.SchedulingController"
+        styleClass="content-page">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
-                <VBox spacing="18.0">
+                <VBox spacing="20.0" styleClass="appointments-page">
                     <padding>
-                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0" />
                     </padding>
 
-                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card">
-                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                            <Label text="Appointments &amp; Checkups" styleClass="screen-title" />
-                            <Label text="Clinic scheduling for appointments, follow-ups, and patient checkups." styleClass="muted-text" wrapText="true" />
+                    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card appointments-header">
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <Label text="Appointments" styleClass="screen-title" />
+                            <Label text="Schedule and manage urgent care visits, checkups, and follow-ups."
+                                   wrapText="true"
+                                   styleClass="muted-text dashboard-page-subtitle" />
                         </VBox>
-                        <Button text="Back to Dashboard" onAction="#showDashboard" styleClass="secondary-button" />
                     </HBox>
 
-                    <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="warning-panel">
+                    <VBox fx:id="accessDeniedPane"
+                          spacing="10.0"
+                          managed="false"
+                          visible="false"
+                          styleClass="warning-panel">
                         <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Scheduling is available to Admin, Doctor, and Nurse roles for authorized clinic roles."
-                               wrapText="true" styleClass="body-text" />
+                        <Label text="Appointments are available only to authorized Admin, Doctor, and Nurse roles."
+                               wrapText="true"
+                               styleClass="body-text" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="Local scheduling workflow. External calendar integration is future work." styleClass="status-info metric-value compact-metric-value" />
-                            <Label fx:id="patientFilterChip" text="" managed="false" visible="false" styleClass="status-success success-value" />
-                            <Button fx:id="clearPatientFilterButton" text="Clear Patient Filter" onAction="#clearPatientFilter"
-                                    managed="false" visible="false" styleClass="transparent-pane secondary-button" />
+                        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="appointments-metrics-row">
+                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-blue">
+                                <Label text="Today's Appointments" styleClass="metric-title" />
+                                <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value appointments-metric-value" />
+                                <Label text="Visits scheduled for today" styleClass="muted-text appointments-metric-note" />
+                            </VBox>
+
+                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-purple">
+                                <Label text="Scheduled" styleClass="metric-title" />
+                                <Label fx:id="upcomingSurgeriesLabel" text="0" styleClass="metric-value appointments-metric-value" />
+                                <Label text="Appointments still planned" styleClass="muted-text appointments-metric-note" />
+                            </VBox>
+
+                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-amber">
+                                <Label text="Completed" styleClass="metric-title" />
+                                <Label fx:id="overdueRemindersLabel" text="0" styleClass="metric-value appointments-metric-value warning-value" />
+                                <Label text="Visits finished successfully" styleClass="muted-text appointments-metric-note" />
+                            </VBox>
+
+                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-danger">
+                                <Label text="Cancelled / Missed" styleClass="metric-title" />
+                                <Label fx:id="cancelledMissedLabel" text="0" styleClass="metric-value appointments-metric-value" />
+                                <Label text="Visits or checkups not completed" styleClass="muted-text appointments-metric-note" />
+                            </VBox>
                         </HBox>
 
-                        <GridPane hgap="14.0" vgap="14.0">
-                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Appointments Today" styleClass="metric-label" />
-                                <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value compact-metric-value" />
-                            </VBox>
-
-                            <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Upcoming Follow-ups" styleClass="metric-label" />
-                                <Label fx:id="upcomingSurgeriesLabel" text="0" styleClass="danger-value" />
-                            </VBox>
-
-                            <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Overdue Reminders" styleClass="metric-label" />
-                                <Label fx:id="overdueRemindersLabel" text="0" styleClass="warning-value" />
-                            </VBox>
-
-                            <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Checkups Today" styleClass="metric-label" />
-                                <Label fx:id="patientRemindersTodayLabel" text="0" styleClass="success-value" />
-                            </VBox>
-
-                            <VBox GridPane.columnIndex="4" GridPane.rowIndex="0" spacing="6.0" styleClass="panel-card">
-                                <Label text="Cancelled / Missed" styleClass="metric-label" />
-                                <Label fx:id="cancelledMissedLabel" text="0" styleClass="accent-value" />
-                            </VBox>
-                        </GridPane>
-
-                        <VBox spacing="12.0" styleClass="panel-card">
-
+                        <VBox spacing="14.0" styleClass="panel-card appointments-toolbar">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Search" styleClass="field-label" />
-                                <TextField fx:id="searchField" promptText="Patient, title, doctor, location" HBox.hgrow="ALWAYS" styleClass="control-input" />
+                                <TextField fx:id="searchField"
+                                           promptText="Search by patient, title, doctor, or location..."
+                                           HBox.hgrow="ALWAYS"
+                                           styleClass="control-input appointments-search-field toolbar-text-field" />
+                                <Button text="Clear Filters"
+                                        onAction="#clearFilters"
+                                        minWidth="145.0"
+                                        prefWidth="145.0"
+                                        minHeight="44.0"
+                                        prefHeight="44.0"
+                                        styleClass="secondary-button toolbar-secondary-button appointment-toolbar-button" />
+                                <Button fx:id="newAppointmentButton"
+                                        text="+ New Appointment"
+                                        onAction="#createAppointment"
+                                        minWidth="190.0"
+                                        prefWidth="200.0"
+                                        minHeight="44.0"
+                                        prefHeight="44.0"
+                                        styleClass="primary-button toolbar-primary-button new-appointment-button" />
                             </HBox>
 
-                            <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <Label text="Appointment Type" styleClass="field-label" />
-                                <ComboBox fx:id="appointmentTypeFilter" prefWidth="160.0" styleClass="control-input" />
-
-                                <Label text="Appointment Status" styleClass="field-label" />
-                                <ComboBox fx:id="appointmentStatusFilter" prefWidth="145.0" styleClass="control-input" />
-
-                                <Label text="Checkup Type" styleClass="field-label" />
-                                <ComboBox fx:id="reminderTypeFilter" prefWidth="145.0" styleClass="control-input" />
-
-                                <Label text="Checkup Status" styleClass="field-label" />
-                                <ComboBox fx:id="reminderStatusFilter" prefWidth="140.0" styleClass="control-input" />
-
-                                <Region HBox.hgrow="ALWAYS" />
-
-                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
-
-                                <Button text="Refresh" onAction="#loadScheduling" styleClass="secondary-button" />
-                            </HBox>
+                            <FlowPane hgap="12.0" vgap="10.0">
+                                <Label text="Type" styleClass="field-label" />
+                                <ComboBox fx:id="appointmentTypeFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
+                                <Label text="Status" styleClass="field-label" />
+                                <ComboBox fx:id="appointmentStatusFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
+                                <Label fx:id="patientFilterChip"
+                                       text=""
+                                       managed="false"
+                                       visible="false"
+                                       styleClass="badge-pill info-pill" />
+                                <Button fx:id="clearPatientFilterButton"
+                                        text="Clear Patient Filter"
+                                        managed="false"
+                                        visible="false"
+                                        onAction="#clearPatientFilter"
+                                        styleClass="secondary-button" />
+                            </FlowPane>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Appointments" styleClass="section-title" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="newAppointmentButton" text="New Appointment" onAction="#createAppointment" styleClass="primary-button" />
-                                <Button fx:id="editAppointmentButton" text="Edit Selected" onAction="#editAppointment" styleClass="secondary-button" />
-                                <Button fx:id="completeAppointmentButton" text="Complete" onAction="#completeAppointment" styleClass="secondary-button" />
-                                <Button fx:id="cancelAppointmentButton" text="Cancel" onAction="#cancelAppointment" styleClass="danger-button" />
+                        <VBox spacing="14.0" styleClass="panel-card appointments-table-card">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <VBox spacing="4.0">
+                                    <Label text="Upcoming Appointments" styleClass="section-title" />
+                                    <Label text="Urgent care visits, follow-ups, and scheduled checkups."
+                                           styleClass="muted-text body-text" />
+                                </VBox>
                             </HBox>
 
-                            <TableView fx:id="appointmentTable" prefHeight="300.0" styleClass="dialog-card clinical-table">
+                            <TableView fx:id="appointmentTable" prefHeight="340.0" styleClass="clinical-table appointments-table">
                                 <columns>
-                                    <TableColumn fx:id="appointmentRowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
-                                    <TableColumn fx:id="appointmentIdColumn" text="ID" prefWidth="70.0" visible="false" />
-                                    <TableColumn fx:id="appointmentPatientIdColumn" text="Patient ID" prefWidth="115.0" />
-                                    <TableColumn fx:id="appointmentPatientNameColumn" text="Patient Name" prefWidth="180.0" />
-                                    <TableColumn fx:id="appointmentTitleColumn" text="Title" prefWidth="210.0" />
-                                    <TableColumn fx:id="appointmentTypeColumn" text="Type" prefWidth="140.0" />
-                                    <TableColumn fx:id="appointmentStartColumn" text="Start" prefWidth="170.0" />
-                                    <TableColumn fx:id="appointmentEndColumn" text="End" prefWidth="170.0" />
-                                    <TableColumn fx:id="appointmentLocationColumn" text="Location" prefWidth="140.0" />
-                                    <TableColumn fx:id="appointmentStaffColumn" text="Assigned Staff" prefWidth="150.0" />
+                                    <TableColumn fx:id="appointmentPatientNameColumn" text="Patient" prefWidth="280.0" />
+                                    <TableColumn fx:id="appointmentTypeColumn" text="Type" prefWidth="120.0" />
+                                    <TableColumn fx:id="appointmentDateTimeColumn" text="Time" prefWidth="260.0" />
                                     <TableColumn fx:id="appointmentStatusColumn" text="Status" prefWidth="120.0" />
+                                    <TableColumn fx:id="appointmentActionsColumn" text="Actions" prefWidth="110.0" sortable="false" />
                                 </columns>
                             </TableView>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="panel-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Checkups &amp; Follow-ups" styleClass="section-title" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="newReminderButton" text="New Checkup" onAction="#createReminder" styleClass="primary-button" />
-                                <Button fx:id="editReminderButton" text="Edit Selected" onAction="#editReminder" styleClass="secondary-button" />
-                                <Button fx:id="doneReminderButton" text="Mark Done" onAction="#markReminderDone" styleClass="secondary-button" />
-                                <Button fx:id="cancelReminderButton" text="Cancel" onAction="#cancelReminder" styleClass="danger-button" />
-                            </HBox>
-
-                            <HBox spacing="12.0">
-                                <TableView fx:id="reminderTable" prefHeight="320.0" styleClass="dialog-card clinical-table" HBox.hgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="reminderRowNumberColumn" text="#" prefWidth="55.0" sortable="false" />
-                                        <TableColumn fx:id="reminderIdColumn" text="ID" prefWidth="70.0" visible="false" />
-                                        <TableColumn fx:id="reminderPatientIdColumn" text="Patient ID" prefWidth="115.0" />
-                                        <TableColumn fx:id="reminderPatientNameColumn" text="Patient Name" prefWidth="180.0" />
-                                        <TableColumn fx:id="reminderTypeColumn" text="Type" prefWidth="130.0" />
-                                        <TableColumn fx:id="reminderTitleColumn" text="Title" prefWidth="260.0" />
-                                        <TableColumn fx:id="reminderDueColumn" text="Due Time" prefWidth="170.0" />
-                                        <TableColumn fx:id="reminderAssignedColumn" text="Assigned To" prefWidth="150.0" />
-                                        <TableColumn fx:id="reminderStatusColumn" text="Status" prefWidth="120.0" />
-                                    </columns>
-                                </TableView>
-
-                                <VBox spacing="10.0" prefWidth="340.0" styleClass="panel-card">
-                                    <Label text="Checkup Detail" styleClass="section-title" />
-                                    <Label fx:id="reminderDetailTitleLabel" text="Select a checkup" wrapText="true" styleClass="section-title" />
-
-                                    <GridPane hgap="10.0" vgap="8.0">
-                                        <Label text="Checkup ID" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailIdLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="detail-field-value" />
-                                        <Label text="Patient ID" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailPatientIdLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="detail-field-value" />
-                                        <Label text="Patient Name" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailPatientNameLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="detail-field-value" />
-                                        <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailTypeLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="detail-field-value" />
-                                        <Label text="Due Time" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailDueLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="detail-field-value" />
-                                        <Label text="Assigned To" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailAssignedLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="detail-field-value" />
-                                        <Label text="Status" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailStatusLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="detail-field-value" />
-                                        <Label text="Repeat Rule" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="detail-field-name" />
-                                        <Label fx:id="reminderDetailRepeatRuleLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="detail-field-value" />
-                                    </GridPane>
-
-                                    <Label text="Notes" styleClass="metric-label" />
-                                    <TextArea fx:id="reminderDetailNotesArea" editable="false" wrapText="true" prefRowCount="5" styleClass="control-input" />
-                                </VBox>
-                            </HBox>
-                        </VBox>
-
-                        <Label fx:id="statusLabel" text="Scheduling not loaded yet." wrapText="true" styleClass="status-info metric-value compact-metric-value" />
+                        <Label fx:id="statusLabel"
+                               text="Scheduling not loaded yet."
+                               wrapText="true"
+                               styleClass="status-info metric-value compact-metric-value" />
                     </VBox>
                 </VBox>
             </content>

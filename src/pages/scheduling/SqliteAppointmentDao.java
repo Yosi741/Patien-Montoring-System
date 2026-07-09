@@ -92,6 +92,23 @@ public class SqliteAppointmentDao {
         return appointments;
     }
 
+    public List<AppointmentRecord> findAppointmentsForPatient(String patientId) throws SQLException {
+        ArrayList<AppointmentRecord> appointments = new ArrayList<>();
+        String sql = "SELECT id, patient_id, title, appointment_type, start_time, end_time, location, assigned_staff, "
+                + "status, notes, created_by, created_at, updated_at FROM appointments WHERE patient_id = ? "
+                + "ORDER BY datetime(start_time) DESC, id DESC";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId == null ? "" : patientId.trim());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    appointments.add(mapRecord(resultSet));
+                }
+            }
+        }
+        return appointments;
+    }
+
     public int countToday() throws SQLException {
         return count("SELECT COUNT(*) FROM appointments WHERE date(start_time) = date('now') "
                 + "OR substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')");

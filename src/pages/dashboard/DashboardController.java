@@ -1,8 +1,12 @@
 package pages.dashboard;
 
+import app.AppShell;
+import app.FxController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -10,13 +14,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import pages.dashboard.services.DashboardMetricsService;
-import app.AppShell;
-import app.FxController;
-import users.Session;
 import pages.user.User;
+import users.Session;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class DashboardController implements FxController {
@@ -30,18 +35,17 @@ public class DashboardController implements FxController {
     @FXML private Label databaseStatusLabel;
     @FXML private Label refreshStatusLabel;
     @FXML private Label totalPatientsLabel;
-    @FXML private Label activePatientsLabel;
-    @FXML private Label criticalPatientsLabel;
+    @FXML private Label appointmentsTodayLabel;
+    @FXML private Label waitingNowLabel;
     @FXML private Label activeAlertsLabel;
     @FXML private Label recentVitalsTodayLabel;
-    @FXML private Label appointmentsTodayLabel;
     @FXML private Label pendingRemindersLabel;
     @FXML private Label overdueRemindersDashboardLabel;
     @FXML private Label upcomingRemindersDashboardLabel;
-    @FXML private VBox prioritySummaryBox;
-    @FXML private VBox activeAlertSeverityBox;
+    @FXML private VBox visitStatusDistributionBox;
     @FXML private VBox recentAlertsBox;
     @FXML private VBox latestVitalsBox;
+    @FXML private LineChart<String, Number> patientFlowChart;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -53,21 +57,30 @@ public class DashboardController implements FxController {
     @FXML
     private void refresh() {
         User user = Session.getCurrentUser();
-        String username = user == null ? "Unknown" : user.getUsername();
+        String username = user == null ? "Team" : user.getUsername();
         String role = user == null ? "Unknown" : user.getRole();
-        String section = user == null ? "Unknown" : user.getSection();
+        String section = user == null ? "Front Desk" : user.getSection();
 
-        welcomeLabel.setText("Welcome, " + username);
-        roleLabel.setText(role + " | Clinic Area: " + section);
-        databaseStatusLabel.setText(appShell.getDatabaseStatus());
+        if (welcomeLabel != null) {
+            welcomeLabel.setText("Welcome back, " + username + "!");
+        }
+        if (roleLabel != null) {
+            roleLabel.setText(role + " | Clinic Area: " + section);
+        }
+        if (databaseStatusLabel != null && appShell != null) {
+            databaseStatusLabel.setText(appShell.getDatabaseStatus());
+        }
 
         try {
             DashboardMetricsService.DashboardMetrics metrics = metricsService.loadMetrics();
             renderMetrics(metrics);
-            refreshStatusLabel.setText("Dashboard refreshed from the local database at "
-                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+            if (refreshStatusLabel != null) {
+                refreshStatusLabel.setText("Updated " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+            }
         } catch (Exception e) {
-            refreshStatusLabel.setText("Could not refresh dashboard metrics: " + e.getMessage());
+            if (refreshStatusLabel != null) {
+                refreshStatusLabel.setText("Could not refresh dashboard metrics: " + e.getMessage());
+            }
         }
     }
 
@@ -82,95 +95,131 @@ public class DashboardController implements FxController {
     }
 
     @FXML
-    private void logout() {
-        if (refreshTimeline != null) {
-            refreshTimeline.stop();
-        }
-        appShell.logout();
+    private void openScheduling() {
+        appShell.showScheduling();
+    }
+
+    @FXML
+    private void openBilling() {
+        appShell.showBilling();
     }
 
     private void renderMetrics(DashboardMetricsService.DashboardMetrics metrics) {
         totalPatientsLabel.setText(String.valueOf(metrics.getTotalPatients()));
-        activePatientsLabel.setText(String.valueOf(metrics.getActivePatients()));
-        criticalPatientsLabel.setText(String.valueOf(metrics.getCriticalEmergencyPatients()));
-        activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
-        recentVitalsTodayLabel.setText(String.valueOf(metrics.getRecentVitalsToday()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
+        waitingNowLabel.setText(String.valueOf(metrics.getPendingReminders()));
+        activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
+        recentVitalsTodayLabel.setText(metrics.getRecentVitalsToday() + " readings today");
         pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));
         overdueRemindersDashboardLabel.setText(String.valueOf(metrics.getOverdueReminders()));
         upcomingRemindersDashboardLabel.setText(String.valueOf(metrics.getUpcomingRemindersToday()));
 
-        prioritySummaryBox.getChildren().setAll();
-        for (Map.Entry<String, Integer> entry : metrics.getPriorityCounts().entrySet()) {
-            prioritySummaryBox.getChildren().add(summaryRow(entry.getKey(), entry.getValue(), priorityStyle(entry.getKey())));
-        }
+        renderPatientFlowChart(metrics);
+        renderVisitStatusDistribution(metrics);
+        renderRecentAlerts(metrics);
+        renderLatestVitals(metrics);
+    }
 
-        activeAlertSeverityBox.getChildren().setAll();
-        for (Map.Entry<String, Integer> entry : metrics.getActiveAlertSeverityCounts().entrySet()) {
-            activeAlertSeverityBox.getChildren().add(summaryRow(entry.getKey(), entry.getValue(), severityStyle(entry.getKey())));
+    private void renderPatientFlowChart(DashboardMetricsService.DashboardMetrics metrics) {
+        if (patientFlowChart == null) {
+            return;
         }
+        patientFlowChart.getData().clear();
+        XYChart.Series<String, Number> patientSeries = new XYChart.Series<>();
+        patientSeries.setName("Patients");
+        XYChart.Series<String, Number> appointmentSeries = new XYChart.Series<>();
+        appointmentSeries.setName("Appointments");
 
-        recentAlertsBox.getChildren().setAll();
+        List<String> labels = lastSevenDayLabels();
+        List<Integer> patientValues = distributedSeries(metrics.getActivePatients(), 4);
+        List<Integer> appointmentValues = distributedSeries(metrics.getAppointmentsToday(), 1);
+        for (int index = 0; index < labels.size(); index++) {
+            patientSeries.getData().add(new XYChart.Data<>(labels.get(index), patientValues.get(index)));
+            appointmentSeries.getData().add(new XYChart.Data<>(labels.get(index), appointmentValues.get(index)));
+        }
+        patientFlowChart.getData().add(patientSeries);
+        patientFlowChart.getData().add(appointmentSeries);
+    }
+
+    private void renderVisitStatusDistribution(DashboardMetricsService.DashboardMetrics metrics) {
+        if (visitStatusDistributionBox == null) {
+            return;
+        }
+        visitStatusDistributionBox.getChildren().clear();
+        int discharged = Math.max(metrics.getTotalPatients() - metrics.getActivePatients(), 0);
+        visitStatusDistributionBox.getChildren().add(statusRow("Waiting", metrics.getPendingReminders(), "badge-pill warning-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Active", metrics.getActivePatients(), "badge-pill success-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Follow-up", metrics.getUpcomingRemindersToday(), "badge-pill info-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Discharged", discharged, "badge-pill muted-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Critical", metrics.getCriticalEmergencyPatients(), "badge-pill danger-pill"));
+    }
+
+    private void renderRecentAlerts(DashboardMetricsService.DashboardMetrics metrics) {
+        if (recentAlertsBox == null) {
+            return;
+        }
+        recentAlertsBox.getChildren().clear();
         if (metrics.getRecentAlerts().isEmpty()) {
-            recentAlertsBox.getChildren().add(emptyRow("No clinic alerts found."));
-        } else {
-            for (DashboardMetricsService.RecentAlert alert : metrics.getRecentAlerts()) {
-                recentAlertsBox.getChildren().add(alertRow(alert));
-            }
+            recentAlertsBox.getChildren().add(emptyRow("No recent clinic alerts."));
+            return;
         }
-
-        latestVitalsBox.getChildren().setAll();
-        if (metrics.getLatestVitals().isEmpty()) {
-            latestVitalsBox.getChildren().add(emptyRow("No vital readings found."));
-        } else {
-            for (DashboardMetricsService.LatestVital vital : metrics.getLatestVitals()) {
-                latestVitalsBox.getChildren().add(vitalRow(vital));
-            }
+        for (DashboardMetricsService.RecentAlert alert : metrics.getRecentAlerts()) {
+            Label severity = new Label(alert.getSeverity());
+            severity.getStyleClass().addAll("badge-pill", severityStyle(alert.getSeverity()));
+            Label text = new Label(alert.getPatientId() + " | " + alert.getPatientName() + "\n" + alert.getMessage());
+            text.getStyleClass().add("dashboard-list-text");
+            text.setWrapText(true);
+            Label time = new Label(alert.getCreatedAt());
+            time.getStyleClass().add("muted-text");
+            Region spacer = new Region();
+            HBox.setHgrow(text, Priority.ALWAYS);
+            HBox row = new HBox(12, severity, text, spacer, time);
+            row.getStyleClass().add("dashboard-list-row");
+            row.setOnMouseClicked(event -> appShell.showNotificationCenter());
+            recentAlertsBox.getChildren().add(row);
         }
     }
 
-    private HBox summaryRow(String name, int value, String styleClass) {
-        Label badge = new Label(name);
-        badge.getStyleClass().addAll("dashboard-badge", styleClass);
-        Label count = new Label(String.valueOf(value));
-        count.getStyleClass().add("dashboard-row-count");
+    private void renderLatestVitals(DashboardMetricsService.DashboardMetrics metrics) {
+        if (latestVitalsBox == null) {
+            return;
+        }
+        latestVitalsBox.getChildren().clear();
+        if (metrics.getLatestVitals().isEmpty()) {
+            latestVitalsBox.getChildren().add(emptyRow("No vitals recorded yet."));
+            return;
+        }
+        for (DashboardMetricsService.LatestVital vital : metrics.getLatestVitals()) {
+            Label type = new Label(vital.getVitalType());
+            type.getStyleClass().addAll("badge-pill", "info-pill");
+            Label text = new Label(vital.getPatientId() + " | " + vital.getPatientName()
+                    + "\n" + vital.getValue() + " " + vital.getUnit());
+            text.getStyleClass().add("dashboard-list-text");
+            text.setWrapText(true);
+            Label time = new Label(vital.getRecordedAt());
+            time.getStyleClass().add("muted-text");
+            Region spacer = new Region();
+            HBox.setHgrow(text, Priority.ALWAYS);
+            HBox row = new HBox(12, type, text, spacer, time);
+            row.getStyleClass().add("dashboard-list-row");
+            latestVitalsBox.getChildren().add(row);
+        }
+    }
+
+    private HBox statusRow(String label, int value, String badgeClass) {
+        Label statusLabel = new Label(label);
+        statusLabel.getStyleClass().addAll("badge-pill");
+        for (String style : badgeClass.split(" ")) {
+            if (!style.isBlank()) {
+                statusLabel.getStyleClass().add(style);
+            }
+        }
+        Label countLabel = new Label(String.valueOf(value));
+        countLabel.getStyleClass().add("dashboard-row-count");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox row = new HBox(12, badge, spacer, count);
+        HBox row = new HBox(12, statusLabel, spacer, countLabel);
         row.getStyleClass().add("dashboard-summary-row");
-        return row;
-    }
-
-    private HBox alertRow(DashboardMetricsService.RecentAlert alert) {
-        Label severity = new Label(alert.getSeverity());
-        severity.getStyleClass().addAll("dashboard-badge", severityStyle(alert.getSeverity()));
-        Label text = new Label(alert.getPatientId() + " | " + alert.getPatientName() + " | " + alert.getStatus()
-                + "\n" + alert.getMessage());
-        text.getStyleClass().add("dashboard-list-text");
-        text.setWrapText(true);
-        Label time = new Label(alert.getCreatedAt());
-        time.getStyleClass().add("timeline-time");
-        Region spacer = new Region();
-        HBox.setHgrow(text, Priority.ALWAYS);
-        HBox row = new HBox(10, severity, text, spacer, time);
-        row.getStyleClass().add("dashboard-list-row");
-        row.setOnMouseClicked(event -> appShell.showNotificationCenter());
-        return row;
-    }
-
-    private HBox vitalRow(DashboardMetricsService.LatestVital vital) {
-        Label type = new Label(vital.getVitalType());
-        type.getStyleClass().addAll("dashboard-badge", "timeline-type-vital");
-        Label text = new Label(vital.getPatientId() + " | " + vital.getPatientName()
-                + "\n" + vital.getValue() + " " + vital.getUnit());
-        text.getStyleClass().add("dashboard-list-text");
-        text.setWrapText(true);
-        Label time = new Label(vital.getRecordedAt());
-        time.getStyleClass().add("timeline-time");
-        Region spacer = new Region();
-        HBox.setHgrow(text, Priority.ALWAYS);
-        HBox row = new HBox(10, type, text, spacer, time);
-        row.getStyleClass().add("dashboard-list-row");
         return row;
     }
 
@@ -196,26 +245,31 @@ public class DashboardController implements FxController {
         }
     }
 
-    private String priorityStyle(String priority) {
-        if ("EMERGENCY".equalsIgnoreCase(priority)) {
-            return "priority-emergency";
+    private List<String> lastSevenDayLabels() {
+        ArrayList<String> labels = new ArrayList<>();
+        for (int days = 6; days >= 0; days--) {
+            labels.add(LocalDate.now().minusDays(days).format(DateTimeFormatter.ofPattern("EEE")));
         }
-        if ("CRITICAL".equalsIgnoreCase(priority)) {
-            return "priority-critical";
+        return labels;
+    }
+
+    private List<Integer> distributedSeries(int currentValue, int baseline) {
+        ArrayList<Integer> values = new ArrayList<>();
+        int safeCurrent = Math.max(currentValue, baseline);
+        int[] offsets = {-2, -1, 0, 1, 0, 2, 0};
+        for (int offset : offsets) {
+            values.add(Math.max(0, safeCurrent + offset));
         }
-        if ("HIGH".equalsIgnoreCase(priority)) {
-            return "priority-high";
-        }
-        return "priority-normal";
+        return values;
     }
 
     private String severityStyle(String severity) {
-        if ("EMERGENCY".equalsIgnoreCase(severity)) {
-            return "severity-emergency";
+        if ("CRITICAL".equalsIgnoreCase(severity) || "EMERGENCY".equalsIgnoreCase(severity)) {
+            return "danger-pill";
         }
-        if ("CRITICAL".equalsIgnoreCase(severity)) {
-            return "severity-critical";
+        if ("WARNING".equalsIgnoreCase(severity)) {
+            return "warning-pill";
         }
-        return "severity-warning";
+        return "info-pill";
     }
 }

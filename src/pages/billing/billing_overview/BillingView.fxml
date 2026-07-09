@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.15"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pages.billing.billing_overview.BillingController"
+            styleClass="content-page billing-page">
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="notification-scroll">
+            <content>
+                <VBox spacing="18.0" styleClass="billing-page">
+                    <padding>
+                        <Insets top="26.0" right="26.0" bottom="26.0" left="26.0" />
+                    </padding>
+
+                    <VBox fx:id="accessDeniedPane" spacing="10.0" styleClass="notification-card" managed="false" visible="false">
+                        <Label text="Access denied" styleClass="notification-section-title" />
+                        <Label text="Login is required to view billing." wrapText="true" styleClass="notification-muted" />
+                    </VBox>
+
+                    <VBox fx:id="contentPane" spacing="18.0">
+                        <VBox spacing="16.0" styleClass="billing-header">
+                            <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Billing / Payments" styleClass="screen-title" />
+                                    <Label text="Manage local clinic visit invoices and payment status." styleClass="muted-text" wrapText="true" />
+                                </VBox>
+                            </HBox>
+
+                            <GridPane hgap="12.0" vgap="12.0">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
+                                </columnConstraints>
+
+                                <VBox spacing="4.0" GridPane.columnIndex="0" styleClass="notification-counter-card billing-metric-card">
+                                    <Label text="Total Revenue" styleClass="notification-counter-label" />
+                                    <Label fx:id="totalRevenueLabel" text="0.00" styleClass="notification-counter-value" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" styleClass="notification-counter-card billing-metric-card">
+                                    <Label text="Paid Invoices" styleClass="notification-counter-label" />
+                                    <Label fx:id="paidInvoicesLabel" text="0" styleClass="notification-counter-value notification-counter-unread" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="2" styleClass="notification-counter-card billing-metric-card">
+                                    <Label text="Unpaid Invoices" styleClass="notification-counter-label" />
+                                    <Label fx:id="unpaidInvoicesLabel" text="0" styleClass="notification-counter-value notification-counter-critical" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="3" styleClass="notification-counter-card billing-metric-card">
+                                    <Label text="Cancelled" styleClass="notification-counter-label" />
+                                    <Label fx:id="cancelledInvoicesLabel" text="0" styleClass="notification-counter-value" />
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="notification-filter-card billing-toolbar">
+                            <FlowPane hgap="10.0" vgap="10.0">
+                                <TextField fx:id="searchField"
+                                           promptText="Search by invoice, patient ID, patient name..."
+                                           minWidth="320.0"
+                                           prefWidth="360.0"
+                                           minHeight="44.0"
+                                           prefHeight="44.0"
+                                           styleClass="notification-input toolbar-text-field" />
+                                <ComboBox fx:id="statusFilter"
+                                          minWidth="180.0"
+                                          prefWidth="180.0"
+                                          minHeight="44.0"
+                                          prefHeight="44.0"
+                                          styleClass="notification-input toolbar-combo" />
+                                <ComboBox fx:id="dateRangeFilter"
+                                          minWidth="180.0"
+                                          prefWidth="180.0"
+                                          minHeight="44.0"
+                                          prefHeight="44.0"
+                                          styleClass="notification-input toolbar-combo" />
+                                <Button text="Clear Filters" onAction="#clearFilters" styleClass="secondary-button" />
+                                <Button fx:id="newInvoiceButton" text="+ New Invoice" onAction="#createInvoice" styleClass="new-invoice-button" />
+                            </FlowPane>
+                        </VBox>
+
+                        <VBox spacing="10.0" VBox.vgrow="ALWAYS" styleClass="notification-list-card billing-table-card">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Invoice Register" styleClass="notification-section-title" />
+                                    <Label text="Local demo invoices only. No external payment gateway is connected." styleClass="notification-subtitle" />
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <TableView fx:id="billingTable" VBox.vgrow="ALWAYS" styleClass="clinical-table billing-table">
+                                <columns>
+                                    <TableColumn fx:id="invoiceColumn" prefWidth="150.0" text="Invoice" />
+                                    <TableColumn fx:id="patientColumn" prefWidth="190.0" text="Patient" />
+                                    <TableColumn fx:id="serviceColumn" prefWidth="190.0" text="Service" />
+                                    <TableColumn fx:id="amountColumn" prefWidth="110.0" text="Amount" />
+                                    <TableColumn fx:id="statusColumn" prefWidth="120.0" text="Status" />
+                                    <TableColumn fx:id="paymentColumn" prefWidth="130.0" text="Payment" />
+                                    <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
+                                    <TableColumn fx:id="actionsColumn" prefWidth="140.0" text="Actions" />
+                                </columns>
+                            </TableView>
+
+                            <Label fx:id="statusLabel" text="Billing page not loaded yet." wrapText="true" styleClass="status-pill" />
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

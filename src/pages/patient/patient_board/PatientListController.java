@@ -5,74 +5,61 @@ import app.FxController;
 import app.helpers.DialogHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Window;
-import pages.alert.AlertSoundService;
 import pages.notification.NotificationHelper;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.patient_form.PatientFormController;
 import pages.patient.services.PatientWriteService;
-import pages.patient.services.VitalThresholdService;
-import pages.patient.services.VitalsWriteService;
-import pages.patient.vitals_entry.VitalsEntryController;
 import users.Session;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 
 public class PatientListController implements FxController {
+
+    private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private final ObservableList<SqlitePatientDao.PatientListRow> patients = FXCollections.observableArrayList();
+
     private AppShell appShell;
-    private String quickFilter = "All Patients";
     private boolean suppressFilterEvents;
     private boolean filterListenersConfigured;
+    private boolean canWritePatients;
+    private boolean canArchivePatients;
 
     @FXML private TextField searchField;
-    @FXML private ComboBox<String> sectionFilter;
-    @FXML private ComboBox<String> roomFilter;
     @FXML private ComboBox<String> statusFilter;
-    @FXML private ComboBox<String> priorityFilter;
-    @FXML private FlowPane filterChipsBox;
     @FXML private Label statusLabel;
-    @FXML private Label boardTitleLabel;
-    @FXML private Label boardSubtitleLabel;
     @FXML private TableView<SqlitePatientDao.PatientListRow> patientTable;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> rowNumberColumn;
+    @FXML private TableColumn<SqlitePatientDao.PatientListRow, SqlitePatientDao.PatientListRow> patientColumn;
     @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> idColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> nameColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> birthDateColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> genderColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> sectionColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> roomColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> statusColumn;
-    @FXML private TableColumn<SqlitePatientDao.PatientListRow, String> priorityColumn;
+    @FXML private TableColumn<SqlitePatientDao.PatientListRow, SqlitePatientDao.PatientListRow> ageGenderColumn;
+    @FXML private TableColumn<SqlitePatientDao.PatientListRow, SqlitePatientDao.PatientListRow> contactColumn;
+    @FXML private TableColumn<SqlitePatientDao.PatientListRow, SqlitePatientDao.PatientListRow> statusColumn;
+    @FXML private TableColumn<SqlitePatientDao.PatientListRow, SqlitePatientDao.PatientListRow> actionsColumn;
     @FXML private Button addPatientButton;
-    @FXML private Button editSelectedPatientButton;
-    @FXML private Button dischargePatientButton;
-    @FXML private Button enterVitalsButton;
-    @FXML private Button viewPatientFileButton;
 
     @Override
     public void setAppShell(AppShell appShell) {
@@ -80,11 +67,9 @@ public class PatientListController implements FxController {
         configureTable();
         configureFilters();
         configureWritePermissions();
-        configureSelectionActions();
         loadPatients();
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!suppressFilterEvents) {
-                quickFilter = "Custom";
                 loadPatients();
             }
         });
@@ -96,72 +81,22 @@ public class PatientListController implements FxController {
             List<SqlitePatientDao.PatientListRow> loadedPatients = patientDao.findPatientListRows(buildFilter());
             SelectionHelper.runWhenTablesStable(() -> {
                 SelectionHelper.safeReplaceItems(patientTable, patients, loadedPatients);
-                updateBoardTitle();
-                statusLabel.setText(boardTitleLabel.getText() + " loaded: " + patients.size());
-                renderFilterChips();
+                updateStatusLine(loadedPatients.size());
             }, patientTable);
         } catch (Exception e) {
-            statusLabel.setText("Could not load patients: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void backToDashboard() {
-        appShell.showDashboard(Session.getCurrentUser());
-    }
-
-    @FXML
-    private void viewDetails() {
-        SqlitePatientDao.PatientListRow selected = selectedPatient();
-        if (selected != null) {
-            appShell.showPatientDetail(selected.getPatientId());
-        }
-    }
-
-    @FXML
-    private void enterVitalsForSelectedPatient() {
-        if (!PermissionHelper.canEnterVitals(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        SqlitePatientDao.PatientListRow selected = selectedPatient();
-        if (selected == null) {
-            return;
-        }
-        if (isInactiveForClinicalActions(selected)) {
-            NotificationHelper.showError(statusLabel, "Clinical actions are blocked for inactive patient records.");
-            return;
-        }
-        try {
-            VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
-                    patientTable.getScene().getWindow(),
-                    Session.getCurrentUser(),
-                    selected.getPatientId());
-            if (result != null) {
-                loadPatients();
-                if (appShell != null) {
-                    appShell.refreshNotificationCount();
-                }
-                showVitalAlertPopupIfNeeded(selected, result);
-                NotificationHelper.showSuccess(statusLabel,
-                        "Saved " + result.getVitalType() + " for " + selected.getName()
-                                + " as " + result.getStatus() + ".");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
+            NotificationHelper.showError(statusLabel, "Could not load patient records: " + e.getMessage());
         }
     }
 
     @FXML
     private void addPatient() {
-        if (!PermissionHelper.canCreatePatient(Session.getCurrentUser())) {
+        if (!canWritePatients) {
             NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
         }
         try {
             boolean saved = PatientFormController.showCreateDialog(patientTable.getScene().getWindow(), Session.getCurrentUser());
             if (saved) {
-                configureFilters();
                 loadPatients();
                 NotificationHelper.showSuccess(statusLabel, "Patient record saved.");
             }
@@ -171,25 +106,236 @@ public class PatientListController implements FxController {
     }
 
     @FXML
-    private void editSelectedPatient() {
-        if (!PermissionHelper.canUpdatePatient(Session.getCurrentUser())) {
+    private void clearFilters() {
+        suppressFilterEvents = true;
+        searchField.clear();
+        if (statusFilter != null) {
+            statusFilter.getSelectionModel().select("All");
+        }
+        suppressFilterEvents = false;
+        loadPatients();
+    }
+
+    public void applySearchQuery(String query) {
+        if (searchField == null) {
+            return;
+        }
+        suppressFilterEvents = true;
+        searchField.setText(query == null ? "" : query.trim());
+        suppressFilterEvents = false;
+        loadPatients();
+    }
+
+    private void configureTable() {
+        patientTable.setItems(patients);
+        patientTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        patientTable.setFixedCellSize(58);
+
+        patientColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        patientColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
+                super.updateItem(row, empty);
+                setAlignment(Pos.CENTER_LEFT);
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(buildPatientCell(row));
+            }
+        });
+
+        idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getPatientId()));
+
+        ageGenderColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        ageGenderColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
+                super.updateItem(row, empty);
+                setAlignment(Pos.CENTER_LEFT);
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(buildSingleLineCell(formatAgeGender(row), "patient-primary-text"));
+            }
+        });
+
+        contactColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        contactColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
+                super.updateItem(row, empty);
+                setAlignment(Pos.CENTER_LEFT);
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(buildSingleLineCell("\u2014", "patient-primary-text"));
+            }
+        });
+
+        statusColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        statusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
+                super.updateItem(row, empty);
+                setAlignment(Pos.CENTER);
+                getStyleClass().remove("patient-status-cell");
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label badge = new Label(visibleStatusText(row));
+                badge.getStyleClass().addAll("badge-pill", "patient-status-badge", visibleStatusStyle(row));
+                setText(null);
+                setGraphic(badge);
+            }
+        });
+
+        actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        actionsColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
+                super.updateItem(row, empty);
+                setAlignment(Pos.CENTER);
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                setText(null);
+                setGraphic(buildActionsCell(row));
+            }
+        });
+
+        patientTable.setRowFactory(table -> {
+            TableRow<SqlitePatientDao.PatientListRow> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
+                    openPatientFile(row.getItem());
+                }
+            });
+            return row;
+        });
+    }
+
+    private void configureFilters() {
+        if (statusFilter != null) {
+            statusFilter.setItems(FXCollections.observableArrayList("All", "Active", "Critical", "Discharged", "Archived"));
+            statusFilter.getSelectionModel().select("All");
+            if (!filterListenersConfigured) {
+                statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!suppressFilterEvents) {
+                        loadPatients();
+                    }
+                });
+                filterListenersConfigured = true;
+            }
+        }
+    }
+
+    private void configureWritePermissions() {
+        canWritePatients = PermissionHelper.canCreatePatient(Session.getCurrentUser())
+                || PermissionHelper.canUpdatePatient(Session.getCurrentUser());
+        canArchivePatients = PermissionHelper.canDeactivatePatient(Session.getCurrentUser());
+        setButtonVisible(addPatientButton, canWritePatients);
+    }
+
+    private SqlitePatientDao.PatientFilter buildFilter() {
+        SqlitePatientDao.PatientFilter filter = new SqlitePatientDao.PatientFilter();
+        filter.setSearch(searchField == null ? "" : searchField.getText());
+        filter.setDisplayStatus(statusFilter == null || statusFilter.getValue() == null ? "All" : statusFilter.getValue());
+        return filter;
+    }
+
+    private HBox buildPatientCell(SqlitePatientDao.PatientListRow row) {
+        StackPane avatar = new StackPane();
+        avatar.getStyleClass().add("patient-avatar");
+        Label initials = new Label(initialsFor(row.getName()));
+        initials.getStyleClass().add("patient-initials");
+        avatar.getChildren().add(initials);
+
+        Label nameLabel = new Label(row.getName());
+        nameLabel.getStyleClass().add("patient-name");
+        nameLabel.setWrapText(false);
+
+        Label subtitleLabel = new Label(bloodTypeText(row));
+        subtitleLabel.getStyleClass().add("patient-subtitle");
+        subtitleLabel.setWrapText(false);
+
+        VBox textBox = new VBox(2.0, nameLabel, subtitleLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+        textBox.setFillWidth(false);
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        HBox content = new HBox(12.0, avatar, textBox);
+        content.setAlignment(Pos.CENTER_LEFT);
+        return content;
+    }
+
+    private Label buildSingleLineCell(String text, String styleClass) {
+        Label label = new Label(text == null || text.isBlank() ? "\u2014" : text);
+        label.getStyleClass().add(styleClass);
+        label.setWrapText(false);
+        label.setAlignment(Pos.CENTER_LEFT);
+        return label;
+    }
+
+    private HBox buildActionsCell(SqlitePatientDao.PatientListRow row) {
+        Button viewButton = iconButton("\uD83D\uDC41", "patient-action-view");
+        viewButton.setOnAction(event -> openPatientFile(row));
+
+        Button editButton = iconButton("\u270E", "patient-action-edit");
+        editButton.setDisable(!canWritePatients || isArchived(row));
+        editButton.setOnAction(event -> editPatient(row));
+
+        Button archiveButton = iconButton("\uD83D\uDDD1", "patient-action-delete");
+        archiveButton.setDisable(!canArchivePatients || isArchived(row));
+        archiveButton.setOnAction(event -> archivePatient(row));
+
+        HBox actions = new HBox(8.0, viewButton, editButton, archiveButton);
+        actions.setAlignment(Pos.CENTER);
+        return actions;
+    }
+
+    private Button iconButton(String text, String extraClass) {
+        Button button = new Button(text);
+        button.getStyleClass().addAll("patient-action-button", extraClass);
+        button.setFocusTraversable(false);
+        return button;
+    }
+
+    private void openPatientFile(SqlitePatientDao.PatientListRow row) {
+        if (row != null && appShell != null) {
+            appShell.showPatientDetail(row.getPatientId());
+        }
+    }
+
+    private void editPatient(SqlitePatientDao.PatientListRow row) {
+        if (row == null) {
+            return;
+        }
+        if (!canWritePatients) {
             NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
         }
-        SqlitePatientDao.PatientListRow selected = selectedPatient();
-        if (selected == null) {
-            return;
-        }
-        if (isDeceased(selected)) {
-            NotificationHelper.showError(statusLabel, "Editing is blocked for deceased patients.");
+        if (isArchived(row)) {
+            NotificationHelper.showInfo(statusLabel, "Archived patient records can be viewed but not edited here.");
             return;
         }
         try {
-            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(selected.getPatientId())
-                    .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + selected.getPatientId()));
+            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(row.getPatientId())
+                    .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + row.getPatientId()));
             boolean saved = PatientFormController.showEditDialog(patientTable.getScene().getWindow(), Session.getCurrentUser(), detail);
             if (saved) {
-                configureFilters();
                 loadPatients();
                 NotificationHelper.showSuccess(statusLabel, "Patient record updated.");
             }
@@ -198,358 +344,160 @@ public class PatientListController implements FxController {
         }
     }
 
-    @FXML
-    private void dischargeSelectedPatient() {
-        if (!PermissionHelper.canDeactivatePatient(Session.getCurrentUser())) {
+    private void archivePatient(SqlitePatientDao.PatientListRow row) {
+        if (row == null) {
+            return;
+        }
+        if (!canArchivePatients) {
             NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
         }
-        SqlitePatientDao.PatientListRow selected = selectedPatient();
-        if (selected == null) {
+        if (isArchived(row)) {
+            NotificationHelper.showInfo(statusLabel, "This patient is already archived.");
             return;
         }
-        if (isDeceased(selected)) {
-            NotificationHelper.showError(statusLabel, "Discharge/deactivate is blocked for deceased patients.");
-            return;
-        }
-        if (isDischarged(selected)) {
-            NotificationHelper.showInfo(statusLabel, "This patient is already discharged.");
-            return;
-        }
-        String dischargeSummary = promptVisitReport(
-                patientTable.getScene() == null ? null : patientTable.getScene().getWindow(),
-                "Discharge Patient",
-                "Visit report / discharge summary");
-        if (dischargeSummary == null) {
+        boolean confirmed = DialogHelper.confirm(
+                "Remove Patient",
+                "Are you sure you want to remove this patient from the active list?");
+        if (!confirmed) {
             return;
         }
         try {
-            patientWriteService.dischargePatient(Session.getCurrentUser(), selected.getPatientId(), dischargeSummary);
-            configureFilters();
+            patientWriteService.archivePatient(
+                    Session.getCurrentUser(),
+                    row.getPatientId(),
+                    "Patient removed from the active clinic list.");
             loadPatients();
-            NotificationHelper.showSuccess(statusLabel, "Patient discharged and visit summary saved.");
+            NotificationHelper.showSuccess(statusLabel, "Patient removed from the active list.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
     }
 
-    @FXML
-    private void showAllPatients() {
-        quickFilter = "All Patients";
-        clearFilterControls();
-        loadPatients();
-    }
-
-    @FXML
-    private void showActivePatients() {
-        clearFilterControls();
-        statusFilter.getSelectionModel().select("ACTIVE");
-        quickFilter = "Active Patients";
-        loadPatients();
-    }
-
-    @FXML
-    private void showCriticalEmergency() {
-        quickFilter = "Critical / Emergency";
-        clearFilterControls();
-        loadPatients();
-    }
-
-    @FXML
-    private void showHighPriority() {
-        clearFilterControls();
-        priorityFilter.getSelectionModel().select("HIGH");
-        quickFilter = "High Priority";
-        loadPatients();
-    }
-
-    @FXML
-    private void showRecentlyUpdated() {
-        quickFilter = "Recently Updated";
-        clearFilterControls();
-        loadPatients();
-    }
-
-    @FXML
-    private void clearFilters() {
-        quickFilter = "All Patients";
-        clearFilterControls();
-        loadPatients();
-    }
-
-    private void configureTable() {
-        rowNumberColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String value, boolean empty) {
-                super.updateItem(value, empty);
-                int index = getIndex();
-                int size = getTableView() == null || getTableView().getItems() == null ? 0 : getTableView().getItems().size();
-                setText(empty || index < 0 || index >= size ? null : String.valueOf(index + 1));
-            }
-        });
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("patientId"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
-        genderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));
-        sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
-        roomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
-        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
-        statusColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                getStyleClass().removeAll("patient-status-active", "patient-status-discharged", "patient-status-deceased");
-                if (empty || status == null) {
-                    setText(null);
-                    return;
-                }
-                setText(status);
-                getStyleClass().add(statusStyle(status));
-            }
-        });
-        priorityColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String priority, boolean empty) {
-                super.updateItem(priority, empty);
-                getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
-                if (empty || priority == null) {
-                    setText(null);
-                    return;
-                }
-                setText(priority);
-                getStyleClass().add(priorityStyle(priority));
-            }
-        });
-        patientTable.setRowFactory(table -> {
-            TableRow<SqlitePatientDao.PatientListRow> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
-                    appShell.showPatientDetail(row.getItem().getPatientId());
-                }
-            });
-            return row;
-        });
-    }
-
-    private void configureSelectionActions() {
-        updateSelectionActions();
-        patientTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateSelectionActions());
-    }
-
-    private void configureFilters() {
-        try {
-            sectionFilter.setItems(FXCollections.observableArrayList(withAll(patientDao.findDistinctSections())));
-            roomFilter.setItems(FXCollections.observableArrayList(withAll(patientDao.findDistinctRooms())));
-        } catch (Exception e) {
-            sectionFilter.setItems(FXCollections.observableArrayList("All"));
-            roomFilter.setItems(FXCollections.observableArrayList("All"));
-            statusLabel.setText("Could not load filter choices: " + e.getMessage());
-        }
-        statusFilter.setItems(FXCollections.observableArrayList("All", "ACTIVE", "DISCHARGED"));
-        priorityFilter.setItems(FXCollections.observableArrayList("All", "NORMAL", "HIGH", "CRITICAL", "EMERGENCY"));
-        sectionFilter.getSelectionModel().select("All");
-        roomFilter.getSelectionModel().select("All");
-        statusFilter.getSelectionModel().select("All");
-        priorityFilter.getSelectionModel().select("All");
-        if (!filterListenersConfigured) {
-            sectionFilter.valueProperty().addListener((observable, oldValue, newValue) -> handleFilterChange());
-            roomFilter.valueProperty().addListener((observable, oldValue, newValue) -> handleFilterChange());
-            statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> handleFilterChange());
-            priorityFilter.valueProperty().addListener((observable, oldValue, newValue) -> handleFilterChange());
-            filterListenersConfigured = true;
-        }
-    }
-
-    private SqlitePatientDao.PatientFilter buildFilter() {
-        SqlitePatientDao.PatientFilter filter = new SqlitePatientDao.PatientFilter();
-        filter.setSearch(searchField.getText());
-        filter.setSection(value(sectionFilter));
-        filter.setRoom(value(roomFilter));
-        filter.setStatus(value(statusFilter));
-        filter.setPriority(value(priorityFilter));
-        filter.setCriticalEmergencyOnly("Critical / Emergency".equals(quickFilter));
-        filter.setRecentlyUpdatedOnly("Recently Updated".equals(quickFilter));
-        return filter;
-    }
-
-    private void configureWritePermissions() {
-        boolean canWritePatients = PermissionHelper.canCreatePatient(Session.getCurrentUser())
-                || PermissionHelper.canUpdatePatient(Session.getCurrentUser());
-        boolean canDischarge = PermissionHelper.canDeactivatePatient(Session.getCurrentUser());
-        setButtonVisible(addPatientButton, canWritePatients);
-        setButtonVisible(editSelectedPatientButton, canWritePatients);
-        setButtonVisible(dischargePatientButton, canDischarge);
-        boolean canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
-        setButtonVisible(enterVitalsButton, canEnterVitals);
-        setButtonVisible(viewPatientFileButton, true);
-    }
-
-    private SqlitePatientDao.PatientListRow selectedPatient() {
-        SqlitePatientDao.PatientListRow selected = patientTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            NotificationHelper.showError(statusLabel, "Select a patient first.");
-            return null;
-        }
-        return selected;
-    }
-
-    private List<String> withAll(List<String> values) {
-        ArrayList<String> choices = new ArrayList<>();
-        choices.add("All");
-        choices.addAll(values);
-        return choices;
-    }
-
-    private void clearFilterControls() {
-        suppressFilterEvents = true;
-        searchField.clear();
-        sectionFilter.getSelectionModel().select("All");
-        roomFilter.getSelectionModel().select("All");
-        statusFilter.getSelectionModel().select("All");
-        priorityFilter.getSelectionModel().select("All");
-        suppressFilterEvents = false;
-    }
-
-    private void handleFilterChange() {
-        if (suppressFilterEvents) {
+    private void updateStatusLine(int count) {
+        if (statusLabel == null) {
             return;
         }
-        quickFilter = "Custom";
-        loadPatients();
-    }
-
-    private void renderFilterChips() {
-        filterChipsBox.getChildren().clear();
-        addChip("Quick: " + quickFilter);
-        addChipIfPresent("Search", searchField.getText());
-        addChipIfSelected("Clinic Area", value(sectionFilter));
-        addChipIfSelected("Location", value(roomFilter));
-        addChipIfSelected("Status", value(statusFilter));
-        addChipIfSelected("Priority", value(priorityFilter));
-    }
-
-    private void addChipIfSelected(String label, String value) {
-        if (value != null && !value.isBlank() && !"All".equalsIgnoreCase(value)) {
-            addChip(label + ": " + value);
-        }
-    }
-
-    private void addChipIfPresent(String label, String value) {
-        if (value != null && !value.isBlank()) {
-            addChip(label + ": " + value.trim());
-        }
-    }
-
-    private void addChip(String text) {
-        Label chip = new Label(text);
-        chip.getStyleClass().add("filter-chip");
-        filterChipsBox.getChildren().add(chip);
-    }
-
-    private String value(ComboBox<String> comboBox) {
-        return comboBox == null || comboBox.getValue() == null ? "All" : comboBox.getValue();
-    }
-
-    private String priorityStyle(String priority) {
-        if (priority == null) {
-            return "priority-normal";
-        }
-        switch (priority.toUpperCase()) {
-            case "EMERGENCY":
-                return "priority-emergency";
-            case "CRITICAL":
-                return "priority-critical";
-            case "HIGH":
-            case "WARNING":
-                return "priority-high";
-            default:
-                return "priority-normal";
-        }
-    }
-
-    private String statusStyle(String status) {
-        if (status == null) {
-            return "patient-status-active";
-        }
-        if ("DECEASED".equalsIgnoreCase(status)) {
-            return "patient-status-deceased";
-        }
-        if ("DISCHARGED".equalsIgnoreCase(status) || "INACTIVE".equalsIgnoreCase(status)) {
-            return "patient-status-discharged";
-        }
-        return "patient-status-active";
-    }
-
-    private void updateSelectionActions() {
-        SqlitePatientDao.PatientListRow selected = patientTable == null ? null : patientTable.getSelectionModel().getSelectedItem();
-        boolean hasSelection = selected != null;
-        boolean deceased = isDeceased(selected);
-        setDisabledIfPresent(editSelectedPatientButton, !hasSelection || deceased);
-        setDisabledIfPresent(dischargePatientButton, !hasSelection || deceased || isDischarged(selected));
-        setDisabledIfPresent(enterVitalsButton, !hasSelection || isInactiveForClinicalActions(selected));
-        setDisabledIfPresent(viewPatientFileButton, !hasSelection);
-    }
-
-    private void setDisabledIfPresent(Button button, boolean disabled) {
-        if (button != null) {
-            button.setDisable(disabled);
-        }
-    }
-
-    private void showVitalAlertPopupIfNeeded(SqlitePatientDao.PatientListRow selected, VitalsWriteService.VitalsWriteResult result) {
-        if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
-            return;
-        }
-
-        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.WARNING
-                ? Alert.AlertType.WARNING
-                : Alert.AlertType.ERROR;
-        Alert alert = new Alert(alertType);
-        alert.setTitle(result.getStatus() + " Vital Alert");
-        app.helpers.DialogThemeHelper.apply(alert);
-        alert.setHeaderText(result.getStatus() + " vital reading detected");
-        alert.setContentText(
-                "Patient: " + selected.getName()
-                        + "\nPatient ID: " + selected.getPatientId()
-                        + "\nVital: " + result.getVitalType()
-                        + "\nValue: " + result.getValue() + " " + result.getUnit()
-                        + "\n\nImmediate staff review is required."
-        );
-
-        AlertSoundService.playAlertSound();
-        try {
-            alert.showAndWait();
-        } finally {
-            AlertSoundService.stopAlertSound();
-        }
-    }
-
-    private void updateBoardTitle() {
-        boardTitleLabel.setText("Patients");
-        if ("Active Patients".equals(quickFilter)) {
-            boardSubtitleLabel.setText("Active patient records filtered from the local clinic database.");
-        } else if ("Critical / Emergency".equals(quickFilter)) {
-            boardSubtitleLabel.setText("Critical and emergency patients filtered by current priority.");
-        } else if ("High Priority".equals(quickFilter)) {
-            boardSubtitleLabel.setText("High-priority patients filtered for quicker clinical review.");
-        } else if ("Recently Updated".equals(quickFilter)) {
-            boardSubtitleLabel.setText("Recently updated patient records from the local clinic database.");
+        String filterText = statusFilter == null || statusFilter.getValue() == null ? "All" : statusFilter.getValue();
+        if ("All".equalsIgnoreCase(filterText)) {
+            statusLabel.setText("Showing " + count + " patient records");
         } else {
-            boardSubtitleLabel.setText("Double-click a row to open the full patient file.");
+            statusLabel.setText("Showing " + count + " " + filterText.toLowerCase(Locale.ROOT) + " patient records");
         }
     }
 
-    private boolean isDeceased(SqlitePatientDao.PatientListRow row) {
-        return row != null && "DECEASED".equalsIgnoreCase(row.getStatus());
+    private String bloodTypeText(SqlitePatientDao.PatientListRow row) {
+        if (row == null || row.getBloodType() == null || row.getBloodType().isBlank() || "Unknown".equalsIgnoreCase(row.getBloodType())) {
+            return "Blood type unknown";
+        }
+        return "Blood type: " + row.getBloodType().toUpperCase(Locale.ROOT);
+    }
+
+    private String formatAgeGender(SqlitePatientDao.PatientListRow row) {
+        String ageText = ageText(row == null ? null : row.getBirthDate());
+        String genderText = genderText(row == null ? null : row.getGender());
+        if (!ageText.isBlank() && !genderText.isBlank()) {
+            return ageText + " \u2022 " + genderText;
+        }
+        if (!ageText.isBlank()) {
+            return ageText;
+        }
+        if (!genderText.isBlank()) {
+            return genderText;
+        }
+        return "-";
+    }
+
+    private String ageText(String birthDate) {
+        if (birthDate == null || birthDate.isBlank()) {
+            return "";
+        }
+        try {
+            LocalDate birth = LocalDate.parse(birthDate.trim(), DISPLAY_DATE);
+            int years = Period.between(birth, LocalDate.now()).getYears();
+            if (years < 0 || years > 130) {
+                return "";
+            }
+            return years + " yrs";
+        } catch (DateTimeParseException e) {
+            return "";
+        }
+    }
+
+    private String genderText(String gender) {
+        if (gender == null || gender.isBlank() || "UNKNOWN".equalsIgnoreCase(gender)) {
+            return "";
+        }
+        String trimmed = gender.trim().toLowerCase(Locale.ROOT);
+        return trimmed.substring(0, 1).toUpperCase(Locale.ROOT) + trimmed.substring(1);
+    }
+
+    private String visibleStatusText(SqlitePatientDao.PatientListRow row) {
+        if (row == null) {
+            return "Active";
+        }
+        if (isArchived(row)) {
+            return "Archived";
+        }
+        if (isDischarged(row)) {
+            return "Discharged";
+        }
+        if (isCritical(row)) {
+            return "Critical";
+        }
+        return "Active";
+    }
+
+    private String visibleStatusStyle(SqlitePatientDao.PatientListRow row) {
+        if (row == null) {
+            return "patient-status-active-badge";
+        }
+        if (isArchived(row)) {
+            return "patient-status-archived-badge";
+        }
+        if (isDischarged(row)) {
+            return "patient-status-discharged-badge";
+        }
+        if (isCritical(row)) {
+            return "patient-status-critical-badge";
+        }
+        return "patient-status-active-badge";
+    }
+
+    private boolean isCritical(SqlitePatientDao.PatientListRow row) {
+        if (row == null || row.getPriority() == null) {
+            return false;
+        }
+        String priority = row.getPriority().trim().toUpperCase(Locale.ROOT);
+        return "CRITICAL".equals(priority) || "EMERGENCY".equals(priority);
     }
 
     private boolean isDischarged(SqlitePatientDao.PatientListRow row) {
-        return row != null && "DISCHARGED".equalsIgnoreCase(row.getStatus());
+        return row != null && row.getStatus() != null && "DISCHARGED".equalsIgnoreCase(row.getStatus().trim());
     }
 
-    private boolean isInactiveForClinicalActions(SqlitePatientDao.PatientListRow row) {
-        return isDeceased(row) || isDischarged(row);
+    private boolean isArchived(SqlitePatientDao.PatientListRow row) {
+        if (row == null || row.getStatus() == null) {
+            return false;
+        }
+        String status = row.getStatus().trim().toUpperCase(Locale.ROOT);
+        return "DECEASED".equals(status) || "INACTIVE".equals(status) || "DEACTIVATED".equals(status);
+    }
+
+    private String initialsFor(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            return "P";
+        }
+        String[] parts = fullName.trim().split("\\s+");
+        if (parts.length == 1) {
+            String name = parts[0].replaceAll("[^\\p{L}\\p{N}]", "");
+            return name.length() >= 2
+                    ? name.substring(0, 2).toUpperCase(Locale.ROOT)
+                    : name.substring(0, 1).toUpperCase(Locale.ROOT);
+        }
+        String first = parts[0].substring(0, 1);
+        String second = parts[1].substring(0, 1);
+        return (first + second).toUpperCase(Locale.ROOT);
     }
 
     private void setButtonVisible(Button button, boolean visible) {
@@ -558,24 +506,4 @@ public class PatientListController implements FxController {
             button.setManaged(visible);
         }
     }
-
-    private String promptVisitReport(Window owner, String title, String prompt) {
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle(title);
-        app.helpers.DialogThemeHelper.apply(dialog);
-        if (owner != null) {
-            dialog.initOwner(owner);
-        }
-        TextArea reportArea = new TextArea();
-        reportArea.setWrapText(true);
-        reportArea.setPromptText("Enter a short visit summary");
-        reportArea.setPrefRowCount(6);
-        VBox content = new VBox(10.0, new Label(prompt), reportArea);
-        dialog.getDialogPane().setContent(content);
-        ButtonType saveButton = new ButtonType("Save Summary", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButton);
-        dialog.setResultConverter(buttonType -> buttonType == saveButton ? reportArea.getText() : null);
-        return dialog.showAndWait().orElse(null);
-    }
-
 }

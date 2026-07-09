@@ -1,24 +1,31 @@
 package pages.notification;
 
+import app.AppShell;
+import app.FxController;
+import app.helpers.PermissionHelper;
+import app.helpers.SelectionHelper;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import app.AppShell;
-import app.FxController;
-import app.helpers.PermissionHelper;
-import app.helpers.SelectionHelper;
 import users.Session;
 
 import java.time.LocalDate;
@@ -27,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class NotificationCenterController implements FxController {
 
@@ -47,16 +55,7 @@ public class NotificationCenterController implements FxController {
     @FXML private Label unreadCountLabel;
     @FXML private Label criticalCountLabel;
     @FXML private Label alertsCountLabel;
-    @FXML private Label workflowCountLabel;
-    @FXML private Label detailTitleLabel;
-    @FXML private Label detailMetaLabel;
-    @FXML private Label detailSourceLabel;
-    @FXML private Label detailSeverityLabel;
-    @FXML private Label detailStatusLabel;
-    @FXML private Label detailPatientLabel;
-    @FXML private TextArea detailMessageArea;
-    @FXML private TextArea recommendedActionArea;
-    @FXML private FlowPane sourceButtonPane;
+    @FXML private Label systemCountLabel;
     @FXML private Label statusLabel;
 
     @Override
@@ -75,159 +74,50 @@ public class NotificationCenterController implements FxController {
             return;
         }
         try {
-            SqliteNotificationDao.NotificationRow currentSelection = currentSelectedRow();
-            long selectedId = currentSelection == null ? -1 : currentSelection.getId();
+            long selectedId = currentSelectedRow() == null ? -1 : currentSelectedRow().getId();
             List<SqliteNotificationDao.NotificationRow> loaded = notificationService.findForCurrentUser(
                     Session.getCurrentUser(),
-                    severityFilter.getValue(),
-                    statusFilter.getValue(),
-                    patientSearchField.getText(),
-                    dateRangeFilter.getValue()
+                    valueOf(severityFilter),
+                    valueOf(statusFilter),
+                    patientSearchField == null ? "" : patientSearchField.getText(),
+                    valueOf(dateRangeFilter)
             );
+            List<SqliteNotificationDao.NotificationRow> visibleRows = applyQuickFilter(filterAlertScope(loaded));
             SelectionHelper.safeClearSelection(notificationList);
-            rows.setAll(applyQuickFilter(loaded));
-            notificationList.setItems(rows);
-            renderCounters(rows);
-            NotificationHelper.showInfo(statusLabel, "Notifications loaded: " + rows.size());
-            if (selectedId > -1 && selectById(selectedId)) {
-                return;
-            }
-            if (!rows.isEmpty() && notificationList.getSelectionModel().isEmpty()) {
-                SelectionHelper.safeSelectFirst(notificationList);
-                showDetail(rows.get(0));
-            } else if (rows.isEmpty()) {
-                SelectionHelper.safeClearSelection(notificationList);
-                clearDetail();
+            rows.setAll(visibleRows);
+            renderCounters(visibleRows);
+            updateStatusLabel(visibleRows.size());
+            if (selectedId > -1) {
+                selectById(selectedId);
             }
             appShell.refreshNotificationCount();
         } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, "Could not load notifications: " + e.getMessage());
+            NotificationHelper.showError(statusLabel, "Could not load alerts: " + e.getMessage());
         }
     }
 
-    @FXML private void showAll() {
+    @FXML
+    private void showAll() {
         quickFilter = "All";
-        selectFilters("All", "All");
+        loadNotifications();
     }
 
-    @FXML private void showUnread() {
+    @FXML
+    private void showUnread() {
         quickFilter = "Unread";
-        selectFilters("All", "UNREAD");
+        loadNotifications();
     }
 
-    @FXML private void showCritical() {
+    @FXML
+    private void showCritical() {
         quickFilter = "Critical";
-        selectFilters("CRITICAL", "All");
+        loadNotifications();
     }
 
-    @FXML private void showAlerts() {
-        quickFilter = "Alerts";
-        selectFilters("All", "All");
-    }
-
-    @FXML private void showReminders() {
-        quickFilter = "Reminders";
-        selectFilters("All", "All");
-    }
-
-    @FXML private void showMessages() {
-        quickFilter = "Messages";
-        selectFilters("All", "All");
-    }
-
-    @FXML private void showSystem() {
+    @FXML
+    private void showSystem() {
         quickFilter = "System";
-        selectFilters("All", "All");
-    }
-
-    @FXML
-    private void markRead() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row == null) {
-            return;
-        }
-        try {
-            notificationService.markRead(Session.getCurrentUser(), row);
-            loadNotifications();
-            NotificationHelper.showSuccess(statusLabel, sourceContains(row, "MESSAGE") ? "Message marked read." : "Notification marked read.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, "Could not mark read: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void dismissNotification() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row == null) {
-            return;
-        }
-        try {
-            notificationService.dismiss(Session.getCurrentUser(), row);
-            loadNotifications();
-            NotificationHelper.showSuccess(statusLabel, sourceContains(row, "MESSAGE") ? "Message archived." : "Notification dismissed.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, "Could not dismiss: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void openLinkedItem() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row == null) {
-            return;
-        }
-        if (isCertificateSource(row)) {
-            appShell.showCertificateSourceRecord(row.getSourceType(), row.getSourceId());
-            return;
-        }
-        if (row.getPatientId() != null && !row.getPatientId().isBlank()) {
-            if ("ALERT".equalsIgnoreCase(row.getSourceType()) && row.getSourceId() != null && row.getSourceId().matches("\\d+")) {
-                appShell.showAlertCenterForAlert(Long.parseLong(row.getSourceId()));
-            } else if ("REMINDER".equalsIgnoreCase(row.getSourceType()) || "SCHEDULING".equalsIgnoreCase(row.getSourceType())) {
-                appShell.showSchedulingForPatient(row.getPatientId());
-            } else {
-                appShell.showPatientDetail(row.getPatientId());
-            }
-        }
-    }
-
-    @FXML
-    private void openRelatedPatient() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row != null && row.getPatientId() != null && !row.getPatientId().isBlank()) {
-            appShell.showPatientDetail(row.getPatientId());
-        }
-    }
-
-    @FXML
-    private void openSourceRecord() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row == null) {
-            return;
-        }
-        if (isCertificateSource(row)) {
-            appShell.showCertificateSourceRecord(row.getSourceType(), row.getSourceId());
-        } else {
-            openLinkedItem();
-        }
-    }
-
-    @FXML
-    private void openCertificate() {
-        SqliteNotificationDao.NotificationRow row = selectedRow();
-        if (row == null) {
-            return;
-        }
-        if (!isCertificateSource(row)) {
-            NotificationHelper.showInfo(statusLabel, "This notification is not linked to a file.");
-            return;
-        }
-        appShell.showCertificateFromNotification(row.getSourceType(), row.getSourceId());
-    }
-
-    @FXML
-    private void showDashboard() {
-        appShell.showDashboard(Session.getCurrentUser());
+        loadNotifications();
     }
 
     private void configureAccess() {
@@ -245,65 +135,232 @@ public class NotificationCenterController implements FxController {
         severityFilter.getSelectionModel().select("All");
         statusFilter.getSelectionModel().select("All");
         dateRangeFilter.getSelectionModel().select("All");
-        severityFilter.valueProperty().addListener((obs, old, value) -> {
-            if (!suppressFilterEvents) {
-                quickFilter = "Custom";
-                loadNotifications();
-            }
-        });
-        statusFilter.valueProperty().addListener((obs, old, value) -> {
-            if (!suppressFilterEvents) {
-                quickFilter = "Custom";
-                loadNotifications();
-            }
-        });
-        dateRangeFilter.valueProperty().addListener((obs, old, value) -> loadNotifications());
-        patientSearchField.textProperty().addListener((obs, old, value) -> loadNotifications());
+        severityFilter.valueProperty().addListener((obs, old, value) -> reloadCustom());
+        statusFilter.valueProperty().addListener((obs, old, value) -> reloadCustom());
+        dateRangeFilter.valueProperty().addListener((obs, old, value) -> reloadCustom());
+        patientSearchField.textProperty().addListener((obs, old, value) -> reloadCustom());
     }
 
     private void configureList() {
-        notificationList.setCellFactory(list -> new NotificationCardCell());
-        notificationList.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> showDetail(row));
+        notificationList.setItems(rows);
+        notificationList.setCellFactory(list -> new AlertRowCell());
     }
 
-    private void showDetail(SqliteNotificationDao.NotificationRow row) {
+    private void reloadCustom() {
+        if (!suppressFilterEvents) {
+            quickFilter = "Custom";
+            loadNotifications();
+        }
+    }
+
+    private List<SqliteNotificationDao.NotificationRow> filterAlertScope(List<SqliteNotificationDao.NotificationRow> loaded) {
+        ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
+        for (SqliteNotificationDao.NotificationRow row : loaded) {
+            if (!isMessageRow(row) && !isReminderRow(row)) {
+                filtered.add(row);
+            }
+        }
+        return filtered;
+    }
+
+    private List<SqliteNotificationDao.NotificationRow> applyQuickFilter(List<SqliteNotificationDao.NotificationRow> loaded) {
+        ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
+        for (SqliteNotificationDao.NotificationRow row : loaded) {
+            if (matchesQuickFilter(row)) {
+                filtered.add(row);
+            }
+        }
+        return filtered;
+    }
+
+    private boolean matchesQuickFilter(SqliteNotificationDao.NotificationRow row) {
+        if ("Unread".equals(quickFilter)) {
+            return isUnread(row);
+        }
+        if ("Critical".equals(quickFilter)) {
+            return "CRITICAL".equalsIgnoreCase(row.getSeverity());
+        }
+        if ("System".equals(quickFilter)) {
+            return isSystemRow(row);
+        }
+        return true;
+    }
+
+    private void openAlertDetails(SqliteNotificationDao.NotificationRow row) {
         if (row == null) {
-            clearDetail();
             return;
         }
-        detailTitleLabel.setText(row.getTitle());
-        detailMetaLabel.setText(row.getTargetSummary() + " | " + row.getCreatedAt());
-        detailSeverityLabel.setText(row.getSeverity());
-        detailStatusLabel.setText(row.getStatus());
-        detailPatientLabel.setText(nullTo(row.getPatientId(), "No linked patient"));
-        detailSourceLabel.setText("Source: " + nullTo(row.getSourceType(), "-") + " | Source ID: " + nullTo(row.getSourceId(), "-"));
-        detailMessageArea.setText(row.getMessage());
-        recommendedActionArea.setText(recommendedAction(row));
-        sourceButtonPane.setVisible(isCertificateSource(row));
-        sourceButtonPane.setManaged(isCertificateSource(row));
-        setBadgeStyle(detailSeverityLabel, severityStyle(row.getSeverity()), "notification-badge-info", "notification-badge-warning", "notification-badge-critical");
-        setBadgeStyle(detailStatusLabel, statusStyle(row.getStatus()), "notification-badge-status", "notification-badge-unread", "notification-badge-dismissed");
-    }
 
-    private void clearDetail() {
-        detailTitleLabel.setText("Select a notification");
-        detailMetaLabel.setText("-");
-        detailSeverityLabel.setText("-");
-        detailStatusLabel.setText("-");
-        detailPatientLabel.setText("-");
-        detailSourceLabel.setText("Source: -");
-        detailMessageArea.clear();
-        recommendedActionArea.clear();
-        sourceButtonPane.setVisible(false);
-        sourceButtonPane.setManaged(false);
-    }
-
-    private SqliteNotificationDao.NotificationRow selectedRow() {
-        SqliteNotificationDao.NotificationRow row = notificationList == null ? null : notificationList.getSelectionModel().getSelectedItem();
-        if (row == null) {
-            NotificationHelper.showError(statusLabel, "Select a notification first.");
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Alert Details");
+        dialog.setHeaderText(null);
+        if (notificationList != null && notificationList.getScene() != null) {
+            dialog.initOwner(notificationList.getScene().getWindow());
+            dialog.getDialogPane().getStylesheets().addAll(notificationList.getScene().getStylesheets());
         }
-        return row;
+        dialog.getDialogPane().getStyleClass().add("alert-detail-dialog");
+
+        VBox content = new VBox(14.0);
+        content.setPadding(new Insets(4, 4, 4, 4));
+
+        Label titleLabel = new Label(row.getTitle());
+        titleLabel.getStyleClass().addAll("notification-section-title", "alert-detail-title");
+        titleLabel.setWrapText(true);
+
+        HBox badgeRow = new HBox(10.0);
+        badgeRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label typeBadge = new Label(alertTypeText(row));
+        typeBadge.getStyleClass().addAll("alert-type-badge", isSystemRow(row) ? "alert-type-system" : "alert-type-alert");
+
+        Label severityBadge = new Label(nullTo(row.getSeverity(), "INFO"));
+        severityBadge.getStyleClass().addAll("alert-severity-badge", severityStyleClass(row.getSeverity()));
+
+        Label statusBadge = new Label(isUnread(row) ? "Unread" : "Read");
+        statusBadge.getStyleClass().addAll("alert-severity-badge", isUnread(row) ? "alert-status-unread" : "alert-status-read");
+
+        badgeRow.getChildren().addAll(typeBadge, severityBadge, statusBadge);
+
+        VBox detailStack = new VBox(12.0,
+                buildDetailBlock("Patient ID", nullTo(row.getPatientId(), "No linked patient")),
+                buildDetailBlock("Source", nullTo(row.getSourceType(), "-")),
+                buildDetailBlock("Source ID", nullTo(row.getSourceId(), "-")),
+                buildDetailBlock("Date / Time", nullTo(row.getCreatedAt(), "-")),
+                buildDetailBlock("Full Message", nullTo(row.getMessage(), "No message text available."))
+        );
+
+        content.getChildren().addAll(titleLabel, badgeRow, detailStack);
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportWidth(680);
+        scrollPane.setPrefViewportHeight(420);
+        scrollPane.getStyleClass().add("alert-detail-scroll");
+
+        dialog.getDialogPane().setContent(scrollPane);
+
+        ButtonType closeType = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(closeType);
+
+        ButtonType openPatientType = null;
+        if (row.getPatientId() != null && !row.getPatientId().isBlank()) {
+            openPatientType = new ButtonType("Open Patient File", ButtonBar.ButtonData.LEFT);
+            dialog.getDialogPane().getButtonTypes().add(openPatientType);
+        }
+
+        ButtonType markReadType = null;
+        if (isUnread(row)) {
+            markReadType = new ButtonType("Mark Read", ButtonBar.ButtonData.APPLY);
+            dialog.getDialogPane().getButtonTypes().add(markReadType);
+        }
+
+        styleDialogButton(dialog, closeType, "notification-action-secondary");
+        if (openPatientType != null) {
+            styleDialogButton(dialog, openPatientType, "notification-action-primary");
+        }
+        if (markReadType != null) {
+            styleDialogButton(dialog, markReadType, "notification-action-secondary");
+        }
+
+        dialog.setResultConverter(buttonType -> buttonType);
+        ButtonType result = dialog.showAndWait().orElse(closeType);
+        if (result == openPatientType) {
+            appShell.showPatientDetail(row.getPatientId());
+        } else if (result == markReadType) {
+            markRead(row, false);
+        }
+    }
+
+    private VBox buildDetailBlock(String label, String value) {
+        Label labelNode = new Label(label);
+        labelNode.getStyleClass().add("notification-detail-label");
+
+        Label valueNode = new Label(value);
+        valueNode.getStyleClass().add("notification-detail-value");
+        valueNode.setWrapText(true);
+
+        VBox box = new VBox(6.0, labelNode, valueNode);
+        box.getStyleClass().add("notification-detail-soft-card");
+        return box;
+    }
+
+    private void styleDialogButton(Dialog<ButtonType> dialog, ButtonType buttonType, String styleClass) {
+        Button button = (Button) dialog.getDialogPane().lookupButton(buttonType);
+        if (button != null) {
+            button.getStyleClass().add(styleClass);
+            button.setDefaultButton(false);
+        }
+    }
+
+    private void markRead(SqliteNotificationDao.NotificationRow row, boolean showFeedback) {
+        if (row == null || !isUnread(row)) {
+            return;
+        }
+        try {
+            notificationService.markRead(Session.getCurrentUser(), row);
+            loadNotifications();
+            if (showFeedback) {
+                NotificationHelper.showSuccess(statusLabel, "Alert marked read.");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Could not mark read: " + e.getMessage());
+        }
+    }
+
+    private void renderCounters(List<SqliteNotificationDao.NotificationRow> notifications) {
+        int unread = 0;
+        int critical = 0;
+        int activeAlerts = 0;
+        int systemUpdates = 0;
+        for (SqliteNotificationDao.NotificationRow row : notifications) {
+            if (isUnread(row)) {
+                unread++;
+            }
+            if ("CRITICAL".equalsIgnoreCase(row.getSeverity())) {
+                critical++;
+            }
+            if (isAlertRow(row) && !"DISMISSED".equalsIgnoreCase(row.getStatus())) {
+                activeAlerts++;
+            }
+            if (isSystemRow(row)) {
+                systemUpdates++;
+            }
+        }
+        unreadCountLabel.setText(String.valueOf(unread));
+        criticalCountLabel.setText(String.valueOf(critical));
+        alertsCountLabel.setText(String.valueOf(activeAlerts));
+        systemCountLabel.setText(String.valueOf(systemUpdates));
+    }
+
+    private void updateStatusLabel(int count) {
+        if (statusLabel == null) {
+            return;
+        }
+        String suffix;
+        switch (quickFilter) {
+            case "Unread":
+                suffix = "unread alerts";
+                break;
+            case "Critical":
+                suffix = "critical alerts";
+                break;
+            case "System":
+                suffix = "system updates";
+                break;
+            default:
+                suffix = "alerts";
+                break;
+        }
+        statusLabel.setText("Showing " + count + " " + suffix + ".");
+    }
+
+    private boolean selectById(long id) {
+        for (int i = 0; i < rows.size(); i++) {
+            if (rows.get(i).getId() == id) {
+                return SelectionHelper.safeSelectIndex(notificationList, i);
+            }
+        }
+        return false;
     }
 
     private SqliteNotificationDao.NotificationRow currentSelectedRow() {
@@ -327,158 +384,60 @@ public class NotificationCenterController implements FxController {
         }
     }
 
+    private String valueOf(ComboBox<String> comboBox) {
+        return comboBox == null || comboBox.getValue() == null ? "All" : comboBox.getValue();
+    }
+
+    private boolean isUnread(SqliteNotificationDao.NotificationRow row) {
+        return row != null && "UNREAD".equalsIgnoreCase(row.getStatus());
+    }
+
+    private boolean isMessageRow(SqliteNotificationDao.NotificationRow row) {
+        return sourceContains(row, "MESSAGE");
+    }
+
+    private boolean isReminderRow(SqliteNotificationDao.NotificationRow row) {
+        return sourceContains(row, "REMINDER")
+                || sourceContains(row, "SCHEDULING")
+                || sourceContains(row, "CHECKUP");
+    }
+
+    private boolean isAlertRow(SqliteNotificationDao.NotificationRow row) {
+        return sourceContains(row, "ALERT");
+    }
+
+    private boolean isSystemRow(SqliteNotificationDao.NotificationRow row) {
+        return row != null && !isAlertRow(row) && !isMessageRow(row) && !isReminderRow(row);
+    }
+
+    private boolean sourceContains(SqliteNotificationDao.NotificationRow row, String token) {
+        String source = nullTo(row == null ? null : row.getSourceType(), "").toUpperCase(Locale.ROOT);
+        String title = nullTo(row == null ? null : row.getTitle(), "").toUpperCase(Locale.ROOT);
+        return source.contains(token) || title.contains(token);
+    }
+
+    private String alertTypeText(SqliteNotificationDao.NotificationRow row) {
+        return isSystemRow(row) ? "SYSTEM" : "ALERT";
+    }
+
+    private String severityStyleClass(String severity) {
+        if ("CRITICAL".equalsIgnoreCase(severity)) {
+            return "alert-severity-critical";
+        }
+        if ("WARNING".equalsIgnoreCase(severity)) {
+            return "alert-severity-warning";
+        }
+        return "alert-severity-info";
+    }
+
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
-    private boolean isCertificateSource(SqliteNotificationDao.NotificationRow row) {
-        return row != null && ("DEATH_CERTIFICATE".equalsIgnoreCase(row.getSourceType())
-                || "BIRTH_CERTIFICATE".equalsIgnoreCase(row.getSourceType()));
-    }
-
-    private void selectFilters(String severity, String status) {
-        suppressFilterEvents = true;
-        severityFilter.getSelectionModel().select(severity);
-        statusFilter.getSelectionModel().select(status);
-        suppressFilterEvents = false;
-        loadNotifications();
-    }
-
-    private List<SqliteNotificationDao.NotificationRow> applyQuickFilter(List<SqliteNotificationDao.NotificationRow> loaded) {
-        ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
-        for (SqliteNotificationDao.NotificationRow row : loaded) {
-            if (matchesQuickFilter(row)) {
-                filtered.add(row);
-            }
-        }
-        return filtered;
-    }
-
-    private boolean matchesQuickFilter(SqliteNotificationDao.NotificationRow row) {
-        if ("Unread".equals(quickFilter)) {
-            return "UNREAD".equalsIgnoreCase(row.getStatus());
-        }
-        if ("Critical".equals(quickFilter)) {
-            return "CRITICAL".equalsIgnoreCase(row.getSeverity());
-        }
-        if ("Alerts".equals(quickFilter)) {
-            return sourceContains(row, "ALERT");
-        }
-        if ("Reminders".equals(quickFilter)) {
-            return sourceContains(row, "REMINDER") || sourceContains(row, "SCHEDULING") || sourceContains(row, "CHECKUP");
-        }
-        if ("Messages".equals(quickFilter)) {
-            return sourceContains(row, "MESSAGE");
-        }
-        if ("System".equals(quickFilter)) {
-            return sourceContains(row, "SYSTEM") || isCertificateSource(row);
-        }
-        return true;
-    }
-
-    private boolean sourceContains(SqliteNotificationDao.NotificationRow row, String token) {
-        String source = nullTo(row.getSourceType(), "").toUpperCase();
-        String title = nullTo(row.getTitle(), "").toUpperCase();
-        return source.contains(token) || title.contains(token);
-    }
-
-    private void renderCounters(List<SqliteNotificationDao.NotificationRow> notifications) {
-        int unread = 0;
-        int critical = 0;
-        int alerts = 0;
-        int workflow = 0;
-        for (SqliteNotificationDao.NotificationRow row : notifications) {
-            if ("UNREAD".equalsIgnoreCase(row.getStatus())) {
-                unread++;
-            }
-            if ("CRITICAL".equalsIgnoreCase(row.getSeverity())) {
-                critical++;
-            }
-            if (sourceContains(row, "ALERT")) {
-                alerts++;
-            }
-            if (sourceContains(row, "REMINDER") || sourceContains(row, "MESSAGE") || sourceContains(row, "SCHEDULING")) {
-                workflow++;
-            }
-        }
-        unreadCountLabel.setText(String.valueOf(unread));
-        criticalCountLabel.setText(String.valueOf(critical));
-        alertsCountLabel.setText(String.valueOf(alerts));
-        workflowCountLabel.setText(String.valueOf(workflow));
-    }
-
-    private boolean selectById(long id) {
-        for (int i = 0; i < rows.size(); i++) {
-            if (rows.get(i).getId() == id) {
-                if (!SelectionHelper.safeSelectIndex(notificationList, i)) {
-                    return false;
-                }
-                showDetail(rows.get(i));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String recommendedAction(SqliteNotificationDao.NotificationRow row) {
-        if (row == null) {
-            return "";
-        }
-        if ("CRITICAL".equalsIgnoreCase(row.getSeverity())) {
-            return "Review immediately, open the linked clinical item, and notify responsible staff if follow-up is still pending.";
-        }
-        if ("WARNING".equalsIgnoreCase(row.getSeverity())) {
-            return "Review during the current round and mark read once the item is understood.";
-        }
-        return "Review the notification, open the linked item if needed, then mark read or dismiss.";
-    }
-
-    private String severityStyle(String severity) {
-        if ("CRITICAL".equalsIgnoreCase(severity)) {
-            return "notification-badge-critical";
-        }
-        if ("WARNING".equalsIgnoreCase(severity)) {
-            return "notification-badge-warning";
-        }
-        return "notification-badge-info";
-    }
-
-    private String statusStyle(String status) {
-        if ("UNREAD".equalsIgnoreCase(status)) {
-            return "notification-badge-unread";
-        }
-        if ("DISMISSED".equalsIgnoreCase(status)) {
-            return "notification-badge-dismissed";
-        }
-        return "notification-badge-status";
-    }
-
-    private void setBadgeStyle(Label label, String selected, String... styles) {
-        label.getStyleClass().removeAll(styles);
-        label.getStyleClass().add(selected);
-    }
-
-    private String notificationType(SqliteNotificationDao.NotificationRow row) {
-        String source = nullTo(row.getSourceType(), "").toUpperCase();
-        if (source.contains("ALERT")) {
-            return "ALERT";
-        }
-        if (source.contains("REMINDER") || source.contains("SCHEDULING")) {
-            return "TASK";
-        }
-        if (source.contains("MESSAGE")) {
-            return "MSG";
-        }
-        if (source.contains("CERTIFICATE")) {
-            return "CERT";
-        }
-        return "SYS";
-    }
-
-    private String dateGroup(SqliteNotificationDao.NotificationRow row) {
-        LocalDate date = parseDate(row.getCreatedAt());
+    private String groupedDate(SqliteNotificationDao.NotificationRow row) {
+        LocalDate date = parseDate(row == null ? null : row.getCreatedAt());
         if (date == null) {
-            return "Older";
+            return "Earlier";
         }
         LocalDate today = LocalDate.now();
         if (date.equals(today)) {
@@ -487,7 +446,7 @@ public class NotificationCenterController implements FxController {
         if (date.equals(today.minusDays(1))) {
             return "Yesterday";
         }
-        return "Older";
+        return "Earlier";
     }
 
     private LocalDate parseDate(String value) {
@@ -509,7 +468,7 @@ public class NotificationCenterController implements FxController {
         }
     }
 
-    private class NotificationCardCell extends ListCell<SqliteNotificationDao.NotificationRow> {
+    private class AlertRowCell extends ListCell<SqliteNotificationDao.NotificationRow> {
         @Override
         protected void updateItem(SqliteNotificationDao.NotificationRow row, boolean empty) {
             super.updateItem(row, empty);
@@ -519,56 +478,95 @@ public class NotificationCenterController implements FxController {
                 return;
             }
             setText(null);
-            setGraphic(createCard(row));
+            setGraphic(createRow(row));
         }
 
-        private VBox createCard(SqliteNotificationDao.NotificationRow row) {
-            VBox wrapper = new VBox(8);
+        private VBox createRow(SqliteNotificationDao.NotificationRow row) {
+            VBox wrapper = new VBox(8.0);
+            String group = groupedDate(row);
             int index = getIndex();
-            String group = dateGroup(row);
-            if (index <= 0 || index >= rows.size() || !group.equals(dateGroup(rows.get(index - 1)))) {
+            if (index <= 0 || index >= rows.size() || !group.equals(groupedDate(rows.get(index - 1)))) {
                 Label groupLabel = new Label(group);
                 groupLabel.getStyleClass().add("notification-group-label");
                 wrapper.getChildren().add(groupLabel);
             }
 
-            HBox card = new HBox(12);
-            card.getStyleClass().add("notification-card-row");
-            if ("UNREAD".equalsIgnoreCase(row.getStatus())) {
+            HBox card = new HBox(14.0);
+            card.setAlignment(Pos.CENTER_LEFT);
+            card.getStyleClass().addAll("notification-card-row", "alert-row");
+            if (isUnread(row)) {
                 card.getStyleClass().add("notification-card-unread");
             }
-            if ("CRITICAL".equalsIgnoreCase(row.getSeverity())) {
-                card.getStyleClass().add("notification-card-critical");
-            }
 
-            Label type = new Label(notificationType(row));
-            type.getStyleClass().add("notification-type-pill");
+            VBox leading = new VBox(8.0);
+            leading.setAlignment(Pos.TOP_LEFT);
 
-            VBox text = new VBox(5);
-            text.setMaxWidth(Double.MAX_VALUE);
-            HBox titleRow = new HBox(8);
-            Label unreadDot = new Label("NEW");
-            unreadDot.getStyleClass().add("notification-unread-dot");
-            unreadDot.setVisible("UNREAD".equalsIgnoreCase(row.getStatus()));
-            unreadDot.setManaged("UNREAD".equalsIgnoreCase(row.getStatus()));
+            HBox badgeLine = new HBox(8.0);
+            badgeLine.setAlignment(Pos.CENTER_LEFT);
+
+            Label typeBadge = new Label(alertTypeText(row));
+            typeBadge.getStyleClass().addAll("notification-type-pill", "alert-type-badge",
+                    isSystemRow(row) ? "alert-type-system" : "alert-type-alert");
+
+            Label unreadBadge = new Label("Unread");
+            unreadBadge.getStyleClass().addAll("notification-unread-dot", "unread-badge");
+            unreadBadge.setVisible(isUnread(row));
+            unreadBadge.setManaged(isUnread(row));
+
+            badgeLine.getChildren().addAll(typeBadge, unreadBadge);
+
+            VBox textBox = new VBox(5.0);
             Label title = new Label(row.getTitle());
-            title.setWrapText(true);
             title.getStyleClass().add("notification-card-title");
-            Label severity = new Label(row.getSeverity());
-            severity.getStyleClass().addAll(severityStyle(row.getSeverity()), "notification-card-badge");
-            titleRow.getChildren().addAll(unreadDot, title, severity);
+            title.setWrapText(true);
 
             Label preview = new Label(nullTo(row.getMessage(), ""));
-            preview.setWrapText(true);
-            preview.setMaxHeight(38);
             preview.getStyleClass().add("notification-card-preview");
+            preview.setWrapText(true);
 
-            Label meta = new Label("Patient " + nullTo(row.getPatientId(), "-") + " | " + nullTo(row.getCreatedAt(), "-"));
+            Label meta = new Label("Patient ID: " + nullTo(row.getPatientId(), "-") + "   |   " + nullTo(row.getCreatedAt(), "-"));
             meta.getStyleClass().add("notification-card-meta");
-            text.getChildren().addAll(titleRow, preview, meta);
-            HBox.setHgrow(text, javafx.scene.layout.Priority.ALWAYS);
 
-            card.getChildren().addAll(type, text);
+            textBox.getChildren().addAll(title, preview, meta);
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+
+            leading.getChildren().addAll(badgeLine, textBox);
+            HBox.setHgrow(leading, Priority.ALWAYS);
+
+            VBox trailing = new VBox(10.0);
+            trailing.setAlignment(Pos.CENTER_RIGHT);
+
+            Label severityBadge = new Label(nullTo(row.getSeverity(), "INFO"));
+            severityBadge.getStyleClass().addAll("notification-card-badge", "alert-severity-badge", severityStyleClass(row.getSeverity()));
+
+            HBox actions = new HBox(8.0);
+            actions.setAlignment(Pos.CENTER_RIGHT);
+
+            Button viewButton = new Button("\uD83D\uDC41");
+            viewButton.getStyleClass().addAll("alert-action-button", "notification-action-secondary");
+            viewButton.setOnAction(event -> {
+                event.consume();
+                openAlertDetails(row);
+            });
+
+            Button markReadButton = new Button("\u2713");
+            markReadButton.getStyleClass().addAll("alert-action-button", "notification-action-primary");
+            markReadButton.setDisable(!isUnread(row));
+            markReadButton.setOnAction(event -> {
+                event.consume();
+                markRead(row, true);
+            });
+
+            actions.getChildren().addAll(viewButton, markReadButton);
+            trailing.getChildren().addAll(severityBadge, actions);
+
+            card.getChildren().addAll(leading, trailing);
+            card.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    openAlertDetails(row);
+                }
+            });
+
             wrapper.getChildren().add(card);
             return wrapper;
         }

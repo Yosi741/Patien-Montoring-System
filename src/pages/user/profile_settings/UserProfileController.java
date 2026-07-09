@@ -142,7 +142,7 @@ public class UserProfileController implements FxController {
                 profileService.changeOwnPassword(Session.getCurrentUser(),
                         currentPassword.getText().toCharArray(),
                         newPassword.getText().toCharArray());
-                showSuccess(profileStatusLabel, "Password changed. Raw passwords were not displayed or logged.");
+                showSuccess(profileStatusLabel, "Password changed for local demo login.");
             } catch (Exception e) {
                 showError(profileStatusLabel, e.getMessage());
                 event.consume();

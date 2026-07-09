@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -25,7 +26,7 @@
                     text="Appointment" styleClass="screen-title dialog-title" />
 
             <Label
-                    text="Local clinic appointment scheduling. No external calendar integration in this phase."
+                    text="Schedule an urgent care visit, follow-up, or clinic checkup."
                     wrapText="true" styleClass="muted-text dialog-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
@@ -43,41 +44,31 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Title" styleClass="field-label" />
-            <TextField fx:id="appointmentTitleField" promptText="Follow-up visit" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label text="Type" styleClass="field-label" />
             <ComboBox fx:id="typeBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label text="Status" styleClass="field-label" />
             <ComboBox fx:id="statusBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Appointment Date" styleClass="field-label" />
+            <DatePicker fx:id="appointmentDatePicker" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Start Time" styleClass="field-label" />
-            <TextField fx:id="startTimeField" promptText="dd-MM-yyyy HH:mm:ss" styleClass="control-input" />
+            <Label text="Available Time" styleClass="field-label" />
+            <ComboBox fx:id="startTimeBox" maxWidth="Infinity" promptText="Select appointment time" styleClass="control-input" />
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-            <Label text="End Time" styleClass="field-label" />
-            <TextField fx:id="endTimeField" promptText="dd-MM-yyyy HH:mm:ss" styleClass="control-input" />
+            <Label text="Duration" styleClass="field-label" />
+            <ComboBox fx:id="durationBox" maxWidth="Infinity" styleClass="control-input" />
         </VBox>
 
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Location" styleClass="field-label" />
-            <TextField fx:id="locationField" promptText="Clinic room / Lab" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <Label text="Assigned Staff" styleClass="field-label" />
-            <TextField fx:id="assignedStaffField" promptText="Doctor or staff username" styleClass="control-input" />
-        </VBox>
-
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
             <Label text="Notes" styleClass="field-label" />
             <TextArea fx:id="notesArea" prefRowCount="4" wrapText="true" promptText="Optional scheduling notes" styleClass="control-input" />
         </VBox>

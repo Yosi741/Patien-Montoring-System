@@ -10,6 +10,7 @@ Core clinic workflows:
 - Vitals
 - Alerts
 - Scheduling
+- Billing / Payments
 - Medical Files
 - Staff / Users
 - Messages
@@ -79,14 +80,22 @@ Core clinic workflows:
 - `src/users/roles/`
   - Role definitions and role-related support classes
 
-## 9. Messages and notifications
+## 9. Billing
+
+- `src/pages/billing/`
+  - Local demo invoices and payment status tracking
+  - SQLite-backed billing DAO and service code
+  - Billing overview page for creating invoices, viewing details, marking paid, and cancelling invoices
+  - No real payment gateway or online payment processing
+
+## 10. Messages and notifications
 
 - `src/pages/messages/`
   - Internal staff messaging page and message services
 - `src/pages/notification/`
   - Alerts & Notifications inbox and notification services
 
-## 10. Resources
+## 11. Resources
 
 - `src/photo/`
   - Logo and branding image assets used by the login page and app shell
@@ -95,7 +104,7 @@ Core clinic workflows:
 - `src/app/styles/dark-theme.css`
   - Main clinic presentation theme
 
-## 11. How to answer teacher questions
+## 12. How to answer teacher questions
 
 - "Where is the Login button code?"
   - `src/pages/login/LoginController.java`
@@ -122,6 +131,11 @@ Core clinic workflows:
 
 - "Where is Scheduling?"
   - `src/pages/scheduling/schedule_overview/SchedulingController.java`
+
+- "Where is Billing / Payments?"
+  - `src/pages/billing/billing_overview/BillingController.java`
+  - DAO/service code in `src/pages/billing/`
+  - local SQLite demo billing only, no external payment gateway
 
 - "Where is Staff / Users?"
   - `src/pages/user/user_directory/UserDirectoryController.java`

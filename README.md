@@ -19,6 +19,7 @@ This project is a JavaFX + SQLite desktop clinic application for a local present
 - Vitals entry with alert generation
 - Alerts & Notifications
 - Scheduling / Appointments / Checkups
+- Billing / Payments with local demo invoices
 - Medical Files
 - Staff / Users
 - Messages
@@ -52,6 +53,7 @@ SQLite is the source of truth for the running application. Uploaded files remain
 - Passwords are not stored as plain text.
 - The clinic presentation focuses on workflow and layered architecture, not on cloud deployment or advanced cybersecurity.
 - This is a local desktop app for demonstration, not a networked clinic installation.
+- Billing is local SQLite demo billing only. There is no real payment gateway, no online payment flow, and no credit-card storage.
 
 ## Project structure
 
@@ -61,6 +63,7 @@ SQLite is the source of truth for the running application. Uploaded files remain
 - `src/pages/patient/` - patient board, patient file, patient form, vitals, and medical files
 - `src/pages/alert/` - alert services and local alarm sound handling
 - `src/pages/scheduling/` - appointments, reminders, and checkups
+- `src/pages/billing/` - local demo invoices, billing overview, and payment status tracking
 - `src/pages/user/` - staff/user directory and profile/settings
 - `src/pages/messages/` - internal staff messaging
 - `src/pages/notification/` - alerts and notifications inbox

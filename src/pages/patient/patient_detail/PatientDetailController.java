@@ -66,8 +66,6 @@ public class PatientDetailController implements FxController {
     @FXML private Label ageLabel;
     @FXML private Label birthDateLabel;
     @FXML private Label genderLabel;
-    @FXML private Label sectionLabel;
-    @FXML private Label roomLabel;
     @FXML private Label statusLabel;
     @FXML private Label priorityLabel;
     @FXML private Label bloodTypeLabel;
@@ -129,8 +127,6 @@ public class PatientDetailController implements FxController {
             ageLabel.setText(detail.getAgeText());
             birthDateLabel.setText(detail.getBirthDate());
             genderLabel.setText(detail.getGender());
-            sectionLabel.setText(detail.getSection());
-            roomLabel.setText(detail.getRoom());
             statusLabel.setText(detail.getStatus());
             priorityLabel.setText(detail.getPriority());
             bloodTypeLabel.setText(detail.getBloodType());
@@ -149,11 +145,6 @@ public class PatientDetailController implements FxController {
             nameLabel.setText("Patient unavailable");
             diagnosisLabel.setText(e.getMessage());
         }
-    }
-
-    @FXML
-    private void backToPatients() {
-        appShell.showPatientList();
     }
 
     @FXML

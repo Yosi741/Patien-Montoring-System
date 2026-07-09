@@ -28,8 +28,6 @@ public class AppNavigator {
             if (controller instanceof FxController) {
                 ((FxController) controller).setAppShell(appShell);
             }
-            parent.getStylesheets().clear();
-            parent.getStylesheets().add(resolve(AppShell.PRESENTATION_THEME).toExternalForm());
             appShell.applyThemeTo(parent);
             return new LoadedView(parent, controller);
         } catch (IOException e) {
@@ -38,11 +36,6 @@ public class AppNavigator {
     }
 
     public static URL resolve(String path) {
-        URL resource = AppNavigator.class.getResource(path);
-        if (resource != null) {
-            return resource;
-        }
-
         File sourceFile = new File("src" + path.replace("/", File.separator));
         if (sourceFile.exists()) {
             try {
@@ -50,6 +43,11 @@ public class AppNavigator {
             } catch (MalformedURLException e) {
                 throw new IllegalStateException("Invalid JavaFX resource path: " + path, e);
             }
+        }
+
+        URL resource = AppNavigator.class.getResource(path);
+        if (resource != null) {
+            return resource;
         }
 
         throw new IllegalStateException("JavaFX resource not found: " + path);

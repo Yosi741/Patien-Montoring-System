@@ -21,6 +21,7 @@ public class SchemaInitializer {
             createUsers(statement);
             migrateUsers(connection, statement);
             createUserProfiles(statement);
+            migrateUserProfiles(statement);
             createPasswordResetTokens(statement);
             createEmailOutbox(statement);
             createPatients(statement);
@@ -34,6 +35,7 @@ public class SchemaInitializer {
             createMedicalHistory(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
+            createBillingRecords(statement);
             createMessages(statement);
             createNotifications(statement);
             migrateNotifications(statement);
@@ -122,11 +124,23 @@ public class SchemaInitializer {
     private static void createUserProfiles(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS user_profiles ("
                 + "username TEXT PRIMARY KEY,"
+                + "full_name TEXT,"
                 + "email TEXT,"
                 + "phone TEXT,"
+                + "address TEXT,"
+                + "duty_status TEXT NOT NULL DEFAULT 'On Duty',"
+                + "profile_photo_path TEXT,"
                 + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE"
                 + ")");
+    }
+
+    private static void migrateUserProfiles(Statement statement) throws SQLException {
+        addColumnIfMissing(statement, "user_profiles", "full_name", "TEXT");
+        addColumnIfMissing(statement, "user_profiles", "address", "TEXT");
+        addColumnIfMissing(statement, "user_profiles", "duty_status", "TEXT NOT NULL DEFAULT 'On Duty'");
+        addColumnIfMissing(statement, "user_profiles", "profile_photo_path", "TEXT");
+        statement.execute("UPDATE user_profiles SET duty_status = 'On Duty' WHERE duty_status IS NULL OR TRIM(duty_status) = ''");
     }
 
     private static void createPasswordResetTokens(Statement statement) throws SQLException {
@@ -299,6 +313,24 @@ public class SchemaInitializer {
                 + "uploaded_at TEXT NOT NULL,"
                 + "extracted_summary TEXT,"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
+                + ")");
+    }
+
+    private static void createBillingRecords(Statement statement) throws SQLException {
+        statement.execute("CREATE TABLE IF NOT EXISTS billing_records ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "invoice_no TEXT NOT NULL UNIQUE,"
+                + "patient_id TEXT NOT NULL,"
+                + "patient_name TEXT,"
+                + "service_name TEXT NOT NULL,"
+                + "visit_type TEXT,"
+                + "amount REAL NOT NULL,"
+                + "payment_status TEXT NOT NULL,"
+                + "payment_method TEXT,"
+                + "notes TEXT,"
+                + "created_at TEXT NOT NULL,"
+                + "paid_at TEXT,"
+                + "created_by TEXT"
                 + ")");
     }
 

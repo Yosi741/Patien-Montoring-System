@@ -1,163 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane
-        prefWidth="1200.0"
-        prefHeight="760.0"
-        styleClass="dashboard-page"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.dashboard.DashboardController">
+<VBox prefWidth="1120.0"
+      prefHeight="760.0"
+      styleClass="dashboard-page"
+      xmlns="http://javafx.com/javafx/17.0.15"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pages.dashboard.DashboardController">
 
-    <center>
-        <ScrollPane fitToWidth="true" styleClass="scroll-clear dashboard-scroll">
-            <content>
-                <VBox spacing="22.0" styleClass="dashboard-content">
-                    <padding>
-                        <Insets bottom="28.0" left="28.0" right="28.0" top="24.0" />
-                    </padding>
+    <ScrollPane fitToWidth="true" styleClass="scroll-clear dashboard-scroll">
+        <content>
+            <VBox spacing="24.0" styleClass="dashboard-content">
+                <padding>
+                    <Insets top="6.0" right="4.0" bottom="28.0" left="4.0" />
+                </padding>
 
-                    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="dashboard-hero">
-                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                            <Label fx:id="welcomeLabel" text="Welcome" styleClass="dashboard-welcome" />
-                            <Label fx:id="roleLabel" text="Role | Section" styleClass="dashboard-role-text" />
-                            <Label text="Clinic Overview" styleClass="dashboard-page-title" />
-                            <Label text="Clinic overview for patients, appointments, and alerts."
-                                   wrapText="true"
-                                   styleClass="dashboard-page-subtitle" />
-                        </VBox>
-
-                        <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="dashboard-action-row">
-                            <Button text="Open Patients" onAction="#openPatientList"
-                                    styleClass="dashboard-action-primary" />
-                        </HBox>
-                    </HBox>
-
-                    <TilePane hgap="16.0" vgap="16.0" prefColumns="4" tileAlignment="TOP_LEFT">
-                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-blue">
-                            <Label text="Total Patients" styleClass="dashboard-kpi-label" />
-                            <Label fx:id="totalPatientsLabel" text="0" styleClass="dashboard-kpi-value" />
-                            <Label text="All time" styleClass="dashboard-kpi-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-green">
-                            <Label text="Active Patients" styleClass="dashboard-kpi-label" />
-                            <Label fx:id="activePatientsLabel" text="0" styleClass="dashboard-kpi-value" />
-                            <Label text="Active in clinic" styleClass="dashboard-kpi-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-red">
-                            <Label text="Critical / Emergency" styleClass="dashboard-kpi-label" />
-                            <Label fx:id="criticalPatientsLabel" text="0" styleClass="dashboard-kpi-value" />
-                            <Label text="Needs same-day review" styleClass="dashboard-kpi-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" styleClass="dashboard-kpi-card dashboard-kpi-orange">
-                            <Label text="Active Alerts" styleClass="dashboard-kpi-label" />
-                            <Label fx:id="activeAlertsLabel" text="0" styleClass="dashboard-kpi-value" />
-                            <Label text="Open patient alerts" styleClass="dashboard-kpi-caption" />
-                        </VBox>
-                    </TilePane>
-
-                    <GridPane hgap="18.0" vgap="18.0">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="33.33" />
-                            <ColumnConstraints percentWidth="33.33" />
-                            <ColumnConstraints percentWidth="33.33" />
-                        </columnConstraints>
-
-                        <VBox spacing="14.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                              styleClass="dashboard-panel-card">
-                            <Label text="Patient Priority Summary" styleClass="dashboard-panel-title" />
-                            <VBox fx:id="prioritySummaryBox" spacing="10.0" />
-                        </VBox>
-
-                        <VBox spacing="14.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
-                              styleClass="dashboard-panel-card">
-                            <Label text="Active Alerts By Severity" styleClass="dashboard-panel-title" />
-                            <VBox fx:id="activeAlertSeverityBox" spacing="10.0" />
-                            <Button text="View all alerts" onAction="#openAlertCenter"
-                                    maxWidth="Infinity"
-                                    styleClass="dashboard-alert-link" />
-                        </VBox>
-
-                        <VBox spacing="16.0" GridPane.columnIndex="2" GridPane.rowIndex="0"
-                              styleClass="dashboard-panel-card dashboard-vitals-card">
-                            <Label text="Vitals Today" styleClass="dashboard-panel-title" />
-                            <Label fx:id="recentVitalsTodayLabel" text="0" styleClass="dashboard-vitals-value" />
-                            <Label text="Recent vital readings recorded today"
-                                   wrapText="true"
-                                   styleClass="dashboard-page-subtitle" />
-                            <Region VBox.vgrow="ALWAYS" />
-                            <Button text="View Patients" onAction="#openPatientList"
-                                    maxWidth="Infinity"
-                                    styleClass="dashboard-soft-button" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                              styleClass="dashboard-mini-card">
-                            <Label text="Scheduling Today" styleClass="dashboard-mini-label" />
-                            <Label fx:id="appointmentsTodayLabel" text="0" styleClass="dashboard-mini-value success-value" />
-                            <Label text="Appointments scheduled today" wrapText="true" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1"
-                              styleClass="dashboard-mini-card">
-                            <Label text="Pending Checkups / Reminders" styleClass="dashboard-mini-label" />
-                            <Label fx:id="pendingRemindersLabel" text="0" styleClass="dashboard-mini-value warning-value" />
-                            <Label text="Open clinic follow-up items" wrapText="true" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2"
-                              styleClass="dashboard-mini-card">
-                            <Label text="Overdue Follow-ups" styleClass="dashboard-mini-label" />
-                            <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="dashboard-mini-value danger-value" />
-                            <Label text="Needs follow-up soon" wrapText="true" styleClass="dashboard-mini-caption" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2"
-                              styleClass="dashboard-mini-card">
-                            <Label text="Upcoming Checkups" styleClass="dashboard-mini-label" />
-                            <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="dashboard-mini-value warning-value" />
-                            <Label text="Due soon" wrapText="true" styleClass="dashboard-mini-caption" />
-                        </VBox>
-                    </GridPane>
-
-                    <GridPane hgap="18.0" vgap="18.0">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="58.0" />
-                            <ColumnConstraints percentWidth="42.0" />
-                        </columnConstraints>
-
-                        <VBox spacing="14.0" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                              styleClass="dashboard-panel-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Recent Alerts" styleClass="dashboard-panel-title" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Label text="Click a row to open alerts and notifications" styleClass="dashboard-mini-caption" />
-                            </HBox>
-                            <VBox fx:id="recentAlertsBox" spacing="10.0" />
-                        </VBox>
-
-                        <VBox spacing="14.0" GridPane.columnIndex="1" GridPane.rowIndex="0"
-                              styleClass="dashboard-panel-card">
-                            <Label text="Latest Vitals" styleClass="dashboard-panel-title" />
-                            <VBox fx:id="latestVitalsBox" spacing="10.0" />
-                        </VBox>
-                    </GridPane>
-
-                    <VBox spacing="10.0" styleClass="dashboard-system-card">
-                        <Label text="System Status" styleClass="dashboard-panel-title" />
-                        <Label fx:id="refreshStatusLabel" text="Dashboard not refreshed yet." wrapText="true"
-                               styleClass="status-info" />
-                        <Label fx:id="databaseStatusLabel" text="Database status" wrapText="true"
-                               styleClass="status-success" />
+                <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="dashboard-header">
+                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                        <Label fx:id="welcomeLabel" text="Welcome back" styleClass="dashboard-welcome" />
+                        <Label fx:id="roleLabel" text="Role | Section" styleClass="dashboard-role-text" />
+                        <Label text="Here’s what’s happening at your urgent care clinic today."
+                               wrapText="true"
+                               styleClass="dashboard-page-subtitle" />
                     </VBox>
+
+                    <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                        <Button text="Open Patients" onAction="#openPatientList" styleClass="primary-button" />
+                        <Button text="Appointments" onAction="#openScheduling" styleClass="secondary-button" />
+                        <Button text="Alerts" onAction="#openAlertCenter" styleClass="secondary-button" />
+                    </HBox>
+                </HBox>
+
+                <TilePane hgap="16.0" vgap="16.0" prefColumns="4" tileAlignment="TOP_LEFT" styleClass="dashboard-content-grid">
+                    <VBox spacing="10.0" styleClass="metric-card metric-card-blue">
+                        <Label text="Total Patients" styleClass="metric-title" />
+                        <Label fx:id="totalPatientsLabel" text="0" styleClass="metric-value" />
+                        <Label text="Registered clinic records" styleClass="dashboard-kpi-caption" />
+                    </VBox>
+
+                    <VBox spacing="10.0" styleClass="metric-card metric-card-purple">
+                        <Label text="Today’s Appointments" styleClass="metric-title" />
+                        <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value" />
+                        <Label text="Scheduled for today" styleClass="dashboard-kpi-caption" />
+                    </VBox>
+
+                    <VBox spacing="10.0" styleClass="metric-card metric-card-cyan">
+                        <Label text="Waiting Now" styleClass="metric-title" />
+                        <Label fx:id="waitingNowLabel" text="0" styleClass="metric-value" />
+                        <Label text="Pending follow-ups / check-ins" styleClass="dashboard-kpi-caption" />
+                    </VBox>
+
+                    <VBox spacing="10.0" styleClass="metric-card metric-card-danger">
+                        <Label text="Active Alerts" styleClass="metric-title" />
+                        <Label fx:id="activeAlertsLabel" text="0" styleClass="metric-value" />
+                        <Label text="Requires attention" styleClass="dashboard-kpi-caption" />
+                    </VBox>
+                </TilePane>
+
+                <GridPane hgap="18.0" vgap="18.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="62.0" />
+                        <ColumnConstraints percentWidth="38.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="16.0" styleClass="chart-card" GridPane.columnIndex="0">
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox spacing="4.0">
+                                <Label text="Patient Flow" styleClass="section-title" />
+                                <Label text="Patients and appointments across the current clinic week."
+                                       styleClass="dashboard-page-subtitle" />
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="refreshStatusLabel" text="Updated just now" styleClass="muted-text" />
+                        </HBox>
+
+                        <LineChart fx:id="patientFlowChart"
+                                   animated="false"
+                                   createSymbols="true"
+                                   legendVisible="true"
+                                   minHeight="280.0"
+                                   prefHeight="320.0"
+                                   styleClass="dashboard-line-chart">
+                            <xAxis>
+                                <CategoryAxis />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis autoRanging="true" forceZeroInRange="false" />
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+
+                    <VBox spacing="16.0" styleClass="chart-card" GridPane.columnIndex="1">
+                        <VBox spacing="4.0">
+                            <Label text="Visit Status Distribution" styleClass="section-title" />
+                            <Label text="Live clinic snapshot based on today’s patient and follow-up activity."
+                                   wrapText="true"
+                                   styleClass="dashboard-page-subtitle" />
+                        </VBox>
+                        <VBox fx:id="visitStatusDistributionBox" spacing="10.0" />
+                    </VBox>
+                </GridPane>
+
+                <GridPane hgap="18.0" vgap="18.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" />
+                        <ColumnConstraints percentWidth="50.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="14.0" styleClass="chart-card" GridPane.columnIndex="0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Recent Alerts" styleClass="section-title" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button text="Open Alerts" onAction="#openAlertCenter" styleClass="secondary-button" />
+                        </HBox>
+                        <VBox fx:id="recentAlertsBox" spacing="10.0" />
+                    </VBox>
+
+                    <VBox spacing="14.0" styleClass="chart-card" GridPane.columnIndex="1">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Latest Vitals" styleClass="section-title" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="recentVitalsTodayLabel" text="0 readings today" styleClass="muted-text" />
+                        </HBox>
+                        <VBox fx:id="latestVitalsBox" spacing="10.0" />
+                    </VBox>
+
+                    <VBox spacing="14.0" styleClass="chart-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="Follow-up Queue" styleClass="section-title" />
+                        <VBox spacing="12.0">
+                            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
+                                <Label text="Pending Follow-ups" styleClass="muted-text" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="pendingRemindersLabel" text="0" styleClass="metric-value compact-metric-value" />
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
+                                <Label text="Overdue" styleClass="muted-text" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
+                                <Label text="Due Today" styleClass="muted-text" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value success-value" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="14.0" styleClass="chart-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="Billing / Payments" styleClass="section-title" />
+                        <Label text="Simple visit billing will be added for urgent care visits."
+                               wrapText="true"
+                               styleClass="dashboard-page-subtitle" />
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
+                            <Label text="Unpaid Visits" styleClass="muted-text" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="—" styleClass="metric-value compact-metric-value" />
+                        </HBox>
+                        <Button text="Open Billing" onAction="#openBilling" styleClass="secondary-button" />
+                    </VBox>
+                </GridPane>
+
+                <VBox spacing="8.0" styleClass="chart-card">
+                    <Label text="Clinic System" styleClass="section-title" />
+                    <Label fx:id="databaseStatusLabel" text="Database status" wrapText="true" styleClass="muted-text" />
                 </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-</BorderPane>
+            </VBox>
+        </content>
+    </ScrollPane>
+</VBox>

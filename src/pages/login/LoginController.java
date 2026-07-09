@@ -53,7 +53,7 @@ public class LoginController implements FxController {
     @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
-        char[] password = passwordField.getText().toCharArray();
+        String password = passwordField.getText() == null ? "" : passwordField.getText();
 
         try {
             if (sqliteUserDao.verifyPassword(username, password)) {
@@ -98,7 +98,7 @@ public class LoginController implements FxController {
         requestGrid.add(new Label("Enter your Staff ID"), 0, 1);
         requestGrid.add(staffIdField, 1, 1);
         requestDialog.getDialogPane().setContent(requestGrid);
-        ButtonType submitType = new ButtonType("Request Reset", ButtonBar.ButtonData.OK_DONE);
+        ButtonType submitType = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
         requestDialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, submitType);
 
         if (requestDialog.showAndWait().orElse(ButtonType.CANCEL) != submitType) {
@@ -109,7 +109,11 @@ public class LoginController implements FxController {
             ForgotPasswordService.ForgotPasswordResult result = forgotPasswordService.requestReset(
                     resetUsername.getText(),
                     staffIdField.getText());
-            showForgotPasswordResult(result);
+            if (result.status() == ForgotPasswordService.Status.READY_FOR_RESET) {
+                showPasswordResetDialog(result.username(), result.staffId());
+            } else {
+                showForgotPasswordResult(result);
+            }
         } catch (Exception e) {
             statusLabel.setText("Could not process password reset request: " + e.getMessage());
         }
@@ -123,22 +127,53 @@ public class LoginController implements FxController {
         switch (result.status()) {
             case EMPTY_CREDENTIALS -> statusLabel.setText("Username and Staff ID are required.");
             case CREDENTIALS_MISMATCH -> statusLabel.setText("The username and staff ID do not match our records.");
-            case NO_EMAIL_CONFIGURED -> statusLabel.setText("No email is configured for this account. Please contact an administrator.");
-            case EMAIL_QUEUED -> {
-                statusLabel.setText("Password reset email was queued for the registered email address.");
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Password Reset Requested");
-                alert.setHeaderText("Reset request queued");
-                String maskedEmail = result.maskedEmail();
-                if (maskedEmail == null || maskedEmail.isBlank()) {
-                    alert.setContentText("Password reset email was queued for the registered email address.");
-                } else {
-                    alert.setContentText("Password reset email was queued for " + maskedEmail + ".");
-                }
-                app.helpers.DialogThemeHelper.apply(alert);
-                alert.initOwner(usernameField.getScene().getWindow());
-                alert.showAndWait();
-            }
+            case READY_FOR_RESET -> statusLabel.setText("Enter a new password to finish the reset.");
+        }
+    }
+
+    private void showPasswordResetDialog(String username, String staffId) {
+        Dialog<ButtonType> resetDialog = new Dialog<>();
+        resetDialog.setTitle("Update Password");
+        app.helpers.DialogThemeHelper.apply(resetDialog);
+        resetDialog.initOwner(usernameField.getScene().getWindow());
+
+        PasswordField newPasswordField = new PasswordField();
+        newPasswordField.setPromptText("New Password");
+        PasswordField confirmPasswordField = new PasswordField();
+        confirmPasswordField.setPromptText("Confirm Password");
+
+        GridPane resetGrid = new GridPane();
+        resetGrid.setHgap(12);
+        resetGrid.setVgap(10);
+        resetGrid.add(new Label("Username"), 0, 0);
+        resetGrid.add(new Label(username), 1, 0);
+        resetGrid.add(new Label("Staff ID"), 0, 1);
+        resetGrid.add(new Label(staffId), 1, 1);
+        resetGrid.add(new Label("New Password"), 0, 2);
+        resetGrid.add(newPasswordField, 1, 2);
+        resetGrid.add(new Label("Confirm Password"), 0, 3);
+        resetGrid.add(confirmPasswordField, 1, 3);
+        resetDialog.getDialogPane().setContent(resetGrid);
+
+        ButtonType updateType = new ButtonType("Update Password", ButtonBar.ButtonData.OK_DONE);
+        resetDialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, updateType);
+
+        if (resetDialog.showAndWait().orElse(ButtonType.CANCEL) != updateType) {
+            return;
+        }
+
+        try {
+            forgotPasswordService.updatePassword(username, staffId, newPasswordField.getText(), confirmPasswordField.getText());
+            statusLabel.setText("Password was updated. You can now log in with the new password.");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Password Updated");
+            alert.setHeaderText("Password reset complete");
+            alert.setContentText("Password was updated. You can now log in with the new password.");
+            app.helpers.DialogThemeHelper.apply(alert);
+            alert.initOwner(usernameField.getScene().getWindow());
+            alert.showAndWait();
+        } catch (Exception e) {
+            statusLabel.setText(e.getMessage());
         }
     }
 

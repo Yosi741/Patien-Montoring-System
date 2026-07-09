@@ -87,7 +87,8 @@ public class SqlitePatientDao implements PatientDao {
         PatientFilter safeFilter = filter == null ? new PatientFilter() : filter;
         ArrayList<String> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority ")
+        sql.append("SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, ")
+                .append("COALESCE(blood_type, 'Unknown') AS blood_type ")
                 .append("FROM patients ")
                 .append("WHERE 1 = 1 ");
 
@@ -107,7 +108,27 @@ public class SqlitePatientDao implements PatientDao {
             sql.append("AND room = ? ");
             params.add(safeFilter.room);
         }
-        if (hasText(safeFilter.status) && !"All".equalsIgnoreCase(safeFilter.status)) {
+        if (hasText(safeFilter.displayStatus) && !"All".equalsIgnoreCase(safeFilter.displayStatus)) {
+            switch (safeFilter.displayStatus.trim().toUpperCase()) {
+                case "ACTIVE":
+                    sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
+                            .append("AND UPPER(priority) NOT IN ('CRITICAL', 'EMERGENCY') ");
+                    break;
+                case "CRITICAL":
+                    sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
+                            .append("AND UPPER(priority) IN ('CRITICAL', 'EMERGENCY') ");
+                    break;
+                case "DISCHARGED":
+                    sql.append("AND UPPER(status) = 'DISCHARGED' ");
+                    break;
+                case "ARCHIVED":
+                case "INACTIVE":
+                    sql.append("AND UPPER(status) IN ('DECEASED', 'INACTIVE', 'DEACTIVATED') ");
+                    break;
+                default:
+                    break;
+            }
+        } else if (hasText(safeFilter.status) && !"All".equalsIgnoreCase(safeFilter.status)) {
             if ("ACTIVE".equalsIgnoreCase(safeFilter.status)) {
                 sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE') ");
             } else {
@@ -152,7 +173,8 @@ public class SqlitePatientDao implements PatientDao {
                             resultSet.getString("section"),
                             resultSet.getString("room"),
                             resultSet.getString("status"),
-                            resultSet.getString("priority")
+                            resultSet.getString("priority"),
+                            resultSet.getString("blood_type")
                     ));
                 }
             }
@@ -515,9 +537,10 @@ public class SqlitePatientDao implements PatientDao {
         private final String room;
         private final String status;
         private final String priority;
+        private final String bloodType;
 
         public PatientListRow(String patientId, String name, String birthDate, String gender,
-                              String section, String room, String status, String priority) {
+                              String section, String room, String status, String priority, String bloodType) {
             this.patientId = patientId;
             this.name = name;
             this.birthDate = birthDate;
@@ -526,6 +549,7 @@ public class SqlitePatientDao implements PatientDao {
             this.room = room;
             this.status = status;
             this.priority = priority;
+            this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType.trim();
         }
 
         public String getPatientId() { return patientId; }
@@ -536,6 +560,7 @@ public class SqlitePatientDao implements PatientDao {
         public String getRoom() { return room; }
         public String getStatus() { return status; }
         public String getPriority() { return priority; }
+        public String getBloodType() { return bloodType; }
     }
 
     public static class PatientFilter {
@@ -543,6 +568,7 @@ public class SqlitePatientDao implements PatientDao {
         private String section = "All";
         private String room = "All";
         private String status = "All";
+        private String displayStatus = "All";
         private String priority = "All";
         private boolean criticalEmergencyOnly;
         private boolean recentlyUpdatedOnly;
@@ -555,6 +581,8 @@ public class SqlitePatientDao implements PatientDao {
         public void setRoom(String room) { this.room = room == null ? "All" : room; }
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status == null ? "All" : status; }
+        public String getDisplayStatus() { return displayStatus; }
+        public void setDisplayStatus(String displayStatus) { this.displayStatus = displayStatus == null ? "All" : displayStatus; }
         public String getPriority() { return priority; }
         public void setPriority(String priority) { this.priority = priority == null ? "All" : priority; }
         public boolean isCriticalEmergencyOnly() { return criticalEmergencyOnly; }
