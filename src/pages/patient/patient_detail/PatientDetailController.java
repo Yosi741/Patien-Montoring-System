@@ -29,9 +29,8 @@ import pages.patient.services.PatientWriteService;
 import pages.patient.services.VitalThresholdService;
 import pages.patient.services.VitalTypeCatalog;
 import pages.patient.services.VitalsTrendService;
-import app.AppShell;
-import app.FxController;
-import app.SessionContext;
+import app.core.AppShell;
+import app.contracts.AppController;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
@@ -42,10 +41,9 @@ import users.Session;
 import javafx.scene.control.Alert;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-public class PatientDetailController implements FxController {
+public class PatientDetailController implements AppController {
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();

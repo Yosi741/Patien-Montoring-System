@@ -1,6 +1,6 @@
 package pages.patient.dao;
 
-import app.DatabaseManager;
+import app.database.DatabaseManager;
 import pages.patient.VitalRecord;
 
 import java.sql.Connection;

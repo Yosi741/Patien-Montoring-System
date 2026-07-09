@@ -1,7 +1,7 @@
 package pages.dashboard.services;
 
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

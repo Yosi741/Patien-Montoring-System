@@ -1,7 +1,7 @@
 package pages.patient.patient_board;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.DialogHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
@@ -35,7 +35,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 
-public class PatientListController implements FxController {
+public class PatientListController implements AppController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 

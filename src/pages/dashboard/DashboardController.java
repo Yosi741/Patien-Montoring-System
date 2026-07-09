@@ -1,7 +1,7 @@
 package pages.dashboard;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -22,9 +22,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class DashboardController implements FxController {
+public class DashboardController implements AppController {
 
     private final DashboardMetricsService metricsService = new DashboardMetricsService();
     private AppShell appShell;

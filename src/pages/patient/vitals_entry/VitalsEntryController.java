@@ -13,8 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import pages.patient.services.VitalTypeCatalog;
 import pages.patient.services.VitalsWriteService;
-import app.AppNavigator;
-import app.SessionContext;
+import app.navigation.AppNavigator;
+import app.core.SessionContext;
 import pages.notification.NotificationHelper;
 import pages.user.User;
 

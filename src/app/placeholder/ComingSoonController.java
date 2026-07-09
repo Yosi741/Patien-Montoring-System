@@ -1,9 +1,11 @@
-package app;
+package app.placeholder;
 
+import app.contracts.AppController;
+import app.core.AppShell;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class PlaceholderController implements FxController {
+public class ComingSoonController implements AppController {
 
     @FXML
     private Label titleLabel;

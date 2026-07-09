@@ -1,8 +1,8 @@
 package pages.user.user_directory;
 
-import app.AppShell;
-import app.FxController;
-import app.SessionContext;
+import app.core.AppShell;
+import app.contracts.AppController;
+import app.core.SessionContext;
 import app.helpers.PermissionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -31,7 +31,7 @@ import users.Session;
 import java.io.File;
 import java.util.Locale;
 
-public class UserDirectoryController implements FxController {
+public class UserDirectoryController implements AppController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();

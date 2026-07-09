@@ -1,7 +1,7 @@
 package pages.patient.dao;
 
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 import pages.patient.MedicalFile;
 
 import java.sql.Connection;

@@ -15,7 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import app.AppNavigator;
+import app.navigation.AppNavigator;
 import pages.notification.NotificationHelper;
 import pages.user.User;
 

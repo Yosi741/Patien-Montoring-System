@@ -11,7 +11,7 @@
         prefHeight="600.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="app.PlaceholderController" styleClass="content-page">
+        fx:controller="app.placeholder.ComingSoonController" styleClass="content-page">
 
     <padding>
         <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />

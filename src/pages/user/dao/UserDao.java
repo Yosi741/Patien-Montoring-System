@@ -1,6 +1,6 @@
 package pages.user.dao;
 
-import app.Dao;
+import app.database.Dao;
 import pages.user.User;
 
 import java.sql.SQLException;

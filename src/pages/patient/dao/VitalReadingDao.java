@@ -1,6 +1,6 @@
 package pages.patient.dao;
 
-import app.Dao;
+import app.database.Dao;
 import pages.patient.VitalRecord;
 
 import java.sql.SQLException;

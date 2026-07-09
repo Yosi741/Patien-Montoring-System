@@ -1,5 +1,7 @@
-package app;
+package app.navigation;
 
+import app.contracts.AppController;
+import app.core.AppShell;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -25,8 +27,8 @@ public class AppNavigator {
             FXMLLoader loader = new FXMLLoader(resolve(fxmlPath));
             Parent parent = loader.load();
             Object controller = loader.getController();
-            if (controller instanceof FxController) {
-                ((FxController) controller).setAppShell(appShell);
+            if (controller instanceof AppController) {
+                ((AppController) controller).setAppShell(appShell);
             }
             appShell.applyThemeTo(parent);
             return new LoadedView(parent, controller);

@@ -1,11 +1,15 @@
-package app;
+package app.core;
 
+import app.contracts.AppController;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
+import app.layout.AppLayoutController;
+import app.navigation.AppNavigator;
+import app.placeholder.ComingSoonController;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import pages.messages.MessagingController;
-import pages.notification.NotificationCenterController;
 import pages.patient.medical_files.MedicalFilesController;
 import pages.patient.patient_board.PatientListController;
 import pages.patient.patient_detail.PatientDetailController;
@@ -22,7 +26,7 @@ public class AppShell extends Application {
     private Stage primaryStage;
     private AppNavigator navigator;
     private AppLayoutController layoutController;
-    private FxController currentContentController;
+    private AppController currentContentController;
     private String databaseStatus = "Local clinic database not initialized";
 
     public static void launchApp(String[] args) {
@@ -212,9 +216,9 @@ public class AppShell extends Application {
 
     public void showPlaceholder(String title, String subtitle, String body) {
         ensureShell("Smart Urgent Care Clinic System - " + title);
-        AppNavigator.LoadedView placeholder = navigator.loadView("/app/PlaceholderView.fxml");
-        if (placeholder.getController() instanceof PlaceholderController) {
-            ((PlaceholderController) placeholder.getController()).setContent(title, subtitle, body);
+        AppNavigator.LoadedView placeholder = navigator.loadView("/app/placeholder/ComingSoonView.fxml");
+        if (placeholder.getController() instanceof ComingSoonController) {
+            ((ComingSoonController) placeholder.getController()).setContent(title, subtitle, body);
         }
         setShellLoadedContent(placeholder);
         primaryStage.setTitle("Smart Urgent Care Clinic System - " + title);
@@ -311,7 +315,7 @@ public class AppShell extends Application {
             return;
         }
 
-        AppNavigator.LoadedView layout = navigator.loadView("/app/AppLayout.fxml");
+        AppNavigator.LoadedView layout = navigator.loadView("/app/layout/AppLayout.fxml");
         layoutController = (AppLayoutController) layout.getController();
         Scene scene = new Scene(layout.getParent(), 1240, 780);
         applyTheme(scene);
@@ -323,8 +327,8 @@ public class AppShell extends Application {
 
     private void setShellLoadedContent(AppNavigator.LoadedView loaded) {
         disposeCurrentContent();
-        if (loaded.getController() instanceof FxController) {
-            currentContentController = (FxController) loaded.getController();
+        if (loaded.getController() instanceof AppController) {
+            currentContentController = (AppController) loaded.getController();
         } else {
             currentContentController = null;
         }

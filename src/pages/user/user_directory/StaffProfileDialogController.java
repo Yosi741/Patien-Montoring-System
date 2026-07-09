@@ -1,7 +1,6 @@
 package pages.user.user_directory;
 
-import app.AppNavigator;
-import app.SessionContext;
+import app.navigation.AppNavigator;
 import app.helpers.PermissionHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

@@ -1,7 +1,6 @@
 package pages.user.user_form;
 
-import app.AppNavigator;
-import app.SessionContext;
+import app.navigation.AppNavigator;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

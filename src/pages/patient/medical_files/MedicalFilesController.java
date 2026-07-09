@@ -1,7 +1,7 @@
 package pages.patient.medical_files;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -39,7 +39,7 @@ import users.Session;
 import java.io.File;
 import java.util.Locale;
 
-public class MedicalFilesController implements FxController {
+public class MedicalFilesController implements AppController {
 
     private final SqliteMedicalFileDao fileDao = new SqliteMedicalFileDao();
     private final MedicalFilePreviewService previewService = new MedicalFilePreviewService();

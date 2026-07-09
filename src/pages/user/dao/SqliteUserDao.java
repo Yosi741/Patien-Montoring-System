@@ -1,7 +1,7 @@
 package pages.user.dao;
 
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 import pages.user.User;
 
 import java.sql.Connection;

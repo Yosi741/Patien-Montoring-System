@@ -1,6 +1,6 @@
 package pages.scheduling.appointment_form;
 
-import app.AppNavigator;
+import app.navigation.AppNavigator;
 import app.helpers.DatePickerHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

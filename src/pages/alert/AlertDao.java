@@ -1,6 +1,6 @@
 package pages.alert;
 
-import app.Dao;
+import app.database.Dao;
 
 import java.sql.SQLException;
 import java.util.List;

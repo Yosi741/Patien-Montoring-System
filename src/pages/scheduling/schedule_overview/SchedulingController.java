@@ -22,8 +22,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.DialogHelper;
 import app.helpers.DialogThemeHelper;
 import pages.notification.NotificationHelper;
@@ -37,7 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
-public class SchedulingController implements FxController {
+public class SchedulingController implements AppController {
 
     private static final DateTimeFormatter TIME_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("h:mm a");
     private static final DateTimeFormatter[] DATE_TIME_FORMATS = new DateTimeFormatter[] {

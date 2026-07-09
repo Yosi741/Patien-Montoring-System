@@ -1,8 +1,8 @@
 package app.helpers;
 
 import javafx.scene.control.Dialog;
-import app.AppNavigator;
-import app.AppShell;
+import app.navigation.AppNavigator;
+import app.core.AppShell;
 
 public final class DialogThemeHelper {
 

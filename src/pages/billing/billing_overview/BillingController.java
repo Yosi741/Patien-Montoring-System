@@ -1,7 +1,7 @@
 package pages.billing.billing_overview;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.DialogHelper;
 import app.helpers.DialogThemeHelper;
 import app.helpers.PermissionHelper;
@@ -39,7 +39,7 @@ import users.Session;
 import java.util.Locale;
 import java.util.Optional;
 
-public class BillingController implements FxController {
+public class BillingController implements AppController {
 
     private final BillingService billingService = new BillingService();
     private final ObservableList<BillingRecord> invoices = FXCollections.observableArrayList();

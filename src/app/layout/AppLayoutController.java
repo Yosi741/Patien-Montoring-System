@@ -1,5 +1,9 @@
-package app;
+package app.layout;
 
+import app.contracts.AppController;
+import app.core.AppFeatures;
+import app.core.AppShell;
+import app.core.SessionContext;
 import app.helpers.PermissionHelper;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -24,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class AppLayoutController implements FxController {
+public class AppLayoutController implements AppController {
 
     private static final DateTimeFormatter TOP_BAR_TIME = DateTimeFormatter.ofPattern("hh:mm a | EEE, MMM d");
 

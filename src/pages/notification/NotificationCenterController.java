@@ -1,7 +1,7 @@
 package pages.notification;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import javafx.animation.KeyFrame;
@@ -23,7 +23,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import users.Session;
@@ -36,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class NotificationCenterController implements FxController {
+public class NotificationCenterController implements AppController {
 
     private final NotificationCenterService notificationService = new NotificationCenterService();
     private final ObservableList<SqliteNotificationDao.NotificationRow> rows = FXCollections.observableArrayList();

@@ -1,7 +1,7 @@
 package pages.messages;
 
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import app.helpers.FxFileOpenHelper;
 import app.helpers.PermissionHelper;
 import javafx.application.Platform;
@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class MessagingController implements FxController {
+public class MessagingController implements AppController {
 
     private static final Path DEATH_CERTIFICATE_DIR = Path.of("data", "generated", "death-certificates")
             .toAbsolutePath()

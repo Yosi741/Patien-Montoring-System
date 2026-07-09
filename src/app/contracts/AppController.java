@@ -1,6 +1,8 @@
-package app;
+package app.contracts;
 
-public interface FxController {
+import app.core.AppShell;
+
+public interface AppController {
     void setAppShell(AppShell appShell);
 
     default void dispose() {

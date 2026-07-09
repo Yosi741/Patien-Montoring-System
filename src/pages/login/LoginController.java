@@ -13,13 +13,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import app.AppShell;
-import app.FxController;
+import app.core.AppShell;
+import app.contracts.AppController;
 import pages.user.User;
 
 import java.net.URL;
 
-public class LoginController implements FxController {
+public class LoginController implements AppController {
 
     private AppShell appShell;
     private final SqliteUserDao sqliteUserDao = new SqliteUserDao();

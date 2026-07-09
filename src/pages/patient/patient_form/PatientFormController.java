@@ -16,7 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import pages.patient.services.PatientWriteService;
-import app.AppNavigator;
+import app.navigation.AppNavigator;
 import app.helpers.DatePickerHelper;
 import app.helpers.DialogHelper;
 import pages.notification.NotificationHelper;

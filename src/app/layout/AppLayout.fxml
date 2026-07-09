@@ -18,7 +18,7 @@
             prefHeight="800.0"
             xmlns="http://javafx.com/javafx/17.0.15"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="app.AppLayoutController"
+            fx:controller="app.layout.AppLayoutController"
             styleClass="app-root">
 
     <left>

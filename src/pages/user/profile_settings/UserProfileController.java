@@ -1,7 +1,6 @@
 package pages.user.profile_settings;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -11,15 +10,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import pages.user.services.UserProfileService;
-import app.AppShell;
-import app.FxController;
-import app.SessionContext;
+import app.core.AppShell;
+import app.contracts.AppController;
+import app.core.SessionContext;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import users.Session;
 import pages.user.User;
 
-public class UserProfileController implements FxController {
+public class UserProfileController implements AppController {
 
     private AppShell appShell;
     private final UserProfileService profileService = new UserProfileService();
