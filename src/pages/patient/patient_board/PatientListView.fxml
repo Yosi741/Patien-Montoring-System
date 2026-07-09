@@ -23,7 +23,7 @@
 
                     <VBox spacing="14.0" styleClass="patient-table-card">
                         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="patient-toolbar">
-                            <TextField fx:id="searchField" prefHeight="30.0" prefWidth="713.0" promptText="Search by name, patient ID, or phone..." styleClass="global-search-field patient-search-field" HBox.hgrow="ALWAYS" />
+                            <TextField fx:id="searchField" prefHeight="30.0" prefWidth="713.0" promptText="Search by name, patient ID, phone, or email..." styleClass="global-search-field patient-search-field" HBox.hgrow="ALWAYS" />
                             <ComboBox fx:id="statusFilter" prefHeight="30.0" prefWidth="180.0" styleClass="control-input patient-status-filter" />
                             <Button onAction="#clearFilters" prefHeight="32.0" prefWidth="65.0" styleClass="secondary-button patient-toolbar-button" text="Clear" />
                             <Button fx:id="addPatientButton" onAction="#addPatient" prefHeight="32.0" prefWidth="106.0" styleClass="primary-button add-patient-button patient-toolbar-button" text="+ Add Patient" />

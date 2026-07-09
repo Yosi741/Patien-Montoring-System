@@ -20,6 +20,11 @@ public class Patient {
     private String diagnosis;
     private String medicalHistory;
     private String allergies;
+    private String phone;
+    private String email;
+    private String address;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
     private String familyHistory;
     private String deathDateTime;
     private String deathCause;
@@ -47,6 +52,11 @@ public class Patient {
         this.diagnosis = "";
         this.medicalHistory = "";
         this.allergies = "";
+        this.phone = "";
+        this.email = "";
+        this.address = "";
+        this.emergencyContactName = "";
+        this.emergencyContactPhone = "";
         this.familyHistory = "";
         this.deathDateTime = "";
         this.deathCause = "";
@@ -114,6 +124,26 @@ public class Patient {
 
     public String getAllergies() {
         return allergies;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone;
     }
 
     public String getFamilyHistory() {
@@ -210,6 +240,26 @@ public class Patient {
 
     public void setAllergies(String allergies) {
         this.allergies = allergies;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
     }
 
     public void setFamilyHistory(String familyHistory) {

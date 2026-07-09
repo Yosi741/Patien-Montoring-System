@@ -88,13 +88,17 @@ public class SqlitePatientDao implements PatientDao {
         ArrayList<String> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, ")
-                .append("COALESCE(blood_type, 'Unknown') AS blood_type ")
+                .append("COALESCE(blood_type, 'Unknown') AS blood_type, ")
+                .append("COALESCE(phone, '') AS phone, ")
+                .append("COALESCE(email, '') AS email ")
                 .append("FROM patients ")
                 .append("WHERE 1 = 1 ");
 
         if (hasText(safeFilter.search)) {
-            sql.append("AND (patient_id LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR (first_name || ' ' || last_name) LIKE ?) ");
+            sql.append("AND (patient_id LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR (first_name || ' ' || last_name) LIKE ? OR phone LIKE ? OR email LIKE ?) ");
             String like = "%" + safeFilter.search.trim() + "%";
+            params.add(like);
+            params.add(like);
             params.add(like);
             params.add(like);
             params.add(like);
@@ -174,7 +178,9 @@ public class SqlitePatientDao implements PatientDao {
                             resultSet.getString("room"),
                             resultSet.getString("status"),
                             resultSet.getString("priority"),
-                            resultSet.getString("blood_type")
+                            resultSet.getString("blood_type"),
+                            resultSet.getString("phone"),
+                            resultSet.getString("email")
                     ));
                 }
             }
@@ -192,7 +198,9 @@ public class SqlitePatientDao implements PatientDao {
 
     public Optional<PatientDetail> findDetailById(String patientId) throws SQLException {
         String sql = "SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, "
-                + "COALESCE(blood_type, 'Unknown') AS blood_type, diagnosis, "
+                + "COALESCE(blood_type, 'Unknown') AS blood_type, diagnosis, COALESCE(allergies, 'Unknown') AS allergies, "
+                + "COALESCE(phone, '') AS phone, COALESCE(email, '') AS email, COALESCE(address, '') AS address, "
+                + "COALESCE(emergency_contact_name, '') AS emergency_contact_name, COALESCE(emergency_contact_phone, '') AS emergency_contact_phone, "
                 + "COALESCE(assigned_doctor_username, '') AS assigned_doctor_username, "
                 + "COALESCE(assigned_staff_username, '') AS assigned_staff_username "
                 + "FROM patients WHERE patient_id = ?";
@@ -213,6 +221,12 @@ public class SqlitePatientDao implements PatientDao {
                             resultSet.getString("priority"),
                             resultSet.getString("blood_type"),
                             resultSet.getString("diagnosis"),
+                            resultSet.getString("allergies"),
+                            resultSet.getString("phone"),
+                            resultSet.getString("email"),
+                            resultSet.getString("address"),
+                            resultSet.getString("emergency_contact_name"),
+                            resultSet.getString("emergency_contact_phone"),
                             resultSet.getString("assigned_doctor_username"),
                             resultSet.getString("assigned_staff_username")
                     ));
@@ -224,8 +238,8 @@ public class SqlitePatientDao implements PatientDao {
 
     @Override
     public void save(Patient patient) throws SQLException {
-        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, diagnosis, updated_at) "
-                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) "
+        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, diagnosis, allergies, phone, email, address, emergency_contact_name, emergency_contact_phone, updated_at) "
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) "
                 + "ON CONFLICT(patient_id) DO UPDATE SET "
                 + "first_name = excluded.first_name, "
                 + "last_name = excluded.last_name, "
@@ -236,6 +250,12 @@ public class SqlitePatientDao implements PatientDao {
                 + "status = excluded.status, "
                 + "priority = excluded.priority, "
                 + "diagnosis = excluded.diagnosis, "
+                + "allergies = excluded.allergies, "
+                + "phone = excluded.phone, "
+                + "email = excluded.email, "
+                + "address = excluded.address, "
+                + "emergency_contact_name = excluded.emergency_contact_name, "
+                + "emergency_contact_phone = excluded.emergency_contact_phone, "
                 + "updated_at = CURRENT_TIMESTAMP";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -249,14 +269,20 @@ public class SqlitePatientDao implements PatientDao {
             statement.setString(8, patient.getStatus());
             statement.setString(9, priorityFor(patient));
             statement.setString(10, patient.getDiagnosis());
+            statement.setString(11, value(patient.getAllergies()).isBlank() ? "Unknown" : patient.getAllergies().trim());
+            statement.setString(12, value(patient.getPhone()));
+            statement.setString(13, value(patient.getEmail()));
+            statement.setString(14, value(patient.getAddress()));
+            statement.setString(15, value(patient.getEmergencyContactName()));
+            statement.setString(16, value(patient.getEmergencyContactPhone()));
             statement.executeUpdate();
         }
     }
 
     public void insertPatient(PatientWriteRecord patient) throws SQLException {
-        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, blood_type, diagnosis, "
+        String sql = "INSERT INTO patients(patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, blood_type, diagnosis, allergies, phone, email, address, emergency_contact_name, emergency_contact_phone, "
                 + "assigned_doctor_username, assigned_staff_username, created_at, updated_at) "
-                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             bindWriteRecord(statement, patient);
@@ -266,7 +292,7 @@ public class SqlitePatientDao implements PatientDao {
 
     public void updatePatient(PatientWriteRecord patient) throws SQLException {
         String sql = "UPDATE patients SET first_name = ?, last_name = ?, birth_date = ?, gender = ?, section = ?, room = ?, "
-                + "status = ?, priority = ?, blood_type = ?, diagnosis = ?, assigned_doctor_username = ?, assigned_staff_username = ?, "
+                + "status = ?, priority = ?, blood_type = ?, diagnosis = ?, allergies = ?, phone = ?, email = ?, address = ?, emergency_contact_name = ?, emergency_contact_phone = ?, assigned_doctor_username = ?, assigned_staff_username = ?, "
                 + "updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -280,9 +306,15 @@ public class SqlitePatientDao implements PatientDao {
             statement.setString(8, patient.getPriority());
             statement.setString(9, patient.getBloodType());
             statement.setString(10, patient.getDiagnosis());
-            statement.setString(11, patient.getAssignedDoctorUsername());
-            statement.setString(12, patient.getAssignedStaffUsername());
-            statement.setString(13, patient.getPatientId());
+            statement.setString(11, patient.getAllergies());
+            statement.setString(12, patient.getPhone());
+            statement.setString(13, patient.getEmail());
+            statement.setString(14, patient.getAddress());
+            statement.setString(15, patient.getEmergencyContactName());
+            statement.setString(16, patient.getEmergencyContactPhone());
+            statement.setString(17, patient.getAssignedDoctorUsername());
+            statement.setString(18, patient.getAssignedStaffUsername());
+            statement.setString(19, patient.getPatientId());
             statement.executeUpdate();
         }
     }
@@ -440,8 +472,14 @@ public class SqlitePatientDao implements PatientDao {
         statement.setString(9, patient.getPriority());
         statement.setString(10, patient.getBloodType());
         statement.setString(11, patient.getDiagnosis());
-        statement.setString(12, patient.getAssignedDoctorUsername());
-        statement.setString(13, patient.getAssignedStaffUsername());
+        statement.setString(12, patient.getAllergies());
+        statement.setString(13, patient.getPhone());
+        statement.setString(14, patient.getEmail());
+        statement.setString(15, patient.getAddress());
+        statement.setString(16, patient.getEmergencyContactName());
+        statement.setString(17, patient.getEmergencyContactPhone());
+        statement.setString(18, patient.getAssignedDoctorUsername());
+        statement.setString(19, patient.getAssignedStaffUsername());
     }
 
     private LocalDateTime parseSqliteDateTime(String value) {
@@ -518,6 +556,12 @@ public class SqlitePatientDao implements PatientDao {
         patient.setSection(resultSet.getString("section"));
         patient.setStatus(resultSet.getString("status"));
         patient.setDiagnosis(resultSet.getString("diagnosis"));
+        patient.setAllergies(resultSet.getString("allergies"));
+        patient.setPhone(resultSet.getString("phone"));
+        patient.setEmail(resultSet.getString("email"));
+        patient.setAddress(resultSet.getString("address"));
+        patient.setEmergencyContactName(resultSet.getString("emergency_contact_name"));
+        patient.setEmergencyContactPhone(resultSet.getString("emergency_contact_phone"));
         return patient;
     }
 
@@ -538,9 +582,11 @@ public class SqlitePatientDao implements PatientDao {
         private final String status;
         private final String priority;
         private final String bloodType;
+        private final String phone;
+        private final String email;
 
         public PatientListRow(String patientId, String name, String birthDate, String gender,
-                              String section, String room, String status, String priority, String bloodType) {
+                              String section, String room, String status, String priority, String bloodType, String phone, String email) {
             this.patientId = patientId;
             this.name = name;
             this.birthDate = birthDate;
@@ -550,6 +596,8 @@ public class SqlitePatientDao implements PatientDao {
             this.status = status;
             this.priority = priority;
             this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType.trim();
+            this.phone = phone == null ? "" : phone.trim();
+            this.email = email == null ? "" : email.trim();
         }
 
         public String getPatientId() { return patientId; }
@@ -561,6 +609,8 @@ public class SqlitePatientDao implements PatientDao {
         public String getStatus() { return status; }
         public String getPriority() { return priority; }
         public String getBloodType() { return bloodType; }
+        public String getPhone() { return phone; }
+        public String getEmail() { return email; }
     }
 
     public static class PatientFilter {
@@ -603,13 +653,19 @@ public class SqlitePatientDao implements PatientDao {
         private final String priority;
         private final String bloodType;
         private final String diagnosis;
+        private final String allergies;
+        private final String phone;
+        private final String email;
+        private final String address;
+        private final String emergencyContactName;
+        private final String emergencyContactPhone;
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
 
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
                                   String gender, String section, String room, String status,
                                   String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "", "");
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "Unknown", "", "", "", "", "", "", "");
         }
 
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
@@ -617,12 +673,13 @@ public class SqlitePatientDao implements PatientDao {
                                   String priority, String diagnosis, String assignedDoctorUsername,
                                   String assignedStaffUsername) {
             this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
-                    assignedDoctorUsername, assignedStaffUsername);
+                    "Unknown", "", "", "", "", "", assignedDoctorUsername, assignedStaffUsername);
         }
 
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
                                   String gender, String section, String room, String status,
-                                  String priority, String bloodType, String diagnosis, String assignedDoctorUsername,
+                                  String priority, String bloodType, String diagnosis, String allergies, String phone, String email, String address,
+                                  String emergencyContactName, String emergencyContactPhone, String assignedDoctorUsername,
                                   String assignedStaffUsername) {
             this.patientId = patientId;
             this.firstName = firstName;
@@ -635,6 +692,12 @@ public class SqlitePatientDao implements PatientDao {
             this.priority = priority;
             this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType.trim();
             this.diagnosis = diagnosis;
+            this.allergies = allergies == null || allergies.isBlank() ? "Unknown" : allergies.trim();
+            this.phone = phone == null ? "" : phone.trim();
+            this.email = email == null ? "" : email.trim();
+            this.address = address == null ? "" : address.trim();
+            this.emergencyContactName = emergencyContactName == null ? "" : emergencyContactName.trim();
+            this.emergencyContactPhone = emergencyContactPhone == null ? "" : emergencyContactPhone.trim();
             this.assignedDoctorUsername = assignedDoctorUsername == null ? "" : assignedDoctorUsername.trim();
             this.assignedStaffUsername = assignedStaffUsername == null ? "" : assignedStaffUsername.trim();
         }
@@ -650,6 +713,12 @@ public class SqlitePatientDao implements PatientDao {
         public String getPriority() { return priority; }
         public String getBloodType() { return bloodType; }
         public String getDiagnosis() { return diagnosis; }
+        public String getAllergies() { return allergies; }
+        public String getPhone() { return phone; }
+        public String getEmail() { return email; }
+        public String getAddress() { return address; }
+        public String getEmergencyContactName() { return emergencyContactName; }
+        public String getEmergencyContactPhone() { return emergencyContactPhone; }
         public String getAssignedDoctorUsername() { return assignedDoctorUsername; }
         public String getAssignedStaffUsername() { return assignedStaffUsername; }
     }
@@ -666,13 +735,19 @@ public class SqlitePatientDao implements PatientDao {
         private final String priority;
         private final String bloodType;
         private final String diagnosis;
+        private final String allergies;
+        private final String phone;
+        private final String email;
+        private final String address;
+        private final String emergencyContactName;
+        private final String emergencyContactPhone;
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
 
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
                              String gender, String section, String room, String status,
                              String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "", "");
+            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "Unknown", "", "", "", "", "", "", "");
         }
 
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
@@ -680,12 +755,13 @@ public class SqlitePatientDao implements PatientDao {
                              String priority, String diagnosis, String assignedDoctorUsername,
                              String assignedStaffUsername) {
             this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
-                    assignedDoctorUsername, assignedStaffUsername);
+                    "Unknown", "", "", "", "", "", assignedDoctorUsername, assignedStaffUsername);
         }
 
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
                              String gender, String section, String room, String status,
-                             String priority, String bloodType, String diagnosis, String assignedDoctorUsername,
+                             String priority, String bloodType, String diagnosis, String allergies, String phone, String email, String address,
+                             String emergencyContactName, String emergencyContactPhone, String assignedDoctorUsername,
                              String assignedStaffUsername) {
             this.patientId = patientId;
             this.firstName = firstName;
@@ -698,6 +774,12 @@ public class SqlitePatientDao implements PatientDao {
             this.priority = priority;
             this.bloodType = bloodType == null || bloodType.isBlank() ? "Unknown" : bloodType;
             this.diagnosis = diagnosis;
+            this.allergies = allergies == null || allergies.isBlank() ? "Unknown" : allergies;
+            this.phone = phone == null ? "" : phone;
+            this.email = email == null ? "" : email;
+            this.address = address == null ? "" : address;
+            this.emergencyContactName = emergencyContactName == null ? "" : emergencyContactName;
+            this.emergencyContactPhone = emergencyContactPhone == null ? "" : emergencyContactPhone;
             this.assignedDoctorUsername = assignedDoctorUsername == null ? "" : assignedDoctorUsername;
             this.assignedStaffUsername = assignedStaffUsername == null ? "" : assignedStaffUsername;
         }
@@ -714,6 +796,12 @@ public class SqlitePatientDao implements PatientDao {
         public String getPriority() { return priority; }
         public String getBloodType() { return bloodType; }
         public String getDiagnosis() { return diagnosis == null || diagnosis.isBlank() ? "No diagnosis recorded" : diagnosis; }
+        public String getAllergies() { return allergies == null || allergies.isBlank() ? "Unknown" : allergies; }
+        public String getPhone() { return phone == null ? "" : phone; }
+        public String getEmail() { return email == null ? "" : email; }
+        public String getAddress() { return address == null ? "" : address; }
+        public String getEmergencyContactName() { return emergencyContactName == null ? "" : emergencyContactName; }
+        public String getEmergencyContactPhone() { return emergencyContactPhone == null ? "" : emergencyContactPhone; }
         public String getAssignedDoctorUsername() { return assignedDoctorUsername; }
         public String getAssignedStaffUsername() { return assignedStaffUsername; }
 

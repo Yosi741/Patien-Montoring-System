@@ -117,6 +117,12 @@ public class PatientWriteService {
                 patient.getPriority(),
                 patient.getBloodType(),
                 patient.getDiagnosis(),
+                patient.getAllergies(),
+                patient.getPhone(),
+                patient.getEmail(),
+                patient.getAddress(),
+                patient.getEmergencyContactName(),
+                patient.getEmergencyContactPhone(),
                 patient.getAssignedDoctorUsername(),
                 patient.getAssignedStaffUsername()
         );
@@ -147,11 +153,18 @@ public class PatientWriteService {
                 FormValidationHelper.validateMaxLength("Room", patient.getRoom(), 30),
                 FormValidationHelper.validateMaxLength("Assigned doctor", patient.getAssignedDoctorUsername(), 64),
                 FormValidationHelper.validateMaxLength("Assigned nurse/staff", patient.getAssignedStaffUsername(), 64),
-                FormValidationHelper.validateMaxLength("Diagnosis", patient.getDiagnosis(), 500)
+                FormValidationHelper.validateMaxLength("Diagnosis", patient.getDiagnosis(), 500),
+                FormValidationHelper.validateMaxLength("Allergies", patient.getAllergies(), 500),
+                FormValidationHelper.validateMaxLength("Phone", patient.getPhone(), 30),
+                FormValidationHelper.validateMaxLength("Email", patient.getEmail(), 120),
+                FormValidationHelper.validateMaxLength("Address", patient.getAddress(), 240),
+                FormValidationHelper.validateMaxLength("Emergency contact name", patient.getEmergencyContactName(), 80),
+                FormValidationHelper.validateMaxLength("Emergency contact phone", patient.getEmergencyContactPhone(), 30)
         );
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
+        validateOptionalEmail(patient.getEmail());
         validateBirthDate(patient.getBirthDate());
         validateChoice("Status", normalize(patient.getStatus()), VALID_STATUSES);
         validateChoice("Priority", normalize(patient.getPriority()), VALID_PRIORITIES);
@@ -196,6 +209,12 @@ public class PatientWriteService {
                 normalize(patient.getPriority()),
                 normalizeBloodType(patient.getBloodType()),
                 trim(patient.getDiagnosis()),
+                normalizeAllergies(patient.getAllergies()),
+                trim(patient.getPhone()),
+                trim(patient.getEmail()),
+                trim(patient.getAddress()),
+                trim(patient.getEmergencyContactName()),
+                trim(patient.getEmergencyContactPhone()),
                 trim(patient.getAssignedDoctorUsername()),
                 trim(patient.getAssignedStaffUsername())
         );
@@ -225,5 +244,18 @@ public class PatientWriteService {
 
     private String trim(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String normalizeAllergies(String value) {
+        return value == null || value.isBlank() ? "Unknown" : value.trim();
+    }
+
+    private void validateOptionalEmail(String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        if (!value.contains("@")) {
+            throw new IllegalArgumentException("Email must contain @ when provided.");
+        }
     }
 }

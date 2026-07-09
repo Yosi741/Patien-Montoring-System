@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -79,7 +80,6 @@
                         <VBox spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="patient-file-card">
                             <Label text="Clinical Actions" styleClass="patient-file-section-title" />
                             <Button fx:id="enterVitalsButton" text="Enter Vitals" onAction="#enterVitals" maxWidth="Infinity" styleClass="patient-file-primary-button" />
-                            <Button fx:id="createReminderButton" text="Order Checkup" onAction="#createPatientReminder" maxWidth="Infinity" styleClass="patient-file-secondary-button" />
                         </VBox>
 
                         <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
@@ -114,25 +114,51 @@
 
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="patient-file-card">
                             <Label text="Allergies" styleClass="patient-file-section-title" />
-                            <Label text="No allergy records found" wrapText="true" styleClass="patient-file-empty" />
+                            <Label fx:id="allergyLabel" text="Unknown" wrapText="true" styleClass="patient-file-body" />
                         </VBox>
 
-                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="patient-file-card">
-                            <Label text="Clinical Notes" styleClass="patient-file-section-title" />
-                            <Label text="Treatment planning is handled through checkups, appointments, alerts, and clinical notes in this clinic version." wrapText="true" styleClass="patient-file-empty" />
+                        <VBox spacing="14.0" minHeight="220.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <styleClass>
+                                <String fx:value="patient-file-card" />
+                                <String fx:value="patient-detail-card" />
+                                <String fx:value="contact-info-card" />
+                            </styleClass>
+                            <Label text="Contact Info">
+                                <styleClass>
+                                    <String fx:value="patient-file-section-title" />
+                                    <String fx:value="contact-info-section" />
+                                </styleClass>
+                            </Label>
+                            <GridPane hgap="14.0" vgap="10.0">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="36.0" />
+                                    <ColumnConstraints percentWidth="66.0" hgrow="ALWAYS" />
+                                </columnConstraints>
+                                <Label text="Phone" styleClass="patient-file-field-label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="phoneLabel" text="—" wrapText="true" styleClass="patient-file-body" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label text="Email" styleClass="patient-file-field-label" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label fx:id="emailLabel" text="—" wrapText="true" styleClass="patient-file-body" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label text="Address" styleClass="patient-file-field-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="addressLabel" text="—" wrapText="true" styleClass="patient-file-body" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label text="Emergency Contact" styleClass="patient-file-field-label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label fx:id="emergencyContactNameLabel" text="—" wrapText="true" styleClass="patient-file-body" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label text="Emergency Phone" styleClass="patient-file-field-label" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <Label fx:id="emergencyContactPhoneLabel" text="—" wrapText="true" styleClass="patient-file-body" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                            </GridPane>
                         </VBox>
 
-                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="patient-file-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Medical Files" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button text="Upload" onAction="#uploadPatientMedicalFile" styleClass="patient-file-mini-button" />
-                            </HBox>
-                            <Label text="Use the Files record tab to view reports, scans, and uploaded clinical documents." wrapText="true" styleClass="patient-file-empty" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="patient-file-card">
+                        <VBox spacing="14.0" minHeight="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <styleClass>
+                                <String fx:value="patient-file-card" />
+                                <String fx:value="patient-detail-card" />
+                                <String fx:value="past-visits-card" />
+                            </styleClass>
                             <Label text="Past Visits" styleClass="patient-file-section-title" />
-                            <TableView fx:id="pastVisitsTable" prefHeight="180.0" styleClass="patient-file-table clinical-table">
+                            <TableView fx:id="pastVisitsTable" prefHeight="180.0" VBox.vgrow="ALWAYS">
+                                <styleClass>
+                                    <String fx:value="patient-file-table" />
+                                    <String fx:value="clinical-table" />
+                                </styleClass>
                                 <columns>
                                     <TableColumn fx:id="visitDateColumn" text="Visit Date" prefWidth="140.0" />
                                     <TableColumn fx:id="dischargeDateColumn" text="Discharge Date" prefWidth="150.0" />
@@ -140,24 +166,6 @@
                                     <TableColumn fx:id="visitReportColumn" text="Visit Report" prefWidth="360.0" />
                                 </columns>
                             </TableView>
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="patient-file-card">
-                            <Label text="Accidents / Emergency History" styleClass="patient-file-section-title" />
-                            <Label text="No emergency history recorded" wrapText="true" styleClass="patient-file-empty" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="patient-file-card">
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <Label text="Previous Checkups" styleClass="patient-file-section-title" HBox.hgrow="ALWAYS" />
-                                <Button text="Schedule" onAction="#createPatientAppointment" styleClass="patient-file-mini-button" />
-                            </HBox>
-                            <Label text="No previous checkups recorded in this patient file view" wrapText="true" styleClass="patient-file-empty" />
-                        </VBox>
-
-                        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="patient-file-card">
-                            <Label text="Scans and Imaging" styleClass="patient-file-section-title" />
-                            <Label text="CT, MRI, X-Ray, and ultrasound files will appear through Uploaded Medical Files. No scans uploaded yet." wrapText="true" styleClass="patient-file-empty" />
                         </VBox>
 
                     </GridPane>

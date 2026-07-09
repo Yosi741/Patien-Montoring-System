@@ -13,6 +13,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import pages.patient.services.PatientWriteService;
 import app.AppNavigator;
@@ -28,6 +29,9 @@ import java.time.format.DateTimeParseException;
 public class PatientFormController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final String ALLERGY_STATUS_NONE = "No allergies";
+    private static final String ALLERGY_STATUS_HAS = "Has allergies";
+    private static final String ALLERGY_STATUS_UNKNOWN = "Unknown";
 
     private final SqlitePatientDao patientDao = new SqlitePatientDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
@@ -47,6 +51,14 @@ public class PatientFormController {
     @FXML private ComboBox<String> statusBox;
     @FXML private ComboBox<String> priorityBox;
     @FXML private ComboBox<String> bloodTypeBox;
+    @FXML private ComboBox<String> allergyStatusBox;
+    @FXML private VBox allergyDetailsContainer;
+    @FXML private TextArea allergyDetailsArea;
+    @FXML private TextField phoneField;
+    @FXML private TextField emailField;
+    @FXML private TextArea addressArea;
+    @FXML private TextField emergencyContactNameField;
+    @FXML private TextField emergencyContactPhoneField;
     @FXML private TextArea diagnosisArea;
     @FXML private Label statusLabel;
 
@@ -90,10 +102,14 @@ public class PatientFormController {
         statusBox.getItems().setAll("ACTIVE", "DISCHARGED", "DECEASED");
         priorityBox.getItems().setAll("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
         bloodTypeBox.getItems().setAll("Unknown", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
+        allergyStatusBox.getItems().setAll(ALLERGY_STATUS_NONE, ALLERGY_STATUS_HAS, ALLERGY_STATUS_UNKNOWN);
         genderBox.getSelectionModel().select("Unknown");
         statusBox.getSelectionModel().select("ACTIVE");
         priorityBox.getSelectionModel().select("NORMAL");
         bloodTypeBox.getSelectionModel().select("Unknown");
+        allergyStatusBox.getSelectionModel().select(ALLERGY_STATUS_UNKNOWN);
+        allergyStatusBox.valueProperty().addListener((observable, oldValue, newValue) -> updateAllergyDetailsVisibility(true));
+        updateAllergyDetailsVisibility(false);
         configureInputFilters();
         DatePickerHelper.configureDdMmYyyy(birthDatePicker);
         NotificationHelper.showInfo(statusLabel, "Patient file form. System data is stored in the local clinic database.");
@@ -149,6 +165,12 @@ public class PatientFormController {
                 priorityBox.getValue(),
                 bloodTypeBox.getValue(),
                 diagnosisArea.getText(),
+                resolveAllergies(),
+                phoneField.getText(),
+                emailField.getText(),
+                addressArea.getText(),
+                emergencyContactNameField.getText(),
+                emergencyContactPhoneField.getText(),
                 resolvedAssignedDoctor(),
                 resolvedAssignedStaff()
         );
@@ -166,6 +188,7 @@ public class PatientFormController {
         });
         installNameFilter(firstNameField);
         installNameFilter(lastNameField);
+        installNameFilter(emergencyContactNameField);
     }
 
     @FXML
@@ -245,6 +268,12 @@ public class PatientFormController {
         statusBox.getSelectionModel().select(returningVisit ? "ACTIVE" : normalizeStatus(patient.getStatus()));
         priorityBox.getSelectionModel().select(normalizePriority(patient.getPriority()));
         bloodTypeBox.getSelectionModel().select(normalizeBloodType(patient.getBloodType()));
+        populateAllergyFields(patient.getAllergies());
+        phoneField.setText(patient.getPhone());
+        emailField.setText(patient.getEmail());
+        addressArea.setText(patient.getAddress());
+        emergencyContactNameField.setText(patient.getEmergencyContactName());
+        emergencyContactPhoneField.setText(patient.getEmergencyContactPhone());
         diagnosisArea.setText(returningVisit ? "" : patient.getDiagnosis());
         setCheckIdVisible(!returningVisit);
     }
@@ -270,6 +299,43 @@ public class PatientFormController {
 
     private String resolvedAssignedStaff() {
         return existingPatient == null ? "" : blankTo(existingPatient.getAssignedStaffUsername(), "");
+    }
+
+    private void populateAllergyFields(String allergies) {
+        String normalized = allergies == null ? "" : allergies.trim();
+        if (normalized.isBlank() || ALLERGY_STATUS_UNKNOWN.equalsIgnoreCase(normalized)) {
+            allergyStatusBox.getSelectionModel().select(ALLERGY_STATUS_UNKNOWN);
+            allergyDetailsArea.clear();
+        } else if (ALLERGY_STATUS_NONE.equalsIgnoreCase(normalized)) {
+            allergyStatusBox.getSelectionModel().select(ALLERGY_STATUS_NONE);
+            allergyDetailsArea.clear();
+        } else {
+            allergyStatusBox.getSelectionModel().select(ALLERGY_STATUS_HAS);
+            allergyDetailsArea.setText(normalized);
+        }
+        updateAllergyDetailsVisibility(false);
+    }
+
+    private void updateAllergyDetailsVisibility(boolean clearWhenHidden) {
+        boolean hasAllergies = ALLERGY_STATUS_HAS.equals(allergyStatusBox.getValue());
+        allergyDetailsContainer.setManaged(hasAllergies);
+        allergyDetailsContainer.setVisible(hasAllergies);
+        allergyDetailsArea.setDisable(!hasAllergies);
+        if (!hasAllergies && clearWhenHidden) {
+            allergyDetailsArea.clear();
+        }
+    }
+
+    private String resolveAllergies() {
+        String allergyStatus = blankTo(allergyStatusBox.getValue(), ALLERGY_STATUS_UNKNOWN);
+        if (ALLERGY_STATUS_HAS.equals(allergyStatus)) {
+            String details = allergyDetailsArea.getText() == null ? "" : allergyDetailsArea.getText().trim();
+            if (details.isBlank()) {
+                throw new IllegalArgumentException("Allergy details are required when allergies are selected.");
+            }
+            return details;
+        }
+        return ALLERGY_STATUS_NONE.equals(allergyStatus) ? ALLERGY_STATUS_NONE : ALLERGY_STATUS_UNKNOWN;
     }
 
     private LocalDate parseBirthDate(String value) {

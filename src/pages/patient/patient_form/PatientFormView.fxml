@@ -66,6 +66,43 @@
         </VBox>
 
         <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+            <Label text="Allergy Status" styleClass="field-label" />
+            <ComboBox fx:id="allergyStatusBox" maxWidth="Infinity" styleClass="control-input" />
+        </VBox>
+
+        <VBox fx:id="allergyDetailsContainer" spacing="6.0" visible="false" managed="false" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <Label text="Allergy Details" styleClass="field-label" />
+            <TextArea fx:id="allergyDetailsArea" promptText="Example: Penicillin, peanuts, latex..." prefRowCount="3" wrapText="true" styleClass="control-input" />
+        </VBox>
+
+        <Label text="Contact Info" styleClass="field-label contact-info-section" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="7">
+            <Label text="Phone" styleClass="field-label" />
+            <TextField fx:id="phoneField" promptText="Phone number" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+            <Label text="Email" styleClass="field-label" />
+            <TextField fx:id="emailField" promptText="Email address" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="8">
+            <Label text="Emergency Contact Name" styleClass="field-label" />
+            <TextField fx:id="emergencyContactNameField" promptText="Emergency contact name" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="8">
+            <Label text="Emergency Contact Phone" styleClass="field-label" />
+            <TextField fx:id="emergencyContactPhoneField" promptText="Emergency contact phone" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="9">
+            <Label text="Address" styleClass="field-label" />
+            <TextArea fx:id="addressArea" promptText="Address" prefRowCount="2" wrapText="true" styleClass="control-input" />
+        </VBox>
+
+        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="10">
             <Label text="Visit Reason / Diagnosis" styleClass="field-label" />
             <TextArea fx:id="diagnosisArea" promptText="Short visit reason, diagnosis, or clinical note" prefRowCount="4" wrapText="true" styleClass="control-input" />
         </VBox>

@@ -24,9 +24,11 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import pages.billing.BillingRecord;
@@ -156,38 +158,90 @@ public class BillingController implements FxController {
         ComboBox<String> paymentMethodBox = new ComboBox<>(FXCollections.observableArrayList("Cash", "Card", "Insurance", "Other"));
         paymentMethodBox.setPromptText("Optional");
         TextArea notesArea = new TextArea();
-        notesArea.setPromptText("Notes");
-        notesArea.setPrefRowCount(3);
-        Label patientLookupLabel = new Label("Enter a patient ID to link the invoice.");
-        patientLookupLabel.getStyleClass().add("muted-text");
+        notesArea.setPromptText("Visit notes, billing notes, or insurance note");
+        notesArea.setPrefRowCount(4);
+
+        configureInvoiceField(patientIdField);
+        configureInvoiceField(serviceNameField);
+        configureInvoiceField(visitTypeField);
+        configureInvoiceField(amountField);
+        configureInvoiceField(paymentStatusBox);
+        configureInvoiceField(paymentMethodBox);
+        configureInvoiceField(notesArea);
+        notesArea.getStyleClass().add("invoice-notes-area");
+        amountField.setAlignment(Pos.CENTER_LEFT);
+
+        Label headerTitle = new Label("New Invoice");
+        headerTitle.getStyleClass().addAll("screen-title", "invoice-section-title");
+        Label headerSubtitle = new Label("Create a local clinic invoice for a patient visit.");
+        headerSubtitle.getStyleClass().add("muted-text");
+        headerSubtitle.setWrapText(true);
+        VBox headerCard = new VBox(6, headerTitle, headerSubtitle);
+        headerCard.getStyleClass().addAll("invoice-dialog-header");
+
+        Label patientStateBadge = new Label("Patient Lookup");
+        patientStateBadge.getStyleClass().addAll("badge-pill", "invoice-patient-warning");
+        Label patientNameLabel = new Label("Enter a patient ID to link the invoice.");
+        patientNameLabel.getStyleClass().add("detail-field-value");
+        patientNameLabel.setWrapText(true);
+        Label patientMetaLabel = new Label("ID: -");
+        patientMetaLabel.getStyleClass().add("detail-field-name");
+        VBox patientSummaryText = new VBox(4, patientNameLabel, patientMetaLabel);
+        Region patientSpacer = new Region();
+        HBox.setHgrow(patientSpacer, Priority.ALWAYS);
+        HBox patientSummaryTop = new HBox(12, patientStateBadge, patientSpacer);
+        patientSummaryTop.setAlignment(Pos.CENTER_LEFT);
+        VBox patientSummaryCard = new VBox(10, patientSummaryTop, patientSummaryText);
+        patientSummaryCard.getStyleClass().add("invoice-patient-card");
 
         patientIdField.textProperty().addListener((observable, oldValue, newValue) ->
-                refreshPatientLookup(patientLookupLabel, newValue));
+                refreshPatientLookup(patientStateBadge, patientNameLabel, patientMetaLabel, newValue));
+        refreshPatientLookup(patientStateBadge, patientNameLabel, patientMetaLabel, patientIdField.getText());
 
         GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(10);
-        grid.add(detailField("Patient ID", patientIdField), 0, 0);
-        grid.add(detailField("Service Name", serviceNameField), 1, 0);
-        grid.add(detailField("Visit Type", visitTypeField), 0, 1);
-        grid.add(detailField("Amount", amountField), 1, 1);
-        grid.add(detailField("Payment Status", paymentStatusBox), 0, 2);
-        grid.add(detailField("Payment Method", paymentMethodBox), 1, 2);
+        grid.setHgap(16);
+        grid.setVgap(14);
+        grid.getStyleClass().add("invoice-dialog");
+        ColumnConstraints leftColumn = new ColumnConstraints();
+        leftColumn.setPercentWidth(50);
+        leftColumn.setHgrow(Priority.ALWAYS);
+        ColumnConstraints rightColumn = new ColumnConstraints();
+        rightColumn.setPercentWidth(50);
+        rightColumn.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().setAll(leftColumn, rightColumn);
+        grid.add(sectionTitle("Patient"), 0, 0, 2, 1);
+        grid.add(detailField("Patient ID", patientIdField), 0, 1);
+        grid.add(detailField("Service Name", serviceNameField), 1, 1);
+        grid.add(sectionTitle("Service Details"), 0, 2, 2, 1);
+        grid.add(detailField("Visit Type", visitTypeField), 0, 3);
+        grid.add(detailField("Amount", amountField), 1, 3);
+        grid.add(sectionTitle("Payment"), 0, 4, 2, 1);
+        grid.add(detailField("Payment Status", paymentStatusBox), 0, 5);
+        grid.add(detailField("Payment Method", paymentMethodBox), 1, 5);
+        grid.add(sectionTitle("Notes"), 0, 6, 2, 1);
         VBox notesBox = detailField("Notes", notesArea);
-        grid.add(notesBox, 0, 3, 2, 1);
+        grid.add(notesBox, 0, 7, 2, 1);
 
-        VBox content = new VBox(12,
-                patientLookupLabel,
-                grid
+        Label dialogStatusLabel = new Label("Review the invoice fields before saving.");
+        dialogStatusLabel.getStyleClass().add("muted-text");
+        dialogStatusLabel.setWrapText(true);
+
+        VBox content = new VBox(18,
+                headerCard,
+                patientSummaryCard,
+                grid,
+                dialogStatusLabel
         );
-        content.setPadding(new Insets(8));
-        content.getStyleClass().add("invoice-detail-dialog");
+        content.setPadding(new Insets(26));
+        content.getStyleClass().add("invoice-dialog");
 
         dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setPrefSize(720, 640);
+        dialog.getDialogPane().setMinWidth(700);
         final BillingRecord[] createdHolder = new BillingRecord[1];
         Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveType);
         if (saveButton != null) {
-            saveButton.getStyleClass().add("primary-button");
+            saveButton.getStyleClass().addAll("primary-button", "invoice-save-button");
             saveButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
                 try {
                     createdHolder[0] = billingService.createInvoice(Session.getCurrentUser(), new BillingService.InvoiceDraft(
@@ -200,7 +254,7 @@ public class BillingController implements FxController {
                             notesArea.getText()
                     ));
                 } catch (Exception e) {
-                    NotificationHelper.showError(patientLookupLabel, e.getMessage());
+                    NotificationHelper.showError(dialogStatusLabel, e.getMessage());
                     event.consume();
                 }
             });
@@ -208,7 +262,7 @@ public class BillingController implements FxController {
 
         Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
         if (cancelButton != null) {
-            cancelButton.getStyleClass().add("secondary-button");
+            cancelButton.getStyleClass().addAll("secondary-button", "invoice-cancel-button");
         }
 
         Optional<ButtonType> result = dialog.showAndWait();
@@ -218,38 +272,48 @@ public class BillingController implements FxController {
         return null;
     }
 
-    private void refreshPatientLookup(Label target, String patientId) {
-        if (target == null) {
+    private void refreshPatientLookup(Label badge, Label patientNameLabel, Label patientMetaLabel, String patientId) {
+        if (badge == null || patientNameLabel == null || patientMetaLabel == null) {
             return;
         }
         String value = patientId == null ? "" : patientId.trim();
         if (value.isBlank()) {
-            target.setText("Enter a patient ID to link the invoice.");
-            target.getStyleClass().removeAll("status-error", "status-success");
-            target.getStyleClass().add("muted-text");
+            badge.setText("Patient Lookup");
+            badge.getStyleClass().removeAll("invoice-patient-found", "invoice-patient-warning");
+            if (!badge.getStyleClass().contains("invoice-patient-warning")) {
+                badge.getStyleClass().add("invoice-patient-warning");
+            }
+            patientNameLabel.setText("Enter a patient ID to link the invoice.");
+            patientMetaLabel.setText("ID: -");
             return;
         }
         try {
             Optional<String> patientName = billingService.findPatientName(value);
             if (patientName.isPresent()) {
-                target.setText("Patient: " + patientName.get());
-                target.getStyleClass().removeAll("muted-text", "status-error");
-                if (!target.getStyleClass().contains("status-success")) {
-                    target.getStyleClass().add("status-success");
+                badge.setText("Patient Found");
+                badge.getStyleClass().removeAll("invoice-patient-warning", "invoice-patient-found");
+                if (!badge.getStyleClass().contains("invoice-patient-found")) {
+                    badge.getStyleClass().add("invoice-patient-found");
                 }
+                patientNameLabel.setText(patientName.get());
+                patientMetaLabel.setText("ID: " + value);
             } else {
-                target.setText("Patient file was not found for this ID.");
-                target.getStyleClass().removeAll("muted-text", "status-success");
-                if (!target.getStyleClass().contains("status-error")) {
-                    target.getStyleClass().add("status-error");
+                badge.setText("Patient Not Found");
+                badge.getStyleClass().removeAll("invoice-patient-found", "invoice-patient-warning");
+                if (!badge.getStyleClass().contains("invoice-patient-warning")) {
+                    badge.getStyleClass().add("invoice-patient-warning");
                 }
+                patientNameLabel.setText("Patient file was not found for this ID.");
+                patientMetaLabel.setText("ID: " + value);
             }
         } catch (Exception e) {
-            target.setText("Patient lookup is unavailable: " + e.getMessage());
-            target.getStyleClass().removeAll("muted-text", "status-success");
-            if (!target.getStyleClass().contains("status-error")) {
-                target.getStyleClass().add("status-error");
+            badge.setText("Patient Lookup Error");
+            badge.getStyleClass().removeAll("invoice-patient-found", "invoice-patient-warning");
+            if (!badge.getStyleClass().contains("invoice-patient-warning")) {
+                badge.getStyleClass().add("invoice-patient-warning");
             }
+            patientNameLabel.setText("Patient lookup is unavailable: " + e.getMessage());
+            patientMetaLabel.setText("ID: " + value);
         }
     }
 
@@ -582,6 +646,12 @@ public class BillingController implements FxController {
         return box;
     }
 
+    private Label sectionTitle(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("invoice-section-title");
+        return label;
+    }
+
     private VBox detailBlock(String title, String value) {
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("detail-field-name");
@@ -648,5 +718,28 @@ public class BillingController implements FxController {
 
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private void configureInvoiceField(javafx.scene.Node field) {
+        if (field == null) {
+            return;
+        }
+        field.getStyleClass().add("invoice-field");
+        if (field instanceof TextField textField) {
+            textField.setMinHeight(42);
+            textField.setPrefHeight(42);
+            textField.setMinWidth(240);
+            textField.setPrefWidth(280);
+        } else if (field instanceof ComboBox<?> comboBox) {
+            comboBox.setMinHeight(42);
+            comboBox.setPrefHeight(42);
+            comboBox.setMinWidth(240);
+            comboBox.setPrefWidth(280);
+            comboBox.setMaxWidth(Double.MAX_VALUE);
+        } else if (field instanceof TextArea textArea) {
+            textArea.setMinHeight(108);
+            textArea.setPrefHeight(108);
+            textArea.setMaxWidth(Double.MAX_VALUE);
+        }
     }
 }

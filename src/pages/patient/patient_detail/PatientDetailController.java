@@ -35,7 +35,6 @@ import app.SessionContext;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
-import pages.scheduling.reminder_form.ReminderFormController;
 import pages.patient.medical_files.MedicalFileUploadController;
 import pages.patient.patient_form.PatientFormController;
 import pages.patient.vitals_entry.VitalsEntryController;
@@ -69,6 +68,12 @@ public class PatientDetailController implements FxController {
     @FXML private Label statusLabel;
     @FXML private Label priorityLabel;
     @FXML private Label bloodTypeLabel;
+    @FXML private Label allergyLabel;
+    @FXML private Label phoneLabel;
+    @FXML private Label emailLabel;
+    @FXML private Label addressLabel;
+    @FXML private Label emergencyContactNameLabel;
+    @FXML private Label emergencyContactPhoneLabel;
     @FXML private Label diagnosisLabel;
     @FXML private Label timelineStatusLabel;
     @FXML private Label trendStatusLabel;
@@ -101,7 +106,6 @@ public class PatientDetailController implements FxController {
     @FXML private Button editPatientButton;
     @FXML private Button enterVitalsButton;
     @FXML private Button createAppointmentButton;
-    @FXML private Button createReminderButton;
     @FXML private Button uploadMedicalFileButton;
     @FXML private Button dischargePatientButton;
 
@@ -130,6 +134,12 @@ public class PatientDetailController implements FxController {
             statusLabel.setText(detail.getStatus());
             priorityLabel.setText(detail.getPriority());
             bloodTypeLabel.setText(detail.getBloodType());
+            allergyLabel.setText(detail.getAllergies());
+            phoneLabel.setText(displayValue(detail.getPhone()));
+            emailLabel.setText(displayValue(detail.getEmail()));
+            addressLabel.setText(displayValue(detail.getAddress()));
+            emergencyContactNameLabel.setText(displayValue(detail.getEmergencyContactName()));
+            emergencyContactPhoneLabel.setText(displayValue(detail.getEmergencyContactPhone()));
             priorityLabel.getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
@@ -211,29 +221,6 @@ public class PatientDetailController implements FxController {
             boolean saved = AppointmentFormController.showCreateDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
             if (saved) {
                 NotificationHelper.showSuccess(timelineStatusLabel, "Appointment saved. Open Scheduling to view.");
-            }
-        } catch (Exception e) {
-            NotificationHelper.showError(timelineStatusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void createPatientReminder() {
-        if (!PermissionHelper.canManageReminder(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
-            return;
-        }
-        if (patientId == null || patientId.isBlank()) {
-            timelineStatusLabel.setText("No patient selected for reminder scheduling.");
-            return;
-        }
-        if (blockIfDeceased("create reminder/checkup order")) {
-            return;
-        }
-        try {
-            boolean saved = ReminderFormController.showOrderCheckupDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), patientId);
-            if (saved) {
-                NotificationHelper.showSuccess(timelineStatusLabel, "Checkup request saved. Open Scheduling to view.");
             }
         } catch (Exception e) {
             NotificationHelper.showError(timelineStatusLabel, e.getMessage());
@@ -409,7 +396,7 @@ public class PatientDetailController implements FxController {
         visitStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         visitReportColumn.setCellValueFactory(new PropertyValueFactory<>("report"));
         pastVisitsTable.setItems(visits);
-        pastVisitsTable.setPlaceholder(new Label("No past visits recorded"));
+        pastVisitsTable.setPlaceholder(new Label("No previous visits yet."));
     }
 
     private void configureTrendControls() {
@@ -435,8 +422,6 @@ public class PatientDetailController implements FxController {
         setButtonVisible(enterVitalsButton, canEnterVitals);
         boolean canAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
         setButtonVisible(createAppointmentButton, canAppointments);
-        boolean canReminders = PermissionHelper.canManageReminder(Session.getCurrentUser());
-        setButtonVisible(createReminderButton, canReminders);
         boolean canUploadFiles = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         setButtonVisible(uploadMedicalFileButton, canUploadFiles);
         boolean canDischarge = PermissionHelper.canDeactivatePatient(Session.getCurrentUser());
@@ -449,7 +434,6 @@ public class PatientDetailController implements FxController {
         }
         setButtonVisible(enterVitalsButton, false);
         setButtonVisible(createAppointmentButton, false);
-        setButtonVisible(createReminderButton, false);
         setButtonVisible(dischargePatientButton, false);
     }
 
@@ -587,6 +571,10 @@ public class PatientDetailController implements FxController {
 
     private String fallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String displayValue(String value) {
+        return value == null || value.isBlank() ? "\u2014" : value.trim();
     }
 
     private String promptVisitReport(Window owner, String title, String prompt) {

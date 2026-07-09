@@ -180,6 +180,12 @@ public class SchemaInitializer {
                 + "priority TEXT NOT NULL DEFAULT 'NORMAL',"
                 + "blood_type TEXT NOT NULL DEFAULT 'Unknown',"
                 + "diagnosis TEXT,"
+                + "allergies TEXT NOT NULL DEFAULT 'Unknown',"
+                + "phone TEXT,"
+                + "email TEXT,"
+                + "address TEXT,"
+                + "emergency_contact_name TEXT,"
+                + "emergency_contact_phone TEXT,"
                 + "assigned_doctor_username TEXT,"
                 + "assigned_staff_username TEXT,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
@@ -191,7 +197,14 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, "patients", "assigned_doctor_username", "TEXT");
         addColumnIfMissing(statement, "patients", "assigned_staff_username", "TEXT");
         addColumnIfMissing(statement, "patients", "blood_type", "TEXT NOT NULL DEFAULT 'Unknown'");
+        addColumnIfMissing(statement, "patients", "allergies", "TEXT NOT NULL DEFAULT 'Unknown'");
+        addColumnIfMissing(statement, "patients", "phone", "TEXT");
+        addColumnIfMissing(statement, "patients", "email", "TEXT");
+        addColumnIfMissing(statement, "patients", "address", "TEXT");
+        addColumnIfMissing(statement, "patients", "emergency_contact_name", "TEXT");
+        addColumnIfMissing(statement, "patients", "emergency_contact_phone", "TEXT");
         statement.execute("UPDATE patients SET blood_type = 'Unknown' WHERE blood_type IS NULL OR TRIM(blood_type) = ''");
+        statement.execute("UPDATE patients SET allergies = 'Unknown' WHERE allergies IS NULL OR TRIM(allergies) = ''");
     }
 
     private static void createVitalReadings(Statement statement) throws SQLException {

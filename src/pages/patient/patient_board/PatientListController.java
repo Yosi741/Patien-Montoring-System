@@ -177,7 +177,7 @@ public class PatientListController implements FxController {
                     return;
                 }
                 setText(null);
-                setGraphic(buildSingleLineCell("\u2014", "patient-primary-text"));
+                setGraphic(buildContactCell(row));
             }
         });
 
@@ -287,6 +287,23 @@ public class PatientListController implements FxController {
         label.setWrapText(false);
         label.setAlignment(Pos.CENTER_LEFT);
         return label;
+    }
+
+    private VBox buildContactCell(SqlitePatientDao.PatientListRow row) {
+        String phone = row == null ? "" : safeText(row.getPhone());
+        String email = row == null ? "" : safeText(row.getEmail());
+        if (phone.isBlank() && email.isBlank()) {
+            return new VBox(buildSingleLineCell("\u2014", "contact-cell-primary"));
+        }
+        VBox box = new VBox(1.0);
+        box.setAlignment(Pos.CENTER_LEFT);
+        if (!phone.isBlank()) {
+            box.getChildren().add(buildSingleLineCell(phone, "contact-cell-primary"));
+        }
+        if (!email.isBlank()) {
+            box.getChildren().add(buildSingleLineCell(email, phone.isBlank() ? "contact-cell-primary" : "contact-cell-secondary"));
+        }
+        return box;
     }
 
     private HBox buildActionsCell(SqlitePatientDao.PatientListRow row) {
@@ -505,5 +522,9 @@ public class PatientListController implements FxController {
             button.setVisible(visible);
             button.setManaged(visible);
         }
+    }
+
+    private String safeText(String value) {
+        return value == null ? "" : value.trim();
     }
 }
