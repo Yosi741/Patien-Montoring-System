@@ -51,10 +51,6 @@ public class PatientWriteService {
         patientDao.updatePatient(clean(patient));
     }
 
-    public void deactivateOrDischargePatient(User currentUser, String patientId) throws SQLException {
-        dischargePatient(currentUser, patientId, "");
-    }
-
     public void dischargePatient(User currentUser, String patientId, String dischargeSummary) throws SQLException {
         if (!PermissionHelper.canDeactivatePatient(currentUser)) {
             throw new SecurityException("Only Admin and Doctor users can discharge or deactivate patients.");

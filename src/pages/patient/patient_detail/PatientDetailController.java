@@ -161,7 +161,7 @@ public class PatientDetailController implements AppController {
             timelineStatusLabel.setText("No patient selected for alert view.");
             return;
         }
-        appShell.showAlertCenterForPatient(patientId);
+        appShell.showNotificationCenter();
     }
 
     @FXML

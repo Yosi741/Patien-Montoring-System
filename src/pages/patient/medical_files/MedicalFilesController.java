@@ -87,24 +87,7 @@ public class MedicalFilesController implements AppController {
         }
     }
 
-    public void openForFile(String patientId, String fileId) {
-        patientIdFilter = patientId == null ? "" : patientId;
-        pendingFileId = fileId == null ? "" : fileId;
-        if (dateRangeFilter != null) {
-            dateRangeFilter.getSelectionModel().select("Last 30 days");
-        }
-        if (searchField != null) {
-            searchField.clear();
-        }
-        if (uploadedByFilter != null) {
-            uploadedByFilter.clear();
-        }
-        updatePatientFilterChip();
-        if (isAuthorized()) {
-            loadFiles();
-            selectPendingFile();
-        }
-    }
+
 
     @FXML
     private void loadFiles() {

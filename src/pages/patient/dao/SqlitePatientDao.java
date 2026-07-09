@@ -33,23 +33,9 @@ public class SqlitePatientDao implements PatientDao {
     }
 
     @Override
-    public List<Patient> findAll() throws SQLException {
-        ArrayList<Patient> patients = new ArrayList<>();
-        String sql = "SELECT * FROM patients ORDER BY last_name, first_name, patient_id";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                patients.add(mapPatient(resultSet));
-            }
-        }
-        return patients;
-    }
-
-    @Override
     public List<Patient> findBySection(String section) throws SQLException {
         ArrayList<Patient> patients = new ArrayList<>();
-        String sql = "SELECT * FROM patients WHERE section = ? ORDER BY room, last_name";
+        String sql = "SELECT * FROM patients WHERE section = ? ORDER BY last_name, first_name, patient_id";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, section);
@@ -60,26 +46,6 @@ public class SqlitePatientDao implements PatientDao {
             }
         }
         return patients;
-    }
-
-    @Override
-    public List<Patient> findActivePatients() throws SQLException {
-        ArrayList<Patient> patients = new ArrayList<>();
-        String sql = "SELECT * FROM patients WHERE UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE') ORDER BY section, room, last_name";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                patients.add(mapPatient(resultSet));
-            }
-        }
-        return patients;
-    }
-
-    public List<PatientListRow> findPatientListRows(String search) throws SQLException {
-        PatientFilter filter = new PatientFilter();
-        filter.setSearch(search);
-        return findPatientListRows(filter);
     }
 
     public List<PatientListRow> findPatientListRows(PatientFilter filter) throws SQLException {
@@ -140,18 +106,13 @@ public class SqlitePatientDao implements PatientDao {
                 params.add(safeFilter.status.toUpperCase());
             }
         }
-        if (safeFilter.criticalEmergencyOnly) {
-            sql.append("AND UPPER(priority) IN ('CRITICAL', 'EMERGENCY') ");
-        } else if (hasText(safeFilter.priority) && !"All".equalsIgnoreCase(safeFilter.priority)) {
+        if (hasText(safeFilter.priority) && !"All".equalsIgnoreCase(safeFilter.priority)) {
             if ("HIGH".equalsIgnoreCase(safeFilter.priority)) {
                 sql.append("AND UPPER(priority) IN ('HIGH', 'WARNING') ");
             } else {
                 sql.append("AND UPPER(priority) = ? ");
                 params.add(safeFilter.priority.toUpperCase());
             }
-        }
-        if (safeFilter.recentlyUpdatedOnly) {
-            sql.append("AND datetime(updated_at) >= datetime('now', '-7 days') ");
         }
 
         sql.append("ORDER BY CASE UPPER(priority) ")
@@ -188,13 +149,6 @@ public class SqlitePatientDao implements PatientDao {
         return rows;
     }
 
-    public List<String> findDistinctSections() throws SQLException {
-        return findDistinctValues("section");
-    }
-
-    public List<String> findDistinctRooms() throws SQLException {
-        return findDistinctValues("room");
-    }
 
     public Optional<PatientDetail> findDetailById(String patientId) throws SQLException {
         String sql = "SELECT patient_id, first_name, last_name, birth_date, gender, section, room, status, priority, "
@@ -329,16 +283,7 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
-    public void updatePatientRoom(String patientId, String section, String room) throws SQLException {
-        String sql = "UPDATE patients SET section = ?, room = ?, updated_at = CURRENT_TIMESTAMP WHERE patient_id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, value(section));
-            statement.setString(2, value(room));
-            statement.setString(3, patientId);
-            statement.executeUpdate();
-        }
-    }
+
 
     public boolean updatePriorityIfHigher(String patientId, String requestedPriority) throws SQLException {
         Optional<PatientDetail> detail = findDetailById(patientId);
@@ -390,18 +335,7 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
-    public void updatePatientsRoom(String oldSection, String oldRoom, String newSection, String newRoom) throws SQLException {
-        String sql = "UPDATE patients SET section = ?, room = ?, updated_at = CURRENT_TIMESTAMP "
-                + "WHERE UPPER(COALESCE(section, '')) = ? AND UPPER(COALESCE(room, '')) = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, value(newSection));
-            statement.setString(2, value(newRoom));
-            statement.setString(3, value(oldSection).toUpperCase());
-            statement.setString(4, value(oldRoom).toUpperCase());
-            statement.executeUpdate();
-        }
-    }
+
 
     public boolean existsByPatientId(String patientId) throws SQLException {
         String sql = "SELECT 1 FROM patients WHERE patient_id = ? LIMIT 1";
@@ -428,15 +362,6 @@ public class SqlitePatientDao implements PatientDao {
         return Optional.empty();
     }
 
-    @Override
-    public void deleteById(String patientId) throws SQLException {
-        String sql = "DELETE FROM patients WHERE patient_id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, patientId);
-            statement.executeUpdate();
-        }
-    }
 
     public int count() throws SQLException {
         String sql = "SELECT COUNT(*) FROM patients";
@@ -480,18 +405,6 @@ public class SqlitePatientDao implements PatientDao {
         statement.setString(17, patient.getEmergencyContactPhone());
         statement.setString(18, patient.getAssignedDoctorUsername());
         statement.setString(19, patient.getAssignedStaffUsername());
-    }
-
-    private LocalDateTime parseSqliteDateTime(String value) {
-        if (value == null || value.isBlank()) {
-            return LocalDateTime.MIN;
-        }
-        String normalized = value.trim().replace('T', ' ');
-        try {
-            return LocalDateTime.parse(normalized, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        } catch (DateTimeParseException e) {
-            return LocalDateTime.parse(value.trim());
-        }
     }
 
     private boolean hasText(String value) {
@@ -620,8 +533,6 @@ public class SqlitePatientDao implements PatientDao {
         private String status = "All";
         private String displayStatus = "All";
         private String priority = "All";
-        private boolean criticalEmergencyOnly;
-        private boolean recentlyUpdatedOnly;
 
         public String getSearch() { return search; }
         public void setSearch(String search) { this.search = search == null ? "" : search; }
@@ -631,14 +542,10 @@ public class SqlitePatientDao implements PatientDao {
         public void setRoom(String room) { this.room = room == null ? "All" : room; }
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status == null ? "All" : status; }
-        public String getDisplayStatus() { return displayStatus; }
         public void setDisplayStatus(String displayStatus) { this.displayStatus = displayStatus == null ? "All" : displayStatus; }
         public String getPriority() { return priority; }
         public void setPriority(String priority) { this.priority = priority == null ? "All" : priority; }
-        public boolean isCriticalEmergencyOnly() { return criticalEmergencyOnly; }
-        public void setCriticalEmergencyOnly(boolean criticalEmergencyOnly) { this.criticalEmergencyOnly = criticalEmergencyOnly; }
-        public boolean isRecentlyUpdatedOnly() { return recentlyUpdatedOnly; }
-        public void setRecentlyUpdatedOnly(boolean recentlyUpdatedOnly) { this.recentlyUpdatedOnly = recentlyUpdatedOnly; }
+
     }
 
     public static class PatientWriteRecord {
@@ -662,19 +569,9 @@ public class SqlitePatientDao implements PatientDao {
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
 
-        public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
-                                  String gender, String section, String room, String status,
-                                  String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "Unknown", "", "", "", "", "", "", "");
-        }
 
-        public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
-                                  String gender, String section, String room, String status,
-                                  String priority, String diagnosis, String assignedDoctorUsername,
-                                  String assignedStaffUsername) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
-                    "Unknown", "", "", "", "", "", assignedDoctorUsername, assignedStaffUsername);
-        }
+
+
 
         public PatientWriteRecord(String patientId, String firstName, String lastName, String birthDate,
                                   String gender, String section, String room, String status,
@@ -744,19 +641,8 @@ public class SqlitePatientDao implements PatientDao {
         private final String assignedDoctorUsername;
         private final String assignedStaffUsername;
 
-        public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
-                             String gender, String section, String room, String status,
-                             String priority, String diagnosis) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis, "Unknown", "", "", "", "", "", "", "");
-        }
 
-        public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
-                             String gender, String section, String room, String status,
-                             String priority, String diagnosis, String assignedDoctorUsername,
-                             String assignedStaffUsername) {
-            this(patientId, firstName, lastName, birthDate, gender, section, room, status, priority, "Unknown", diagnosis,
-                    "Unknown", "", "", "", "", "", assignedDoctorUsername, assignedStaffUsername);
-        }
+
 
         public PatientDetail(String patientId, String firstName, String lastName, String birthDate,
                              String gender, String section, String room, String status,

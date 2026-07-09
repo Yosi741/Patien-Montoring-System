@@ -4,8 +4,7 @@ import pages.user.User;
 
 public final class PermissionHelper {
 
-    private PermissionHelper() {
-    }
+
 
     public static boolean canCreatePatient(User user) {
         return isAdmin(user) || isDoctor(user);
@@ -47,23 +46,7 @@ public final class PermissionHelper {
         return isAdmin(user) || isDoctor(user);
     }
 
-    public static boolean canCreateReminder(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canManageReminder(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canCompleteReminder(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
     public static boolean canViewScheduling(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canViewWorkQueue(User user) {
         return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
 
@@ -73,58 +56,6 @@ public final class PermissionHelper {
 
     public static boolean canViewMedicalFiles(User user) {
         return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canManageRooms(User user) {
-        return isAdmin(user);
-    }
-
-    public static boolean canAssignPatientRoom(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canViewDeceasedRecords(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canMarkPatientDeceased(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canGenerateDeathCertificate(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canViewNewbornRecords(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canManageNewbornRecords(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canGenerateBirthCertificate(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canSendDeathCertificateNotice(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canSendBirthCertificateNotice(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
-    }
-
-    public static boolean canViewCertificateRegistry(User user) {
-        return canViewDeceasedRecords(user) || canViewNewbornRecords(user);
-    }
-
-    public static boolean canSubmitCertificateReview(User user) {
-        return isAdmin(user) || isDoctor(user);
-    }
-
-    public static boolean canApproveCertificateReview(User user) {
-        return isAdmin(user) || isDoctor(user);
     }
 
     public static boolean canViewMessages(User user) {
@@ -145,10 +76,6 @@ public final class PermissionHelper {
 
     public static boolean canManageBilling(User user) {
         return user != null;
-    }
-
-    public static boolean isReadOnly(User user) {
-        return !isAdmin(user) && !isDoctor(user) && !isNurse(user);
     }
 
     public static String roleGroup(User user) {

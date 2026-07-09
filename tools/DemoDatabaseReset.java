@@ -1,5 +1,5 @@
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,7 +28,6 @@ public class DemoDatabaseReset {
             seedPatients(connection);
             seedVitals(connection);
             seedAlerts(connection);
-            seedReminders(connection);
             seedNotifications(connection);
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON");
@@ -41,9 +40,9 @@ public class DemoDatabaseReset {
     private static void clearOperationalData(Connection connection) throws Exception {
         String[] tables = {
                 "notifications", "messages",
-                "medical_files", "medical_history", "reminders", "appointments",
+                "medical_files", "appointments",
                 "alerts", "vital_readings",
-                "email_outbox", "password_reset_tokens", "user_profiles", "users", "patients"
+                "user_profiles", "users", "patients"
         };
         try (Statement statement = connection.createStatement()) {
             for (String table : tables) {
@@ -167,32 +166,9 @@ public class DemoDatabaseReset {
         }
     }
 
-    private static void seedReminders(Connection connection) throws Exception {
-        LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
-        insertReminder(connection, "100000002", "CHECKUP", "Checkup: Heart Rate, Blood Pressure, CBC, CRP", now.plusHours(2), "PENDING", "nurse", "Requested checkups/tests: Heart Rate, Blood Pressure, CBC, CRP");
-        insertReminder(connection, "100000004", "APPOINTMENT", "Post-operative follow-up reminder", now.plusHours(4), "PENDING", "doctor", "Review post-operative care plan.");
-        insertReminder(connection, "100000005", "CUSTOM", "Clinic follow-up task", now.plusHours(1), "PENDING", "nurse", "Post-delivery follow-up and family education.");
-    }
-
-    private static void insertReminder(Connection connection, String patientId, String type, String title,
-                                       LocalDateTime due, String status, String assignedTo, String notes) throws Exception {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO reminders(patient_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
-                        + "VALUES(?, ?, ?, ?, '', ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
-            statement.setString(1, patientId);
-            statement.setString(2, type);
-            statement.setString(3, title);
-            statement.setString(4, due.format(DISPLAY_DATE_TIME));
-            statement.setString(5, status);
-            statement.setString(6, assignedTo);
-            statement.setString(7, notes);
-            statement.executeUpdate();
-        }
-    }
-
     private static void seedNotifications(Connection connection) throws Exception {
         insertNotification(connection, "", "DOCTOR", "ER", "100000002", "CRITICAL", "Critical vital alert", "Sara Haddad has a critical oxygen and heart-rate trend.", "ALERT", "100000002");
-        insertNotification(connection, "", "NURSE", "ER", "100000002", "INFO", "Pending checkup order", "Checkup: Heart Rate, Blood Pressure, CBC, CRP is pending.", "REMINDER", "100000002");
+        insertNotification(connection, "", "NURSE", "ER", "100000004", "INFO", "Visit updated", "Lina Mansour has a follow-up visit scheduled for review.", "PATIENT", "100000004");
         insertNotification(connection, "", "DOCTOR", "Internal Medicine", "100000007", "INFO", "Follow-up completed", "Nabil Khoury completed the clinic follow-up workflow.", "PATIENT", "100000007");
     }
 

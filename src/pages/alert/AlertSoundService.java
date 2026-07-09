@@ -9,8 +9,6 @@ public final class AlertSoundService {
     private static final Object LOCK = new Object();
     private static Clip currentClip;
 
-    private AlertSoundService() {
-    }
 
     public static void playAlertSound() {
         synchronized (LOCK) {

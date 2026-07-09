@@ -26,7 +26,7 @@
                     text="Appointment" styleClass="screen-title dialog-title" />
 
             <Label
-                    text="Schedule an urgent care visit, follow-up, or clinic checkup."
+                    text="Schedule an urgent care visit or follow-up."
                     wrapText="true" styleClass="muted-text dialog-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />

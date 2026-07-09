@@ -1,5 +1,5 @@
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +40,6 @@ public class DemoLargeDataSeeder {
 
     private static final String[] BLOOD_TYPES = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
     private static final String[] GENDERS = {"Male", "Female"};
-    private static final String[] REMINDER_TYPES = {"APPOINTMENT", "CHECKUP", "CUSTOM"};
-    private static final String[] REMINDER_STATUSES = {"PENDING", "PENDING", "PENDING", "OVERDUE", "DONE", "MISSED"};
     private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER"};
     private static final String[] APPOINTMENT_STATUSES = {"SCHEDULED", "SCHEDULED", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"};
     private static final String[] ALERT_SEVERITIES = {"WARNING", "CRITICAL", "EMERGENCY"};
@@ -49,8 +47,8 @@ public class DemoLargeDataSeeder {
     private static final String[] MESSAGE_PRIORITIES = {"NORMAL", "HIGH", "URGENT"};
     private static final String[] USERS = {"admin", "doctor", "nurse", "staff"};
 
-    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 50, 20, 20, 40, 15);
-    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 1000, 500, 250, 800, 180);
+    private static final SeedConfig SMALL = new SeedConfig("small", 50, 500, 20, 20, 40, 15);
+    private static final SeedConfig LARGE = new SeedConfig("large", 1000, 10000, 500, 250, 800, 180);
 
     public static void main(String[] args) throws Exception {
         SeedConfig config = parseConfig(args);
@@ -75,7 +73,6 @@ public class DemoLargeDataSeeder {
             connection.setAutoCommit(false);
             List<SeedPatient> patients = insertPatients(connection, config, random, summary);
             insertVitals(connection, config, random, patients, summary);
-            insertReminders(connection, config, random, patients, summary);
             insertAppointments(connection, config, random, patients, summary);
             insertAlerts(connection, config, random, patients, summary);
             insertNotifications(connection, config, random, patients, summary);
@@ -189,32 +186,6 @@ public class DemoLargeDataSeeder {
         }
     }
 
-    private void insertReminders(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
-                                 SeedSummary summary) throws Exception {
-        List<SeedPatient> activePatients = activePatients(patients);
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO reminders(patient_id, reminder_type, title, due_time, repeat_rule, status, assigned_to, created_by, notes, created_at, updated_at) "
-                        + "VALUES(?, ?, ?, ?, ?, ?, ?, 'admin', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")) {
-            for (int i = 1; i <= config.reminderCount; i++) {
-                SeedPatient patient = activePatients.get(i % activePatients.size());
-                String type = REMINDER_TYPES[i % REMINDER_TYPES.length];
-                String status = REMINDER_STATUSES[i % REMINDER_STATUSES.length];
-                LocalDateTime due = LocalDateTime.now().plusMinutes((i * 35L) % (60L * 24 * 20) - (60L * 24 * 5));
-
-                statement.setString(1, patient.patientId);
-                statement.setString(2, type);
-                statement.setString(3, "Demo Reminder " + String.format(Locale.ROOT, "%04d", i));
-                statement.setString(4, due.format(DISPLAY_DATE_TIME));
-                statement.setString(5, "CUSTOM".equals(type) ? "" : "Every shift");
-                statement.setString(6, status);
-                statement.setString(7, "CHECKUP".equals(type) ? "doctor" : "nurse");
-                statement.setString(8, "Demo reminder note " + String.format(Locale.ROOT, "%04d", i));
-                statement.executeUpdate();
-                summary.remindersInserted++;
-            }
-        }
-    }
-
     private void insertAppointments(Connection connection, SeedConfig config, Random random, List<SeedPatient> patients,
                                     SeedSummary summary) throws Exception {
         List<SeedPatient> activePatients = activePatients(patients);
@@ -286,7 +257,7 @@ public class DemoLargeDataSeeder {
                 statement.setString(6, "Demo Notification " + String.format(Locale.ROOT, "%04d", i));
                 statement.setString(7, "Demo notification for " + patient.displayName);
                 statement.setString(8, status);
-                statement.setString(9, i % 2 == 0 ? "ALERT" : "REMINDER");
+                statement.setString(9, i % 2 == 0 ? "ALERT" : "PATIENT");
                 statement.setString(10, patient.patientId);
                 statement.setInt(11, "READ".equals(status) ? 1 : 0);
                 statement.setString(12, createdAt.format(ISO_DATE_TIME));
@@ -454,7 +425,6 @@ public class DemoLargeDataSeeder {
         System.out.println("Demo large data seeding complete (" + summary.mode + ").");
         System.out.println("patients inserted=" + summary.patientsInserted);
         System.out.println("vitals inserted=" + summary.vitalsInserted);
-        System.out.println("reminders inserted=" + summary.remindersInserted);
         System.out.println("appointments inserted=" + summary.appointmentsInserted);
         System.out.println("alerts inserted=" + summary.alertsInserted);
         System.out.println("notifications inserted=" + summary.notificationsInserted);
@@ -467,18 +437,16 @@ public class DemoLargeDataSeeder {
         private final String label;
         private final int patientCount;
         private final int vitalCount;
-        private final int reminderCount;
         private final int appointmentCount;
         private final int messageCount;
         private final int notificationCount;
         private final int alertCount;
 
-        private SeedConfig(String label, int patientCount, int vitalCount, int reminderCount,
+        private SeedConfig(String label, int patientCount, int vitalCount,
                            int appointmentCount, int messageCount, int notificationCount, int alertCount) {
             this.label = label;
             this.patientCount = patientCount;
             this.vitalCount = vitalCount;
-            this.reminderCount = reminderCount;
             this.appointmentCount = appointmentCount;
             this.messageCount = messageCount;
             this.notificationCount = notificationCount;
@@ -492,7 +460,6 @@ public class DemoLargeDataSeeder {
         private final Path backupPath;
         private int patientsInserted;
         private int vitalsInserted;
-        private int remindersInserted;
         private int appointmentsInserted;
         private int alertsInserted;
         private int notificationsInserted;

@@ -155,7 +155,7 @@ public class NotificationCenterController implements AppController {
     private List<SqliteNotificationDao.NotificationRow> filterAlertScope(List<SqliteNotificationDao.NotificationRow> loaded) {
         ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
         for (SqliteNotificationDao.NotificationRow row : loaded) {
-            if (!isMessageRow(row) && !isReminderRow(row)) {
+            if (isAlertRow(row) || isSystemRow(row)) {
                 filtered.add(row);
             }
         }
@@ -395,18 +395,19 @@ public class NotificationCenterController implements AppController {
         return sourceContains(row, "MESSAGE");
     }
 
-    private boolean isReminderRow(SqliteNotificationDao.NotificationRow row) {
-        return sourceContains(row, "REMINDER")
-                || sourceContains(row, "SCHEDULING")
-                || sourceContains(row, "CHECKUP");
-    }
-
     private boolean isAlertRow(SqliteNotificationDao.NotificationRow row) {
         return sourceContains(row, "ALERT");
     }
 
     private boolean isSystemRow(SqliteNotificationDao.NotificationRow row) {
-        return row != null && !isAlertRow(row) && !isMessageRow(row) && !isReminderRow(row);
+        String source = nullTo(row == null ? null : row.getSourceType(), "").toUpperCase(Locale.ROOT);
+        return row != null
+                && !isAlertRow(row)
+                && !isMessageRow(row)
+                && (source.isBlank()
+                || source.contains("SYSTEM")
+                || source.contains("PATIENT")
+                || source.contains("NOTIFICATION"));
     }
 
     private boolean sourceContains(SqliteNotificationDao.NotificationRow row, String token) {

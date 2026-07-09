@@ -86,7 +86,6 @@ public class UserProfileController implements AppController {
             addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");
             addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
             addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
-            addPermission("Create reminders", PermissionHelper.canCreateReminder(user), "Future JavaFX write workflow");
         }
     }
 

@@ -22,12 +22,6 @@ public final class NotificationHelper {
         showStatus(label, message, "status-info");
     }
 
-    public static void showTemporaryInfo(Label label, String message, int seconds) {
-        showInfo(label, message);
-        PauseTransition pause = new PauseTransition(Duration.seconds(Math.max(1, seconds)));
-        pause.setOnFinished(event -> showInfo(label, ""));
-        pause.play();
-    }
 
     private static void showStatus(Label label, String message, String styleClass) {
         if (label == null) {

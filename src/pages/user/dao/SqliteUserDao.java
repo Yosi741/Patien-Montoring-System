@@ -64,19 +64,7 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    @Override
-    public List<User> findAll() throws SQLException {
-        ArrayList<User> users = new ArrayList<>();
-        String sql = "SELECT username, password_hash, role, section, staff_id FROM users ORDER BY username";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                users.add(mapUser(resultSet));
-            }
-        }
-        return users;
-    }
+
 
     @Override
     public void save(User user) throws SQLException {
@@ -115,15 +103,7 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    @Override
-    public void deleteById(String username) throws SQLException {
-        String sql = "UPDATE users SET active = 0 WHERE username = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            statement.executeUpdate();
-        }
-    }
+
 
     public boolean verifyPassword(String username, char[] password) throws SQLException {
         return verifyPassword(username, password == null ? "" : new String(password));

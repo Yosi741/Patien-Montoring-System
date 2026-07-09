@@ -90,15 +90,7 @@ public final class FormValidationHelper {
         return ValidationResult.ok();
     }
 
-    public static ValidationResult validateDuplicate(String label, BooleanSupplier duplicateCheck) {
-        try {
-            return duplicateCheck.getAsBoolean()
-                    ? ValidationResult.error(label + " already exists.")
-                    : ValidationResult.ok();
-        } catch (Exception e) {
-            return ValidationResult.error("Could not check duplicate " + label.toLowerCase(Locale.ROOT) + ": " + e.getMessage());
-        }
-    }
+
 
     public static ValidationResult combine(ValidationResult... results) {
         ArrayList<String> errors = new ArrayList<>();

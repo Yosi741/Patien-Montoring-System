@@ -1,5 +1,5 @@
-import app.DatabaseManager;
-import app.SchemaInitializer;
+import app.database.DatabaseManager;
+import app.database.SchemaInitializer;
 import pages.dashboard.services.DashboardMetricsService;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.dao.SqliteVitalReadingDao;
@@ -67,7 +67,7 @@ public class DemoPerformanceCheck {
         }));
         results.add(check("Patient filter critical/emergency", () -> {
             SqlitePatientDao.PatientFilter filter = new SqlitePatientDao.PatientFilter();
-            filter.setCriticalEmergencyOnly(true);
+            filter.setDisplayStatus("CRITICAL");
             List<SqlitePatientDao.PatientListRow> rows = patientDao.findPatientListRows(filter);
             return "Critical/emergency rows=" + rows.size();
         }));
@@ -82,9 +82,9 @@ public class DemoPerformanceCheck {
             return "Vitals rows for " + samplePatient.getPatientId() + "="
                     + vitalDao.findByPatientId(samplePatient.getPatientId()).size();
         }));
-        results.add(check("Scheduling/reminders load", () -> {
-            SchedulingService.SchedulingOverview overview = schedulingService.loadOverview("", "All", "All", "All", "All", "");
-            return "Appointments=" + overview.getAppointments().size() + ", reminders=" + overview.getReminders().size();
+        results.add(check("Scheduling load", () -> {
+            SchedulingService.SchedulingOverview overview = schedulingService.loadOverview("", "All", "All", "");
+            return "Appointments=" + overview.getAppointments().size() + ", cancelled/missed=" + overview.getCancelledMissedItems();
         }));
         results.add(check("Notifications load", () -> {
             return "Notification rows=" + notificationCenterService

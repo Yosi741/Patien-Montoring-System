@@ -6,8 +6,6 @@ import app.core.AppShell;
 
 public final class DialogThemeHelper {
 
-    private DialogThemeHelper() {
-    }
 
     public static void apply(Dialog<?> dialog) {
         if (dialog == null || dialog.getDialogPane() == null) {

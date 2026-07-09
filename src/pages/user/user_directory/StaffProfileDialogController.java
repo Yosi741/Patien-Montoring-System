@@ -160,7 +160,6 @@ public class StaffProfileDialogController {
         addPermission("View patients", true);
         addPermission("Enter vitals", PermissionHelper.canEnterVitals(user));
         addPermission("Manage appointments", PermissionHelper.canCreateAppointment(user));
-        addPermission("Manage reminders", PermissionHelper.canCreateReminder(user));
         addPermission("Manage staff accounts", RolePermissionService.canManageUsers(user) || "ADMIN".equalsIgnoreCase(PermissionHelper.roleGroup(row == null ? "" : row.getRole())));
     }
 

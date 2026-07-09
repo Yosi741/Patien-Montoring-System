@@ -132,27 +132,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         return files;
     }
 
-    public List<MedicalFileRecord> findByPatientId(String patientId) throws SQLException {
-        return findFiles("", "All", "All", "All", patientId);
-    }
 
-    public List<MedicalFileRecord> findLatestFiles(int limit) throws SQLException {
-        ArrayList<MedicalFileRecord> files = new ArrayList<>();
-        String sql = "SELECT mf.id, mf.file_id, mf.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
-                + "mf.original_name, mf.stored_path, mf.file_type, mf.uploaded_by, mf.uploaded_at, mf.extracted_summary, mf.file_size, mf.notes "
-                + "FROM medical_files mf LEFT JOIN patients p ON p.patient_id = mf.patient_id "
-                + "ORDER BY datetime(" + uploadedAtSqlExpression() + ") DESC, mf.id DESC LIMIT ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, Math.max(1, limit));
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    files.add(mapRecord(resultSet));
-                }
-            }
-        }
-        return files;
-    }
+
+
 
     public Optional<MedicalFileRecord> findByFileId(String fileId) throws SQLException {
         String sql = "SELECT mf.id, mf.file_id, mf.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
@@ -282,7 +264,6 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         public String getUploadedAt() { return uploadedAt; }
         public String getExtractedSummary() { return extractedSummary; }
         public long getFileSize() { return fileSize; }
-        public String getFileSizeText() { return fileSize + " bytes"; }
         public String getNotes() { return notes; }
     }
 }

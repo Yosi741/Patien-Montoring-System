@@ -22,8 +22,6 @@ public class SchemaInitializer {
             migrateUsers(connection, statement);
             createUserProfiles(statement);
             migrateUserProfiles(statement);
-            createPasswordResetTokens(statement);
-            createEmailOutbox(statement);
             createPatients(statement);
             migratePatients(statement);
             createPatientVisits(statement);
@@ -31,15 +29,12 @@ public class SchemaInitializer {
             createAlerts(statement);
             migrateAlerts(statement);
             createAppointments(statement);
-            createReminders(statement);
-            createMedicalHistory(statement);
             createMedicalFiles(statement);
             migrateMedicalFiles(statement);
             createBillingRecords(statement);
             createMessages(statement);
             createNotifications(statement);
             migrateNotifications(statement);
-            dropInactivePresentationTables(statement);
         }
     }
 
@@ -141,29 +136,6 @@ public class SchemaInitializer {
         addColumnIfMissing(statement, "user_profiles", "duty_status", "TEXT NOT NULL DEFAULT 'On Duty'");
         addColumnIfMissing(statement, "user_profiles", "profile_photo_path", "TEXT");
         statement.execute("UPDATE user_profiles SET duty_status = 'On Duty' WHERE duty_status IS NULL OR TRIM(duty_status) = ''");
-    }
-
-    private static void createPasswordResetTokens(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS password_reset_tokens ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "username TEXT NOT NULL,"
-                + "token_hash TEXT NOT NULL,"
-                + "expires_at TEXT NOT NULL,"
-                + "used_at TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE"
-                + ")");
-    }
-
-    private static void createEmailOutbox(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS email_outbox ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "recipient_email TEXT NOT NULL,"
-                + "subject TEXT NOT NULL,"
-                + "body TEXT NOT NULL,"
-                + "status TEXT NOT NULL DEFAULT 'QUEUED',"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                + ")");
     }
 
     private static void createPatients(Statement statement) throws SQLException {
@@ -271,24 +243,6 @@ public class SchemaInitializer {
                 + ")");
     }
 
-    private static void createReminders(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS reminders ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT NOT NULL,"
-                + "reminder_type TEXT NOT NULL,"
-                + "title TEXT NOT NULL,"
-                + "due_time TEXT NOT NULL,"
-                + "repeat_rule TEXT,"
-                + "status TEXT NOT NULL DEFAULT 'PENDING',"
-                + "assigned_to TEXT,"
-                + "created_by TEXT,"
-                + "notes TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-    }
-
     private static void createPatientVisits(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS patient_visits ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -297,18 +251,6 @@ public class SchemaInitializer {
                 + "discharge_date TEXT,"
                 + "status TEXT NOT NULL,"
                 + "report TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-    }
-
-    private static void createMedicalHistory(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS medical_history ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT NOT NULL,"
-                + "category TEXT NOT NULL,"
-                + "details TEXT NOT NULL,"
-                + "created_by TEXT,"
                 + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                 + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
                 + ")");
@@ -350,109 +292,6 @@ public class SchemaInitializer {
     private static void migrateMedicalFiles(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "medical_files", "file_size", "INTEGER NOT NULL DEFAULT 0");
         addColumnIfMissing(statement, "medical_files", "notes", "TEXT");
-    }
-
-    private static void createRooms(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS rooms ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "section TEXT NOT NULL,"
-                + "room_number TEXT NOT NULL,"
-                + "capacity INTEGER NOT NULL DEFAULT 1,"
-                + "floor_number INTEGER,"
-                + "room_sequence INTEGER,"
-                + "UNIQUE(section, room_number)"
-                + ")");
-    }
-
-    private static void createSections(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS sections ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "name TEXT NOT NULL UNIQUE,"
-                + "status TEXT NOT NULL DEFAULT 'ACTIVE',"
-                + "notes TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                + ")");
-    }
-
-    private static void seedSections(Statement statement) throws SQLException {
-        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) VALUES "
-                + "('ER', 'ACTIVE', 'Presentation demo department'),"
-                + "('Surgery', 'ACTIVE', 'Presentation demo department'),"
-                + "('Internal Medicine', 'ACTIVE', 'Presentation demo department'),"
-                + "('Maternity', 'ACTIVE', 'Presentation demo department'),"
-                + "('Pediatrics', 'ACTIVE', 'Presentation demo department'),"
-                + "('Cardiology', 'ACTIVE', 'Presentation demo department')");
-        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) "
-                + "SELECT DISTINCT TRIM(section), 'ACTIVE', 'Imported from patient locations' FROM patients "
-                + "WHERE section IS NOT NULL AND TRIM(section) <> ''");
-        statement.execute("INSERT OR IGNORE INTO sections(name, status, notes) "
-                + "SELECT DISTINCT TRIM(section), 'ACTIVE', 'Imported from room records' FROM rooms "
-                + "WHERE section IS NOT NULL AND TRIM(section) <> ''");
-    }
-
-    private static void migrateRooms(Statement statement) throws SQLException {
-        addColumnIfMissing(statement, "rooms", "status", "TEXT NOT NULL DEFAULT 'ACTIVE'");
-        addColumnIfMissing(statement, "rooms", "notes", "TEXT");
-        addColumnIfMissing(statement, "rooms", "updated_at", "TEXT");
-        addColumnIfMissing(statement, "rooms", "floor_number", "INTEGER");
-        addColumnIfMissing(statement, "rooms", "room_sequence", "INTEGER");
-        statement.execute("UPDATE rooms SET status = 'ACTIVE' WHERE status IS NULL OR TRIM(status) = ''");
-        statement.execute("UPDATE rooms SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL OR TRIM(updated_at) = ''");
-    }
-
-    private static void createDeceasedRecords(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS deceased_records ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "patient_id TEXT NOT NULL UNIQUE,"
-                + "death_time TEXT NOT NULL,"
-                + "pronounced_by TEXT NOT NULL,"
-                + "cause_of_death TEXT NOT NULL,"
-                + "notes TEXT,"
-                + "certificate_path TEXT,"
-                + "created_by TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE"
-                + ")");
-    }
-
-    private static void createNewbornRecords(Statement statement) throws SQLException {
-        statement.execute("CREATE TABLE IF NOT EXISTS newborn_records ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "newborn_id TEXT NOT NULL UNIQUE,"
-                + "mother_patient_id TEXT,"
-                + "father_name TEXT,"
-                + "mother_name TEXT NOT NULL,"
-                + "baby_name TEXT NOT NULL,"
-                + "gender TEXT NOT NULL,"
-                + "birth_time TEXT NOT NULL,"
-                + "birth_weight REAL NOT NULL,"
-                + "birth_length REAL,"
-                + "delivery_type TEXT NOT NULL DEFAULT 'UNKNOWN',"
-                + "room TEXT,"
-                + "section TEXT,"
-                + "doctor_or_midwife TEXT,"
-                + "notes TEXT,"
-                + "certificate_path TEXT,"
-                + "created_by TEXT,"
-                + "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(mother_patient_id) REFERENCES patients(patient_id) ON DELETE SET NULL"
-                + ")");
-    }
-
-    private static void migrateCertificateReviewColumns(Statement statement) throws SQLException {
-        addCertificateReviewColumns(statement, "deceased_records");
-        addCertificateReviewColumns(statement, "newborn_records");
-    }
-
-    private static void addCertificateReviewColumns(Statement statement, String table) throws SQLException {
-        addColumnIfMissing(statement, table, "review_status", "TEXT NOT NULL DEFAULT 'DRAFT'");
-        addColumnIfMissing(statement, table, "reviewed_by", "TEXT");
-        addColumnIfMissing(statement, table, "reviewed_at", "TEXT");
-        addColumnIfMissing(statement, table, "rejection_reason", "TEXT");
-        statement.execute("UPDATE " + table + " SET review_status = 'DRAFT' WHERE review_status IS NULL OR TRIM(review_status) = ''");
     }
 
     private static void createNotifications(Statement statement) throws SQLException {
@@ -497,8 +336,4 @@ public class SchemaInitializer {
                 + "WHERE status IS NULL OR TRIM(status) = ''");
     }
 
-    private static void dropInactivePresentationTables(Statement statement) throws SQLException {
-        statement.execute("DROP TABLE IF EXISTS ai_notes");
-        statement.execute("DROP TABLE IF EXISTS devices");
-    }
 }

@@ -35,12 +35,12 @@ public class DashboardController implements AppController {
     @FXML private Label refreshStatusLabel;
     @FXML private Label totalPatientsLabel;
     @FXML private Label appointmentsTodayLabel;
-    @FXML private Label waitingNowLabel;
+    @FXML private Label activePatientsLabel;
     @FXML private Label activeAlertsLabel;
     @FXML private Label recentVitalsTodayLabel;
-    @FXML private Label pendingRemindersLabel;
-    @FXML private Label overdueRemindersDashboardLabel;
-    @FXML private Label upcomingRemindersDashboardLabel;
+    @FXML private Label criticalPatientsDashboardLabel;
+    @FXML private Label acknowledgedAlertsDashboardLabel;
+    @FXML private Label resolvedAlertsDashboardLabel;
     @FXML private VBox visitStatusDistributionBox;
     @FXML private VBox recentAlertsBox;
     @FXML private VBox latestVitalsBox;
@@ -106,12 +106,12 @@ public class DashboardController implements AppController {
     private void renderMetrics(DashboardMetricsService.DashboardMetrics metrics) {
         totalPatientsLabel.setText(String.valueOf(metrics.getTotalPatients()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
-        waitingNowLabel.setText(String.valueOf(metrics.getPendingReminders()));
+        activePatientsLabel.setText(String.valueOf(metrics.getActivePatients()));
         activeAlertsLabel.setText(String.valueOf(metrics.getActiveAlerts()));
         recentVitalsTodayLabel.setText(metrics.getRecentVitalsToday() + " readings today");
-        pendingRemindersLabel.setText(String.valueOf(metrics.getPendingReminders()));
-        overdueRemindersDashboardLabel.setText(String.valueOf(metrics.getOverdueReminders()));
-        upcomingRemindersDashboardLabel.setText(String.valueOf(metrics.getUpcomingRemindersToday()));
+        criticalPatientsDashboardLabel.setText(String.valueOf(metrics.getCriticalEmergencyPatients()));
+        acknowledgedAlertsDashboardLabel.setText(String.valueOf(metrics.getAcknowledgedAlertsToday()));
+        resolvedAlertsDashboardLabel.setText(String.valueOf(metrics.getResolvedAlertsToday()));
 
         renderPatientFlowChart(metrics);
         renderVisitStatusDistribution(metrics);
@@ -146,11 +146,11 @@ public class DashboardController implements AppController {
         }
         visitStatusDistributionBox.getChildren().clear();
         int discharged = Math.max(metrics.getTotalPatients() - metrics.getActivePatients(), 0);
-        visitStatusDistributionBox.getChildren().add(statusRow("Waiting", metrics.getPendingReminders(), "badge-pill warning-pill"));
         visitStatusDistributionBox.getChildren().add(statusRow("Active", metrics.getActivePatients(), "badge-pill success-pill"));
-        visitStatusDistributionBox.getChildren().add(statusRow("Follow-up", metrics.getUpcomingRemindersToday(), "badge-pill info-pill"));
         visitStatusDistributionBox.getChildren().add(statusRow("Discharged", discharged, "badge-pill muted-pill"));
         visitStatusDistributionBox.getChildren().add(statusRow("Critical", metrics.getCriticalEmergencyPatients(), "badge-pill danger-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Alerts", metrics.getActiveAlerts(), "badge-pill warning-pill"));
+        visitStatusDistributionBox.getChildren().add(statusRow("Appointments", metrics.getAppointmentsToday(), "badge-pill info-pill"));
     }
 
     private void renderRecentAlerts(DashboardMetricsService.DashboardMetrics metrics) {

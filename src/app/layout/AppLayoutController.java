@@ -1,7 +1,7 @@
 package app.layout;
 
 import app.contracts.AppController;
-import app.core.AppFeatures;
+
 import app.core.AppShell;
 import app.core.SessionContext;
 import app.helpers.PermissionHelper;
@@ -60,8 +60,6 @@ public class AppLayoutController implements AppController {
     @FXML private Button alertsIconButton;
     @FXML private Button messagesIconButton;
     @FXML private Button themeToggleButton;
-    @FXML private Button sidebarLogoutButton;
-    @FXML private MenuButton quickActionsButton;
     @FXML private MenuButton profileMenuButton;
     @FXML private ImageView sidebarLogoImage;
 
@@ -291,7 +289,7 @@ public class AppLayoutController implements AppController {
     private void configurePermissions() {
         boolean canSeeStaff = roleGroup(SessionContext.role()).equals("ADMIN");
         setButtonVisible(staffManagementButton, canSeeStaff);
-        setButtonVisible(messagesIconButton, AppFeatures.messagesEnabled());
+        setButtonVisible(messagesIconButton, true);
     }
 
     private void refreshCounts() {

@@ -29,19 +29,6 @@ public class SqliteVitalReadingDao implements VitalReadingDao {
         return Optional.empty();
     }
 
-    @Override
-    public List<VitalRecord> findAll() throws SQLException {
-        ArrayList<VitalRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM vital_readings ORDER BY recorded_at DESC";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                records.add(mapRecord(resultSet));
-            }
-        }
-        return records;
-    }
 
     @Override
     public List<VitalRecord> findByPatientId(String patientId) throws SQLException {
@@ -152,15 +139,6 @@ public class SqliteVitalReadingDao implements VitalReadingDao {
         return records;
     }
 
-    @Override
-    public void deleteById(String recordId) throws SQLException {
-        String sql = "DELETE FROM vital_readings WHERE id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, recordId);
-            statement.executeUpdate();
-        }
-    }
 
     private VitalRecord mapRecord(ResultSet resultSet) throws SQLException {
         return new VitalRecord(

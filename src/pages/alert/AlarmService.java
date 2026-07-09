@@ -77,9 +77,6 @@ public class AlarmService {
         alertShownForActiveAlarm = false;
     }
 
-    public static synchronized AlarmState getState() {
-        return state;
-    }
 
     private static boolean isCritical(VitalSign vitalSign) {
         if (vitalSign == null) {

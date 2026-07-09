@@ -89,14 +89,6 @@ public class SqliteNotificationDao {
         }
     }
 
-    public boolean dismiss(long id) throws SQLException {
-        String sql = "UPDATE notifications SET status = 'DISMISSED', read = 1, read_at = COALESCE(read_at, CURRENT_TIMESTAMP) WHERE id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, id);
-            return statement.executeUpdate() > 0;
-        }
-    }
 
     private StringBuilder baseSelect() {
         return new StringBuilder("SELECT id, username, role, section, patient_id, severity, title, message, status, "

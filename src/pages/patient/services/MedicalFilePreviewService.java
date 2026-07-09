@@ -165,7 +165,6 @@ public class MedicalFilePreviewService {
         }
 
         public SqliteMedicalFileDao.MedicalFileRecord getFile() { return file; }
-        public String getPreviewType() { return previewType; }
         public String getPreviewText() { return previewText; }
         public String getSafePath() { return safePath; }
         public boolean isImage() { return "IMAGE".equalsIgnoreCase(previewType); }

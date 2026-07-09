@@ -263,7 +263,6 @@ public class MedicalFileUploadService {
         }
 
         public String getFileId() { return fileId; }
-        public String getStoredPath() { return storedPath; }
         public String getExtractedSummary() { return extractedSummary; }
     }
 }

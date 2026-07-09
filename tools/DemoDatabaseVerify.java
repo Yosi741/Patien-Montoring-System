@@ -1,4 +1,4 @@
-import app.DatabaseManager;
+import app.database.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,7 +10,6 @@ public class DemoDatabaseVerify {
              Statement statement = connection.createStatement()) {
             printCount(statement, "patients");
             printCount(statement, "users");
-            printCount(statement, "reminders");
             printCount(statement, "notifications");
             printCount(statement, "medical_files");
             query(statement, "Users",

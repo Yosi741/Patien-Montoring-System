@@ -23,7 +23,7 @@
                     <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card appointments-header">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                             <Label text="Appointments" styleClass="screen-title" />
-                            <Label text="Schedule and manage urgent care visits, checkups, and follow-ups."
+                            <Label text="Schedule and manage urgent care visits and follow-ups."
                                    wrapText="true"
                                    styleClass="muted-text dashboard-page-subtitle" />
                         </VBox>
@@ -57,14 +57,14 @@
 
                             <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-amber">
                                 <Label text="Completed" styleClass="metric-title" />
-                                <Label fx:id="overdueRemindersLabel" text="0" styleClass="metric-value appointments-metric-value warning-value" />
+                                <Label fx:id="completedAppointmentsLabel" text="0" styleClass="metric-value appointments-metric-value warning-value" />
                                 <Label text="Visits finished successfully" styleClass="muted-text appointments-metric-note" />
                             </VBox>
 
                             <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-danger">
                                 <Label text="Cancelled / Missed" styleClass="metric-title" />
                                 <Label fx:id="cancelledMissedLabel" text="0" styleClass="metric-value appointments-metric-value" />
-                                <Label text="Visits or checkups not completed" styleClass="muted-text appointments-metric-note" />
+                                <Label text="Visits not completed" styleClass="muted-text appointments-metric-note" />
                             </VBox>
                         </HBox>
 
@@ -114,7 +114,7 @@
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <VBox spacing="4.0">
                                     <Label text="Upcoming Appointments" styleClass="section-title" />
-                                    <Label text="Urgent care visits, follow-ups, and scheduled checkups."
+                                    <Label text="Urgent care visits and scheduled follow-ups."
                                            styleClass="muted-text body-text" />
                                 </VBox>
                             </HBox>

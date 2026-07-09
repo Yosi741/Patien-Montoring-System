@@ -59,9 +59,9 @@
                     </VBox>
 
                     <VBox spacing="10.0" styleClass="metric-card metric-card-cyan">
-                        <Label text="Waiting Now" styleClass="metric-title" />
-                        <Label fx:id="waitingNowLabel" text="0" styleClass="metric-value" />
-                        <Label text="Pending follow-ups / check-ins" styleClass="dashboard-kpi-caption" />
+                        <Label text="Active Patients" styleClass="metric-title" />
+                        <Label fx:id="activePatientsLabel" text="0" styleClass="metric-value" />
+                        <Label text="Currently under clinic care" styleClass="dashboard-kpi-caption" />
                     </VBox>
 
                     <VBox spacing="10.0" styleClass="metric-card metric-card-danger">
@@ -107,7 +107,7 @@
                     <VBox spacing="16.0" styleClass="chart-card" GridPane.columnIndex="1">
                         <VBox spacing="4.0">
                             <Label text="Visit Status Distribution" styleClass="section-title" />
-                            <Label text="Live clinic snapshot based on today’s patient and follow-up activity."
+                            <Label text="Live clinic snapshot based on patient, visit, and alert activity."
                                    wrapText="true"
                                    styleClass="dashboard-page-subtitle" />
                         </VBox>
@@ -140,22 +140,22 @@
                     </VBox>
 
                     <VBox spacing="14.0" styleClass="chart-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                        <Label text="Follow-up Queue" styleClass="section-title" />
+                        <Label text="Clinic Activity" styleClass="section-title" />
                         <VBox spacing="12.0">
                             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
-                                <Label text="Pending Follow-ups" styleClass="muted-text" />
+                                <Label text="Critical Patients" styleClass="muted-text" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="pendingRemindersLabel" text="0" styleClass="metric-value compact-metric-value" />
+                                <Label fx:id="criticalPatientsDashboardLabel" text="0" styleClass="metric-value compact-metric-value" />
                             </HBox>
                             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
-                                <Label text="Overdue" styleClass="muted-text" />
+                                <Label text="Acknowledged Alerts" styleClass="muted-text" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="overdueRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
+                                <Label fx:id="acknowledgedAlertsDashboardLabel" text="0" styleClass="metric-value compact-metric-value warning-value" />
                             </HBox>
                             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dashboard-summary-row">
-                                <Label text="Due Today" styleClass="muted-text" />
+                                <Label text="Resolved Today" styleClass="muted-text" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="upcomingRemindersDashboardLabel" text="0" styleClass="metric-value compact-metric-value success-value" />
+                                <Label fx:id="resolvedAlertsDashboardLabel" text="0" styleClass="metric-value compact-metric-value success-value" />
                             </HBox>
                         </VBox>
                     </VBox>

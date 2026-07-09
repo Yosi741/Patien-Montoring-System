@@ -205,11 +205,6 @@ public class MessagingService {
         return count;
     }
 
-    private String targetSummary(SqliteMessageDao.MessageWriteRecord record) {
-        if (!record.getRecipientUsername().isBlank()) return "user:" + record.getRecipientUsername();
-        if (!record.getRecipientRole().isBlank()) return "role:" + record.getRecipientRole();
-        return "section:" + record.getRecipientSection();
-    }
 
     private void requireValid(FormValidationHelper.ValidationResult validation) {
         if (!validation.isValid()) {

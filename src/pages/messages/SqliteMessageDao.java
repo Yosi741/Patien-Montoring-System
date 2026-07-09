@@ -237,9 +237,6 @@ public class SqliteMessageDao {
 
         public long getId() { return id; }
         public String getSenderUsername() { return senderUsername; }
-        public String getRecipientUsername() { return recipientUsername; }
-        public String getRecipientRole() { return recipientRole; }
-        public String getRecipientSection() { return recipientSection; }
         public String getPatientId() { return patientId; }
         public String getSubject() { return subject; }
         public String getBody() { return body; }

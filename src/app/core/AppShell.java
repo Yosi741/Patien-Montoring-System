@@ -97,48 +97,10 @@ public class AppShell extends Application {
         );
     }
 
-    public void showCertificateFromNotification(String sourceType, String sourceId) {
-        showCertificateSourceRecord(sourceType, sourceId);
-    }
+
 
     public void showMessageCertificateSourceRecord(String sourceType, String sourceId) {
         showCertificateSourceRecord(sourceType, sourceId);
-    }
-
-    public void showNewbornRecord(long recordId) {
-        showPlaceholder(
-                "Record Unavailable",
-                "That record is not available in this clinic presentation build.",
-                "Requested record: " + recordId
-        );
-    }
-
-    public void showDeceasedRecord(long recordId) {
-        showPlaceholder(
-                "Record Unavailable",
-                "That record is not available in this clinic presentation build.",
-                "Requested record: " + recordId
-        );
-    }
-
-    public void showNewbornRecordsForMother(String patientId) {
-        showPlaceholder(
-                "Linked Record Unavailable",
-                "Linked records of that type are not available in this clinic presentation build.",
-                "Requested patient: " + safe(patientId)
-        );
-    }
-
-    public void showAlertCenter() {
-        showNotificationCenter();
-    }
-
-    public void showAlertCenterForAlert(long alertId) {
-        showNotificationCenter();
-    }
-
-    public void showAlertCenterForPatient(String patientId) {
-        showNotificationCenter();
     }
 
     public void showScheduling() {
@@ -171,17 +133,6 @@ public class AppShell extends Application {
         setShellLoadedContent(files);
         updateShellContext("medical-files", "Patient Medical Files", "Home / Medical Files / Patient");
         primaryStage.setTitle("Smart Urgent Care Clinic System - Patient Medical Files");
-    }
-
-    public void showMedicalFileDetails(String patientId, String fileId) {
-        ensureShell("Smart Urgent Care Clinic System - Medical File Details");
-        AppNavigator.LoadedView files = navigator.loadView("/pages/patient/medical_files/MedicalFilesView.fxml");
-        if (files.getController() instanceof MedicalFilesController) {
-            ((MedicalFilesController) files.getController()).openForFile(patientId, fileId);
-        }
-        setShellLoadedContent(files);
-        updateShellContext("medical-files", "Medical File Details", "Home / Medical Files / Detail");
-        primaryStage.setTitle("Smart Urgent Care Clinic System - Medical File Details");
     }
 
     public void showUserProfile() {

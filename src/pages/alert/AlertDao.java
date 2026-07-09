@@ -1,12 +1,10 @@
 package pages.alert;
 
-import app.database.Dao;
+import app.database.CrudDao;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface AlertDao extends Dao<Alert, String> {
-    List<Alert> findActiveAlerts() throws SQLException;
+public interface AlertDao extends CrudDao<Alert, String> {
 
-    List<Alert> findByPatientId(String patientId) throws SQLException;
 }

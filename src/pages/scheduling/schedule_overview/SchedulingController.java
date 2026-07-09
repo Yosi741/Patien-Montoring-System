@@ -61,7 +61,7 @@ public class SchedulingController implements AppController {
     @FXML private ComboBox<String> appointmentStatusFilter;
     @FXML private Label appointmentsTodayLabel;
     @FXML private Label upcomingSurgeriesLabel;
-    @FXML private Label overdueRemindersLabel;
+    @FXML private Label completedAppointmentsLabel;
     @FXML private Label cancelledMissedLabel;
     @FXML private Button newAppointmentButton;
     @FXML private TableView<SqliteAppointmentDao.AppointmentRow> appointmentTable;
@@ -101,14 +101,12 @@ public class SchedulingController implements AppController {
         try {
             SchedulingService.SchedulingOverview overview = schedulingService.loadOverview(
                     searchField.getText(),
-                    appointmentTypeFilter.getValue(),
+                    appointmentTypeFilterValue(),
                     appointmentStatusFilter.getValue(),
-                    "All",
-                    "All",
                     patientIdFilter);
             appointmentsTodayLabel.setText(String.valueOf(overview.getAppointmentsToday()));
             upcomingSurgeriesLabel.setText(String.valueOf(countAppointmentsByStatus(overview, "SCHEDULED")));
-            overdueRemindersLabel.setText(String.valueOf(countAppointmentsByStatus(overview, "COMPLETED")));
+            completedAppointmentsLabel.setText(String.valueOf(countAppointmentsByStatus(overview, "COMPLETED")));
             cancelledMissedLabel.setText(String.valueOf(overview.getCancelledMissedItems()));
             SelectionHelper.runWhenTableStable(appointmentTable, () -> {
                 SelectionHelper.safeReplaceItems(appointmentTable, appointments, overview.getAppointments());
@@ -213,7 +211,7 @@ public class SchedulingController implements AppController {
     }
 
     private void configureFilters() {
-        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY"));
+        appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "VISIT", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY"));
         appointmentStatusFilter.setItems(FXCollections.observableArrayList("All", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"));
         appointmentTypeFilter.getSelectionModel().select("All");
         appointmentStatusFilter.getSelectionModel().select("All");
@@ -489,6 +487,9 @@ public class SchedulingController implements AppController {
         if (value == null || value.isBlank()) {
             return "-";
         }
+        if ("CHECKUP".equalsIgnoreCase(value)) {
+            return "Visit";
+        }
         String[] tokens = value.split("_");
         StringBuilder builder = new StringBuilder();
         for (String token : tokens) {
@@ -568,12 +569,20 @@ public class SchedulingController implements AppController {
             return "appointment-type-badge appointment-type-neutral";
         }
         return switch (type.toUpperCase()) {
-            case "CHECKUP" -> "appointment-type-badge appointment-type-blue";
+            case "VISIT", "CHECKUP" -> "appointment-type-badge appointment-type-blue";
             case "FOLLOW_UP" -> "appointment-type-badge appointment-type-purple";
             case "LAB_TEST" -> "appointment-type-badge appointment-type-cyan";
             case "SURGERY" -> "appointment-type-badge appointment-type-danger";
             default -> "appointment-type-badge appointment-type-neutral";
         };
+    }
+
+    private String appointmentTypeFilterValue() {
+        String value = appointmentTypeFilter == null ? "All" : appointmentTypeFilter.getValue();
+        if ("VISIT".equalsIgnoreCase(value)) {
+            return "CHECKUP";
+        }
+        return value;
     }
 
     private String badgeStyleForAppointmentStatus(String status) {

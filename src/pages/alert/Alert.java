@@ -18,7 +18,4 @@ public class Alert {
         return level;
     }
 
-    public void displayAlert() {
-        System.out.println("ALERT [" + level + "]: " + message);
-    }
 }

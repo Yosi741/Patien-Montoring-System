@@ -51,18 +51,7 @@ public class NotificationCenterService {
         return rows;
     }
 
-    public int unreadCount(User user) {
-        try {
-            if (!PermissionHelper.canViewNotifications(user)) {
-                return 0;
-            }
-            return notificationDao.unreadCountForUser(username(user), PermissionHelper.roleGroup(user), section(user))
-                    + messageDao.unreadInboxCount(username(user), PermissionHelper.roleGroup(user), section(user));
-        } catch (Exception e) {
-            System.out.println("SQLite unread notification count failed: " + e.getMessage());
-            return 0;
-        }
-    }
+
 
     public void markRead(User user, long id) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
@@ -77,21 +66,6 @@ public class NotificationCenterService {
             return;
         }
         markRead(user, row.getId());
-    }
-
-    public void dismiss(User user, long id) throws SQLException {
-        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
-        notificationDao.dismiss(id);
-    }
-
-    public void dismiss(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
-        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
-        if (isMessageRow(row)) {
-            long messageId = parseSourceId(row);
-            messageDao.archive(messageId, username(user));
-            return;
-        }
-        dismiss(user, row.getId());
     }
 
     public void notifyCriticalAlert(String patientId, String severity, String message, String sourceId) {
@@ -120,24 +94,6 @@ public class NotificationCenterService {
             ));
         } catch (Exception e) {
             System.out.println("SQLite alert notification skipped: " + e.getMessage());
-        }
-    }
-
-    public void notifyOverdueReminder(String patientId, String title, long reminderId) {
-        try {
-            createNotification(new SqliteNotificationDao.NotificationWriteRecord(
-                    "",
-                    "NURSE",
-                    "",
-                    patientId,
-                    "WARNING",
-                    "Overdue reminder",
-                    title == null || title.isBlank() ? "A reminder is overdue." : title,
-                    "REMINDER",
-                    String.valueOf(reminderId)
-            ));
-        } catch (Exception e) {
-            System.out.println("SQLite overdue reminder notification skipped: " + e.getMessage());
         }
     }
 

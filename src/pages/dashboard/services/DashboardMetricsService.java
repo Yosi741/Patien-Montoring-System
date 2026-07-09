@@ -47,11 +47,6 @@ public class DashboardMetricsService {
                     displayToday, isoToday);
             metrics.appointmentsToday = count(connection, "SELECT COUNT(*) FROM appointments WHERE date(start_time) = date('now') "
                     + "OR substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')");
-            metrics.pendingReminders = count(connection, "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'PENDING'");
-            metrics.overdueReminders = count(connection, "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'OVERDUE'");
-            metrics.upcomingRemindersToday = count(connection,
-                    "SELECT COUNT(*) FROM reminders WHERE UPPER(status) = 'PENDING' "
-                            + "AND (date(due_time) = date('now') OR substr(due_time, 1, 10) = strftime('%d-%m-%Y', 'now'))");
             metrics.priorityCounts.put("NORMAL", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'NORMAL'"));
             metrics.priorityCounts.put("HIGH", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'HIGH' OR UPPER(priority) = 'WARNING'"));
             metrics.priorityCounts.put("CRITICAL", count(connection, "SELECT COUNT(*) FROM patients WHERE UPPER(priority) = 'CRITICAL'"));
@@ -152,9 +147,6 @@ public class DashboardMetricsService {
         private int importedMedicalFiles;
         private int recentVitalsToday;
         private int appointmentsToday;
-        private int pendingReminders;
-        private int overdueReminders;
-        private int upcomingRemindersToday;
         private final LinkedHashMap<String, Integer> priorityCounts = new LinkedHashMap<>();
         private final LinkedHashMap<String, Integer> activeAlertSeverityCounts = new LinkedHashMap<>();
         private final ArrayList<RecentAlert> recentAlerts = new ArrayList<>();
@@ -167,14 +159,8 @@ public class DashboardMetricsService {
         public int getActiveAlerts() { return activeAlerts; }
         public int getAcknowledgedAlertsToday() { return acknowledgedAlertsToday; }
         public int getResolvedAlertsToday() { return resolvedAlertsToday; }
-        public int getImportedMedicalFiles() { return importedMedicalFiles; }
         public int getRecentVitalsToday() { return recentVitalsToday; }
         public int getAppointmentsToday() { return appointmentsToday; }
-        public int getPendingReminders() { return pendingReminders; }
-        public int getOverdueReminders() { return overdueReminders; }
-        public int getUpcomingRemindersToday() { return upcomingRemindersToday; }
-        public Map<String, Integer> getPriorityCounts() { return priorityCounts; }
-        public Map<String, Integer> getActiveAlertSeverityCounts() { return activeAlertSeverityCounts; }
         public List<RecentAlert> getRecentAlerts() { return recentAlerts; }
         public List<LatestVital> getLatestVitals() { return latestVitals; }
     }

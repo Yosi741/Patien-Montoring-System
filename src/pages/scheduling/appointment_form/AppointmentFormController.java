@@ -91,10 +91,10 @@ public class AppointmentFormController {
 
     @FXML
     private void initialize() {
-        typeBox.getItems().setAll("CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY");
+        typeBox.getItems().setAll("VISIT", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY");
         statusBox.getItems().setAll("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
         durationBox.getItems().setAll("30 min", "45 min", "60 min");
-        typeBox.getSelectionModel().select("CHECKUP");
+        typeBox.getSelectionModel().select("VISIT");
         statusBox.getSelectionModel().select("SCHEDULED");
         durationBox.getSelectionModel().select(DEFAULT_DURATION);
         DatePickerHelper.configureDdMmYyyy(appointmentDatePicker);
@@ -142,7 +142,7 @@ public class AppointmentFormController {
         }
         titleLabel.setText("Edit Appointment");
         patientIdField.setText(appointment.getPatientId());
-        typeBox.getSelectionModel().select(appointment.getAppointmentType());
+        typeBox.getSelectionModel().select(toUiAppointmentType(appointment.getAppointmentType()));
         statusBox.getSelectionModel().select(appointment.getStatus());
         notesArea.setText(appointment.getNotes());
         preservedTitle = blankTo(appointment.getTitle(), autoTitleForType(appointment.getAppointmentType()));
@@ -181,7 +181,7 @@ public class AppointmentFormController {
                     existingAppointment == null ? 0 : existingAppointment.getId(),
                     patientId,
                     resolvedTitle(),
-                    typeBox.getValue(),
+                    toStorageAppointmentType(typeBox.getValue()),
                     start.format(STORAGE_DATE_TIME),
                     end.format(STORAGE_DATE_TIME),
                     resolvedLocation(),
@@ -283,7 +283,7 @@ public class AppointmentFormController {
     }
 
     private String autoTitleForType(String type) {
-        String normalized = type == null ? "" : type.trim().toUpperCase();
+        String normalized = toStorageAppointmentType(type);
         switch (normalized) {
             case "FOLLOW_UP":
                 return "Follow-up Visit";
@@ -304,11 +304,25 @@ public class AppointmentFormController {
     }
 
     private String defaultDurationForType(String type) {
-        String normalized = type == null ? "" : type.trim().toUpperCase();
+        String normalized = toStorageAppointmentType(type);
         if ("SURGERY".equals(normalized)) {
             return "60 min";
         }
         return DEFAULT_DURATION;
+    }
+
+    private String toStorageAppointmentType(String value) {
+        if (value == null || value.isBlank()) {
+            return "CHECKUP";
+        }
+        return "VISIT".equalsIgnoreCase(value.trim()) ? "CHECKUP" : value.trim().toUpperCase(Locale.ENGLISH);
+    }
+
+    private String toUiAppointmentType(String value) {
+        if ("CHECKUP".equalsIgnoreCase(value)) {
+            return "VISIT";
+        }
+        return value == null || value.isBlank() ? "VISIT" : value.trim().toUpperCase(Locale.ENGLISH);
     }
 
     private int selectedDurationMinutes() {

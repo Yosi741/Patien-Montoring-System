@@ -69,6 +69,4 @@ public class SessionContext {
     public String getUsername() { return username; }
     public String getRole() { return role; }
     public String getSection() { return section; }
-    public String getAuthSource() { return authSource; }
-    public String getLoginTimeText() { return loginTime.format(DISPLAY_TIME); }
 }
