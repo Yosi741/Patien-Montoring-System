@@ -30,8 +30,8 @@
 
                 <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card messages-header">
                     <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                        <Label styleClass="screen-title" text="Messages" />
-                        <Label styleClass="muted-text" text="Internal staff messaging system" wrapText="true" />
+                        <Label styleClass="screen-title page-header-title" text="Messages" />
+                        <Label styleClass="muted-text page-header-subtitle" text="Internal staff messaging system" wrapText="true" />
                     </VBox>
                     <Button onAction="#showComposeOverlay" styleClass="new-message-button" text="+ New Message" />
                 </HBox>
@@ -118,25 +118,38 @@
             </StackPane>
 
             <StackPane fx:id="composeOverlay" managed="false" styleClass="messages-overlay" visible="false">
-                <VBox maxWidth="700.0" spacing="14.0" styleClass="panel-card message-detail-dialog">
+                <VBox maxWidth="760.0" spacing="18.0" styleClass="panel-card message-detail-dialog message-compose-card">
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
                         <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                             <Label styleClass="section-title" text="New Message" />
-                            <Label styleClass="muted-text" text="Choose the exact staff account and send an internal clinic message." wrapText="true" />
+                            <Label styleClass="muted-text" text="Send an internal clinic message to a staff member." wrapText="true" />
                         </VBox>
                         <Button onAction="#hideComposeOverlay" styleClass="secondary-button" text="Cancel" />
                     </HBox>
 
-                    <Label styleClass="field-label" text="Recipient" />
-                    <ComboBox fx:id="targetUserBox" maxWidth="Infinity" promptText="Select exact staff recipient" />
+                    <VBox spacing="8.0" styleClass="message-compose-section">
+                        <Label styleClass="field-label" text="Recipient Email / Staff Search" />
+                        <TextField fx:id="recipientSearchField" maxWidth="Infinity" promptText="Type staff email, full name, username, or role" styleClass="control-input message-recipient-search message-compose-field" />
+                        <Label fx:id="recipientHelperLabel" managed="false" styleClass="muted-text" text="No staff account found." visible="false" wrapText="true" />
+                        <ListView fx:id="recipientSuggestionList" managed="false" maxHeight="176.0" prefHeight="176.0" styleClass="message-suggestion-list" visible="false" />
+                        <Label fx:id="selectedRecipientLabel" managed="false" styleClass="body-text message-selected-recipient" text="Selected recipient" visible="false" wrapText="true" />
+                        <Label fx:id="composeValidationLabel" managed="false" styleClass="message-validation-error" text="Recipient not found. Check the email or choose a staff member from the suggestions." visible="false" wrapText="true" />
+                    </VBox>
 
-                    <HBox spacing="10.0">
-                        <TextField fx:id="patientIdField" prefWidth="180.0" promptText="Optional Patient ID" />
-                        <ComboBox fx:id="priorityBox" prefWidth="140.0" />
-                    </HBox>
+                    <VBox spacing="8.0" styleClass="message-compose-section">
+                        <Label styleClass="field-label" text="Priority" />
+                        <ComboBox fx:id="priorityBox" prefWidth="180.0" styleClass="message-compose-field" />
+                    </VBox>
 
-                    <TextField fx:id="subjectField" promptText="Subject" />
-                    <TextArea fx:id="bodyArea" prefRowCount="12" promptText="Message body" wrapText="true" />
+                    <VBox spacing="8.0" styleClass="message-compose-section">
+                        <Label styleClass="field-label" text="Subject" />
+                        <TextField fx:id="subjectField" maxWidth="Infinity" promptText="Subject" styleClass="message-compose-field" />
+                    </VBox>
+
+                    <VBox spacing="8.0" styleClass="message-compose-section">
+                        <Label styleClass="field-label" text="Message" />
+                        <TextArea fx:id="bodyArea" prefRowCount="12" promptText="Write your internal clinic message here" styleClass="message-compose-field message-compose-body" wrapText="true" />
+                    </VBox>
 
                     <HBox alignment="CENTER_RIGHT" spacing="10.0">
                         <Region HBox.hgrow="ALWAYS" />

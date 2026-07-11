@@ -111,6 +111,16 @@ public class SqliteBillingDao implements BillingDao {
     }
 
     @Override
+    public boolean deleteInvoice(long invoiceId) throws SQLException {
+        String sql = "DELETE FROM billing_records WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, invoiceId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    @Override
     public BillingMetrics getDashboardMetrics(BillingQuery query) throws SQLException {
         QueryParts parts = buildFilterQuery(query, true);
         String sql = "SELECT "
@@ -172,7 +182,7 @@ public class SqliteBillingDao implements BillingDao {
     private QueryParts buildFilterQuery(BillingQuery query, boolean includeAllTimeAlias) {
         String search = query == null || query.search() == null ? "" : query.search().trim();
         String status = query == null || query.paymentStatus() == null ? "All" : query.paymentStatus().trim();
-        String dateRange = query == null || query.dateRange() == null ? "Last 30 days" : query.dateRange().trim();
+        String dateRange = query == null || query.dateRange() == null ? "All Time" : query.dateRange().trim();
         ArrayList<String> params = new ArrayList<>();
         StringBuilder where = new StringBuilder("WHERE 1 = 1 ");
 
@@ -187,8 +197,12 @@ public class SqliteBillingDao implements BillingDao {
             where.append("AND UPPER(payment_status) = ? ");
             params.add(status.trim().toUpperCase(Locale.ROOT));
         }
-        if (!"ALL TIME".equalsIgnoreCase(dateRange) && !"ALL".equalsIgnoreCase(dateRange)) {
-            where.append("AND datetime(created_at) >= datetime('now', '-30 days') ");
+        if ("TODAY".equalsIgnoreCase(dateRange)) {
+            where.append("AND date(created_at) = date('now', 'localtime') ");
+        } else if ("LAST 7 DAYS".equalsIgnoreCase(dateRange)) {
+            where.append("AND datetime(created_at) >= datetime('now', 'localtime', '-7 days') ");
+        } else if ("LAST 30 DAYS".equalsIgnoreCase(dateRange)) {
+            where.append("AND datetime(created_at) >= datetime('now', 'localtime', '-30 days') ");
         }
 
         return new QueryParts(where.toString(), params);

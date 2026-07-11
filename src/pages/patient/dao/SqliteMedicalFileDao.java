@@ -152,6 +152,15 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         return Optional.empty();
     }
 
+    public boolean deleteByFileId(String fileId) throws SQLException {
+        String sql = "DELETE FROM medical_files WHERE file_id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, fileId == null ? "" : fileId.trim());
+            return statement.executeUpdate() > 0;
+        }
+    }
+
     @Override
     public int count() throws SQLException {
         String sql = "SELECT COUNT(*) FROM medical_files";

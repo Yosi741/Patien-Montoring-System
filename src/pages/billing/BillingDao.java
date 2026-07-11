@@ -16,6 +16,8 @@ public interface BillingDao {
 
     boolean cancelInvoice(long invoiceId) throws SQLException;
 
+    boolean deleteInvoice(long invoiceId) throws SQLException;
+
     BillingMetrics getDashboardMetrics(BillingQuery query) throws SQLException;
 
     record BillingWriteRecord(

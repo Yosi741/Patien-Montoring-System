@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane styleClass="content-page staff-page" xmlns="http://javafx.com/javafx/17.0.15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.user.user_directory.UserDirectoryController">
+<BorderPane styleClass="content-page staff-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.user.user_directory.UserDirectoryController">
     <center>
         <VBox spacing="18.0">
             <padding>
@@ -13,63 +14,62 @@
 
             <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card staff-header">
                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                    <Label text="Staff Management" styleClass="screen-title" />
-                    <Label text="Manage urgent care clinic staff and schedules." styleClass="muted-text page-subtitle" wrapText="true" />
+                    <Label styleClass="screen-title page-header-title" text="Clinic Staff" />
+                    <Label styleClass="muted-text page-subtitle page-header-subtitle" text="View, edit, and review staff account availability from one place." wrapText="true" />
                 </VBox>
             </HBox>
 
-            <VBox fx:id="accessDeniedPane" managed="false" visible="false" spacing="10.0" styleClass="panel-card">
-                <Label text="Access denied" styleClass="section-title" />
-                <Label text="Staff management is available only to authorized clinic administrators." wrapText="true" styleClass="body-text" />
+            <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="panel-card" visible="false">
+                <Label styleClass="section-title" text="Access denied" />
+                <Label styleClass="body-text" text="Staff management is available only to authorized clinic administrators." wrapText="true" />
             </VBox>
 
             <VBox fx:id="directoryContentPane" spacing="16.0" VBox.vgrow="ALWAYS">
                 <HBox spacing="14.0" styleClass="staff-metrics-row">
                     <VBox spacing="6.0" styleClass="panel-card staff-metric-card staff-metric-blue" HBox.hgrow="ALWAYS">
-                        <Label text="Total Staff" styleClass="metric-title" />
-                        <Label fx:id="totalStaffMetricLabel" text="0" styleClass="metric-value staff-metric-value" />
+                        <Label styleClass="metric-title" text="Total Staff" />
+                        <Label fx:id="totalStaffMetricLabel" styleClass="metric-value staff-metric-value" text="0" />
                     </VBox>
                     <VBox spacing="6.0" styleClass="panel-card staff-metric-card staff-metric-green" HBox.hgrow="ALWAYS">
-                        <Label text="On Duty" styleClass="metric-title" />
-                        <Label fx:id="onDutyMetricLabel" text="0" styleClass="metric-value staff-metric-value success-value" />
+                        <Label styleClass="metric-title" text="On Duty" />
+                        <Label fx:id="onDutyMetricLabel" styleClass="metric-value staff-metric-value success-value" text="0" />
                     </VBox>
                     <VBox spacing="6.0" styleClass="panel-card staff-metric-card staff-metric-cyan" HBox.hgrow="ALWAYS">
-                        <Label text="Off Duty" styleClass="metric-title" />
-                        <Label fx:id="offDutyMetricLabel" text="0" styleClass="metric-value staff-metric-value warning-value" />
+                        <Label styleClass="metric-title" text="Off Duty" />
+                        <Label fx:id="offDutyMetricLabel" styleClass="metric-value staff-metric-value warning-value" text="0" />
                     </VBox>
                     <VBox spacing="6.0" styleClass="panel-card staff-metric-card staff-metric-purple" HBox.hgrow="ALWAYS">
-                        <Label text="On Leave" styleClass="metric-title" />
-                        <Label fx:id="onLeaveMetricLabel" text="0" styleClass="metric-value staff-metric-value accent-value" />
+                        <Label styleClass="metric-title" text="On Leave" />
+                        <Label fx:id="onLeaveMetricLabel" styleClass="metric-value staff-metric-value accent-value" text="0" />
                     </VBox>
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="panel-card staff-filter-bar">
-                    <TextField fx:id="searchField" promptText="Search staff by full name, username, or staff ID" HBox.hgrow="ALWAYS" styleClass="staff-search-field toolbar-text-field" />
-                    <ComboBox fx:id="roleFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
-                    <ComboBox fx:id="activeFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
-                    <Button text="Clear Filters" onAction="#clearFilters" minWidth="120.0" minHeight="44.0" prefHeight="44.0" styleClass="secondary-button toolbar-secondary-button" />
-                    <Button fx:id="addUserButton" text="Add Staff" onAction="#addUser" minWidth="160.0" minHeight="44.0" prefHeight="44.0" styleClass="primary-button toolbar-primary-button add-staff-button" />
+                    <TextField fx:id="searchField" minHeight="35.0" prefHeight="35.0" prefWidth="280.0" promptText="Search staff by full name, username, or staff ID" styleClass="staff-search-field toolbar-text-field" HBox.hgrow="ALWAYS" />
+                    <ComboBox fx:id="roleFilter" minHeight="35.0" prefHeight="35.0" prefWidth="120.0" styleClass="control-input toolbar-combo" />
+                    <ComboBox fx:id="activeFilter" minHeight="35.0" prefHeight="35.0" prefWidth="120.0" styleClass="control-input toolbar-combo" />
+                    <Button minHeight="35.0" minWidth="120.0" onAction="#clearFilters" prefHeight="35.0" prefWidth="120.0" styleClass="secondary-button toolbar-secondary-button" text="Clear Filters">
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font></Button>
+                    <Button fx:id="addUserButton" minHeight="35.0" minWidth="120.0" onAction="#addUser" prefHeight="35.0" prefWidth="120.0" styleClass="primary-button toolbar-primary-button add-staff-button" text="+ Add Staff">
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font></Button>
                 </HBox>
 
                 <VBox spacing="12.0" styleClass="panel-card staff-table-card" VBox.vgrow="ALWAYS">
-                    <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                            <Label text="Clinic Staff" styleClass="section-title" />
-                            <Label text="View, edit, and review staff account availability from one place." styleClass="muted-text" wrapText="true" />
-                        </VBox>
-                    </HBox>
-
-                    <TableView fx:id="userTable" VBox.vgrow="ALWAYS" styleClass="clinical-table staff-directory-table">
+                    <TableView fx:id="userTable" styleClass="clinical-table staff-directory-table" VBox.vgrow="ALWAYS">
                         <columns>
-                            <TableColumn fx:id="usernameColumn" text="Staff" prefWidth="340.0" />
-                            <TableColumn fx:id="roleColumn" text="Role" prefWidth="170.0" />
-                            <TableColumn fx:id="activeColumn" text="Status" prefWidth="170.0" />
-                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="170.0" sortable="false" />
+                            <TableColumn fx:id="usernameColumn" prefWidth="430.0" styleClass="staff-name-column" text="Staff" />
+                            <TableColumn fx:id="roleColumn" prefWidth="180.0" styleClass="staff-role-column" text="Role" />
+                            <TableColumn fx:id="activeColumn" prefWidth="180.0" styleClass="staff-status-column" text="Status" />
+                            <TableColumn fx:id="actionsColumn" prefWidth="160.0" sortable="false" styleClass="staff-actions-column" text="Actions" />
                         </columns>
                     </TableView>
                 </VBox>
 
-                <Label fx:id="statusLabel" text="Staff records loaded: 0" wrapText="true" styleClass="status-pill staff-footer-note" />
+                <Label fx:id="statusLabel" styleClass="status-pill staff-footer-note" text="Staff records loaded: 0" wrapText="true" />
             </VBox>
         </VBox>
     </center>

@@ -293,7 +293,7 @@ public class AppointmentFormController {
                 return "Surgery Visit";
             case "OTHER":
                 return "Clinic Visit";
-            case "CHECKUP":
+            case "VISIT":
             default:
                 return "Clinic Visit";
         }
@@ -313,9 +313,10 @@ public class AppointmentFormController {
 
     private String toStorageAppointmentType(String value) {
         if (value == null || value.isBlank()) {
-            return "CHECKUP";
+            return "VISIT";
         }
-        return "VISIT".equalsIgnoreCase(value.trim()) ? "CHECKUP" : value.trim().toUpperCase(Locale.ENGLISH);
+        String normalized = value.trim().toUpperCase(Locale.ENGLISH);
+        return "CHECKUP".equals(normalized) ? "VISIT" : normalized;
     }
 
     private String toUiAppointmentType(String value) {

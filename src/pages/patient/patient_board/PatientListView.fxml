@@ -16,8 +16,8 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card patient-header">
                         <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                            <Label styleClass="screen-title patient-page-title" text="Patient Management" />
-                            <Label styleClass="muted-text patient-page-subtitle" text="Manage patient records and urgent care visits." wrapText="true" />
+                            <Label styleClass="screen-title page-header-title patient-page-title" text="Patient Management" />
+                            <Label styleClass="muted-text page-header-subtitle patient-page-subtitle" text="Manage patient records and urgent care visits." wrapText="true" />
                         </VBox>
                     </HBox>
 

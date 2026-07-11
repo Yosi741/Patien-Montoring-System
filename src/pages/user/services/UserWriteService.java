@@ -26,6 +26,10 @@ public class UserWriteService {
         return userDao.generateNextStaffId();
     }
 
+    public boolean staffIdExists(String staffId) throws SQLException {
+        return userDao.staffIdExists(staffId);
+    }
+
     public void createUser(User admin, SqliteUserDao.UserWriteRecord record, char[] password) throws SQLException {
         require(PermissionHelper.canCreateUser(admin), "Only ADMIN users can create staff accounts.");
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
@@ -74,6 +78,26 @@ public class UserWriteService {
         }
 
         userDao.deactivateUser(affectedUsername.trim());
+    }
+
+    public void deleteUser(User admin, String affectedUsername) throws SQLException {
+        require(PermissionHelper.canDeactivateUser(admin), "Only ADMIN users can delete staff accounts.");
+        FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
+                FormValidationHelper.validateRequired("Username", affectedUsername),
+                FormValidationHelper.validateMaxLength("Username", affectedUsername, 64)
+        );
+        requireValid(validation);
+        String normalized = affectedUsername.trim();
+        SqliteUserDao.UserDirectoryRow target = userDao.findDirectoryRowByUsername(normalized)
+                .orElseThrow(() -> new IllegalArgumentException("User does not exist: " + normalized));
+        if (isSameUser(admin, normalized)) {
+            throw new IllegalStateException("You cannot delete the currently logged-in staff account.");
+        }
+        if (target.isActive() && "Admin".equalsIgnoreCase(visibleRole(target.getRole()))
+                && userDao.countActiveAdmins() <= 1) {
+            throw new IllegalStateException("You cannot delete the last active ADMIN account.");
+        }
+        userDao.deleteUserAccount(normalized);
     }
 
     public void resetPassword(User admin, String affectedUsername, char[] newPassword) throws SQLException {
@@ -178,6 +202,23 @@ public class UserWriteService {
 
     private String normalizeRole(String role) {
         return role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private String visibleRole(String internalRole) {
+        if (internalRole == null || internalRole.isBlank()) {
+            return "Secretary";
+        }
+        String upper = internalRole.toUpperCase(Locale.ROOT);
+        if (upper.contains("ADMIN")) {
+            return "Admin";
+        }
+        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
+            return "Doctor";
+        }
+        if (upper.contains("NURSE") || upper.contains("NURSING")) {
+            return "Nurse";
+        }
+        return "Secretary";
     }
 
     private boolean hasText(String value) {

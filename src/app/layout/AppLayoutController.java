@@ -349,6 +349,7 @@ public class AppLayoutController implements AppController {
             return;
         }
         String[] candidates = {
+                "/photo/app-logo.png",
                 "/photo/spms-icon.png",
                 "/photo/spms-logo.png",
                 "/photo/SPMS-Logo.jpeg",

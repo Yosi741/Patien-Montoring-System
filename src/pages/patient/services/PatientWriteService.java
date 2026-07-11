@@ -92,6 +92,37 @@ public class PatientWriteService {
                 : archiveSummary);
     }
 
+    public SqlitePatientDao.RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
+        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
+            throw new SecurityException("Only Admin and Doctor users can delete patients.");
+        }
+        FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException(validation.getMessage());
+        }
+        if (!patientDao.existsByPatientId(patientId)) {
+            throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
+        }
+        return patientDao.countRelatedRecords(patientId);
+    }
+
+    public void deletePatient(User currentUser, String patientId) throws SQLException {
+        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
+            throw new SecurityException("Only Admin and Doctor users can delete patients.");
+        }
+        FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
+        if (!validation.isValid()) {
+            throw new IllegalArgumentException(validation.getMessage());
+        }
+        if (!patientDao.existsByPatientId(patientId)) {
+            throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
+        }
+        boolean deleted = patientDao.deletePatientAndRelatedRecords(patientId);
+        if (!deleted) {
+            throw new IllegalStateException("Patient could not be deleted.");
+        }
+    }
+
     public void reactivateReturningPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);

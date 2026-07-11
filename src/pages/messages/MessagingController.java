@@ -16,6 +16,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -60,10 +61,13 @@ public class MessagingController implements AppController {
     private final ObservableList<SqliteMessageDao.MessageRow> sentRows = FXCollections.observableArrayList();
     private final ObservableList<SqliteMessageDao.MessageRow> requestRows = FXCollections.observableArrayList();
     private final ObservableList<SqliteMessageDao.MessageRow> visibleRows = FXCollections.observableArrayList();
+    private final ObservableList<SqliteUserDao.UserTarget> availableTargets = FXCollections.observableArrayList();
+    private final ObservableList<SqliteUserDao.UserTarget> filteredTargets = FXCollections.observableArrayList();
     private final Map<String, String> displayNameCache = new HashMap<>();
 
     private AppShell appShell;
     private MailboxView currentView = MailboxView.INBOX;
+    private SqliteUserDao.UserTarget selectedRecipientTarget;
 
     @FXML private VBox accessDeniedPane;
     @FXML private VBox contentPane;
@@ -94,8 +98,11 @@ public class MessagingController implements AppController {
     @FXML private javafx.scene.layout.FlowPane detailLinkedActionsPane;
 
     @FXML private StackPane composeOverlay;
-    @FXML private ComboBox<SqliteUserDao.UserTarget> targetUserBox;
-    @FXML private TextField patientIdField;
+    @FXML private TextField recipientSearchField;
+    @FXML private Label recipientHelperLabel;
+    @FXML private ListView<SqliteUserDao.UserTarget> recipientSuggestionList;
+    @FXML private Label selectedRecipientLabel;
+    @FXML private Label composeValidationLabel;
     @FXML private ComboBox<String> priorityBox;
     @FXML private TextField subjectField;
     @FXML private TextArea bodyArea;
@@ -152,8 +159,8 @@ public class MessagingController implements AppController {
         composeOverlay.setManaged(true);
         composeOverlay.setVisible(true);
         Platform.runLater(() -> {
-            if (targetUserBox != null) {
-                targetUserBox.requestFocus();
+            if (recipientSearchField != null) {
+                recipientSearchField.requestFocus();
             }
         });
     }
@@ -304,20 +311,44 @@ public class MessagingController implements AppController {
     private void configureCompose() {
         priorityBox.setItems(FXCollections.observableArrayList("NORMAL", "HIGH", "URGENT"));
         priorityBox.getSelectionModel().select("NORMAL");
+        recipientSuggestionList.setItems(filteredTargets);
+        recipientSuggestionList.setPlaceholder(new Label("No staff account found."));
+        recipientSuggestionList.setCellFactory(list -> new RecipientSuggestionCell());
+        recipientSuggestionList.setOnMouseClicked(event -> {
+            if (event.getClickCount() >= 1) {
+                selectRecipientTarget(recipientSuggestionList.getSelectionModel().getSelectedItem());
+            }
+        });
+        recipientSuggestionList.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                selectRecipientTarget(recipientSuggestionList.getSelectionModel().getSelectedItem());
+                event.consume();
+            }
+        });
+        recipientSearchField.textProperty().addListener((obs, old, value) -> onRecipientQueryChanged(value));
+        recipientSearchField.focusedProperty().addListener((obs, old, focused) -> {
+            if (!focused) {
+                Platform.runLater(() -> {
+                    if (!recipientSearchField.isFocused() && !recipientSuggestionList.isFocused()) {
+                        hideSuggestionList();
+                    }
+                });
+            } else if (focused) {
+                updateRecipientSuggestions(recipientSearchField.getText());
+            }
+        });
         reloadUsers();
     }
 
     private void reloadUsers() {
         try {
-            targetUserBox.setItems(FXCollections.observableArrayList(
-                    userDao.findMessageTargetsExcept(Session.getUsername())));
+            availableTargets.setAll(userDao.findMessageTargetsExcept(Session.getUsername()));
+            updateRecipientSuggestions(recipientSearchField == null ? "" : recipientSearchField.getText());
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "Could not load user targets: " + e.getMessage());
-        }
-        if (targetUserBox.getItems() != null && !targetUserBox.getItems().isEmpty()) {
-            targetUserBox.getSelectionModel().selectFirst();
-        } else {
-            targetUserBox.getSelectionModel().clearSelection();
+            availableTargets.clear();
+            filteredTargets.clear();
+            hideSuggestionList();
         }
     }
 
@@ -374,11 +405,13 @@ public class MessagingController implements AppController {
     }
 
     private SqliteMessageDao.MessageWriteRecord buildRecord() {
-        SqliteUserDao.UserTarget selected = targetUserBox.getValue();
+        SqliteUserDao.UserTarget selected = resolveExactRecipient(recipientSearchField.getText());
         if (selected == null || selected.getUsername().isBlank()) {
-            throw new IllegalArgumentException("Select an exact user account recipient before sending.");
+            showComposeValidation("Recipient not found. Check the email or choose a staff member from the suggestions.");
+            throw new IllegalArgumentException("Recipient not found. Check the email or choose a staff member from the suggestions.");
         }
         if (selected.getUsername().equalsIgnoreCase(Session.getUsername())) {
+            showComposeValidation("You cannot send a message to yourself.");
             throw new IllegalArgumentException("You cannot send a message to yourself.");
         }
         return new SqliteMessageDao.MessageWriteRecord(
@@ -386,7 +419,7 @@ public class MessagingController implements AppController {
                 selected.getUsername(),
                 "",
                 "",
-                patientIdField.getText(),
+                "",
                 subjectField.getText(),
                 bodyArea.getText(),
                 priorityBox.getValue()
@@ -456,12 +489,180 @@ public class MessagingController implements AppController {
     }
 
     private void clearCompose() {
-        patientIdField.clear();
+        selectedRecipientTarget = null;
+        recipientSearchField.clear();
         subjectField.clear();
         bodyArea.clear();
         if (priorityBox != null) {
             priorityBox.getSelectionModel().select("NORMAL");
         }
+        recipientSuggestionList.getSelectionModel().clearSelection();
+        filteredTargets.clear();
+        hideSuggestionList();
+        hideHelperLabel();
+        hideComposeValidation();
+        hideSelectedRecipient();
+    }
+
+    private void onRecipientQueryChanged(String query) {
+        clearComposeValidation();
+        if (!matchesSelectedRecipient(query)) {
+            selectedRecipientTarget = null;
+            hideSelectedRecipient();
+        }
+        updateRecipientSuggestions(query);
+    }
+
+    private boolean matchesSelectedRecipient(String query) {
+        if (selectedRecipientTarget == null) {
+            return false;
+        }
+        return normalizeRecipientText(query).equals(normalizeRecipientText(recipientFieldValue(selectedRecipientTarget)));
+    }
+
+    private void updateRecipientSuggestions(String query) {
+        filteredTargets.clear();
+        String normalizedQuery = normalizeRecipientText(query);
+        if (normalizedQuery.isBlank()) {
+            hideSuggestionList();
+            hideHelperLabel();
+            return;
+        }
+        for (SqliteUserDao.UserTarget target : availableTargets) {
+            if (matchesTarget(normalizedQuery, target)) {
+                filteredTargets.add(target);
+            }
+        }
+        if (filteredTargets.isEmpty()) {
+            hideSuggestionList();
+            showHelperLabel("No staff account found.");
+            return;
+        }
+        hideHelperLabel();
+        recipientSuggestionList.setManaged(true);
+        recipientSuggestionList.setVisible(true);
+    }
+
+    private boolean matchesTarget(String normalizedQuery, SqliteUserDao.UserTarget target) {
+        if (target == null || normalizedQuery.isBlank()) {
+            return false;
+        }
+        return containsNormalized(target.getDisplayName(), normalizedQuery)
+                || containsNormalized(target.getUsername(), normalizedQuery)
+                || containsNormalized(target.getEmail(), normalizedQuery)
+                || containsNormalized(target.getRole(), normalizedQuery);
+    }
+
+    private SqliteUserDao.UserTarget resolveExactRecipient(String query) {
+        if (selectedRecipientTarget != null && matchesSelectedRecipient(query)) {
+            return selectedRecipientTarget;
+        }
+        String normalizedQuery = normalizeRecipientText(query);
+        if (normalizedQuery.isBlank()) {
+            return null;
+        }
+        SqliteUserDao.UserTarget exactMatch = null;
+        for (SqliteUserDao.UserTarget target : availableTargets) {
+            if (isExactRecipientMatch(normalizedQuery, target)) {
+                if (exactMatch != null) {
+                    return null;
+                }
+                exactMatch = target;
+            }
+        }
+        if (exactMatch != null) {
+            selectRecipientTarget(exactMatch);
+        }
+        return exactMatch;
+    }
+
+    private boolean isExactRecipientMatch(String normalizedQuery, SqliteUserDao.UserTarget target) {
+        return normalizeRecipientText(target.getEmail()).equals(normalizedQuery)
+                || normalizeRecipientText(target.getUsername()).equals(normalizedQuery)
+                || normalizeRecipientText(target.getDisplayName()).equals(normalizedQuery);
+    }
+
+    private void selectRecipientTarget(SqliteUserDao.UserTarget target) {
+        if (target == null) {
+            return;
+        }
+        selectedRecipientTarget = target;
+        recipientSearchField.setText(recipientFieldValue(target));
+        recipientSuggestionList.getSelectionModel().select(target);
+        hideSuggestionList();
+        hideHelperLabel();
+        hideComposeValidation();
+        selectedRecipientLabel.setText("Selected: " + recipientSummary(target));
+        selectedRecipientLabel.setManaged(true);
+        selectedRecipientLabel.setVisible(true);
+    }
+
+    private String recipientFieldValue(SqliteUserDao.UserTarget target) {
+        if (target == null) {
+            return "";
+        }
+        return target.getEmail().isBlank() ? target.getUsername() : target.getEmail();
+    }
+
+    private String recipientSummary(SqliteUserDao.UserTarget target) {
+        if (target == null) {
+            return "";
+        }
+        StringBuilder summary = new StringBuilder(target.getDisplayName());
+        if (!target.getUsername().isBlank() && !target.getUsername().equalsIgnoreCase(target.getDisplayName())) {
+            summary.append(" (@").append(target.getUsername()).append(')');
+        }
+        if (!target.getRole().isBlank()) {
+            summary.append(" | ").append(target.getRole());
+        }
+        if (!target.getEmail().isBlank()) {
+            summary.append(" | ").append(target.getEmail());
+        }
+        return summary.toString();
+    }
+
+    private void clearComposeValidation() {
+        hideComposeValidation();
+    }
+
+    private void showComposeValidation(String message) {
+        composeValidationLabel.setText(blankTo(message, "Recipient not found. Check the email or choose a staff member from the suggestions."));
+        composeValidationLabel.setManaged(true);
+        composeValidationLabel.setVisible(true);
+    }
+
+    private void hideComposeValidation() {
+        composeValidationLabel.setManaged(false);
+        composeValidationLabel.setVisible(false);
+    }
+
+    private void showHelperLabel(String message) {
+        recipientHelperLabel.setText(blankTo(message, "No staff account found."));
+        recipientHelperLabel.setManaged(true);
+        recipientHelperLabel.setVisible(true);
+    }
+
+    private void hideHelperLabel() {
+        recipientHelperLabel.setManaged(false);
+        recipientHelperLabel.setVisible(false);
+    }
+
+    private void hideSelectedRecipient() {
+        selectedRecipientLabel.setManaged(false);
+        selectedRecipientLabel.setVisible(false);
+    }
+
+    private void hideSuggestionList() {
+        recipientSuggestionList.setManaged(false);
+        recipientSuggestionList.setVisible(false);
+    }
+
+    private boolean containsNormalized(String value, String normalizedQuery) {
+        return normalizeRecipientText(value).contains(normalizedQuery);
+    }
+
+    private String normalizeRecipientText(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 
     private String normalizedStatusFilter() {
@@ -824,6 +1025,36 @@ public class MessagingController implements AppController {
             if (selected) {
                 row.getStyleClass().add("message-row-selected");
             }
+        }
+    }
+
+    private static class RecipientSuggestionCell extends ListCell<SqliteUserDao.UserTarget> {
+
+        private final VBox content = new VBox(4);
+        private final Label nameLabel = new Label();
+        private final Label metaLabel = new Label();
+
+        private RecipientSuggestionCell() {
+            content.getStyleClass().add("message-suggestion-row");
+            nameLabel.getStyleClass().add("message-suggestion-name");
+            metaLabel.getStyleClass().add("message-suggestion-meta");
+            metaLabel.setWrapText(true);
+            content.getChildren().addAll(nameLabel, metaLabel);
+        }
+
+        @Override
+        protected void updateItem(SqliteUserDao.UserTarget item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+                return;
+            }
+            nameLabel.setText(item.getDisplayName());
+            String email = item.getEmail().isBlank() ? "No email" : item.getEmail();
+            metaLabel.setText(item.getUsername() + " | " + item.getRole() + " | " + email);
+            setText(null);
+            setGraphic(content);
         }
     }
 }

@@ -56,6 +56,15 @@ public class SqliteAppointmentDao {
         }
     }
 
+    public boolean deleteAppointment(long appointmentId) throws SQLException {
+        String sql = "DELETE FROM appointments WHERE id = ?";
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, appointmentId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
     public Optional<AppointmentRecord> findById(long appointmentId) throws SQLException {
         String sql = "SELECT id, patient_id, title, appointment_type, start_time, end_time, location, assigned_staff, "
                 + "status, notes, created_by, created_at, updated_at FROM appointments WHERE id = ?";
@@ -129,8 +138,13 @@ public class SqliteAppointmentDao {
             params.add(patientId.trim());
         }
         if (hasText(type) && !"All".equalsIgnoreCase(type)) {
-            sql.append("AND UPPER(a.appointment_type) = ? ");
-            params.add(type.trim().toUpperCase());
+            String normalizedType = normalizeAppointmentType(type);
+            if ("VISIT".equals(normalizedType)) {
+                sql.append("AND UPPER(a.appointment_type) IN ('VISIT', 'CHECKUP') ");
+            } else {
+                sql.append("AND UPPER(a.appointment_type) = ? ");
+                params.add(normalizedType);
+            }
         }
         if (hasText(status) && !"All".equalsIgnoreCase(status)) {
             sql.append("AND UPPER(a.status) = ? ");
@@ -151,7 +165,7 @@ public class SqliteAppointmentDao {
     private void bindMutableFields(PreparedStatement statement, AppointmentRecord appointment) throws SQLException {
         statement.setString(1, appointment.getPatientId());
         statement.setString(2, value(appointment.getTitle()));
-        statement.setString(3, value(appointment.getAppointmentType()));
+        statement.setString(3, normalizeAppointmentType(appointment.getAppointmentType()));
         statement.setString(4, value(appointment.getStartTime()));
         statement.setString(5, value(appointment.getEndTime()));
         statement.setString(6, value(appointment.getLocation()));
@@ -171,7 +185,7 @@ public class SqliteAppointmentDao {
                 resultSet.getLong("id"),
                 resultSet.getString("patient_id"),
                 resultSet.getString("title"),
-                resultSet.getString("appointment_type"),
+                normalizeAppointmentType(resultSet.getString("appointment_type")),
                 resultSet.getString("start_time"),
                 resultSet.getString("end_time"),
                 resultSet.getString("location"),
@@ -190,7 +204,7 @@ public class SqliteAppointmentDao {
                 resultSet.getString("patient_id"),
                 resultSet.getString("patient_name"),
                 resultSet.getString("title"),
-                resultSet.getString("appointment_type"),
+                normalizeAppointmentType(resultSet.getString("appointment_type")),
                 resultSet.getString("start_time"),
                 resultSet.getString("end_time"),
                 resultSet.getString("location"),
@@ -221,6 +235,14 @@ public class SqliteAppointmentDao {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private String normalizeAppointmentType(String value) {
+        if (value == null || value.isBlank()) {
+            return "VISIT";
+        }
+        String normalized = value.trim().toUpperCase();
+        return "CHECKUP".equals(normalized) ? "VISIT" : normalized;
     }
 
     private String value(String value) {

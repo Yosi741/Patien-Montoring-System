@@ -8,12 +8,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableRow;
@@ -223,7 +226,14 @@ public class SchedulingController implements AppController {
     private void configureTables() {
         if (appointmentTable != null) {
             appointmentTable.setFixedCellSize(52);
+            appointmentTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
+        appointmentPatientNameColumn.setMinWidth(280);
+        appointmentTypeColumn.setMinWidth(150);
+        appointmentDateTimeColumn.setMinWidth(190);
+        appointmentStatusColumn.setMinWidth(150);
+        appointmentActionsColumn.setMinWidth(150);
+        appointmentActionsColumn.setMaxWidth(170);
         appointmentPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         appointmentPatientNameColumn.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -236,8 +246,9 @@ public class SchedulingController implements AppController {
                 }
                 SqliteAppointmentDao.AppointmentRow row = getTableRow().getItem();
                 setText(nullTo(row.getPatientName(), "Unknown Patient"));
-                getStyleClass().remove("appointments-patient-name-cell");
-                getStyleClass().add("appointments-patient-name-cell");
+                getStyleClass().removeAll("appointments-patient-name-cell", "appointment-patient-table-cell");
+                getStyleClass().addAll("appointments-patient-name-cell", "appointment-patient-table-cell");
+                setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
         });
@@ -251,6 +262,8 @@ public class SchedulingController implements AppController {
                     setText(null);
                     return;
                 }
+                setAlignment(Pos.CENTER);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setGraphic(createBadgeLabel(formatEnumValue(row.getAppointmentType()), badgeStyleForType(row.getAppointmentType())));
                 setText(null);
             }
@@ -265,6 +278,8 @@ public class SchedulingController implements AppController {
                     setText(null);
                     return;
                 }
+                setAlignment(Pos.CENTER);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setText(null);
                 setGraphic(createAppointmentTimeCell(row));
             }
@@ -279,6 +294,8 @@ public class SchedulingController implements AppController {
                     setText(null);
                     return;
                 }
+                setAlignment(Pos.CENTER);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setGraphic(createBadgeLabel(formatEnumValue(row.getStatus()), badgeStyleForAppointmentStatus(row.getStatus())));
                 setText(null);
             }
@@ -297,10 +314,17 @@ public class SchedulingController implements AppController {
                 viewButton.setAccessibleText("View appointment details");
                 Button editButton = actionButton("\u270E", "appointment-action-icon-button", event -> editAppointment(row));
                 editButton.setAccessibleText("Edit appointment");
+                Button deleteButton = actionButton("\uD83D\uDDD1", "appointment-action-icon-button table-action-danger-button", event -> deleteAppointment(row));
+                deleteButton.setAccessibleText("Delete appointment");
                 boolean canManage = PermissionHelper.canManageAppointment(Session.getCurrentUser());
                 editButton.setDisable(!canManage);
-                HBox actions = new HBox(8, viewButton, editButton);
+                deleteButton.setDisable(!canManage);
+                HBox actions = new HBox(8, viewButton, editButton, deleteButton);
                 actions.setAlignment(Pos.CENTER);
+                getStyleClass().remove("appointment-action-cell");
+                getStyleClass().add("appointment-action-cell");
+                setAlignment(Pos.CENTER);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setGraphic(actions);
                 setText(null);
             }
@@ -434,7 +458,10 @@ public class SchedulingController implements AppController {
         if (selected == null) {
             return;
         }
-        if (!DialogHelper.confirm("Cancel Appointment", "Cancel appointment " + selected.getTitle() + "?")) {
+        String patientName = blankTo(selected.getPatientName(), "Unknown patient");
+        String appointmentTime = formatAppointmentStart(selected);
+        String message = "Cancel appointment?\n\nPatient: " + patientName + "\nTime: " + appointmentTime;
+        if (!DialogHelper.confirm("Cancel appointment?", message)) {
             return;
         }
         try {
@@ -444,6 +471,35 @@ public class SchedulingController implements AppController {
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
+    }
+
+    private void deleteAppointment(SqliteAppointmentDao.AppointmentRow selected) {
+        if (selected == null) {
+            return;
+        }
+        if (!showDeleteConfirmation()) {
+            return;
+        }
+        try {
+            schedulingService.deleteAppointment(Session.getCurrentUser(), selected.getId());
+            loadScheduling();
+            NotificationHelper.showSuccess(statusLabel, "Appointment deleted.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private boolean showDeleteConfirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Appointment");
+        alert.setHeaderText("Delete Appointment");
+        alert.setContentText("Are you sure you want to delete this appointment? This action cannot be undone.");
+        ButtonType deleteType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(deleteType, cancelType);
+        DialogThemeHelper.apply(alert);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == deleteType;
     }
 
     private Button actionButton(String text, String styleClass, javafx.event.EventHandler<javafx.event.ActionEvent> handler) {
@@ -487,10 +543,8 @@ public class SchedulingController implements AppController {
         if (value == null || value.isBlank()) {
             return "-";
         }
-        if ("CHECKUP".equalsIgnoreCase(value)) {
-            return "Visit";
-        }
-        String[] tokens = value.split("_");
+        String normalizedValue = "CHECKUP".equalsIgnoreCase(value) ? "VISIT" : value;
+        String[] tokens = normalizedValue.split("_");
         StringBuilder builder = new StringBuilder();
         for (String token : tokens) {
             if (token.isBlank()) {
@@ -512,7 +566,8 @@ public class SchedulingController implements AppController {
         durationLabel.getStyleClass().addAll("appointments-secondary-text", "appointment-time-duration");
 
         VBox box = new VBox(2, timeLabel, durationLabel);
-        box.setAlignment(Pos.CENTER_LEFT);
+        box.getStyleClass().add("appointment-time-box");
+        box.setAlignment(Pos.CENTER);
         box.setFillWidth(false);
         return box;
     }
@@ -568,8 +623,9 @@ public class SchedulingController implements AppController {
         if (type == null) {
             return "appointment-type-badge appointment-type-neutral";
         }
-        return switch (type.toUpperCase()) {
-            case "VISIT", "CHECKUP" -> "appointment-type-badge appointment-type-blue";
+        String normalizedType = "CHECKUP".equalsIgnoreCase(type) ? "VISIT" : type.toUpperCase();
+        return switch (normalizedType) {
+            case "VISIT" -> "appointment-type-badge appointment-type-blue";
             case "FOLLOW_UP" -> "appointment-type-badge appointment-type-purple";
             case "LAB_TEST" -> "appointment-type-badge appointment-type-cyan";
             case "SURGERY" -> "appointment-type-badge appointment-type-danger";
@@ -578,11 +634,7 @@ public class SchedulingController implements AppController {
     }
 
     private String appointmentTypeFilterValue() {
-        String value = appointmentTypeFilter == null ? "All" : appointmentTypeFilter.getValue();
-        if ("VISIT".equalsIgnoreCase(value)) {
-            return "CHECKUP";
-        }
-        return value;
+        return appointmentTypeFilter == null ? "All" : appointmentTypeFilter.getValue();
     }
 
     private String badgeStyleForAppointmentStatus(String status) {

@@ -1,139 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane
-        prefWidth="1200.0"
-        prefHeight="760.0"
-        xmlns="http://javafx.com/javafx/17.0.15"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.scheduling.schedule_overview.SchedulingController"
-        styleClass="content-page">
+<BorderPane prefHeight="760.0" prefWidth="1200.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.scheduling.schedule_overview.SchedulingController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear">
             <content>
                 <VBox spacing="20.0" styleClass="appointments-page">
                     <padding>
-                        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0" />
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
 
                     <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card appointments-header">
-                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                            <Label text="Appointments" styleClass="screen-title" />
-                            <Label text="Schedule and manage urgent care visits and follow-ups."
-                                   wrapText="true"
-                                   styleClass="muted-text dashboard-page-subtitle" />
+                        <VBox spacing="6.0">
+                            <Label styleClass="page-header-subtitle" text="Schedule and manage urgent care visits and follow-ups." wrapText="true" />
                         </VBox>
                     </HBox>
 
-                    <VBox fx:id="accessDeniedPane"
-                          spacing="10.0"
-                          managed="false"
-                          visible="false"
-                          styleClass="warning-panel">
-                        <Label text="Access denied" styleClass="warning-value" />
-                        <Label text="Appointments are available only to authorized Admin, Doctor, and Nurse roles."
-                               wrapText="true"
-                               styleClass="body-text" />
+                    <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
+                        <Label styleClass="warning-value" text="Access denied" />
+                        <Label styleClass="body-text" text="Appointments are available only to authorized Admin, Doctor, and Nurse roles." wrapText="true" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">
 
-                        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="appointments-metrics-row">
-                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-blue">
-                                <Label text="Today's Appointments" styleClass="metric-title" />
-                                <Label fx:id="appointmentsTodayLabel" text="0" styleClass="metric-value appointments-metric-value" />
-                                <Label text="Visits scheduled for today" styleClass="muted-text appointments-metric-note" />
+                        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="appointments-metrics-row appointments-metric-grid">
+                            <VBox maxWidth="1.7976931348623157E308" spacing="8.0" styleClass="metric-card appointment-metric-card appointment-metric-blue" HBox.hgrow="ALWAYS">
+                                <Label styleClass="appointment-metric-title" text="Today's Appointments" />
+                                <Label fx:id="appointmentsTodayLabel" styleClass="appointment-metric-number appointments-metric-value" text="0" />
+                                <Label styleClass="muted-text appointment-metric-caption appointments-metric-note" text="Visits scheduled for today" />
                             </VBox>
 
-                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-purple">
-                                <Label text="Scheduled" styleClass="metric-title" />
-                                <Label fx:id="upcomingSurgeriesLabel" text="0" styleClass="metric-value appointments-metric-value" />
-                                <Label text="Appointments still planned" styleClass="muted-text appointments-metric-note" />
+                            <VBox maxWidth="1.7976931348623157E308" spacing="8.0" styleClass="metric-card appointment-metric-card appointment-metric-purple" HBox.hgrow="ALWAYS">
+                                <Label styleClass="appointment-metric-title" text="Scheduled" />
+                                <Label fx:id="upcomingSurgeriesLabel" styleClass="appointment-metric-number appointments-metric-value" text="0" />
+                                <Label styleClass="muted-text appointment-metric-caption appointments-metric-note" text="Appointments still planned" />
                             </VBox>
 
-                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-amber">
-                                <Label text="Completed" styleClass="metric-title" />
-                                <Label fx:id="completedAppointmentsLabel" text="0" styleClass="metric-value appointments-metric-value warning-value" />
-                                <Label text="Visits finished successfully" styleClass="muted-text appointments-metric-note" />
+                            <VBox maxWidth="1.7976931348623157E308" spacing="8.0" styleClass="metric-card appointment-metric-card appointment-metric-amber" HBox.hgrow="ALWAYS">
+                                <Label styleClass="appointment-metric-title" text="Completed" />
+                                <Label fx:id="completedAppointmentsLabel" styleClass="appointment-metric-number appointments-metric-value warning-value" text="0" />
+                                <Label styleClass="muted-text appointment-metric-caption appointments-metric-note" text="Visits finished successfully" />
                             </VBox>
 
-                            <VBox spacing="6.0" HBox.hgrow="ALWAYS" styleClass="metric-card appointment-metric-card appointment-metric-danger">
-                                <Label text="Cancelled / Missed" styleClass="metric-title" />
-                                <Label fx:id="cancelledMissedLabel" text="0" styleClass="metric-value appointments-metric-value" />
-                                <Label text="Visits not completed" styleClass="muted-text appointments-metric-note" />
+                            <VBox maxWidth="1.7976931348623157E308" spacing="8.0" styleClass="metric-card appointment-metric-card appointment-metric-danger" HBox.hgrow="ALWAYS">
+                                <Label styleClass="appointment-metric-title" text="Cancelled / Missed" />
+                                <Label fx:id="cancelledMissedLabel" styleClass="appointment-metric-number appointments-metric-value" text="0" />
+                                <Label styleClass="muted-text appointment-metric-caption appointments-metric-note" text="Visits not completed" />
                             </VBox>
                         </HBox>
 
                         <VBox spacing="14.0" styleClass="panel-card appointments-toolbar">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <TextField fx:id="searchField"
-                                           promptText="Search by patient, title, doctor, or location..."
-                                           HBox.hgrow="ALWAYS"
-                                           styleClass="control-input appointments-search-field toolbar-text-field" />
-                                <Button text="Clear Filters"
-                                        onAction="#clearFilters"
-                                        minWidth="145.0"
-                                        prefWidth="145.0"
-                                        minHeight="44.0"
-                                        prefHeight="44.0"
-                                        styleClass="secondary-button toolbar-secondary-button appointment-toolbar-button" />
-                                <Button fx:id="newAppointmentButton"
-                                        text="+ New Appointment"
-                                        onAction="#createAppointment"
-                                        minWidth="190.0"
-                                        prefWidth="200.0"
-                                        minHeight="44.0"
-                                        prefHeight="44.0"
-                                        styleClass="primary-button toolbar-primary-button new-appointment-button" />
+                                <TextField fx:id="searchField" promptText="Search by patient, title, doctor, or location..." styleClass="control-input appointments-search-field toolbar-text-field" HBox.hgrow="ALWAYS" />
+                                <Button minHeight="35.0" minWidth="145.0" onAction="#clearFilters" prefHeight="35.0" prefWidth="145.0" styleClass="secondary-button toolbar-secondary-button appointment-toolbar-button" text="Clear Filters" />
+                                <Button fx:id="newAppointmentButton" minHeight="35.0" minWidth="190.0" onAction="#createAppointment" prefHeight="35.0" prefWidth="200.0" styleClass="primary-button toolbar-primary-button new-appointment-button" text="+ New Appointment" />
                             </HBox>
 
                             <FlowPane hgap="12.0" vgap="10.0">
-                                <Label text="Type" styleClass="field-label" />
-                                <ComboBox fx:id="appointmentTypeFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
-                                <Label text="Status" styleClass="field-label" />
-                                <ComboBox fx:id="appointmentStatusFilter" prefWidth="180.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
-                                <Label fx:id="patientFilterChip"
-                                       text=""
-                                       managed="false"
-                                       visible="false"
-                                       styleClass="badge-pill info-pill" />
-                                <Button fx:id="clearPatientFilterButton"
-                                        text="Clear Patient Filter"
-                                        managed="false"
-                                        visible="false"
-                                        onAction="#clearPatientFilter"
-                                        styleClass="secondary-button" />
+                                <Label styleClass="field-label" text="Type" />
+                                <ComboBox fx:id="appointmentTypeFilter" minHeight="35.0" prefHeight="35.0" prefWidth="180.0" styleClass="control-input toolbar-combo" />
+                                <Label styleClass="field-label" text="Status" />
+                                <ComboBox fx:id="appointmentStatusFilter" minHeight="35.0" prefHeight="35.0" prefWidth="180.0" styleClass="control-input toolbar-combo" />
+                                <Label fx:id="patientFilterChip" managed="false" styleClass="badge-pill info-pill" text="" visible="false" />
+                                <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="secondary-button" text="Clear Patient Filter" visible="false" />
                             </FlowPane>
                         </VBox>
 
                         <VBox spacing="14.0" styleClass="panel-card appointments-table-card">
                             <HBox alignment="CENTER_LEFT" spacing="12.0">
                                 <VBox spacing="4.0">
-                                    <Label text="Upcoming Appointments" styleClass="section-title" />
-                                    <Label text="Urgent care visits and scheduled follow-ups."
-                                           styleClass="muted-text body-text" />
+                                    <Label styleClass="section-title" text="Upcoming Appointments" />
+                                    <Label styleClass="muted-text body-text" text="Urgent care visits and scheduled follow-ups." />
                                 </VBox>
                             </HBox>
 
-                            <TableView fx:id="appointmentTable" prefHeight="340.0" styleClass="clinical-table appointments-table">
+                            <TableView fx:id="appointmentTable" prefHeight="340.0" styleClass="clinical-table appointments-table appointment-table-centered">
                                 <columns>
-                                    <TableColumn fx:id="appointmentPatientNameColumn" text="Patient" prefWidth="280.0" />
-                                    <TableColumn fx:id="appointmentTypeColumn" text="Type" prefWidth="120.0" />
-                                    <TableColumn fx:id="appointmentDateTimeColumn" text="Time" prefWidth="260.0" />
-                                    <TableColumn fx:id="appointmentStatusColumn" text="Status" prefWidth="120.0" />
-                                    <TableColumn fx:id="appointmentActionsColumn" text="Actions" prefWidth="110.0" sortable="false" />
+                                    <TableColumn fx:id="appointmentPatientNameColumn" prefWidth="320.0" text="Patient" />
+                                    <TableColumn fx:id="appointmentTypeColumn" prefWidth="170.0" text="Type" />
+                                    <TableColumn fx:id="appointmentDateTimeColumn" prefWidth="220.0" text="Time" />
+                                    <TableColumn fx:id="appointmentStatusColumn" prefWidth="160.0" text="Status" />
+                                    <TableColumn fx:id="appointmentActionsColumn" prefWidth="150.0" sortable="false" text="Actions" />
                                 </columns>
                             </TableView>
                         </VBox>
 
-                        <Label fx:id="statusLabel"
-                               text="Scheduling not loaded yet."
-                               wrapText="true"
-                               styleClass="status-info metric-value compact-metric-value" />
+                        <Label fx:id="statusLabel" styleClass="status-info metric-value compact-metric-value" text="Scheduling not loaded yet." wrapText="true" />
                     </VBox>
                 </VBox>
             </content>

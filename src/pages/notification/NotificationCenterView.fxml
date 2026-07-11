@@ -27,8 +27,8 @@
                         <VBox spacing="16.0" styleClass="alerts-header">
                             <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="page-header-card">
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Alerts &amp; Notifications" styleClass="screen-title" />
-                                    <Label text="Review patient alerts and system updates for the clinic." styleClass="muted-text" wrapText="true" />
+                                    <Label text="Alerts &amp; Notifications" styleClass="screen-title page-header-title" />
+                                    <Label text="Review patient alerts and system updates for the clinic." styleClass="muted-text page-header-subtitle" wrapText="true" />
                                 </VBox>
                             </HBox>
 

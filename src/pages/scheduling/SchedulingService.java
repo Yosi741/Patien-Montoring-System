@@ -15,7 +15,7 @@ import java.util.Set;
 public class SchedulingService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-    private static final Set<String> APPOINTMENT_TYPES = Set.of("CHECKUP", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER");
+    private static final Set<String> APPOINTMENT_TYPES = Set.of("VISIT", "SURGERY", "FOLLOW_UP", "LAB_TEST", "OTHER");
     private static final Set<String> APPOINTMENT_STATUSES = Set.of("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
 
     private final SqliteAppointmentDao appointmentDao;
@@ -51,6 +51,15 @@ public class SchedulingService {
         SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
         appointmentDao.updateStatus(appointmentId, "CANCELLED");
+    }
+
+    public void deleteAppointment(User currentUser, long appointmentId) throws SQLException {
+        requireAppointmentPermission(currentUser);
+        SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
+        if (!appointmentDao.deleteAppointment(appointmentId)) {
+            throw new IllegalStateException("Appointment could not be deleted.");
+        }
     }
 
     public void markAppointmentCompleted(User currentUser, long appointmentId) throws SQLException {
@@ -152,7 +161,8 @@ public class SchedulingService {
     }
 
     private String normalizeAppointmentType(String value) {
-        return normalize(value, "CHECKUP").replace(' ', '_');
+        String normalized = normalize(value, "VISIT").replace(' ', '_');
+        return "CHECKUP".equalsIgnoreCase(normalized) ? "VISIT" : normalized;
     }
 
     private String normalizeAppointmentStatus(String value) {

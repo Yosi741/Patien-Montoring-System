@@ -2,6 +2,7 @@ package pages.patient.medical_files;
 
 import app.core.AppShell;
 import app.contracts.AppController;
+import app.helpers.DialogHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -20,6 +21,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -183,16 +185,19 @@ public class MedicalFilesController implements AppController {
     private void configureTable() {
         if (filesTable != null) {
             filesTable.setItems(files);
+            filesTable.setFixedCellSize(58);
         }
         if (patientNameColumn != null) {
             patientNameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue() == null
                     ? ""
                     : cell.getValue().getPatientName()));
+            patientNameColumn.setCellFactory(column -> centeredTextCell("medical-records-centered-cell"));
         }
         if (patientIdColumn != null) {
             patientIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue() == null
                     ? ""
                     : cell.getValue().getPatientId()));
+            patientIdColumn.setCellFactory(column -> centeredTextCell("medical-records-centered-cell"));
         }
         if (categoryColumn != null) {
             categoryColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue() == null
@@ -208,11 +213,15 @@ public class MedicalFilesController implements AppController {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+                    getStyleClass().remove("medical-records-type-cell");
                     if (empty || item == null || item.isBlank()) {
                         setGraphic(null);
                         setText(null);
                         return;
                     }
+                    getStyleClass().add("medical-records-type-cell");
+                    setAlignment(Pos.CENTER);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                     badge.setText(formatType(item));
                     setGraphic(badge);
                     setText(null);
@@ -223,23 +232,27 @@ public class MedicalFilesController implements AppController {
             uploadedByColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue() == null
                     ? ""
                     : cell.getValue().getUploadedBy()));
+            uploadedByColumn.setCellFactory(column -> centeredTextCell("medical-records-centered-cell"));
         }
         if (uploadedAtColumn != null) {
             uploadedAtColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue() == null
                     ? ""
                     : cell.getValue().getUploadedAt()));
+            uploadedAtColumn.setCellFactory(column -> centeredTextCell("medical-records-date-cell"));
         }
         if (actionsColumn != null) {
             actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             actionsColumn.setCellFactory(column -> new TableCell<>() {
                 private final Button viewButton = new Button("\uD83D\uDC41");
                 private final Button openButton = new Button("\u2B07");
-                private final HBox actionsBox = new HBox(8, viewButton, openButton);
+                private final Button deleteButton = new Button("\uD83D\uDDD1");
+                private final HBox actionsBox = new HBox(8, viewButton, openButton, deleteButton);
 
                 {
                     actionsBox.setAlignment(Pos.CENTER);
                     viewButton.getStyleClass().add("record-action-button");
                     openButton.getStyleClass().add("record-action-button");
+                    deleteButton.getStyleClass().addAll("record-action-button", "table-action-danger-button");
                     viewButton.setOnAction(event -> {
                         SqliteMedicalFileDao.MedicalFileRecord record = getCurrentTableRow();
                         if (record != null) {
@@ -252,15 +265,25 @@ public class MedicalFilesController implements AppController {
                             openRecordFile(record);
                         }
                     });
+                    deleteButton.setOnAction(event -> {
+                        SqliteMedicalFileDao.MedicalFileRecord record = getCurrentTableRow();
+                        if (record != null) {
+                            deleteRecord(record);
+                        }
+                    });
                 }
 
                 @Override
                 protected void updateItem(SqliteMedicalFileDao.MedicalFileRecord item, boolean empty) {
                     super.updateItem(item, empty);
+                    getStyleClass().remove("table-centered-cell");
                     if (empty || item == null) {
                         setGraphic(null);
                         setText(null);
                     } else {
+                        getStyleClass().add("table-centered-cell");
+                        setAlignment(Pos.CENTER);
+                        setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                         setGraphic(actionsBox);
                         setText(null);
                     }
@@ -285,6 +308,25 @@ public class MedicalFilesController implements AppController {
                 }
             });
         }
+    }
+
+    private TableCell<SqliteMedicalFileDao.MedicalFileRecord, String> centeredTextCell(String styleClass) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().remove(styleClass);
+                setAlignment(Pos.CENTER);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                getStyleClass().add(styleClass);
+                setText(blankTo(item, "\u2014"));
+                setGraphic(null);
+            }
+        };
     }
 
     private void configureButtons() {
@@ -418,6 +460,30 @@ public class MedicalFilesController implements AppController {
             NotificationHelper.showSuccess(statusLabel, message);
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, "The stored file could not be opened.");
+        }
+    }
+
+    private void deleteRecord(SqliteMedicalFileDao.MedicalFileRecord file) {
+        if (file == null) {
+            return;
+        }
+        if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only Admin, Doctor, or Nurse users can delete medical records.");
+            return;
+        }
+        String summary = file.getPatientName() + " | " + formatType(file.getFileType()) + " | " + blankTo(file.getUploadedAt(), "-");
+        String message = "Delete medical record?\n\n" + summary;
+        if (!DialogHelper.confirm("Delete medical record?", message)) {
+            return;
+        }
+        try {
+            if (!fileDao.deleteByFileId(file.getFileId())) {
+                throw new IllegalArgumentException("Medical record could not be deleted.");
+            }
+            loadFiles();
+            NotificationHelper.showSuccess(statusLabel, "Medical record deleted.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, "Could not delete medical record: " + e.getMessage());
         }
     }
 

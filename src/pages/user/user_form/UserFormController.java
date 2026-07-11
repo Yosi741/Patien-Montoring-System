@@ -13,6 +13,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.Node;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -43,6 +44,7 @@ public class UserFormController {
     private SqliteUserDao.UserDirectoryRow existingUser;
     private Mode mode;
     private boolean saved;
+    private Dialog<?> dialog;
     private File selectedPhotoFile;
     private String existingPhotoPath = "";
     private String preservedSection = "";
@@ -61,6 +63,8 @@ public class UserFormController {
     @FXML private CheckBox activeCheckBox;
     @FXML private Button uploadPhotoButton;
     @FXML private Button removePhotoButton;
+    @FXML private Button saveButton;
+    @FXML private Button cancelButton;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
     @FXML private ImageView photoPreviewImage;
@@ -86,21 +90,21 @@ public class UserFormController {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/user/user_form/UserFormView.fxml"));
             Parent root = loader.load();
             UserFormController controller = loader.getController();
+            Dialog<Void> dialog = new Dialog<>();
+            controller.attachDialog(dialog);
             controller.prepare(currentUser, user, mode);
 
-            String action = mode == Mode.RESET_PASSWORD ? "Reset Password" : "Save";
-            ButtonType saveButtonType = new ButtonType(action, ButtonBar.ButtonData.OK_DONE);
-            Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle(dialogTitle(mode));
             app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
-            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);
-            dialog.getDialogPane().lookupButton(saveButtonType).addEventFilter(ActionEvent.ACTION, event -> {
-                if (!controller.save()) {
-                    event.consume();
-                }
-            });
+            dialog.getDialogPane().getButtonTypes().setAll(new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE));
+            Node cancelNode = dialog.getDialogPane().lookupButton(dialog.getDialogPane().getButtonTypes().get(0));
+            if (cancelNode != null) {
+                cancelNode.setVisible(false);
+                cancelNode.setManaged(false);
+            }
+            dialog.setResultConverter(buttonType -> null);
             dialog.showAndWait();
             return controller.saved;
         } catch (Exception e) {
@@ -125,6 +129,10 @@ public class UserFormController {
         NotificationHelper.showInfo(statusLabel, "Staff account form. Passwords are not displayed.");
     }
 
+    private void attachDialog(Dialog<?> dialog) {
+        this.dialog = dialog;
+    }
+
     private void prepare(User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
         this.currentUser = currentUser;
         this.existingUser = user;
@@ -134,12 +142,19 @@ public class UserFormController {
         if (mode == Mode.CREATE) {
             titleLabel.setText("Add Staff");
             helpLabel.setText("Create a clinic staff account with role and duty status.");
-            staffIdField.setEditable(true);
+            configureReadOnlyStaffIdField();
             staffIdField.setDisable(false);
             usernameField.setEditable(true);
             usernameField.setDisable(false);
             usernameHelpLabel.setText("Enter a unique username for login.");
-            NotificationHelper.showInfo(statusLabel, "Staff ID and Full Name are required.");
+            if (saveButton != null) {
+                saveButton.setText("Save");
+            }
+            if (cancelButton != null) {
+                cancelButton.setText("Cancel");
+            }
+            populateGeneratedStaffId();
+            NotificationHelper.showInfo(statusLabel, "Staff ID is generated automatically. Full Name and Username are required.");
             passwordHelpLabel.setText("Password is used for local demo login and is never shown on screen.");
             setProfileFieldsForCreate();
             return;
@@ -149,7 +164,7 @@ public class UserFormController {
             throw new IllegalArgumentException("A selected staff account is required.");
         }
 
-        staffIdField.setEditable(false);
+        configureReadOnlyStaffIdField();
         staffIdField.setDisable(false);
         staffIdField.setText(user.getStaffId());
         usernameField.setText(user.getUsername());
@@ -162,7 +177,10 @@ public class UserFormController {
 
         if (mode == Mode.EDIT) {
             titleLabel.setText("Edit Staff");
-            helpLabel.setText("Update profile details and duty status.");
+            helpLabel.setText("Update profile details, role, and duty status.");
+            if (saveButton != null) {
+                saveButton.setText("Save");
+            }
             hidePasswordFields();
             passwordHelpLabel.setText("Password is used for local demo login. Use Reset Password to change it.");
             return;
@@ -170,6 +188,12 @@ public class UserFormController {
 
         titleLabel.setText("Reset Staff Password");
         helpLabel.setText("Set a new password for this clinic staff account.");
+        if (saveButton != null) {
+            saveButton.setText("Reset Password");
+        }
+        if (cancelButton != null) {
+            cancelButton.setText("Cancel");
+        }
         roleBox.setDisable(true);
         dutyStatusBox.setDisable(true);
         activeCheckBox.setDisable(true);
@@ -196,6 +220,7 @@ public class UserFormController {
         preservedSection = "";
         photoPathLabel.setText("No profile photo selected");
         dutyStatusBox.getSelectionModel().select("On Duty");
+        activeCheckBox.setSelected(true);
         refreshPhotoPreview();
     }
 
@@ -228,6 +253,23 @@ public class UserFormController {
         passwordField.setManaged(false);
         confirmPasswordField.setVisible(false);
         confirmPasswordField.setManaged(false);
+    }
+
+    @FXML
+    private void submitForm(ActionEvent event) {
+        if (save()) {
+            closeDialog();
+        }
+        if (event != null) {
+            event.consume();
+        }
+    }
+
+    @FXML
+    private void closeDialog() {
+        if (dialog != null) {
+            dialog.close();
+        }
     }
 
     @FXML
@@ -269,6 +311,10 @@ public class UserFormController {
             if (fullNameField.getText() == null || fullNameField.getText().trim().isEmpty()) {
                 NotificationHelper.showError(statusLabel, "Full Name is required.");
                 return false;
+            }
+
+            if (mode == Mode.CREATE) {
+                ensureGeneratedStaffIdAvailable();
             }
 
             SqliteUserDao.UserWriteRecord record = buildRecord();
@@ -326,7 +372,7 @@ public class UserFormController {
                 ? normalizedUsername()
                 : existingUser.getUsername();
         return new SqliteUserDao.UserWriteRecord(
-                staffIdField.getText(),
+                safe(staffIdField.getText()).toUpperCase(),
                 username,
                 internalRole(roleBox.getValue()),
                 preservedSectionValue(),
@@ -417,6 +463,27 @@ public class UserFormController {
 
     private String normalizedUsername() {
         return usernameField.getText() == null ? "" : usernameField.getText().trim();
+    }
+
+    private void configureReadOnlyStaffIdField() {
+        staffIdField.setEditable(false);
+        staffIdField.setFocusTraversable(false);
+    }
+
+    private void populateGeneratedStaffId() {
+        try {
+            staffIdField.setText(userWriteService.generateNextStaffId());
+        } catch (Exception e) {
+            staffIdField.setText("U0001");
+            NotificationHelper.showInfo(statusLabel, "Could not read the latest staff ID. Defaulted to U0001.");
+        }
+    }
+
+    private void ensureGeneratedStaffIdAvailable() throws Exception {
+        String currentStaffId = safe(staffIdField.getText()).toUpperCase();
+        if (currentStaffId.isBlank() || !currentStaffId.matches("U\\d{4,}") || userWriteService.staffIdExists(currentStaffId)) {
+            staffIdField.setText(userWriteService.generateNextStaffId());
+        }
     }
 
     private String preservedSectionValue() {

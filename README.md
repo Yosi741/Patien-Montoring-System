@@ -62,7 +62,7 @@ SQLite is the source of truth for the running application. Uploaded files remain
 - `src/pages/dashboard/` - clinic dashboard and overview metrics
 - `src/pages/patient/` - patient board, patient file, patient form, vitals, and medical files
 - `src/pages/alert/` - alert services and local alarm sound handling
-- `src/pages/scheduling/` - appointments, reminders, and checkups
+- `src/pages/scheduling/` - appointments, reminders, and visits
 - `src/pages/billing/` - local demo invoices, billing overview, and payment status tracking
 - `src/pages/user/` - staff/user directory and profile/settings
 - `src/pages/messages/` - internal staff messaging

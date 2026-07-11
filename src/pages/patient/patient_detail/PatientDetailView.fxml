@@ -23,10 +23,10 @@
                         <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
                     </padding>
 
-                    <VBox spacing="18.0" styleClass="patient-file-hero">
+                    <VBox spacing="18.0" styleClass="patient-file-hero page-header-card">
                         <VBox spacing="6.0">
-                            <Label text="Patient File" styleClass="patient-file-title" />
-                            <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name" />
+                            <Label text="Patient File" styleClass="patient-file-title page-header-title" />
+                            <Label fx:id="nameLabel" text="Patient" styleClass="patient-file-name page-header-subtitle" />
                             <HBox alignment="CENTER_LEFT" spacing="10.0">
                                 <Label text="Patient ID" styleClass="patient-file-meta-label" />
                                 <Label fx:id="patientIdLabel" text="-" styleClass="patient-file-meta-value" />

@@ -1,60 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane prefWidth="1280.0"
-            prefHeight="800.0"
-            xmlns="http://javafx.com/javafx/17.0.15"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="app.layout.AppLayoutController"
-            styleClass="app-root">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.layout.AppLayoutController">
 
     <left>
         <VBox prefWidth="260.0" spacing="18.0" styleClass="app-sidebar">
             <padding>
-                <Insets top="24.0" right="18.0" bottom="18.0" left="18.0" />
+                <Insets bottom="18.0" left="18.0" right="18.0" top="24.0" />
             </padding>
 
             <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sidebar-logo-block">
                 <StackPane styleClass="sidebar-logo-box">
-                    <ImageView fx:id="sidebarLogoImage"
-                               fitWidth="42.0"
-                               fitHeight="42.0"
-                               preserveRatio="true"
-                               smooth="true"
-                               styleClass="sidebar-logo-image" />
+                    <ImageView fx:id="sidebarLogoImage" fitHeight="42.0" fitWidth="42.0" preserveRatio="true" smooth="true" styleClass="sidebar-logo-image">
+                        <image>
+                            <Image url="@../../photo/app-logo.png" />
+                        </image>
+                    </ImageView>
                 </StackPane>
                 <VBox spacing="2.0">
-                    <Label text="SmartCare" styleClass="shell-brand-title" />
-                    <Label text="Urgent Care Clinic" styleClass="shell-brand-subtitle" />
+                    <Label styleClass="shell-brand-title" text="SmartCare" />
+                    <Label styleClass="shell-brand-subtitle" text="Urgent Care Clinic System" />
                 </VBox>
             </HBox>
 
             <VBox spacing="8.0">
-                <Button fx:id="dashboardButton" text="Dashboard" onAction="#showDashboard" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
-                <Button fx:id="appointmentsButton" text="Appointments" onAction="#showAppointments" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
-                <Button fx:id="patientsButton" text="Patients" onAction="#showPatients" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
-                <Button fx:id="medicalFilesButton" text="Medical Files" onAction="#showMedicalFiles" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
-                <Button fx:id="billingButton" text="Billing" onAction="#showBilling" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
-                <Button fx:id="staffManagementButton" text="Staff Management" onAction="#showUserDirectory" maxWidth="Infinity"
-                        styleClass="sidebar-nav-button" />
+                <Button fx:id="dashboardButton" maxWidth="Infinity" onAction="#showDashboard" styleClass="sidebar-nav-button" text="Dashboard" />
+                <Button fx:id="patientsButton" maxWidth="Infinity" onAction="#showPatients" styleClass="sidebar-nav-button" text="Patients" />
+                <Button fx:id="appointmentsButton" maxWidth="Infinity" onAction="#showAppointments" styleClass="sidebar-nav-button" text="Appointments" />
+                <Button fx:id="medicalFilesButton" maxWidth="Infinity" onAction="#showMedicalFiles" styleClass="sidebar-nav-button" text="Medical Files" />
+                <Button fx:id="billingButton" maxWidth="Infinity" onAction="#showBilling" styleClass="sidebar-nav-button" text="Billing" />
+                <Button fx:id="staffManagementButton" maxWidth="Infinity" onAction="#showUserDirectory" styleClass="sidebar-nav-button" text="Staff Management" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
@@ -62,15 +41,14 @@
             <VBox spacing="12.0" styleClass="sidebar-user-card">
                 <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <StackPane styleClass="profile-avatar-circle">
-                        <Label fx:id="sidebarAvatarLabel" text="S" styleClass="profile-avatar-text" />
+                        <Label fx:id="sidebarAvatarLabel" styleClass="profile-avatar-text" text="S" />
                     </StackPane>
                     <VBox spacing="2.0" HBox.hgrow="ALWAYS">
-                        <Label fx:id="userLabel" text="User" styleClass="shell-user-name" />
-                        <Label fx:id="roleLabel" text="Role" styleClass="shell-user-meta" />
+                        <Label fx:id="userLabel" styleClass="shell-user-name" text="User" />
+                        <Label fx:id="roleLabel" styleClass="shell-user-meta" text="Role" />
                     </VBox>
                 </HBox>
-                <Button fx:id="sidebarLogoutButton" text="Logout" onAction="#logout" maxWidth="Infinity"
-                        styleClass="secondary-button" />
+                <Button fx:id="sidebarLogoutButton" maxWidth="Infinity" onAction="#logout" styleClass="secondary-button" text="Logout" />
             </VBox>
         </VBox>
     </left>
@@ -78,68 +56,61 @@
     <center>
         <VBox spacing="14.0" styleClass="page-container">
             <padding>
-                <Insets top="18.0" right="22.0" bottom="20.0" left="22.0" />
+                <Insets bottom="20.0" left="22.0" right="22.0" top="18.0" />
             </padding>
 
             <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="app-top-bar">
                 <VBox spacing="4.0">
-                    <Label fx:id="breadcrumbLabel" text="Home / Dashboard" styleClass="muted-text" />
-                    <Label fx:id="currentPageLabel" text="Dashboard" styleClass="screen-title" />
+                    <Label fx:id="breadcrumbLabel" styleClass="muted-text" text="Home / Dashboard" />
+                    <Label fx:id="currentPageLabel" styleClass="screen-title" text="Dashboard" />
                 </VBox>
 
-                <Region HBox.hgrow="ALWAYS" />
+                <Region minHeight="50.0" prefHeight="50.0" HBox.hgrow="ALWAYS" />
 
-                <TextField fx:id="globalSearchField"
-                           promptText="Search patients, appointments..."
-                           styleClass="global-search-field" />
+                <TextField fx:id="globalSearchField" promptText="Search patients, appointments..." styleClass="global-search-field" />
 
-                <Label fx:id="dateTimeLabel" text="--" styleClass="muted-text top-bar-datetime" />
+                <Label fx:id="dateTimeLabel" styleClass="muted-text top-bar-datetime" text="--" />
 
-                <MenuButton fx:id="quickActionsButton" text="+ Quick Actions" styleClass="quick-actions-button">
+                <MenuButton fx:id="quickActionsButton" styleClass="quick-actions-button" text="+ Quick Actions">
                     <items>
-                        <MenuItem text="Check-in Patient" onAction="#handleQuickCheckIn" />
-                        <MenuItem text="Add Patient" onAction="#handleQuickAddPatient" />
-                        <MenuItem text="Enter Vitals" onAction="#handleQuickEnterVitals" />
-                        <MenuItem text="New Appointment" onAction="#handleQuickNewAppointment" />
-                        <MenuItem text="Add Payment" onAction="#handleQuickAddPayment" />
-                        <MenuItem text="Send Message" onAction="#handleQuickSendMessage" />
+                        <MenuItem onAction="#handleQuickCheckIn" text="Check-in Patient" />
+                        <MenuItem onAction="#handleQuickAddPatient" text="Add Patient" />
+                        <MenuItem onAction="#handleQuickEnterVitals" text="Enter Vitals" />
+                        <MenuItem onAction="#handleQuickNewAppointment" text="New Appointment" />
+                        <MenuItem onAction="#handleQuickAddPayment" text="Add Payment" />
+                        <MenuItem onAction="#handleQuickSendMessage" text="Send Message" />
                     </items>
                 </MenuButton>
 
-                <Button fx:id="alertsIconButton" text="🔔 0" onAction="#showNotifications" styleClass="top-icon-button notification-icon-button" />
+                <Button fx:id="alertsIconButton" minHeight="35.0" onAction="#showNotifications" prefHeight="35.0" prefWidth="50.0" styleClass="top-icon-button notification-icon-button" text="🔔 0" />
 
-                <Button fx:id="messagesIconButton" text="💬 0" onAction="#showMessages" styleClass="top-icon-button message-icon-button" />
+                <Button fx:id="messagesIconButton" minHeight="35.0" onAction="#showMessages" prefHeight="35.0" prefWidth="50.0" styleClass="top-icon-button message-icon-button" text="💬 0" />
 
-                <Button fx:id="themeToggleButton" text="☀" onAction="#toggleTheme" styleClass="top-icon-button theme-icon-button" />
+                <Button fx:id="themeToggleButton" minHeight="35.0" onAction="#toggleTheme" prefHeight="35.0" prefWidth="50.0" styleClass="top-icon-button theme-icon-button" text="☀" />
 
-                <MenuButton fx:id="profileMenuButton" text="" styleClass="profile-chip">
+                <MenuButton fx:id="profileMenuButton" styleClass="profile-chip" text="">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <StackPane styleClass="profile-avatar-circle">
-                                <Label fx:id="profileChipAvatarLabel" text="S" styleClass="profile-avatar-text" />
+                                <Label fx:id="profileChipAvatarLabel" styleClass="profile-avatar-text" text="S" />
                             </StackPane>
                             <VBox spacing="1.0">
-                                <Label fx:id="profileChipNameLabel" text="User" styleClass="profile-chip-name" />
-                                <Label fx:id="profileChipRoleLabel" text="Role" styleClass="profile-chip-meta" />
+                                <Label fx:id="profileChipNameLabel" styleClass="profile-chip-name" text="User" />
+                                <Label fx:id="profileChipRoleLabel" styleClass="profile-chip-meta" text="Role" />
                             </VBox>
                         </HBox>
                     </graphic>
                     <items>
-                        <MenuItem text="Profile / Settings" onAction="#showSettings" />
-                        <MenuItem text="Messages" onAction="#showMessages" />
-                        <MenuItem text="Logout" onAction="#logout" />
+                        <MenuItem onAction="#showSettings" text="Profile / Settings" />
+                        <MenuItem onAction="#showMessages" text="Messages" />
+                        <MenuItem onAction="#logout" text="Logout" />
                     </items>
                 </MenuButton>
             </HBox>
 
-            <Label fx:id="contextNoticeLabel"
-                   text="Context notice"
-                   visible="false"
-                   managed="false"
-                   wrapText="true"
-                   styleClass="status-info" />
+            <Label fx:id="contextNoticeLabel" managed="false" styleClass="status-info" text="Context notice" visible="false" wrapText="true" />
 
-            <BorderPane fx:id="contentPane" VBox.vgrow="ALWAYS" styleClass="content-root" />
+            <BorderPane fx:id="contentPane" styleClass="content-root" VBox.vgrow="ALWAYS" />
         </VBox>
     </center>
 </BorderPane>

@@ -283,6 +283,54 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
+    public RelatedRecordCounts countRelatedRecords(String patientId) throws SQLException {
+        String normalizedPatientId = value(patientId);
+        try (Connection connection = DatabaseManager.getConnection()) {
+            return new RelatedRecordCounts(
+                    countByPatientId(connection, "patient_visits", normalizedPatientId),
+                    countByPatientId(connection, "vital_readings", normalizedPatientId),
+                    countByPatientId(connection, "appointments", normalizedPatientId),
+                    countByPatientId(connection, "medical_files", normalizedPatientId),
+                    countByPatientId(connection, "billing_records", normalizedPatientId),
+                    countByPatientId(connection, "alerts", normalizedPatientId),
+                    countByPatientId(connection, "notifications", normalizedPatientId),
+                    countByPatientId(connection, "messages", normalizedPatientId)
+            );
+        }
+    }
+
+    public boolean deletePatientAndRelatedRecords(String patientId) throws SQLException {
+        String normalizedPatientId = value(patientId);
+        try (Connection connection = DatabaseManager.getConnection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                deleteByPatientId(connection, "messages", normalizedPatientId);
+                deleteByPatientId(connection, "notifications", normalizedPatientId);
+                deleteByPatientId(connection, "alerts", normalizedPatientId);
+                deleteByPatientId(connection, "billing_records", normalizedPatientId);
+                deleteByPatientId(connection, "appointments", normalizedPatientId);
+                deleteByPatientId(connection, "medical_files", normalizedPatientId);
+                deleteByPatientId(connection, "vital_readings", normalizedPatientId);
+                deleteByPatientId(connection, "patient_visits", normalizedPatientId);
+
+                boolean deleted;
+                try (PreparedStatement deletePatient = connection.prepareStatement(
+                        "DELETE FROM patients WHERE patient_id = ?")) {
+                    deletePatient.setString(1, normalizedPatientId);
+                    deleted = deletePatient.executeUpdate() > 0;
+                }
+                connection.commit();
+                return deleted;
+            } catch (SQLException | RuntimeException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        }
+    }
+
 
 
     public boolean updatePriorityIfHigher(String patientId, String requestedPriority) throws SQLException {
@@ -405,6 +453,24 @@ public class SqlitePatientDao implements PatientDao {
         statement.setString(17, patient.getEmergencyContactPhone());
         statement.setString(18, patient.getAssignedDoctorUsername());
         statement.setString(19, patient.getAssignedStaffUsername());
+    }
+
+    private int countByPatientId(Connection connection, String tableName, String patientId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE patient_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? resultSet.getInt(1) : 0;
+            }
+        }
+    }
+
+    private void deleteByPatientId(Connection connection, String tableName, String patientId) throws SQLException {
+        String sql = "DELETE FROM " + tableName + " WHERE patient_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, patientId);
+            statement.executeUpdate();
+        }
     }
 
     private boolean hasText(String value) {
@@ -700,6 +766,26 @@ public class SqlitePatientDao implements PatientDao {
             } catch (Exception e) {
                 return "Unknown";
             }
+        }
+    }
+
+    public record RelatedRecordCounts(
+            int patientVisits,
+            int vitalReadings,
+            int appointments,
+            int medicalFiles,
+            int billingRecords,
+            int alerts,
+            int notifications,
+            int messages
+    ) {
+        public boolean hasAny() {
+            return totalCount() > 0;
+        }
+
+        public int totalCount() {
+            return patientVisits + vitalReadings + appointments + medicalFiles
+                    + billingRecords + alerts + notifications + messages;
         }
     }
 }

@@ -1,23 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="740.0"
-            prefWidth="1180.0"
-            styleClass="content-page medical-records-page"
-            xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pages.patient.medical_files.MedicalFilesController">
+<BorderPane prefHeight="740.0" prefWidth="1180.0" styleClass="content-page medical-records-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.patient.medical_files.MedicalFilesController">
 
     <center>
         <VBox spacing="18.0">
@@ -27,45 +14,32 @@
 
             <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="page-header-card records-header">
                 <VBox spacing="4.0">
-                    <Label styleClass="screen-title" text="Medical Records" />
-                    <Label styleClass="muted-text" text="Access and manage patient medical records." />
+                    <Label styleClass="screen-title page-header-title" text="Medical Records" />
+                    <Label styleClass="muted-text page-header-subtitle" text="Access and manage patient medical records." />
                 </VBox>
             </HBox>
 
             <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
                 <Label styleClass="warning-value" text="Access denied" />
-                <Label styleClass="body-text"
-                       text="Medical Records is available to Admin, Doctor, and Nurse roles for authorized clinic use."
-                       wrapText="true" />
+                <Label styleClass="body-text" text="Medical Records is available to Admin, Doctor, and Nurse roles for authorized clinic use." wrapText="true" />
             </VBox>
 
             <VBox fx:id="contentPane" spacing="16.0" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
-                    <Label fx:id="patientFilterChip" managed="false" styleClass="badge-pill success-pill" text="" visible="false" />
-                    <Button fx:id="clearPatientFilterButton"
-                            managed="false"
-                            onAction="#clearPatientFilter"
-                            styleClass="secondary-button"
-                            text="Clear Patient Filter"
-                            visible="false" />
+                    <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="secondary-button" text="Clear Patient Filter" visible="false" />
                 </HBox>
 
                 <VBox spacing="14.0" styleClass="panel-card records-toolbar">
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <TextField fx:id="searchField"
-                                   promptText="Search by patient name, patient ID, or filename..."
-                                   styleClass="global-search-field toolbar-text-field"
-                                   HBox.hgrow="ALWAYS" />
-                        <ComboBox fx:id="dateRangeFilter" prefWidth="170.0" minHeight="44.0" prefHeight="44.0" styleClass="control-input toolbar-combo" />
-                        <Button onAction="#clearFilters" minWidth="128.0" minHeight="44.0" prefHeight="44.0" styleClass="secondary-button toolbar-secondary-button" text="Clear Filters" />
-                        <Button fx:id="uploadButton" onAction="#uploadFile" minWidth="168.0" minHeight="44.0" prefHeight="44.0" styleClass="new-record-button toolbar-primary-button" text="+ New Record" />
+                        <TextField fx:id="searchField" minHeight="35.0" prefHeight="35.0" promptText="Search by patient name, patient ID, or filename..." styleClass="global-search-field toolbar-text-field" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="dateRangeFilter" minHeight="35.0" prefHeight="35.0" prefWidth="170.0" styleClass="control-input toolbar-combo" />
+                        <Button minHeight="35.0" minWidth="128.0" onAction="#clearFilters" prefHeight="35.0" styleClass="secondary-button toolbar-secondary-button" text="Clear Filters" />
+                        <Button fx:id="uploadButton" minHeight="35.0" minWidth="168.0" onAction="#uploadFile" prefHeight="35.0" styleClass="new-record-button toolbar-primary-button" text="+ New Record" />
                     </HBox>
 
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <Label styleClass="field-label" text="Uploaded By" />
-                        <TextField fx:id="uploadedByFilter" prefWidth="220.0" promptText="Username" styleClass="control-input" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="statusLabel" styleClass="muted-text" text="Medical records not loaded yet." wrapText="true" />
+                        <Label minHeight="35.0" prefHeight="35.0" styleClass="field-label" text="Uploaded By" />
+                        <TextField fx:id="uploadedByFilter" minHeight="35.0" prefHeight="35.0" prefWidth="220.0" promptText="Username" styleClass="control-input" />
                     </HBox>
                 </VBox>
 
@@ -77,9 +51,10 @@
                             <TableColumn fx:id="categoryColumn" prefWidth="180.0" text="Type" />
                             <TableColumn fx:id="uploadedByColumn" prefWidth="170.0" text="Uploaded By" />
                             <TableColumn fx:id="uploadedAtColumn" prefWidth="170.0" text="Date" />
-                            <TableColumn fx:id="actionsColumn" prefWidth="120.0" text="Actions" />
+                            <TableColumn fx:id="actionsColumn" prefWidth="150.0" text="Actions" />
                         </columns>
                     </TableView>
+                     <Label fx:id="statusLabel" styleClass="muted-text" text="Medical records not loaded yet." wrapText="true" />
                 </VBox>
             </VBox>
         </VBox>

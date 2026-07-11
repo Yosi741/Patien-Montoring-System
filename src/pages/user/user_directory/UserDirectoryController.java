@@ -3,6 +3,7 @@ package pages.user.user_directory;
 import app.core.AppShell;
 import app.contracts.AppController;
 import app.core.SessionContext;
+import app.helpers.DialogHelper;
 import app.helpers.PermissionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -25,6 +26,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.notification.NotificationHelper;
 import pages.user.dao.SqliteUserDao;
+import pages.user.services.UserWriteService;
 import pages.user.user_form.UserFormController;
 import users.Session;
 
@@ -34,6 +36,7 @@ import java.util.Locale;
 public class UserDirectoryController implements AppController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
+    private final UserWriteService userWriteService = new UserWriteService(userDao);
     private final ObservableList<SqliteUserDao.UserDirectoryRow> rows = FXCollections.observableArrayList();
 
     private AppShell appShell;
@@ -163,6 +166,7 @@ public class UserDirectoryController implements AppController {
         if (userTable != null) {
             userTable.setItems(rows);
             userTable.setPlaceholder(new Label("No staff members found."));
+            userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
         if (usernameColumn != null) {
             usernameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
@@ -170,6 +174,7 @@ public class UserDirectoryController implements AppController {
                 @Override
                 protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
                     super.updateItem(item, empty);
+                    setAlignment(Pos.CENTER_LEFT);
                     if (empty || item == null) {
                         setText(null);
                         setGraphic(null);
@@ -186,6 +191,7 @@ public class UserDirectoryController implements AppController {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null || item.isBlank()) {
                         setText(null);
                         setGraphic(null);
@@ -204,6 +210,7 @@ public class UserDirectoryController implements AppController {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null || item.isBlank()) {
                         setText(null);
                         setGraphic(null);
@@ -222,6 +229,7 @@ public class UserDirectoryController implements AppController {
                 @Override
                 protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
                     super.updateItem(item, empty);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null) {
                         setText(null);
                         setGraphic(null);
@@ -236,8 +244,13 @@ public class UserDirectoryController implements AppController {
                     editButton.setDisable(!PermissionHelper.canUpdateUser(Session.getCurrentUser()));
                     editButton.setOnAction(event -> editStaff(item));
 
-                    HBox actions = new HBox(10.0, viewButton, editButton);
-                    actions.setAlignment(Pos.CENTER_LEFT);
+                    Button deleteButton = new Button("\uD83D\uDDD1");
+                    deleteButton.getStyleClass().addAll("action-icon-button", "table-action-danger-button");
+                    deleteButton.setDisable(!PermissionHelper.canDeactivateUser(Session.getCurrentUser()));
+                    deleteButton.setOnAction(event -> deleteStaff(item));
+
+                    HBox actions = new HBox(10.0, viewButton, editButton, deleteButton);
+                    actions.setAlignment(Pos.CENTER);
                     setGraphic(actions);
                     setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 }
@@ -316,6 +329,31 @@ public class UserDirectoryController implements AppController {
         if (UserFormController.showEditDialog(statusLabel.getScene().getWindow(), Session.getCurrentUser(), row)) {
             loadUsers();
             NotificationHelper.showSuccess(statusLabel, "Staff profile updated.");
+        }
+    }
+
+    private void deleteStaff(SqliteUserDao.UserDirectoryRow row) {
+        if (row == null) {
+            return;
+        }
+        if (!PermissionHelper.canDeactivateUser(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only administrators can delete staff accounts.");
+            return;
+        }
+        String name = displayName(row);
+        String username = blank(row.getUsername());
+        String message = "Delete staff account?\n\n"
+                + "Name: " + name + "\n"
+                + "Username: " + username;
+        if (!DialogHelper.confirm("Delete staff account?", message)) {
+            return;
+        }
+        try {
+            userWriteService.deleteUser(Session.getCurrentUser(), row.getUsername());
+            loadUsers();
+            NotificationHelper.showSuccess(statusLabel, "Staff account deleted.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
         }
     }
 

@@ -2,7 +2,7 @@ package pages.patient.patient_board;
 
 import app.core.AppShell;
 import app.contracts.AppController;
-import app.helpers.DialogHelper;
+import app.helpers.DialogThemeHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -10,7 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
@@ -131,6 +134,10 @@ public class PatientListController implements AppController {
         patientTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         patientTable.setFixedCellSize(58);
 
+        idColumn.getStyleClass().add("patient-id-column");
+        ageGenderColumn.getStyleClass().add("patient-age-column");
+        contactColumn.getStyleClass().add("patient-contact-column");
+
         patientColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         patientColumn.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -148,20 +155,38 @@ public class PatientListController implements AppController {
         });
 
         idColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getPatientId()));
+        idColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().remove("patient-id-cell");
+                setAlignment(Pos.CENTER);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                getStyleClass().add("patient-id-cell");
+                setText(item);
+                setGraphic(null);
+            }
+        });
 
         ageGenderColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         ageGenderColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
-                setAlignment(Pos.CENTER_LEFT);
+                getStyleClass().remove("patient-age-cell");
+                setAlignment(Pos.CENTER);
                 if (empty || row == null) {
                     setText(null);
                     setGraphic(null);
                     return;
                 }
+                getStyleClass().add("patient-age-cell");
                 setText(null);
-                setGraphic(buildSingleLineCell(formatAgeGender(row), "patient-primary-text"));
+                setGraphic(buildCenteredSingleLineCell(formatAgeGender(row), "patient-primary-text"));
             }
         });
 
@@ -170,14 +195,16 @@ public class PatientListController implements AppController {
             @Override
             protected void updateItem(SqlitePatientDao.PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
-                setAlignment(Pos.CENTER_LEFT);
+                getStyleClass().remove("patient-contact-cell");
+                setAlignment(Pos.CENTER);
                 if (empty || row == null) {
                     setText(null);
                     setGraphic(null);
                     return;
                 }
+                getStyleClass().add("patient-contact-cell");
                 setText(null);
-                setGraphic(buildContactCell(row));
+                setGraphic(buildCenteredContactCell(row));
             }
         });
 
@@ -289,6 +316,12 @@ public class PatientListController implements AppController {
         return label;
     }
 
+    private Label buildCenteredSingleLineCell(String text, String styleClass) {
+        Label label = buildSingleLineCell(text, styleClass);
+        label.setAlignment(Pos.CENTER);
+        return label;
+    }
+
     private VBox buildContactCell(SqlitePatientDao.PatientListRow row) {
         String phone = row == null ? "" : safeText(row.getPhone());
         String email = row == null ? "" : safeText(row.getEmail());
@@ -306,6 +339,25 @@ public class PatientListController implements AppController {
         return box;
     }
 
+    private VBox buildCenteredContactCell(SqlitePatientDao.PatientListRow row) {
+        String phone = row == null ? "" : safeText(row.getPhone());
+        String email = row == null ? "" : safeText(row.getEmail());
+        if (phone.isBlank() && email.isBlank()) {
+            VBox emptyBox = new VBox(buildCenteredSingleLineCell("\u2014", "contact-cell-primary"));
+            emptyBox.setAlignment(Pos.CENTER);
+            return emptyBox;
+        }
+        VBox box = new VBox(1.0);
+        box.setAlignment(Pos.CENTER);
+        if (!phone.isBlank()) {
+            box.getChildren().add(buildCenteredSingleLineCell(phone, "contact-cell-primary"));
+        }
+        if (!email.isBlank()) {
+            box.getChildren().add(buildCenteredSingleLineCell(email, phone.isBlank() ? "contact-cell-primary" : "contact-cell-secondary"));
+        }
+        return box;
+    }
+
     private HBox buildActionsCell(SqlitePatientDao.PatientListRow row) {
         Button viewButton = iconButton("\uD83D\uDC41", "patient-action-view");
         viewButton.setOnAction(event -> openPatientFile(row));
@@ -314,11 +366,11 @@ public class PatientListController implements AppController {
         editButton.setDisable(!canWritePatients || isArchived(row));
         editButton.setOnAction(event -> editPatient(row));
 
-        Button archiveButton = iconButton("\uD83D\uDDD1", "patient-action-delete");
-        archiveButton.setDisable(!canArchivePatients || isArchived(row));
-        archiveButton.setOnAction(event -> archivePatient(row));
+        Button deleteButton = iconButton("\uD83D\uDDD1", "patient-action-delete");
+        deleteButton.setDisable(!canArchivePatients);
+        deleteButton.setOnAction(event -> deletePatient(row));
 
-        HBox actions = new HBox(8.0, viewButton, editButton, archiveButton);
+        HBox actions = new HBox(8.0, viewButton, editButton, deleteButton);
         actions.setAlignment(Pos.CENTER);
         return actions;
     }
@@ -361,7 +413,7 @@ public class PatientListController implements AppController {
         }
     }
 
-    private void archivePatient(SqlitePatientDao.PatientListRow row) {
+    private void deletePatient(SqlitePatientDao.PatientListRow row) {
         if (row == null) {
             return;
         }
@@ -369,26 +421,35 @@ public class PatientListController implements AppController {
             NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
         }
-        if (isArchived(row)) {
-            NotificationHelper.showInfo(statusLabel, "This patient is already archived.");
-            return;
-        }
-        boolean confirmed = DialogHelper.confirm(
-                "Remove Patient",
-                "Are you sure you want to remove this patient from the active list?");
-        if (!confirmed) {
-            return;
-        }
         try {
-            patientWriteService.archivePatient(
-                    Session.getCurrentUser(),
-                    row.getPatientId(),
-                    "Patient removed from the active clinic list.");
+            SqlitePatientDao.RelatedRecordCounts relatedRecordCounts =
+                    patientWriteService.getRelatedRecordCounts(Session.getCurrentUser(), row.getPatientId());
+            if (!confirmDeletePatient(relatedRecordCounts)) {
+                return;
+            }
+            patientWriteService.deletePatient(Session.getCurrentUser(), row.getPatientId());
             loadPatients();
-            NotificationHelper.showSuccess(statusLabel, "Patient removed from the active list.");
+            NotificationHelper.showSuccess(statusLabel, "Patient deleted successfully.");
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
         }
+    }
+
+    private boolean confirmDeletePatient(SqlitePatientDao.RelatedRecordCounts relatedRecordCounts) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Patient");
+        alert.setHeaderText("Delete Patient");
+        if (relatedRecordCounts != null && relatedRecordCounts.hasAny()) {
+            alert.setContentText("This patient has related visits, vitals, appointments, invoices, or medical records. "
+                    + "Deleting the patient will also remove related demo records. This action cannot be undone.");
+        } else {
+            alert.setContentText("Are you sure you want to delete this patient? This action cannot be undone.");
+        }
+        ButtonType deleteType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(deleteType, cancelType);
+        DialogThemeHelper.apply(alert);
+        return alert.showAndWait().filter(buttonType -> buttonType == deleteType).isPresent();
     }
 
     private void updateStatusLine(int count) {

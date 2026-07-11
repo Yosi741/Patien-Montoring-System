@@ -11,9 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -36,10 +38,30 @@ import pages.billing.BillingService;
 import pages.notification.NotificationHelper;
 import users.Session;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public class BillingController implements AppController {
+
+    private static final String DEFAULT_VISIT_TYPE = "Clinic Visit";
+    private static final String DEFAULT_DATE_RANGE = "All Time";
+    private static final List<ServiceOption> CLINIC_SERVICES = List.of(
+            new ServiceOption("Doctor Consultation", 150.00),
+            new ServiceOption("Nurse Assessment", 80.00),
+            new ServiceOption("Vital Signs Check", 50.00),
+            new ServiceOption("Injection", 70.00),
+            new ServiceOption("IV Fluids", 180.00),
+            new ServiceOption("Wound Dressing", 120.00),
+            new ServiceOption("Nebulizer Treatment", 100.00),
+            new ServiceOption("Lab Test", 130.00),
+            new ServiceOption("Blood Pressure Check", 40.00),
+            new ServiceOption("Blood Sugar Check", 45.00),
+            new ServiceOption("Medication Administration", 90.00),
+            new ServiceOption("Follow-up Review", 100.00),
+            new ServiceOption("Observation Visit", 200.00)
+    );
 
     private final BillingService billingService = new BillingService();
     private final ObservableList<BillingRecord> invoices = FXCollections.observableArrayList();
@@ -88,7 +110,7 @@ public class BillingController implements AppController {
             BillingService.BillingOverview overview = billingService.loadOverview(
                     safeText(searchField),
                     statusFilter == null ? "All" : statusFilter.getValue(),
-                    dateRangeFilter == null ? "Last 30 days" : dateRangeFilter.getValue()
+                    dateRangeFilter == null ? DEFAULT_DATE_RANGE : dateRangeFilter.getValue()
             );
             invoices.setAll(overview.records());
             billingTable.setItems(invoices);
@@ -111,7 +133,7 @@ public class BillingController implements AppController {
             statusFilter.getSelectionModel().select("All");
         }
         if (dateRangeFilter != null) {
-            dateRangeFilter.getSelectionModel().select("Last 30 days");
+            dateRangeFilter.getSelectionModel().select(DEFAULT_DATE_RANGE);
         }
         loadBilling();
     }
@@ -147,10 +169,6 @@ public class BillingController implements AppController {
 
         TextField patientIdField = new TextField();
         patientIdField.setPromptText("Patient ID");
-        TextField serviceNameField = new TextField();
-        serviceNameField.setPromptText("Service Name");
-        TextField visitTypeField = new TextField();
-        visitTypeField.setPromptText("Visit Type");
         TextField amountField = new TextField();
         amountField.setPromptText("0.00");
         ComboBox<String> paymentStatusBox = new ComboBox<>(FXCollections.observableArrayList("UNPAID", "PAID", "CANCELLED"));
@@ -162,14 +180,15 @@ public class BillingController implements AppController {
         notesArea.setPrefRowCount(4);
 
         configureInvoiceField(patientIdField);
-        configureInvoiceField(serviceNameField);
-        configureInvoiceField(visitTypeField);
         configureInvoiceField(amountField);
         configureInvoiceField(paymentStatusBox);
         configureInvoiceField(paymentMethodBox);
         configureInvoiceField(notesArea);
         notesArea.getStyleClass().add("invoice-notes-area");
         amountField.setAlignment(Pos.CENTER_LEFT);
+        Label amountHelperLabel = new Label("Auto-calculated from selected services. You may adjust manually.");
+        amountHelperLabel.getStyleClass().add("invoice-helper-text");
+        amountHelperLabel.setWrapText(true);
 
         Label headerTitle = new Label("New Invoice");
         headerTitle.getStyleClass().addAll("screen-title", "invoice-section-title");
@@ -198,6 +217,45 @@ public class BillingController implements AppController {
                 refreshPatientLookup(patientStateBadge, patientNameLabel, patientMetaLabel, newValue));
         refreshPatientLookup(patientStateBadge, patientNameLabel, patientMetaLabel, patientIdField.getText());
 
+        VBox selectedServicesList = new VBox(6);
+        Label noServicesLabel = new Label("No services selected.");
+        noServicesLabel.getStyleClass().add("invoice-helper-text");
+        Label subtotalLabel = new Label("Subtotal: 0.00");
+        subtotalLabel.getStyleClass().add("invoice-subtotal-label");
+        List<ServiceSelection> serviceSelections = createServiceSelections();
+
+        GridPane servicesSelectorGrid = new GridPane();
+        servicesSelectorGrid.setHgap(12);
+        servicesSelectorGrid.setVgap(10);
+        servicesSelectorGrid.getStyleClass().add("invoice-service-selector");
+        ColumnConstraints selectorLeft = new ColumnConstraints();
+        selectorLeft.setPercentWidth(50);
+        selectorLeft.setHgrow(Priority.ALWAYS);
+        ColumnConstraints selectorRight = new ColumnConstraints();
+        selectorRight.setPercentWidth(50);
+        selectorRight.setHgrow(Priority.ALWAYS);
+        servicesSelectorGrid.getColumnConstraints().setAll(selectorLeft, selectorRight);
+        for (int index = 0; index < serviceSelections.size(); index++) {
+            ServiceSelection selection = serviceSelections.get(index);
+            selection.checkBox().selectedProperty().addListener((observable, oldValue, newValue) ->
+                    refreshSelectedServices(serviceSelections, selectedServicesList, noServicesLabel, subtotalLabel, amountField));
+            servicesSelectorGrid.add(createServiceOptionRow(selection), index % 2, index / 2);
+        }
+
+        Label servicesHintLabel = new Label("Select one or more services for this invoice.");
+        servicesHintLabel.getStyleClass().add("invoice-helper-text");
+        servicesHintLabel.setWrapText(true);
+        Label selectedServicesTitle = new Label("Selected Services");
+        selectedServicesTitle.getStyleClass().add("invoice-section-title");
+        VBox selectedServicesBox = new VBox(8, selectedServicesTitle, noServicesLabel, selectedServicesList, subtotalLabel);
+        selectedServicesBox.getStyleClass().add("invoice-selected-services-box");
+
+        Label servicesTitle = new Label("Clinic Services");
+        servicesTitle.getStyleClass().add("invoice-section-title");
+        VBox servicesCard = new VBox(12, servicesTitle, servicesHintLabel, servicesSelectorGrid, selectedServicesBox);
+        servicesCard.getStyleClass().add("invoice-services-card");
+        refreshSelectedServices(serviceSelections, selectedServicesList, noServicesLabel, subtotalLabel, amountField);
+
         GridPane grid = new GridPane();
         grid.setHgap(16);
         grid.setVgap(14);
@@ -211,16 +269,14 @@ public class BillingController implements AppController {
         grid.getColumnConstraints().setAll(leftColumn, rightColumn);
         grid.add(sectionTitle("Patient"), 0, 0, 2, 1);
         grid.add(detailField("Patient ID", patientIdField), 0, 1);
-        grid.add(detailField("Service Name", serviceNameField), 1, 1);
-        grid.add(sectionTitle("Service Details"), 0, 2, 2, 1);
-        grid.add(detailField("Visit Type", visitTypeField), 0, 3);
-        grid.add(detailField("Amount", amountField), 1, 3);
-        grid.add(sectionTitle("Payment"), 0, 4, 2, 1);
-        grid.add(detailField("Payment Status", paymentStatusBox), 0, 5);
-        grid.add(detailField("Payment Method", paymentMethodBox), 1, 5);
-        grid.add(sectionTitle("Notes"), 0, 6, 2, 1);
+        grid.add(detailField("Amount", amountField, amountHelperLabel), 1, 1);
+        grid.add(servicesCard, 0, 2, 2, 1);
+        grid.add(sectionTitle("Payment"), 0, 3, 2, 1);
+        grid.add(detailField("Payment Status", paymentStatusBox), 0, 4);
+        grid.add(detailField("Payment Method", paymentMethodBox), 1, 4);
+        grid.add(sectionTitle("Notes"), 0, 5, 2, 1);
         VBox notesBox = detailField("Notes", notesArea);
-        grid.add(notesBox, 0, 7, 2, 1);
+        grid.add(notesBox, 0, 6, 2, 1);
 
         Label dialogStatusLabel = new Label("Review the invoice fields before saving.");
         dialogStatusLabel.getStyleClass().add("muted-text");
@@ -235,8 +291,12 @@ public class BillingController implements AppController {
         content.setPadding(new Insets(26));
         content.getStyleClass().add("invoice-dialog");
 
-        dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().setPrefSize(720, 640);
+        ScrollPane dialogScroll = new ScrollPane(content);
+        dialogScroll.setFitToWidth(true);
+        dialogScroll.getStyleClass().addAll("scroll-clear", "invoice-dialog-scroll");
+
+        dialog.getDialogPane().setContent(dialogScroll);
+        dialog.getDialogPane().setPrefSize(760, 700);
         dialog.getDialogPane().setMinWidth(700);
         final BillingRecord[] createdHolder = new BillingRecord[1];
         Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveType);
@@ -244,10 +304,14 @@ public class BillingController implements AppController {
             saveButton.getStyleClass().addAll("primary-button", "invoice-save-button");
             saveButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
                 try {
+                    List<String> selectedServices = selectedServiceNames(serviceSelections);
+                    if (selectedServices.isEmpty()) {
+                        throw new IllegalArgumentException("At least one clinic service must be selected.");
+                    }
                     createdHolder[0] = billingService.createInvoice(Session.getCurrentUser(), new BillingService.InvoiceDraft(
                             safeText(patientIdField),
-                            safeText(serviceNameField),
-                            safeText(visitTypeField),
+                            String.join(", ", selectedServices),
+                            DEFAULT_VISIT_TYPE,
                             parseAmount(amountField.getText()),
                             paymentStatusBox.getValue(),
                             paymentMethodBox.getValue(),
@@ -336,8 +400,8 @@ public class BillingController implements AppController {
             statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadBilling());
         }
         if (dateRangeFilter != null) {
-            dateRangeFilter.setItems(FXCollections.observableArrayList("Last 30 days", "All Time"));
-            dateRangeFilter.getSelectionModel().select("Last 30 days");
+            dateRangeFilter.setItems(FXCollections.observableArrayList("Today", "Last 7 days", "Last 30 days", "All Time"));
+            dateRangeFilter.getSelectionModel().select(DEFAULT_DATE_RANGE);
             dateRangeFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadBilling());
         }
         if (searchField != null) {
@@ -474,10 +538,11 @@ public class BillingController implements AppController {
                     }
                     Button viewButton = actionButton("\uD83D\uDC41", event -> showInvoiceDetails(item));
                     Button markPaidButton = actionButton("\u2713", event -> handleMarkPaid(item));
-                    Button cancelButton = actionButton("\uD83D\uDDD1", event -> handleCancelInvoice(item));
+                    Button deleteButton = actionButton("\uD83D\uDDD1", event -> handleDeleteInvoice(item));
+                    boolean canManage = PermissionHelper.canManageBilling(Session.getCurrentUser());
                     markPaidButton.setDisable(item.isPaid() || item.isCancelled());
-                    cancelButton.setDisable(item.isCancelled());
-                    HBox actions = new HBox(8, viewButton, markPaidButton, cancelButton);
+                    deleteButton.setDisable(!canManage);
+                    HBox actions = new HBox(8, viewButton, markPaidButton, deleteButton);
                     actions.setAlignment(Pos.CENTER);
                     setText(null);
                     setGraphic(actions);
@@ -607,6 +672,39 @@ public class BillingController implements AppController {
         }
     }
 
+    private void handleDeleteInvoice(BillingRecord record) {
+        if (record == null) {
+            return;
+        }
+        if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Billing access is not available for this user.");
+            return;
+        }
+        if (!confirmDeleteInvoice()) {
+            return;
+        }
+        try {
+            billingService.deleteInvoice(Session.getCurrentUser(), record.getId());
+            loadBilling();
+            NotificationHelper.showSuccess(statusLabel, "Invoice deleted.");
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private boolean confirmDeleteInvoice() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Invoice");
+        alert.setHeaderText("Delete Invoice");
+        alert.setContentText("Are you sure you want to delete this invoice? This action cannot be undone.");
+        ButtonType deleteType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(deleteType, cancelType);
+        DialogThemeHelper.apply(alert);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == deleteType;
+    }
+
     private String choosePaymentMethod(BillingRecord record) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Select Payment Method");
@@ -642,6 +740,14 @@ public class BillingController implements AppController {
         Label name = new Label(label);
         name.getStyleClass().add("field-label");
         VBox box = new VBox(6, name, field);
+        VBox.setVgrow(field, Priority.NEVER);
+        return box;
+    }
+
+    private VBox detailField(String label, javafx.scene.Node field, javafx.scene.Node helper) {
+        Label name = new Label(label);
+        name.getStyleClass().add("field-label");
+        VBox box = new VBox(6, name, field, helper);
         VBox.setVgrow(field, Priority.NEVER);
         return box;
     }
@@ -741,5 +847,75 @@ public class BillingController implements AppController {
             textArea.setPrefHeight(108);
             textArea.setMaxWidth(Double.MAX_VALUE);
         }
+    }
+
+    private List<ServiceSelection> createServiceSelections() {
+        List<ServiceSelection> selections = new ArrayList<>();
+        for (ServiceOption option : CLINIC_SERVICES) {
+            CheckBox checkBox = new CheckBox(option.name());
+            checkBox.getStyleClass().add("invoice-service-option");
+            selections.add(new ServiceSelection(option, checkBox));
+        }
+        return selections;
+    }
+
+    private HBox createServiceOptionRow(ServiceSelection selection) {
+        Label priceLabel = new Label(formatAmount(selection.option().price()));
+        priceLabel.getStyleClass().add("invoice-helper-text");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox row = new HBox(10, selection.checkBox(), spacer, priceLabel);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("invoice-service-price-row");
+        return row;
+    }
+
+    private void refreshSelectedServices(List<ServiceSelection> selections,
+                                         VBox selectedServicesList,
+                                         Label noServicesLabel,
+                                         Label subtotalLabel,
+                                         TextField amountField) {
+        if (selectedServicesList == null || noServicesLabel == null || subtotalLabel == null || amountField == null) {
+            return;
+        }
+        selectedServicesList.getChildren().clear();
+        double subtotal = 0.0;
+        int selectedCount = 0;
+        for (ServiceSelection selection : selections) {
+            if (!selection.checkBox().isSelected()) {
+                continue;
+            }
+            selectedCount++;
+            subtotal += selection.option().price();
+            Label serviceRow = new Label(selection.option().name() + " - " + formatAmount(selection.option().price()));
+            serviceRow.getStyleClass().add("invoice-helper-text");
+            serviceRow.setWrapText(true);
+            selectedServicesList.getChildren().add(serviceRow);
+        }
+        boolean hasSelection = selectedCount > 0;
+        noServicesLabel.setVisible(!hasSelection);
+        noServicesLabel.setManaged(!hasSelection);
+        selectedServicesList.setVisible(hasSelection);
+        selectedServicesList.setManaged(hasSelection);
+        subtotalLabel.setVisible(hasSelection);
+        subtotalLabel.setManaged(hasSelection);
+        subtotalLabel.setText("Subtotal: " + formatAmount(subtotal));
+        amountField.setText(hasSelection ? formatAmount(subtotal) : "");
+    }
+
+    private List<String> selectedServiceNames(List<ServiceSelection> selections) {
+        List<String> selectedNames = new ArrayList<>();
+        for (ServiceSelection selection : selections) {
+            if (selection.checkBox().isSelected()) {
+                selectedNames.add(selection.option().name());
+            }
+        }
+        return selectedNames;
+    }
+
+    private record ServiceOption(String name, double price) {
+    }
+
+    private record ServiceSelection(ServiceOption option, CheckBox checkBox) {
     }
 }

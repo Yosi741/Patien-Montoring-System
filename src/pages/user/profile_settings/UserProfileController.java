@@ -9,6 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import java.util.List;
 import pages.user.services.UserProfileService;
 import app.core.AppShell;
 import app.contracts.AppController;
@@ -20,14 +21,11 @@ import pages.user.User;
 
 public class UserProfileController implements AppController {
 
-    private AppShell appShell;
     private final UserProfileService profileService = new UserProfileService();
 
     @FXML private Label staffIdLabel;
     @FXML private Label usernameLabel;
     @FXML private Label roleLabel;
-    @FXML private Label roleBadgeLabel;
-    @FXML private Label sectionLabel;
     @FXML private Label accountStatusLabel;
     @FXML private Label authSourceLabel;
     @FXML private Label loginTimeLabel;
@@ -38,13 +36,7 @@ public class UserProfileController implements AppController {
 
     @Override
     public void setAppShell(AppShell appShell) {
-        this.appShell = appShell;
         renderProfile();
-    }
-
-    @FXML
-    private void goDashboard() {
-        appShell.showDashboard(Session.getCurrentUser());
     }
 
     private void renderProfile() {
@@ -52,7 +44,6 @@ public class UserProfileController implements AppController {
         setLabel(staffIdLabel, user == null ? "-" : user.getStaffId());
         setLabel(usernameLabel, SessionContext.username());
         setLabel(roleLabel, SessionContext.role());
-        setLabel(sectionLabel, SessionContext.section());
         setLabel(accountStatusLabel, user == null ? "Unknown" : "Active");
         setLabel(authSourceLabel, SessionContext.authSource());
         setLabel(loginTimeLabel, SessionContext.loginTimeText());
@@ -69,24 +60,7 @@ public class UserProfileController implements AppController {
             showError(profileStatusLabel, "Could not load profile contact fields: " + e.getMessage());
         }
 
-        String group = PermissionHelper.roleGroup(SessionContext.role());
-        if (roleBadgeLabel != null) {
-            roleBadgeLabel.setText(group);
-            roleBadgeLabel.getStyleClass().removeAll("role-admin", "role-doctor", "role-nurse", "role-staff", "role-unknown");
-            roleBadgeLabel.getStyleClass().add(roleStyle(group));
-        }
-
-        if (permissionListBox != null) {
-            permissionListBox.getChildren().clear();
-            addPermission("View patients", true, "Read-only JavaFX patient board");
-            addPermission("View alerts", true, "Alerts are surfaced through Notifications");
-            addPermission("Acknowledge alerts", true, "Local database JavaFX alert action");
-            addPermission("View clinical timeline", true, "Read-only patient history preview");
-            addPermission("Manage users", PermissionHelper.canCreateUser(user) || PermissionHelper.canUpdateUser(user), "Future JavaFX write workflow");
-            addPermission("Edit patients", PermissionHelper.canUpdatePatient(user), "Future JavaFX write workflow");
-            addPermission("Enter vitals", PermissionHelper.canEnterVitals(user), "Future JavaFX write workflow");
-            addPermission("Create appointments", PermissionHelper.canCreateAppointment(user), "Future JavaFX write workflow");
-        }
+        renderPermissions(user);
     }
 
     @FXML
@@ -149,12 +123,66 @@ public class UserProfileController implements AppController {
         dialog.showAndWait();
     }
 
-    private void addPermission(String label, boolean allowed, String note) {
+    private void renderPermissions(User user) {
         if (permissionListBox == null) {
             return;
         }
-        Label row = new Label((allowed ? "Allowed: " : "Preview/Future: ") + label + " - " + note);
-        row.getStyleClass().add(allowed ? "permission-allowed" : "permission-future");
+        permissionListBox.getChildren().clear();
+        for (String permission : permissionsForRole(user)) {
+            addPermission(permission);
+        }
+    }
+
+    private List<String> permissionsForRole(User user) {
+        String roleGroup = PermissionHelper.roleGroup(user);
+        return switch (roleGroup) {
+            case "ADMIN" -> List.of(
+                    "Manage patient records",
+                    "Add and edit staff accounts",
+                    "Create and manage appointments",
+                    "View and acknowledge alerts",
+                    "Upload and view medical records",
+                    "Create and manage invoices",
+                    "Send and view internal messages",
+                    "Update own profile and password"
+            );
+            case "DOCTOR" -> List.of(
+                    "View patient records",
+                    "Enter patient vitals",
+                    "View medical records",
+                    "Create appointments",
+                    "View and acknowledge clinical alerts",
+                    "Send and view internal messages",
+                    "Update own profile and password"
+            );
+            case "NURSE" -> List.of(
+                    "View patient records",
+                    "Enter patient vitals",
+                    "View alerts",
+                    "View appointments",
+                    "Send and view internal messages",
+                    "Update own profile and password"
+            );
+            case "STAFF" -> List.of(
+                    "Register and update patient contact details",
+                    "Create appointments",
+                    "Create invoices",
+                    "View basic patient records",
+                    "Send and view internal messages",
+                    "Update own profile and password"
+            );
+            default -> List.of(
+                    "Update own profile and password"
+            );
+        };
+    }
+
+    private void addPermission(String label) {
+        if (permissionListBox == null) {
+            return;
+        }
+        Label row = new Label(label);
+        row.getStyleClass().add("permission-allowed");
         row.setWrapText(true);
         permissionListBox.getChildren().add(row);
     }
@@ -178,21 +206,6 @@ public class UserProfileController implements AppController {
     private void showError(Label target, String message) {
         if (target != null) {
             NotificationHelper.showError(target, message);
-        }
-    }
-
-    private String roleStyle(String group) {
-        switch (group) {
-            case "ADMIN":
-                return "role-admin";
-            case "DOCTOR":
-                return "role-doctor";
-            case "NURSE":
-                return "role-nurse";
-            case "STAFF":
-                return "role-staff";
-            default:
-                return "role-unknown";
         }
     }
 }

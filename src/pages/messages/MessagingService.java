@@ -75,8 +75,8 @@ public class MessagingService {
         if (text.contains("[SPMS_CERTIFICATE]") || text.contains("certificate")) {
             return "CERTIFICATE_NOTICE";
         }
-        if (text.contains("checkup") || text.contains("check-up")) {
-            return "CHECKUP_REQUEST";
+        if (containsVisitRequestText(text)) {
+            return "VISIT_REQUEST";
         }
         if (text.contains("treatment review")) {
             return "TREATMENT_REVIEW";
@@ -94,8 +94,7 @@ public class MessagingService {
                 || text.contains("certificate notice")
                 || text.contains("birth certificate")
                 || text.contains("death certificate")
-                || text.contains("checkup")
-                || text.contains("check-up")
+                || containsVisitRequestText(text)
                 || text.contains("treatment review");
     }
 
@@ -188,6 +187,15 @@ public class MessagingService {
         return ((row.getSubject() == null ? "" : row.getSubject()) + "\n"
                 + (row.getBody() == null ? "" : row.getBody()) + "\n"
                 + (row.getPriority() == null ? "" : row.getPriority())).toLowerCase(Locale.ROOT);
+    }
+
+    private boolean containsVisitRequestText(String text) {
+        return text.contains("visit request")
+                || text.contains("schedule visit")
+                || text.contains("follow-up")
+                || text.contains("follow up")
+                || text.contains("checkup")
+                || text.contains("check-up");
     }
 
     private FormValidationHelper.ValidationResult validatePriority(String priority) {

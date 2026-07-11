@@ -40,7 +40,7 @@ public class DemoLargeDataSeeder {
 
     private static final String[] BLOOD_TYPES = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
     private static final String[] GENDERS = {"Male", "Female"};
-    private static final String[] APPOINTMENT_TYPES = {"CHECKUP", "FOLLOW_UP", "LAB_TEST", "OTHER"};
+    private static final String[] APPOINTMENT_TYPES = {"VISIT", "FOLLOW_UP", "LAB_TEST", "OTHER"};
     private static final String[] APPOINTMENT_STATUSES = {"SCHEDULED", "SCHEDULED", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"};
     private static final String[] ALERT_SEVERITIES = {"WARNING", "CRITICAL", "EMERGENCY"};
     private static final String[] NOTIFICATION_SEVERITIES = {"INFO", "WARNING", "CRITICAL"};

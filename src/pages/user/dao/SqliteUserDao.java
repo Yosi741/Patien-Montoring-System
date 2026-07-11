@@ -221,6 +221,7 @@ public class SqliteUserDao implements UserDao {
     public List<UserTarget> findMessageTargetsExcept(String excludedUsername) throws SQLException {
         ArrayList<UserTarget> targets = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT u.username, u.role, u.section, "
+                + "COALESCE(NULLIF(p.full_name, ''), u.username) AS display_name, "
                 + "COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email "
                 + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username "
                 + "WHERE u.active = 1 ");
@@ -239,7 +240,7 @@ public class SqliteUserDao implements UserDao {
                 String username = resultSet.getString("username");
                 targets.add(new UserTarget(
                         username,
-                        username,
+                        resultSet.getString("display_name"),
                         resultSet.getString("role"),
                         resultSet.getString("section"),
                         resultSet.getString("email")
@@ -402,6 +403,41 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    public int countActiveAdmins() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE active = 1 AND UPPER(role) LIKE '%ADMIN%'";
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            return resultSet.next() ? resultSet.getInt(1) : 0;
+        }
+    }
+
+    public void deleteUserAccount(String username) throws SQLException {
+        String normalized = username == null ? "" : username.trim();
+        try (Connection connection = DatabaseManager.getConnection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try (PreparedStatement deleteProfile = connection.prepareStatement(
+                    "DELETE FROM user_profiles WHERE LOWER(username) = LOWER(?)");
+                 PreparedStatement deleteUser = connection.prepareStatement(
+                         "DELETE FROM users WHERE LOWER(username) = LOWER(?)")) {
+                deleteProfile.setString(1, normalized);
+                deleteProfile.executeUpdate();
+                deleteUser.setString(1, normalized);
+                int deleted = deleteUser.executeUpdate();
+                if (deleted == 0) {
+                    throw new IllegalArgumentException("User does not exist: " + normalized);
+                }
+                connection.commit();
+            } catch (SQLException | RuntimeException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        }
+    }
+
     public void resetPasswordHash(String username, String passwordHash) throws SQLException {
         updatePassword(username, passwordHash);
     }
@@ -463,8 +499,9 @@ public class SqliteUserDao implements UserDao {
     }
 
     public String generateNextStaffId() throws SQLException {
-        String sql = "SELECT COALESCE(MAX(CAST(SUBSTR(staff_id, 2) AS INTEGER)), 0) FROM users "
-                + "WHERE staff_id IS NOT NULL AND UPPER(staff_id) GLOB 'U[0-9]*'";
+        String sql = "SELECT COALESCE(MAX(CAST(SUBSTR(UPPER(TRIM(staff_id)), 2, 4) AS INTEGER)), 0) FROM users "
+                + "WHERE staff_id IS NOT NULL "
+                + "AND UPPER(TRIM(staff_id)) GLOB 'U[0-9][0-9][0-9][0-9]'";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
@@ -685,7 +722,7 @@ public class SqliteUserDao implements UserDao {
 
         public String getDisplayText() {
             String mail = email.isBlank() ? "no email" : email;
-            return username + " | " + role + " | " + section + " | " + mail;
+            return displayName + " | " + role + " | " + mail;
         }
 
         @Override

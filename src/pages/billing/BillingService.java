@@ -86,6 +86,15 @@ public class BillingService {
         }
     }
 
+    public void deleteInvoice(User actor, long invoiceId) throws SQLException {
+        require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
+        findInvoice(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found in the local clinic database: " + invoiceId));
+        boolean deleted = billingDao.deleteInvoice(invoiceId);
+        if (!deleted) {
+            throw new IllegalStateException("Invoice could not be deleted.");
+        }
+    }
+
     public Optional<String> findPatientName(String patientId) throws SQLException {
         if (patientId == null || patientId.isBlank()) {
             return Optional.empty();
@@ -101,7 +110,7 @@ public class BillingService {
             throw new IllegalArgumentException("Patient ID is required.");
         }
         if (draft.serviceName() == null || draft.serviceName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Service Name is required.");
+            throw new IllegalArgumentException("At least one clinic service must be selected.");
         }
         if (Double.isNaN(draft.amount()) || Double.isInfinite(draft.amount()) || draft.amount() <= 0) {
             throw new IllegalArgumentException("Amount must be a positive number.");
@@ -141,12 +150,19 @@ public class BillingService {
 
     private String normalizeDateRange(String value) {
         if (value == null || value.isBlank()) {
-            return "Last 30 days";
-        }
-        if ("All Time".equalsIgnoreCase(value.trim())) {
             return "All Time";
         }
-        return "Last 30 days";
+        String trimmed = value.trim();
+        if ("Today".equalsIgnoreCase(trimmed)) {
+            return "Today";
+        }
+        if ("Last 7 days".equalsIgnoreCase(trimmed)) {
+            return "Last 7 days";
+        }
+        if ("Last 30 days".equalsIgnoreCase(trimmed)) {
+            return "Last 30 days";
+        }
+        return "All Time";
     }
 
     private String normalizeInvoiceStatus(String value) {

@@ -8,7 +8,9 @@ $targetAlert = "out/production/untitledSmartPatientMonitoringSystem/pages/alert"
 $targetScheduling = "out/production/untitledSmartPatientMonitoringSystem/pages/scheduling"
 $targetMessages = "out/production/untitledSmartPatientMonitoringSystem/pages/messages"
 $targetNotification = "out/production/untitledSmartPatientMonitoringSystem/pages/notification"
+$targetBilling = "out/production/untitledSmartPatientMonitoringSystem/pages/billing"
 $targetApp = "out/production/untitledSmartPatientMonitoringSystem/app"
+$targetAppLayout = "out/production/untitledSmartPatientMonitoringSystem/app/layout"
 $targetAppStyles = "out/production/untitledSmartPatientMonitoringSystem/app/styles"
 $targetSound = "out/production/untitledSmartPatientMonitoringSystem/sound"
 
@@ -21,7 +23,9 @@ New-Item -ItemType Directory -Force -Path $targetAlert
 New-Item -ItemType Directory -Force -Path $targetScheduling
 New-Item -ItemType Directory -Force -Path $targetMessages
 New-Item -ItemType Directory -Force -Path $targetNotification
+New-Item -ItemType Directory -Force -Path $targetBilling
 New-Item -ItemType Directory -Force -Path $targetApp
+New-Item -ItemType Directory -Force -Path $targetAppLayout
 New-Item -ItemType Directory -Force -Path $targetAppStyles
 New-Item -ItemType Directory -Force -Path $targetSound
 
@@ -52,8 +56,14 @@ if (Test-Path "src/pages/messages") {
 if (Test-Path "src/pages/notification") {
     Copy-Item -Path "src/pages/notification/*" -Destination $targetNotification -Force -Recurse
 }
+if (Test-Path "src/pages/billing") {
+    Copy-Item -Path "src/pages/billing/*" -Destination $targetBilling -Force -Recurse
+}
 if (Test-Path "src/app") {
     Copy-Item -Path "src/app/*.fxml" -Destination $targetApp -Force
+}
+if (Test-Path "src/app/layout") {
+    Copy-Item -Path "src/app/layout/*" -Destination $targetAppLayout -Force -Recurse
 }
 if (Test-Path "src/app/styles") {
     Copy-Item -Path "src/app/styles/*" -Destination $targetAppStyles -Force
