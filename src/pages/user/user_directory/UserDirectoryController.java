@@ -25,6 +25,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.notification.NotificationHelper;
+import pages.user.UserRole;
 import pages.user.dao.SqliteUserDao;
 import pages.user.services.UserWriteService;
 import pages.user.user_form.UserFormController;
@@ -396,27 +397,11 @@ public class UserDirectoryController implements AppController {
         if (visibleRole == null || visibleRole.isBlank() || "All".equalsIgnoreCase(visibleRole)) {
             return "All";
         }
-        if ("Secretary".equalsIgnoreCase(visibleRole)) {
-            return "STAFF";
-        }
-        return visibleRole.toUpperCase(Locale.ROOT);
+        return UserRole.fromValue(visibleRole).databaseValue();
     }
 
     private String visibleRole(String internalRole) {
-        if (internalRole == null || internalRole.isBlank()) {
-            return "Secretary";
-        }
-        String upper = internalRole.toUpperCase(Locale.ROOT);
-        if (upper.contains("ADMIN")) {
-            return "Admin";
-        }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "Doctor";
-        }
-        if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "Nurse";
-        }
-        return "Secretary";
+        return UserRole.fromValue(internalRole).displayName();
     }
 
     private String roleStyle(String visibleRole) {

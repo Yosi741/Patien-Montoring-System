@@ -4,6 +4,7 @@ import pages.user.dao.SqliteUserDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;
+import pages.user.UserRole;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -158,11 +159,12 @@ public class UserWriteService {
     }
 
     private FormValidationHelper.ValidationResult validateRole(String role) {
-        String normalized = normalizeRole(role);
-        if ("ADMIN".equals(normalized) || "DOCTOR".equals(normalized) || "NURSE".equals(normalized) || "STAFF".equals(normalized)) {
+        try {
+            UserRole.fromValue(role);
             return FormValidationHelper.ValidationResult.ok();
+        } catch (IllegalArgumentException e) {
+            return FormValidationHelper.ValidationResult.error("Role must be ADMIN, DOCTOR, NURSE, or SECRETARY.");
         }
-        return FormValidationHelper.ValidationResult.error("Role must be ADMIN, DOCTOR, NURSE, or STAFF.");
     }
 
     private FormValidationHelper.ValidationResult validatePassword(char[] password) {
@@ -200,25 +202,8 @@ public class UserWriteService {
                 : user.getUsername();
     }
 
-    private String normalizeRole(String role) {
-        return role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
-    }
-
     private String visibleRole(String internalRole) {
-        if (internalRole == null || internalRole.isBlank()) {
-            return "Secretary";
-        }
-        String upper = internalRole.toUpperCase(Locale.ROOT);
-        if (upper.contains("ADMIN")) {
-            return "Admin";
-        }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "Doctor";
-        }
-        if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "Nurse";
-        }
-        return "Secretary";
+        return UserRole.fromValue(internalRole).displayName();
     }
 
     private boolean hasText(String value) {

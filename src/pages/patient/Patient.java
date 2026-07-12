@@ -25,15 +25,6 @@ public class Patient {
     private String emergencyContactName;
     private String emergencyContactPhone;
     private String familyHistory;
-    private String deathDateTime;
-    private String deathCause;
-    private String deathClinicalSummary;
-    private String deathNotes;
-    private String pronouncingDoctorName;
-    private String pronouncingDoctorId;
-    private String deathCertificatePath;
-    private String deathCertificateNumber;
-
     private User doctor;
     private VitalSign vitalSign;
 
@@ -57,14 +48,6 @@ public class Patient {
         this.emergencyContactName = "";
         this.emergencyContactPhone = "";
         this.familyHistory = "";
-        this.deathDateTime = "";
-        this.deathCause = "";
-        this.deathClinicalSummary = "";
-        this.deathNotes = "";
-        this.pronouncingDoctorName = "";
-        this.pronouncingDoctorId = "";
-        this.deathCertificatePath = "";
-        this.deathCertificateNumber = "";
     }
 
     public String getPatientId() {
@@ -149,42 +132,6 @@ public class Patient {
         return familyHistory;
     }
 
-    public String getDeathDateTime() {
-        return deathDateTime;
-    }
-
-    public String getDeathCause() {
-        return deathCause;
-    }
-
-    public String getDeathClinicalSummary() {
-        return deathClinicalSummary;
-    }
-
-    public String getDeathNotes() {
-        return deathNotes;
-    }
-
-    public String getPronouncingDoctorName() {
-        return pronouncingDoctorName;
-    }
-
-    public String getPronouncingDoctorId() {
-        return pronouncingDoctorId;
-    }
-
-    public String getDeathCertificatePath() {
-        return deathCertificatePath;
-    }
-
-    public String getDeathCertificateNumber() {
-        return deathCertificateNumber;
-    }
-
-    public boolean isDeceased() {
-        return status != null && status.equalsIgnoreCase("DECEASED");
-    }
-
     public User getDoctor() {
         return doctor;
     }
@@ -263,38 +210,6 @@ public class Patient {
 
     public void setFamilyHistory(String familyHistory) {
         this.familyHistory = familyHistory;
-    }
-
-    public void setDeathDateTime(String deathDateTime) {
-        this.deathDateTime = deathDateTime;
-    }
-
-    public void setDeathCause(String deathCause) {
-        this.deathCause = deathCause;
-    }
-
-    public void setDeathClinicalSummary(String deathClinicalSummary) {
-        this.deathClinicalSummary = deathClinicalSummary;
-    }
-
-    public void setDeathNotes(String deathNotes) {
-        this.deathNotes = deathNotes;
-    }
-
-    public void setPronouncingDoctorName(String pronouncingDoctorName) {
-        this.pronouncingDoctorName = pronouncingDoctorName;
-    }
-
-    public void setPronouncingDoctorId(String pronouncingDoctorId) {
-        this.pronouncingDoctorId = pronouncingDoctorId;
-    }
-
-    public void setDeathCertificatePath(String deathCertificatePath) {
-        this.deathCertificatePath = deathCertificatePath;
-    }
-
-    public void setDeathCertificateNumber(String deathCertificateNumber) {
-        this.deathCertificateNumber = deathCertificateNumber;
     }
 
     public void displayPatientInfo() {

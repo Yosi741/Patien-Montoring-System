@@ -1,5 +1,8 @@
 ### IntelliJ IDEA ###
+.idea/
+*.iml
 out/
+*.class
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
@@ -30,10 +33,9 @@ bin/
 .DS_Store
 sources.txt
 # Runtime/generated data
-data-upload/uploads/
-data-upload/generated/
-data-upload/backups/
-data/*.db
+data-upload/
+data/uploads/
+data/profile_photos/
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm

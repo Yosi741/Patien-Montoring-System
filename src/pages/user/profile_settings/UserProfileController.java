@@ -18,6 +18,7 @@ import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import users.Session;
 import pages.user.User;
+import pages.user.UserRole;
 
 public class UserProfileController implements AppController {
 
@@ -43,7 +44,7 @@ public class UserProfileController implements AppController {
         User user = Session.getCurrentUser();
         setLabel(staffIdLabel, user == null ? "-" : user.getStaffId());
         setLabel(usernameLabel, SessionContext.username());
-        setLabel(roleLabel, SessionContext.role());
+        setLabel(roleLabel, displayRole(SessionContext.role()));
         setLabel(accountStatusLabel, user == null ? "Unknown" : "Active");
         setLabel(authSourceLabel, SessionContext.authSource());
         setLabel(loginTimeLabel, SessionContext.loginTimeText());
@@ -165,7 +166,7 @@ public class UserProfileController implements AppController {
                     "View and acknowledge alerts",
                     "Send internal messages"
             );
-            case "STAFF" -> List.of(
+            case "SECRETARY" -> List.of(
                     "Register and update patient basic records",
                     "Manage appointments",
                     "Create invoices",
@@ -198,6 +199,14 @@ public class UserProfileController implements AppController {
 
     private String safeText(String value) {
         return value == null || value.trim().isEmpty() ? "-" : value;
+    }
+
+    private String displayRole(String role) {
+        try {
+            return UserRole.fromValue(role).displayName();
+        } catch (Exception e) {
+            return safeText(role);
+        }
     }
 
     private void showSuccess(Label target, String message) {

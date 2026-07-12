@@ -175,8 +175,8 @@ public class StaffProfileDialogController {
             case "ADMIN" -> "Admin";
             case "DOCTOR" -> "Doctor";
             case "NURSE" -> "Nurse";
-            case "STAFF" -> "Secretary";
-            default -> "Staff";
+            case "SECRETARY" -> "Secretary";
+            default -> "Unknown";
         };
     }
 
@@ -185,7 +185,7 @@ public class StaffProfileDialogController {
             case "ADMIN" -> "role-admin";
             case "DOCTOR" -> "role-doctor";
             case "NURSE" -> "role-nurse";
-            case "STAFF" -> "role-staff";
+            case "SECRETARY" -> "role-staff";
             default -> "role-unknown";
         };
     }

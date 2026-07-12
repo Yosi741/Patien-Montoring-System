@@ -19,7 +19,7 @@ public class User {
     public User(String username, String password, String role, String section, String staffId) {
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.role = UserRole.fromValue(role).databaseValue();
         this.section = section;
         this.staffId = staffId == null ? "" : staffId;
     }

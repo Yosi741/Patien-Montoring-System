@@ -564,7 +564,7 @@ public class PatientListController implements AppController {
             return false;
         }
         String status = row.getStatus().trim().toUpperCase(Locale.ROOT);
-        return "DECEASED".equals(status) || "INACTIVE".equals(status) || "DEACTIVATED".equals(status);
+        return "INACTIVE".equals(status) || "DEACTIVATED".equals(status);
     }
 
     private String initialsFor(String fullName) {

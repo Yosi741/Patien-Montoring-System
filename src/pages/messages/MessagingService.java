@@ -72,9 +72,6 @@ public class MessagingService {
 
     public String requestType(SqliteMessageDao.MessageRow row) {
         String text = messageText(row);
-        if (text.contains("[SPMS_CERTIFICATE]") || text.contains("certificate")) {
-            return "CERTIFICATE_NOTICE";
-        }
         if (containsVisitRequestText(text)) {
             return "VISIT_REQUEST";
         }
@@ -89,11 +86,7 @@ public class MessagingService {
 
     public boolean isRequestMessage(SqliteMessageDao.MessageRow row) {
         String text = messageText(row);
-        return text.contains("[SPMS_CERTIFICATE]")
-                || text.contains("request")
-                || text.contains("certificate notice")
-                || text.contains("birth certificate")
-                || text.contains("death certificate")
+        return text.contains("request")
                 || containsVisitRequestText(text)
                 || text.contains("treatment review");
     }

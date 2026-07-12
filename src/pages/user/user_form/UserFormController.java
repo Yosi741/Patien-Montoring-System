@@ -23,6 +23,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import pages.notification.NotificationHelper;
 import pages.user.User;
+import pages.user.UserRole;
 import pages.user.dao.SqliteUserDao;
 import pages.user.dao.SqliteUserProfileDao;
 import pages.user.services.UserProfileService;
@@ -432,33 +433,11 @@ public class UserFormController {
     }
 
     private String visibleRole(String internalRole) {
-        if (internalRole == null || internalRole.isBlank()) {
-            return "Secretary";
-        }
-        String upper = internalRole.toUpperCase();
-        if (upper.contains("ADMIN")) {
-            return "Admin";
-        }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "Doctor";
-        }
-        if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "Nurse";
-        }
-        return "Secretary";
+        return UserRole.fromValue(internalRole).displayName();
     }
 
     private String internalRole(String visibleRole) {
-        if ("Admin".equalsIgnoreCase(visibleRole)) {
-            return "ADMIN";
-        }
-        if ("Doctor".equalsIgnoreCase(visibleRole)) {
-            return "DOCTOR";
-        }
-        if ("Nurse".equalsIgnoreCase(visibleRole)) {
-            return "NURSE";
-        }
-        return "STAFF";
+        return UserRole.fromValue(visibleRole).databaseValue();
     }
 
     private String normalizedUsername() {

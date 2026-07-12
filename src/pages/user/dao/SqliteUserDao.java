@@ -3,6 +3,7 @@ package pages.user.dao;
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;
 import pages.user.User;
+import pages.user.UserRole;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,7 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public Optional<User> findByUsername(String username) throws SQLException {
-        String sql = "SELECT username, password_hash, role, section, staff_id FROM users WHERE LOWER(username) = LOWER(?) AND active = 1";
+        String sql = "SELECT username, password, role, section, staff_id FROM users WHERE LOWER(username) = LOWER(?) AND active = 1";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
@@ -69,13 +70,13 @@ public class SqliteUserDao implements UserDao {
     @Override
     public void save(User user) throws SQLException {
         String storedPassword = user.getPassword() == null ? "" : user.getPassword();
-        saveHashed(user.getUsername(), storedPassword, user.getRole(), user.getSection());
+        saveCredentials(user.getUsername(), storedPassword, user.getRole(), user.getSection());
     }
 
-    public void saveHashed(String username, String passwordHash, String role, String section) throws SQLException {
-        String sql = "INSERT INTO users(username, password_hash, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, 1) "
+    public void saveCredentials(String username, String password, String role, String section) throws SQLException {
+        String sql = "INSERT INTO users(username, password, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, 1) "
                 + "ON CONFLICT(username) DO UPDATE SET "
-                + "password_hash = excluded.password_hash, "
+                + "password = excluded.password, "
                 + "role = excluded.role, "
                 + "section = excluded.section, "
                 + "staff_id = CASE WHEN COALESCE(TRIM(staff_id), '') = '' THEN excluded.staff_id ELSE staff_id END, "
@@ -90,7 +91,7 @@ public class SqliteUserDao implements UserDao {
                 }
             });
             statement.setString(1, username);
-            statement.setString(2, passwordHash);
+            statement.setString(2, password);
             statement.setString(3, role);
             statement.setString(4, section == null || section.isBlank() ? "All" : section);
             statement.setString(5, staffId);
@@ -323,7 +324,7 @@ public class SqliteUserDao implements UserDao {
         if (cleanUsername.isEmpty() || cleanStaffId.isEmpty()) {
             return Optional.empty();
         }
-        String sql = "SELECT username, password_hash, role, section, staff_id "
+        String sql = "SELECT username, password, role, section, staff_id "
                 + "FROM users WHERE LOWER(username) = LOWER(?) "
                 + "AND UPPER(COALESCE(staff_id, '')) = UPPER(?) AND active = 1";
         try (Connection connection = DatabaseManager.getConnection();
@@ -363,12 +364,12 @@ public class SqliteUserDao implements UserDao {
         return Optional.empty();
     }
 
-    public void insertUser(UserWriteRecord record, String passwordHash) throws SQLException {
-        String sql = "INSERT INTO users(username, password_hash, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, ?)";
+    public void insertUser(UserWriteRecord record, String password) throws SQLException {
+        String sql = "INSERT INTO users(username, password, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, record.getUsername());
-            statement.setString(2, passwordHash);
+            statement.setString(2, password);
             statement.setString(3, record.getRole());
             statement.setString(4, blankToAll(record.getSection()));
             statement.setString(5, record.getStaffId());
@@ -438,12 +439,12 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    public void resetPasswordHash(String username, String passwordHash) throws SQLException {
-        updatePassword(username, passwordHash);
+    public void resetPassword(String username, String password) throws SQLException {
+        updatePassword(username, password);
     }
 
     public void updatePassword(String username, String newPassword) throws SQLException {
-        String sql = "UPDATE users SET password_hash = ? WHERE username = ?";
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, newPassword == null ? "" : newPassword);
@@ -465,7 +466,7 @@ public class SqliteUserDao implements UserDao {
     private User mapUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getString("username"),
-                resultSet.getString("password_hash"),
+                resultSet.getString("password"),
                 resultSet.getString("role"),
                 resultSet.getString("section"),
                 blank(resultSet.getString("staff_id"))
@@ -574,17 +575,9 @@ public class SqliteUserDao implements UserDao {
             sql.append("AND (UPPER(u.role) LIKE ? OR UPPER(u.role) LIKE ?) ");
             params.add("%NURSE%");
             params.add("%NURSING%");
-        } else if ("STAFF".equals(group)) {
-            sql.append("AND UPPER(u.role) NOT LIKE ? AND UPPER(u.role) NOT LIKE ? AND UPPER(u.role) NOT LIKE ? ");
-            sql.append("AND UPPER(u.role) NOT LIKE ? AND UPPER(u.role) NOT LIKE ? AND UPPER(u.role) NOT LIKE ? ");
-            sql.append("AND TRIM(COALESCE(u.role, '')) <> '' AND UPPER(u.role) <> ? ");
-            params.add("%ADMIN%");
-            params.add("%DOCTOR%");
-            params.add("%MEDICAL%");
-            params.add("%DEPARTMENT HEAD%");
-            params.add("%NURSE%");
-            params.add("%NURSING%");
-            params.add("UNKNOWN");
+        } else if ("SECRETARY".equals(group)) {
+            sql.append("AND UPPER(u.role) = ? ");
+            params.add(UserRole.SECRETARY.databaseValue());
         }
     }
 
@@ -593,6 +586,7 @@ public class SqliteUserDao implements UserDao {
                 + "WHEN UPPER(u.role) LIKE '%ADMIN%' THEN 1 "
                 + "WHEN UPPER(u.role) LIKE '%DOCTOR%' OR UPPER(u.role) LIKE '%MEDICAL%' OR UPPER(u.role) LIKE '%DEPARTMENT HEAD%' THEN 2 "
                 + "WHEN UPPER(u.role) LIKE '%NURSE%' OR UPPER(u.role) LIKE '%NURSING%' THEN 3 "
+                + "WHEN UPPER(u.role) = 'SECRETARY' THEN 4 "
                 + "WHEN TRIM(COALESCE(u.role, '')) = '' OR UPPER(u.role) = 'UNKNOWN' THEN 5 "
                 + "ELSE 4 END";
     }

@@ -1,152 +1,137 @@
-# Smart Clinic Patient Monitoring System - Project Structure Map
+# ClinicPulse Project Structure Map
 
-This file is the short teacher-facing guide for explaining the clinic-focused project structure.
+This is the short teacher-facing guide for explaining where the current urgent care clinic features live.
 
-Core clinic workflows:
+## Active Workflows
+
 - Login
 - Dashboard
-- Patients
+- Patient Management
 - Patient File
 - Vitals
 - Alerts
-- Scheduling
+- Appointments
 - Billing / Payments
-- Medical Files
-- Staff / Users
+- Medical Records / Medical Files
+- Staff Management
 - Messages
 - Notifications
+- Profile / Settings
 
-## 1. Project entry point
+## 1. Entry Point
 
 - `src/Main.java`
   - Official Java entry point.
 - `src/app/AppShell.java`
   - Starts JavaFX, loads the login page, opens the main shell, and handles page navigation.
 
-## 2. App core
+## 2. App Core
 
-- `src/app/`
-  - Main application shell and shared infrastructure.
-  - Important files:
-    - `AppShell.java` - app startup and navigation
-    - `AppNavigator.java` - FXML loading and view resolution
-    - `AppLayoutController.java` - top bar, sidebar, shared shell actions
-    - `DatabaseManager.java` - SQLite connection handling
-    - `SchemaInitializer.java` - database setup and safe migrations
-    - `SessionContext.java` - current logged-in session context
-    - `PasswordHasher.java` - password hashing and verification support
-    - `helpers/` - shared dialogs, permissions, file opening, selection safety, and date helpers
+- `src/app/AppShell.java` - JavaFX startup and navigation
+- `src/app/AppNavigator.java` - FXML loading and view resolution
+- `src/app/layout/AppLayoutController.java` - top bar, sidebar, shared shell actions
+- `src/app/database/DatabaseManager.java` - SQLite connection handling
+- `src/app/database/SchemaInitializer.java` - database setup and safe migrations
+- `src/app/session/SessionContext.java` - current logged-in session
+- `src/app/helpers/` - shared dialogs, permissions, file opening, selection safety, and date helpers
+- `src/app/styles/` - shared JavaFX CSS themes
 
 ## 3. Login
 
-- `src/pages/login/`
-  - Login screen, clear form action, forgot-password flow, and local reset helpers.
+- `src/pages/login/LoginController.java`
+- `src/pages/login/LoginView.fxml`
+- Login, clear form, and forgot-password flow.
 
 ## 4. Dashboard
 
-- `src/pages/dashboard/`
-  - Clinic overview cards, alert summaries, vitals summary, and reminder counters.
+- `src/pages/dashboard/DashboardController.java`
+- `src/pages/dashboard/DashboardView.fxml`
+- `src/pages/dashboard/services/DashboardMetricsService.java`
+- Clinic overview cards, alerts, appointments, billing, and patient metrics.
 
 ## 5. Patients
 
-- `src/pages/patient/`
-  - Patient Board
-  - Patient File / Detail
-  - Add/Edit Patient form
-  - Enter Vitals
-  - Medical Files
-  - Patient services and DAO code used by those pages
+- `src/pages/patient/patient_board/PatientListController.java` - Patient Management page
+- `src/pages/patient/patient_detail/PatientDetailController.java` - Patient File page
+- `src/pages/patient/patient_form/PatientFormController.java` - Add/Edit Patient form
+- `src/pages/patient/vitals_entry/VitalsEntryController.java` - Enter Vitals form
+- `src/pages/patient/medical_files/MedicalFilesController.java` - Medical Records page
+- `src/pages/patient/dao/SqlitePatientDao.java` - patient persistence
+- `src/pages/patient/services/` - patient workflow and validation services
 
 ## 6. Alerts
 
-- `src/pages/alert/`
-  - Alert persistence, alert sound, and alert-related services.
+- `src/pages/alert/AlertService.java`
+- `src/pages/alert/AlertSoundService.java`
+- `src/pages/alert/AlarmService.java`
+- Sound file: `src/sound/alarm.wav`
 
-## 7. Scheduling
+## 7. Appointments
 
-- `src/pages/scheduling/`
-  - Scheduling overview
-  - Appointment form
-  - Reminder form
-  - Scheduling services and reminder engine
+- `src/pages/scheduling/schedule_overview/SchedulingController.java`
+- `src/pages/scheduling/appointment_form/AppointmentFormController.java`
+- `src/pages/scheduling/dao/SqliteAppointmentDao.java`
+- `src/pages/scheduling/services/AppointmentWriteService.java`
 
-## 8. Users and roles
+## 8. Billing
 
-- `src/pages/user/`
-  - Staff / User Directory
-  - Add/Edit User
-  - Profile / Settings
-  - User services and DAO code for the user workflow
-- `src/users/roles/`
-  - Role definitions and role-related support classes
+- `src/pages/billing/billing_overview/BillingController.java`
+- `src/pages/billing/dao/SqliteBillingDao.java`
+- `src/pages/billing/services/BillingService.java`
+- Local SQLite demo invoices only. No real payment gateway is included.
 
-## 9. Billing
+## 9. Staff Management And Roles
 
-- `src/pages/billing/`
-  - Local demo invoices and payment status tracking
-  - SQLite-backed billing DAO and service code
-  - Billing overview page for creating invoices, viewing details, marking paid, and cancelling invoices
-  - No real payment gateway or online payment processing
+- `src/pages/user/user_directory/UserDirectoryController.java`
+- `src/pages/user/user_form/UserFormController.java`
+- `src/pages/user/profile_settings/UserProfileController.java`
+- `src/pages/user/UserRole.java`
+- Final roles: `ADMIN`, `DOCTOR`, `NURSE`, `SECRETARY`
 
-## 10. Messages and notifications
+## 10. Messages And Notifications
 
-- `src/pages/messages/`
-  - Internal staff messaging page and message services
-- `src/pages/notification/`
-  - Alerts & Notifications inbox and notification services
+- `src/pages/messages/MessagingController.java`
+- `src/pages/messages/MessagingService.java`
+- `src/pages/notification/NotificationCenterController.java`
+- `src/pages/notification/NotificationService.java`
 
 ## 11. Resources
 
-- `src/photo/`
-  - Logo and branding image assets used by the login page and app shell
-- `src/sound/alarm.wav`
-  - Local clinic alert sound resource
-- `src/app/styles/dark-theme.css`
-  - Main clinic presentation theme
+- `src/photo/` - logo and branding image assets
+- `src/sound/alarm.wav` - local alert sound
+- `src/app/styles/dark-theme.css` - dark theme
+- `src/app/styles/light-theme.css` - light theme
 
-## 12. How to answer teacher questions
+## Common Teacher Questions
 
 - "Where is the Login button code?"
-  - `src/pages/login/LoginController.java`
-  - method: `handleLogin()`
+  - `src/pages/login/LoginController.java`, method `handleLogin()`
 
-- "Where is the Clear button?"
-  - `src/pages/login/LoginController.java`
-  - method: `handleClearLoginForm()`
+- "Where is the Clear Login button?"
+  - `src/pages/login/LoginController.java`, method `handleClearLoginForm()`
 
 - "Where is Forgot Password?"
-  - `src/pages/login/LoginController.java`
-  - method: `handleForgotPasswordRequest()`
-  - services in `src/pages/login/`
+  - `src/pages/login/LoginController.java`, method `handleForgotPasswordRequest()`
 
 - "Where is Add Patient?"
-  - button flow starts in `src/pages/patient/patient_board/PatientListController.java`
-  - form is in `src/pages/patient/patient_form/PatientFormController.java`
+  - `src/pages/patient/patient_board/PatientListController.java`
+  - form: `src/pages/patient/patient_form/PatientFormController.java`
 
 - "Where is Enter Vitals?"
   - `src/pages/patient/vitals_entry/VitalsEntryController.java`
 
-- "Where is Medical Files?"
+- "Where are Medical Records?"
   - `src/pages/patient/medical_files/MedicalFilesController.java`
 
-- "Where is Scheduling?"
+- "Where are Appointments?"
   - `src/pages/scheduling/schedule_overview/SchedulingController.java`
 
-- "Where is Billing / Payments?"
+- "Where is Billing?"
   - `src/pages/billing/billing_overview/BillingController.java`
-  - DAO/service code in `src/pages/billing/`
-  - local SQLite demo billing only, no external payment gateway
 
-- "Where is Staff / Users?"
+- "Where is Staff Management?"
   - `src/pages/user/user_directory/UserDirectoryController.java`
 
-- "Where is Alert Sound?"
-  - `src/pages/alert/AlertSoundService.java`
-  - sound file: `src/sound/alarm.wav`
-
 - "Where is database setup?"
-  - `src/app/SchemaInitializer.java`
-  - `src/app/DatabaseManager.java`
-
-- "Where is password hashing?"
-  - `src/app/PasswordHasher.java`
+  - `src/app/database/SchemaInitializer.java`
+  - `src/app/database/DatabaseManager.java`

@@ -107,20 +107,6 @@ public class AppShell extends Application {
         updateShellContext("alerts", "Alerts", "Home / Alerts");
     }
 
-    public void showCertificateSourceRecord(String sourceType, String sourceId) {
-        showPlaceholder(
-                "Linked Record Unavailable",
-                "That linked record is not part of the current clinic presentation build.",
-                "Requested source: " + safe(sourceType) + " #" + safe(sourceId)
-        );
-    }
-
-
-
-    public void showMessageCertificateSourceRecord(String sourceType, String sourceId) {
-        showCertificateSourceRecord(sourceType, sourceId);
-    }
-
     public void showScheduling() {
         setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", windowTitle("Appointments"));
         updateShellContext("appointments", "Appointments", "Home / Appointments");

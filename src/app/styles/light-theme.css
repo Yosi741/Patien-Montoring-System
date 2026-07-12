@@ -2195,8 +2195,7 @@
 .priority-emergency,
 .severity-critical,
 .severity-emergency,
-.notification-badge-critical,
-.patient-status-deceased {
+.notification-badge-critical {
     -fx-background-color: rgba(239, 68, 68, 0.10);
     -fx-border-color: rgba(239, 68, 68, 0.20);
     -fx-text-fill: #b91c1c;

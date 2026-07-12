@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import pages.messages.SqliteMessageDao;
 import pages.notification.SqliteNotificationDao;
 import pages.patient.patient_form.PatientFormController;
+import pages.user.UserRole;
 import users.Session;
 
 import java.net.URL;
@@ -80,7 +81,7 @@ public class AppLayoutController implements AppController {
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
         String username = SessionContext.username();
-        String role = SessionContext.role();
+        String role = displayRole(SessionContext.role());
         String section = SessionContext.section();
         if (userLabel != null) {
             userLabel.setText(username);
@@ -227,7 +228,7 @@ public class AppLayoutController implements AppController {
     @FXML
     private void handleQuickAddPatient() {
         if (!PermissionHelper.canCreatePatient(Session.getCurrentUser())) {
-            appShell.showPatientsWithNotice("Only Admin, Doctor, Nurse, or Staff users can add a patient from Quick Actions.");
+            appShell.showPatientsWithNotice("Only Admin, Doctor, Nurse, or Secretary users can add a patient from Quick Actions.");
             return;
         }
         try {
@@ -254,7 +255,7 @@ public class AppLayoutController implements AppController {
     @FXML
     private void handleQuickAddPayment() {
         if (!PermissionHelper.canViewBilling(Session.getCurrentUser())) {
-            showContextNotice("Billing is available only for Admin and Staff users.");
+            showContextNotice("Billing is available only for Admin and Secretary users.");
             return;
         }
         appShell.showBilling();
@@ -385,6 +386,14 @@ public class AppLayoutController implements AppController {
         if (button != null) {
             button.setVisible(visible);
             button.setManaged(visible);
+        }
+    }
+
+    private String displayRole(String role) {
+        try {
+            return UserRole.fromValue(role).displayName();
+        } catch (Exception e) {
+            return role == null || role.isBlank() ? "Unknown" : role;
         }
     }
 

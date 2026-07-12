@@ -1,6 +1,7 @@
 package app.helpers;
 
 import pages.user.User;
+import pages.user.UserRole;
 
 public final class PermissionHelper {
 
@@ -16,11 +17,11 @@ public final class PermissionHelper {
     }
 
     public static boolean canCreatePatient(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user) || isStaff(user);
+        return isAdmin(user) || isDoctor(user) || isNurse(user) || isSecretary(user);
     }
 
     public static boolean canUpdatePatient(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user) || isStaff(user);
+        return isAdmin(user) || isDoctor(user) || isNurse(user) || isSecretary(user);
     }
 
     public static boolean canDeletePatient(User user) {
@@ -60,11 +61,11 @@ public final class PermissionHelper {
     }
 
     public static boolean canCreateAppointment(User user) {
-        return isAdmin(user) || isStaff(user);
+        return isAdmin(user) || isSecretary(user);
     }
 
     public static boolean canEditAppointment(User user) {
-        return isAdmin(user) || isStaff(user);
+        return isAdmin(user) || isSecretary(user);
     }
 
     public static boolean canDeleteAppointment(User user) {
@@ -108,11 +109,11 @@ public final class PermissionHelper {
     }
 
     public static boolean canViewBilling(User user) {
-        return isAdmin(user) || isStaff(user);
+        return isAdmin(user) || isSecretary(user);
     }
 
     public static boolean canManageBilling(User user) {
-        return isAdmin(user) || isStaff(user);
+        return isAdmin(user) || isSecretary(user);
     }
 
     public static boolean canDeleteInvoice(User user) {
@@ -127,23 +128,10 @@ public final class PermissionHelper {
         if (role == null) {
             return "UNKNOWN";
         }
-        String upper = role.toUpperCase();
-        if (upper.contains("ADMIN")) {
-            return "ADMIN";
-        }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL") || upper.contains("DEPARTMENT HEAD")) {
-            return "DOCTOR";
-        }
-        if (upper.contains("NURSE") || upper.contains("NURSING")) {
-            return "NURSE";
-        }
-        if (upper.contains("SECRETARY") || upper.contains("STAFF") || upper.contains("RECEPTION")) {
-            return "STAFF";
-        }
-        if (upper.isBlank() || upper.equals("UNKNOWN")) {
+        if (role.isBlank() || "UNKNOWN".equalsIgnoreCase(role.trim())) {
             return "UNKNOWN";
         }
-        return "STAFF";
+        return UserRole.fromValue(role).databaseValue();
     }
 
     private static boolean isAdmin(User user) {
@@ -158,7 +146,7 @@ public final class PermissionHelper {
         return "NURSE".equals(roleGroup(user));
     }
 
-    private static boolean isStaff(User user) {
-        return "STAFF".equals(roleGroup(user));
+    private static boolean isSecretary(User user) {
+        return "SECRETARY".equals(roleGroup(user));
     }
 }

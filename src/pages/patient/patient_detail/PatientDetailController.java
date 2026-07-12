@@ -55,8 +55,8 @@ public class PatientDetailController implements AppController {
     private final ObservableList<PatientVisit> visits = FXCollections.observableArrayList();
     private AppShell appShell;
     private String patientId;
-    private boolean deceasedPatient;
     private boolean dischargedPatient;
+    private boolean inactivePatient;
 
     @FXML private Label nameLabel;
     @FXML private Label patientIdLabel;
@@ -141,8 +141,9 @@ public class PatientDetailController implements AppController {
             priorityLabel.getStyleClass().removeAll("priority-normal", "priority-high", "priority-critical", "priority-emergency");
             priorityLabel.getStyleClass().add(priorityStyle(detail.getPriority()));
             diagnosisLabel.setText(detail.getDiagnosis());
-            deceasedPatient = "DECEASED".equalsIgnoreCase(detail.getStatus());
             dischargedPatient = "DISCHARGED".equalsIgnoreCase(detail.getStatus());
+            inactivePatient = "INACTIVE".equalsIgnoreCase(detail.getStatus())
+                    || "DEACTIVATED".equalsIgnoreCase(detail.getStatus());
             configureWritePermissions();
             updateClinicalActionBlocks();
             loadVitals();
@@ -205,14 +206,14 @@ public class PatientDetailController implements AppController {
     @FXML
     private void createPatientAppointment() {
         if (!PermissionHelper.canCreateAppointment(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Only Admin or Staff users can create appointments.");
+            timelineStatusLabel.setText("Access denied. Only Admin or Secretary users can create appointments.");
             return;
         }
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for appointment scheduling.");
             return;
         }
-        if (blockIfDeceased("create appointment")) {
+        if (blockIfInactive()) {
             return;
         }
         try {
@@ -233,10 +234,6 @@ public class PatientDetailController implements AppController {
         }
         if (patientId == null || patientId.isBlank()) {
             timelineStatusLabel.setText("No patient selected for discharge.");
-            return;
-        }
-        if (deceasedPatient) {
-            NotificationHelper.showError(timelineStatusLabel, "Deceased patient files cannot be discharged.");
             return;
         }
         if (dischargedPatient) {
@@ -292,7 +289,7 @@ public class PatientDetailController implements AppController {
             timelineStatusLabel.setText("No patient selected for vitals entry.");
             return;
         }
-        if (blockIfDeceased("enter vitals")) {
+        if (blockIfInactive()) {
             return;
         }
         try {
@@ -427,7 +424,7 @@ public class PatientDetailController implements AppController {
     }
 
     private void updateClinicalActionBlocks() {
-        if (!deceasedPatient && !dischargedPatient) {
+        if (!inactivePatient && !dischargedPatient) {
             return;
         }
         setButtonVisible(enterVitalsButton, false);
@@ -482,8 +479,8 @@ public class PatientDetailController implements AppController {
         trendStatusLabel.setText("Read-only local database trend loaded: " + result.getReadings().size() + " readings.");
     }
 
-    private boolean blockIfDeceased(String action) {
-        if (!deceasedPatient && !dischargedPatient) {
+    private boolean blockIfInactive() {
+        if (!inactivePatient && !dischargedPatient) {
             return false;
         }
         NotificationHelper.showError(timelineStatusLabel, "Clinical actions are blocked for inactive patient records.");

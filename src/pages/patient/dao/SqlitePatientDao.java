@@ -81,11 +81,11 @@ public class SqlitePatientDao implements PatientDao {
         if (hasText(safeFilter.displayStatus) && !"All".equalsIgnoreCase(safeFilter.displayStatus)) {
             switch (safeFilter.displayStatus.trim().toUpperCase()) {
                 case "ACTIVE":
-                    sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
+                    sql.append("AND UPPER(status) NOT IN ('DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
                             .append("AND UPPER(priority) NOT IN ('CRITICAL', 'EMERGENCY') ");
                     break;
                 case "CRITICAL":
-                    sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
+                    sql.append("AND UPPER(status) NOT IN ('DISCHARGED', 'INACTIVE', 'DEACTIVATED') ")
                             .append("AND UPPER(priority) IN ('CRITICAL', 'EMERGENCY') ");
                     break;
                 case "DISCHARGED":
@@ -93,14 +93,14 @@ public class SqlitePatientDao implements PatientDao {
                     break;
                 case "ARCHIVED":
                 case "INACTIVE":
-                    sql.append("AND UPPER(status) IN ('DECEASED', 'INACTIVE', 'DEACTIVATED') ");
+                    sql.append("AND UPPER(status) IN ('INACTIVE', 'DEACTIVATED') ");
                     break;
                 default:
                     break;
             }
         } else if (hasText(safeFilter.status) && !"All".equalsIgnoreCase(safeFilter.status)) {
             if ("ACTIVE".equalsIgnoreCase(safeFilter.status)) {
-                sql.append("AND UPPER(status) NOT IN ('DECEASED', 'DISCHARGED', 'INACTIVE') ");
+                sql.append("AND UPPER(status) NOT IN ('DISCHARGED', 'INACTIVE') ");
             } else {
                 sql.append("AND UPPER(status) = ? ");
                 params.add(safeFilter.status.toUpperCase());
@@ -121,7 +121,6 @@ public class SqlitePatientDao implements PatientDao {
                 .append("WHEN 'HIGH' THEN 3 ")
                 .append("WHEN 'WARNING' THEN 3 ")
                 .append("WHEN 'NORMAL' THEN 4 ")
-                .append("WHEN 'DECEASED' THEN 5 ")
                 .append("ELSE 6 END, datetime(updated_at) DESC, last_name, first_name, patient_id");
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
@@ -486,8 +485,7 @@ public class SqlitePatientDao implements PatientDao {
             return false;
         }
         String normalized = status.trim().toUpperCase();
-        return "DECEASED".equals(normalized)
-                || "DISCHARGED".equals(normalized)
+        return "DISCHARGED".equals(normalized)
                 || "INACTIVE".equals(normalized)
                 || "DEACTIVATED".equals(normalized);
     }
@@ -545,9 +543,6 @@ public class SqlitePatientDao implements PatientDao {
     }
 
     private String priorityFor(Patient patient) {
-        if (patient.isDeceased()) {
-            return "DECEASED";
-        }
         return "NORMAL";
     }
 

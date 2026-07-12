@@ -2,7 +2,6 @@ package pages.messages;
 
 import app.core.AppShell;
 import app.contracts.AppController;
-import app.helpers.FxFileOpenHelper;
 import app.helpers.PermissionHelper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,8 +26,6 @@ import pages.user.User;
 import pages.user.dao.SqliteUserDao;
 import users.Session;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,12 +36,6 @@ import java.util.Map;
 
 public class MessagingController implements AppController {
 
-    private static final Path DEATH_CERTIFICATE_DIR = Path.of("data", "generated", "death-certificates")
-            .toAbsolutePath()
-            .normalize();
-    private static final Path BIRTH_CERTIFICATE_DIR = Path.of("data", "generated", "birth-certificates")
-            .toAbsolutePath()
-            .normalize();
     private static final DateTimeFormatter STORAGE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter SAME_DAY_TIME = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
     private static final DateTimeFormatter OTHER_DAY_TIME = DateTimeFormatter.ofPattern("dd MMM", Locale.ENGLISH);
@@ -93,9 +84,6 @@ public class MessagingController implements AppController {
     @FXML private Button detailOpenPatientButton;
     @FXML private Button detailMarkReadButton;
     @FXML private Button detailArchiveButton;
-    @FXML private Button detailOpenSourceButton;
-    @FXML private Button detailOpenFileButton;
-    @FXML private javafx.scene.layout.FlowPane detailLinkedActionsPane;
 
     @FXML private StackPane composeOverlay;
     @FXML private TextField recipientSearchField;
@@ -240,34 +228,6 @@ public class MessagingController implements AppController {
         SqliteMessageDao.MessageRow row = selectedMessage();
         if (row != null && row.getPatientId() != null && !row.getPatientId().isBlank()) {
             appShell.showPatientDetail(row.getPatientId());
-        }
-    }
-
-    @FXML
-    private void openSourceRecord() {
-        SqliteMessageDao.MessageRow row = selectedMessage();
-        CertificateMetadata metadata = metadataFrom(row);
-        if (metadata == null) {
-            NotificationHelper.showInfo(statusLabel, "This message does not include a linked item.");
-            return;
-        }
-        appShell.showMessageCertificateSourceRecord(metadata.sourceType, metadata.sourceId);
-    }
-
-    @FXML
-    private void openCertificate() {
-        SqliteMessageDao.MessageRow row = selectedMessage();
-        CertificateMetadata metadata = metadataFrom(row);
-        if (metadata == null) {
-            NotificationHelper.showInfo(statusLabel, "This message does not include a linked file.");
-            return;
-        }
-        try {
-            Path certificate = validateCertificatePath(metadata);
-            FxFileOpenHelper.open(certificate);
-            NotificationHelper.showSuccess(statusLabel, "Opening linked file with the local desktop handler.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, certificateError(e));
         }
     }
 
@@ -451,7 +411,6 @@ public class MessagingController implements AppController {
         if (row == null) {
             return;
         }
-        CertificateMetadata metadata = metadataFrom(row);
         String senderName = displayNameForUsername(row.getSenderUsername());
         String recipientName = recipientDisplay(row);
 
@@ -461,9 +420,7 @@ public class MessagingController implements AppController {
         detailCreatedValueLabel.setText(blankTo(row.getCreatedAt(), "-"));
         detailPatientValueLabel.setText(blankTo(row.getPatientId(), "No linked patient"));
         detailBodyArea.setText(blankTo(cleanMessageBody(row.getBody()), "No message body"));
-        detailLinkedItemLabel.setText(metadata == null
-                ? "Linked item: none"
-                : "Linked item: " + metadata.certificateType + " | Source ID: " + metadata.sourceId);
+        detailLinkedItemLabel.setText("Linked item: none");
 
         applyPillStyle(detailPriorityValueLabel, priorityStyle(row.getPriority()), blankTo(row.getPriority(), "NORMAL"));
         applyPillStyle(detailStatusValueLabel, statusStyle(row.getStatus()), friendlyStatus(row.getStatus()));
@@ -475,14 +432,6 @@ public class MessagingController implements AppController {
         detailOpenPatientButton.setVisible(hasPatient);
         detailOpenPatientButton.setManaged(hasPatient);
         detailArchiveButton.setDisable("ARCHIVED".equalsIgnoreCase(row.getStatus()));
-
-        boolean hasMetadata = metadata != null;
-        detailLinkedActionsPane.setVisible(hasMetadata);
-        detailLinkedActionsPane.setManaged(hasMetadata);
-        detailOpenSourceButton.setVisible(hasMetadata);
-        detailOpenSourceButton.setManaged(hasMetadata);
-        detailOpenFileButton.setVisible(hasMetadata);
-        detailOpenFileButton.setManaged(hasMetadata);
 
         detailOverlay.setManaged(true);
         detailOverlay.setVisible(true);
@@ -748,26 +697,7 @@ public class MessagingController implements AppController {
         if (body == null || body.isBlank()) {
             return "";
         }
-        StringBuilder cleaned = new StringBuilder();
-        boolean inMetadata = false;
-        for (String line : body.split("\\R")) {
-            String trimmed = line.trim();
-            if ("[SPMS_CERTIFICATE]".equals(trimmed)) {
-                inMetadata = true;
-                continue;
-            }
-            if ("[/SPMS_CERTIFICATE]".equals(trimmed)) {
-                inMetadata = false;
-                continue;
-            }
-            if (!inMetadata) {
-                if (!cleaned.isEmpty()) {
-                    cleaned.append(System.lineSeparator());
-                }
-                cleaned.append(line);
-            }
-        }
-        return cleaned.toString().trim();
+        return body.trim();
     }
 
     private String initialsFor(String displayName) {
@@ -848,95 +778,8 @@ public class MessagingController implements AppController {
         label.getStyleClass().setAll("badge-pill", styleClass);
     }
 
-    private CertificateMetadata metadataFrom(SqliteMessageDao.MessageRow row) {
-        if (row == null || row.getBody() == null || !row.getBody().contains("[SPMS_CERTIFICATE]")) {
-            return null;
-        }
-        boolean inBlock = false;
-        Map<String, String> values = new HashMap<>();
-        for (String line : row.getBody().split("\\R")) {
-            String clean = line.trim();
-            if ("[SPMS_CERTIFICATE]".equals(clean)) {
-                inBlock = true;
-                continue;
-            }
-            if ("[/SPMS_CERTIFICATE]".equals(clean)) {
-                break;
-            }
-            if (inBlock) {
-                int equals = clean.indexOf('=');
-                if (equals > 0) {
-                    values.put(clean.substring(0, equals).trim(), clean.substring(equals + 1).trim());
-                }
-            }
-        }
-        String sourceType = emptyTo(values.get("source_type"), "");
-        String sourceId = emptyTo(values.get("source_id"), "");
-        if (sourceType.isBlank() || sourceId.isBlank() || "-".equals(sourceId)) {
-            return null;
-        }
-        return new CertificateMetadata(
-                emptyTo(values.get("certificate_type"), "CERTIFICATE"),
-                sourceType,
-                sourceId,
-                emptyTo(values.get("patient_id"), ""),
-                emptyTo(values.get("newborn_id"), ""),
-                emptyTo(values.get("certificate_path"), "")
-        );
-    }
-
-    private String emptyTo(String value, String fallback) {
-        return value == null || value.isBlank() || "-".equals(value) ? fallback : value;
-    }
-
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
-    }
-
-    private Path validateCertificatePath(CertificateMetadata metadata) {
-        String rawPath = metadata == null ? "" : metadata.certificatePath;
-        if (rawPath == null || rawPath.isBlank() || "-".equals(rawPath.trim())) {
-            throw new IllegalArgumentException("Linked file was not found.");
-        }
-        Path path = Path.of(rawPath.trim()).toAbsolutePath().normalize();
-        if (!path.startsWith(DEATH_CERTIFICATE_DIR) && !path.startsWith(BIRTH_CERTIFICATE_DIR)) {
-            throw new SecurityException("Linked file path is outside the generated certificate folders.");
-        }
-        if (!Files.exists(path)) {
-            throw new IllegalArgumentException("Linked file was not found.");
-        }
-        return path;
-    }
-
-    private String certificateError(Exception e) {
-        String message = e == null ? "" : e.getMessage();
-        if (message == null || message.isBlank() || message.toLowerCase(Locale.ROOT).contains("does not exist")) {
-            return "Linked file was not found.";
-        }
-        return message;
-    }
-
-    private static class CertificateMetadata {
-        private final String certificateType;
-        private final String sourceType;
-        private final String sourceId;
-        private final String patientId;
-        private final String newbornId;
-        private final String certificatePath;
-
-        private CertificateMetadata(String certificateType,
-                                    String sourceType,
-                                    String sourceId,
-                                    String patientId,
-                                    String newbornId,
-                                    String certificatePath) {
-            this.certificateType = certificateType;
-            this.sourceType = sourceType;
-            this.sourceId = sourceId;
-            this.patientId = patientId;
-            this.newbornId = newbornId;
-            this.certificatePath = certificatePath;
-        }
     }
 
     private class MessageRowCell extends ListCell<SqliteMessageDao.MessageRow> {

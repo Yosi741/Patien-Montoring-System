@@ -15,7 +15,7 @@ import java.util.Set;
 public class PatientWriteService {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private static final Set<String> VALID_STATUSES = Set.of("ACTIVE", "DISCHARGED", "DECEASED");
+    private static final Set<String> VALID_STATUSES = Set.of("ACTIVE", "DISCHARGED");
     private static final Set<String> VALID_PRIORITIES = Set.of("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
     private static final Set<String> VALID_BLOOD_TYPES = Set.of("UNKNOWN", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
@@ -62,11 +62,6 @@ public class PatientWriteService {
         if (!patientDao.existsByPatientId(patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
         }
-        SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
-                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patientId));
-        if ("DECEASED".equalsIgnoreCase(detail.getStatus())) {
-            throw new IllegalArgumentException("Deceased patient files cannot be discharged.");
-        }
         patientDao.deactivatePatient(patientId, "DISCHARGED");
         patientVisitService.dischargeVisit(patientId, dischargeSummary);
     }
@@ -81,8 +76,7 @@ public class PatientWriteService {
         }
         SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patientId));
-        if ("DECEASED".equalsIgnoreCase(detail.getStatus())
-                || "INACTIVE".equalsIgnoreCase(detail.getStatus())
+        if ("INACTIVE".equalsIgnoreCase(detail.getStatus())
                 || "DEACTIVATED".equalsIgnoreCase(detail.getStatus())) {
             throw new IllegalArgumentException("This patient is already archived.");
         }
@@ -126,11 +120,8 @@ public class PatientWriteService {
     public void reactivateReturningPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);
-        SqlitePatientDao.PatientDetail existing = patientDao.findDetailById(patient.getPatientId())
+        patientDao.findDetailById(patient.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId()));
-        if ("DECEASED".equalsIgnoreCase(existing.getStatus())) {
-            throw new IllegalArgumentException("Deceased patient files cannot be reactivated as returning visits.");
-        }
 
         SqlitePatientDao.PatientWriteRecord activeVisitRecord = new SqlitePatientDao.PatientWriteRecord(
                 patient.getPatientId(),
@@ -159,7 +150,7 @@ public class PatientWriteService {
 
     private void requireWritePermission(User currentUser) {
         if (!PermissionHelper.canCreatePatient(currentUser) && !PermissionHelper.canUpdatePatient(currentUser)) {
-            throw new SecurityException("Only Admin, Doctor, Nurse, or Staff users can add or edit patients.");
+            throw new SecurityException("Only Admin, Doctor, Nurse, or Secretary users can add or edit patients.");
         }
     }
 

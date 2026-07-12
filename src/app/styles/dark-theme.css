@@ -1563,8 +1563,7 @@
 }
 
 .patient-status-active,
-.patient-status-discharged,
-.patient-status-deceased {
+.patient-status-discharged {
     -fx-background-radius: 999;
     -fx-padding: 5 11;
     -fx-font-size: 12px;
@@ -1580,11 +1579,6 @@
 .patient-status-discharged {
     -fx-background-color: #334155;
     -fx-text-fill: #f8fafc;
-}
-
-.patient-status-deceased {
-    -fx-background-color: #7f1d1d;
-    -fx-text-fill: #fee2e2;
 }
 
 .patient-file-root,
@@ -2292,7 +2286,7 @@
     -fx-background-color: #7f1d1d;
     -fx-border-color: #ef4444;
 }
-.priority-emergency, .severity-emergency, .patient-status-deceased {
+.priority-emergency, .severity-emergency {
     -fx-text-fill: #ffffff;
     -fx-background-color: #991b1b;
     -fx-border-color: #f87171;
@@ -2342,8 +2336,7 @@
 }
 
 .priority-emergency,
-.severity-emergency,
-.patient-status-deceased {
+.severity-emergency {
     -fx-text-fill: #ffd6d6;
     -fx-background-color: #4f1f1f;
     -fx-border-color: #b95f5f;
@@ -2506,7 +2499,6 @@
 
 .status-info,
 .safety-panel,
-.certificate-preview,
 .notification-detail-text,
 .notification-detail-text .content {
     -fx-background-color: #0b1220;
@@ -3123,7 +3115,6 @@
 .severity-critical,
 .priority-emergency,
 .severity-emergency,
-.patient-status-deceased,
 .notification-badge-critical,
 .status-error {
     -fx-background-color: #7F1D1D;

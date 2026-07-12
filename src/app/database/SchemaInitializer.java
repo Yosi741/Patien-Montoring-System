@@ -43,7 +43,7 @@ public class SchemaInitializer {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "staff_id TEXT UNIQUE,"
                 + "username TEXT NOT NULL UNIQUE,"
-                + "password_hash TEXT NOT NULL,"
+                + "password TEXT NOT NULL,"
                 + "role TEXT NOT NULL,"
                 + "section TEXT NOT NULL DEFAULT 'All',"
                 + "email TEXT,"

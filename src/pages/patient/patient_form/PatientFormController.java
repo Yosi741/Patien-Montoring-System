@@ -99,7 +99,7 @@ public class PatientFormController {
     @FXML
     private void initialize() {
         genderBox.getItems().setAll("Female", "Male", "Other", "Unknown");
-        statusBox.getItems().setAll("ACTIVE", "DISCHARGED", "DECEASED");
+        statusBox.getItems().setAll("ACTIVE", "DISCHARGED");
         priorityBox.getItems().setAll("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
         bloodTypeBox.getItems().setAll("Unknown", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
         allergyStatusBox.getItems().setAll(ALLERGY_STATUS_NONE, ALLERGY_STATUS_HAS, ALLERGY_STATUS_UNKNOWN);

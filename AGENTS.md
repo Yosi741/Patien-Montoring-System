@@ -1,56 +1,70 @@
-# AGENTS: How to be productive in this codebase
+# AGENTS.md
 
-**Status: Full JavaFX Migration Complete** - old Java desktop UI code removed.
+This project is now a JavaFX + SQLite urgent care clinic demo named ClinicPulse.
 
-## Quick Start
-- **Main entry**: Run `Main.java` (launches JavaFX)
-- **Database setup**: Run `DatabaseMigrationMain` first, then restart app
-- **SQLite preview**: Check `data/smart_patient_monitoring.db` after running app
+## Safe Working Rules
 
-## Recommended Pattern
-1. Modify Service (validation, audit) → Data_Access_Object (persistence) → Controller (UI binding)
-2. Controllers should NOT execute SQL directly; use DAOs and Services
-3. When adding writes: include AuditWriteHelper calls and update SqliteMigrationService if needed
+- Do not run `git reset`, `git checkout`, or `git clean`.
+- Keep JavaFX as the only UI.
+- Keep SQLite as the active local database.
+- Preserve the Controller -> Service -> DAO structure.
+- Do not reintroduce deleted hospital modules.
+- Prefer small scoped changes with compile verification.
 
-Key entry points and commands
-- Main Java launchers:
-  - `Main` (default launcher)
-  - `JavaFxMain` (explicit JavaFX)
-  - `DatabaseMigrationMain` (migrate text files -> SQLite safely)
-- Build/run from terminal (README examples): compile with `javac -cp "lib/*" -d out/production/... @sources.txt` then run with `java -cp "out/production/...;lib/*" Main` on PowerShell.
+## Entry Point
 
-## Project-specific conventions & gotchas
-- **Dual persistence**: Text-file storage (`data/*.txt`) and SQLite (`data/smart_patient_monitoring.db`) both exist for data redundancy.
-- **Safe file handling**: Uploads and generated certificates live under `data/uploads/` and `data/generated/...`
-- **Audit-first**: All writes use `AuditWriteHelper` / `AuditWriteService` (see src/ui.javafx.services/)
-- **Passwords**: Use `PasswordHasher` (do not log raw passwords)
-- **UI Layer**: Controllers are in `src/ui/javafx/controllers/`, FXML views in `src/ui/javafx/views/`
+- Run `src/Main.java`.
+- Main JavaFX shell: `src/app/AppShell.java`.
 
-Integration points & external deps
-- Local jars in `lib/`: JavaFX, SQLite JDBC, PDFBox, SLF4J. All runtime classpath examples include `lib/*`.
-- PDF text extraction uses PDFBox (jar in `lib/pdfbox-app-*.jar`). No external OCR or cloud APIs.
+## Compile Command
 
-## Files & directories to inspect first (examples)
-- `src/ui/javafx/AppShell.java` — JavaFX application entry point, theme loading, stage management
-- `src/ui/javafx/AppNavigator.java` — scene navigation and controller routing
-- `src/ui/javafx/controllers/AppLayoutController.java` — main app layout and sidebar
-- `src/ui/javafx/controllers/LoginController.java` — authentication flow
-- `src/database/DatabaseManager.java` — database path, PRAGMA config, connection helper
-- `src/database/MedicalFileStorage.java` — file upload storage and indexing
-- `src/ai_Prototype/AIAdviceEngine.java` — rule-based AI note generation
-- `src/Data_Access_Object/Sqlite*.java` — SQLite schema and query layer
+From Windows `cmd.exe` inside `untitledSmartPatientMonitoringSystem`:
 
-How to make a safe change (recommended pattern)
-1. Run the app and reproduce behavior with the smallest entry point (use `Main` or `JavaFxMain`).
-2. Modify Service (validation/audit) + Data_Access_Object (persistence) — keep Controller changes minimal.
-3. Add unit-like manual test: run migration if you touched persistence, open UI, run the flow, and check `data/` files and `data/smart_patient_monitoring.db`.
-4. If adding a write path for JavaFX, update migration logic and add audit entries.
+```cmd
+javac -d out -cp "src;lib/javafx-base-17.0.15-win.jar;lib/javafx-controls-17.0.15-win.jar;lib/javafx-fxml-17.0.15-win.jar;lib/javafx-graphics-17.0.15-win.jar;lib/pdfbox-app-2.0.36.jar;lib/slf4j-api-2.0.17.jar;lib/slf4j-simple-2.0.17.jar;lib/sqlite-jdbc-3.53.1.0.jar" @sources.txt
+```
 
-Where to leave notes for other agents
-- Update this file `AGENTS.md` or `README.md` when you change high-level flows, file locations, or migration behavior.
+## Current Active Modules
 
-If unsure: prefer non-destructive changes and add explicit checks (e.g., do not overwrite text-file legacy stores; prefer adding an opt-in migration path).
+- `src/pages/login/`
+- `src/pages/dashboard/`
+- `src/pages/patient/`
+- `src/pages/alert/`
+- `src/pages/scheduling/`
+- `src/pages/billing/`
+- `src/pages/user/`
+- `src/pages/messages/`
+- `src/pages/notification/`
 
----
-Short references: `Main.java`, `JavaFxMain.java`, `DatabaseMigrationMain.java`, `src/database/DatabaseManager.java`, `src/database/MedicalFileStorage.java`, `src/ai_Prototype/AIAdviceEngine.java`, `src/Data_Access_Object/SqlitePatientDao.java`.
+## Shared Code
 
+- `src/app/database/` - SQLite connection and schema setup
+- `src/app/helpers/` - shared UI, permission, date, file, and selection helpers
+- `src/app/layout/` - shared shell layout controller and FXML
+- `src/app/session/` - current session context
+- `src/app/styles/` - JavaFX CSS themes
+
+## Data
+
+- Main database: `data/smart_patient_monitoring.db`
+- Uploaded medical files: `data/uploads/`
+- Profile photos: `data/profile_photos/`
+
+SQLite is the source of truth. Runtime data should not be read from old text files.
+
+## Roles
+
+Final active roles:
+
+- `ADMIN`
+- `DOCTOR`
+- `NURSE`
+- `SECRETARY`
+
+Use `src/pages/user/UserRole.java` when normalizing role values.
+
+## Notes
+
+- The login system is local and demo-oriented.
+- Passwords are stored in the local SQLite users table for this demo scope.
+- Do not describe the project as using advanced encryption or a cloud identity provider.
