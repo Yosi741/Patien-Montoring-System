@@ -1,13 +1,20 @@
 # Demo Users
 
-These accounts are for the presentation demo database. Password hashes are intentionally not shown here.
+These accounts are used only for the local presentation database.
 
-| Username | Demo password | Role | Section | Purpose in demo |
-| --- | --- | --- | --- | --- |
-| `admin` | `admin123` | ADMIN | All | Full presenter account for dashboard, admin tools, certificates, users, rooms, and audit logs. |
-| `doctor` | `doctor123` | DOCTOR | ER | Clinical workflow account for patients, vitals review, medications, checkups, and certificate generation. |
-| `nurse` | `nurse123` | NURSE | Maternity | Nursing workflow account for vitals entry, reminders, nurse work queue, newborn records, and medical files. |
-| `staff` | `staff123` | STAFF | Front Desk | Limited access account for role-based access demonstration. |
+| Username | Demo Password | Role | Purpose in Demo |
+| --- | --- | --- | --- |
+| `admin` | `admin123` | ADMIN | Full access to the system for demonstrating all application features. |
+| `doctor` | `doctor123` | DOCTOR | Demonstrates patient management, appointments, medical files, notifications, and profile features. |
+| `nurse` | `nurse123` | NURSE | Demonstrates clinical workflows, patient information, appointments, and medical records. |
+| `secretary` | `secretary123` | SECRETARY | Demonstrates patient registration, appointment management, billing, and front-desk workflows. |
 
-Use the application login screen to authenticate. Passwords are not stored as plain text and should never be displayed in the UI or documentation.
-Usernames are case-insensitive at login. Use the lowercase names above for consistency during the presentation.
+Use the application Login screen to authenticate.
+
+The application validates the username and password against the local SQLite database.
+
+Each user role has different permissions and available pages.
+
+For consistency during the presentation, use the lowercase usernames shown above.
+
+These accounts are intended for demonstration purposes only.

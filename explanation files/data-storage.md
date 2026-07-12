@@ -1,68 +1,114 @@
 # Data Storage
 
-The Smart Patient Monitoring System is JavaFX + SQLite. SQLite is the source of truth for operational data.
+ClinicPulse uses **SQLite** as its primary local database.
 
-## SQLite Database
+All application data is stored locally, providing a lightweight and portable solution that does not require an external database server.
 
-The database file is stored at:
+---
+
+# SQLite Database
+
+The main database file is located at:
 
 ```text
 data/smart_patient_monitoring.db
 ```
 
-SQLite stores patients, users, vitals, alerts, medications, medication events, reminders, appointments, audit logs, notifications, certificate metadata, newborn/deceased records, and medical file metadata.
+SQLite stores the application's operational data, including:
 
-The `medical_files` table is active. It stores uploaded-file metadata such as patient ID, original filename, stored path, category, uploader, upload time, notes, size, and extracted summary. The physical file stays under `data/uploads/`.
+- Users
+- Patients
+- Appointments
+- Medical Files metadata
+- Billing records
+- Messages
+- Notifications
 
-Inactive experimental modules such as AI recommendations and medical-device/Bluetooth registry are not part of the active presentation schema.
+SQLite is the single source of truth for all application data.
 
-## Uploaded Files
+---
 
-Physical uploaded medical files are stored under:
+# Medical Files
+
+Uploaded medical files are stored locally under:
 
 ```text
 data/uploads/
 ```
 
-The Medical Files screen does not scan this folder as its source of truth. It loads file metadata from the SQLite `medical_files` table, then uses the stored path for preview/open actions.
+The application stores only the file metadata inside SQLite, including:
 
-Uploaded medical files are normal local files. They are not converted into database rows; SQLite stores their metadata and file path.
+- Patient ID
+- Original file name
+- Stored file path
+- File category
+- Upload date
+- Uploaded by
+- Notes
 
-## Generated Files
+The physical files remain on disk while SQLite keeps track of their information.
 
-Generated local certificates are stored under:
+---
 
-```text
-data/generated/
-```
+# Runtime Data
 
-SQLite stores the certificate metadata and generated file path. The generated HTML certificate files are local file outputs, not database records by themselves.
+The application reads and writes data directly through SQLite using the DAO layer.
 
-Presentation certificate folders:
-
-```text
-data/generated/birth-certificates/
-data/generated/death-certificates/
-```
-
-Generated certificates are normal local HTML files created from SQLite records.
-
-## Backups
-
-Optional local backup ZIP files are stored under:
+Data flow:
 
 ```text
-data/backups/
+JavaFX View
+        │
+        ▼
+Controller
+        │
+        ▼
+Service / DAO
+        │
+        ▼
+SQLite Database
 ```
 
-Manual backups may copy the SQLite database and uploaded files outside the app. The inactive Backup / Export UI module is not part of the presentation build.
+Controllers never communicate directly with the database.
 
-## Archived Prototype Concepts
+---
 
-Older prototype text-file storage is documented under:
+# Local Storage Structure
 
 ```text
-docs/archive/
+data/
+│
+├── smart_patient_monitoring.db
+└── uploads/
 ```
 
-Those text files are not used at runtime and are no longer kept inside the active `data/` folder. The active runtime should not read or write `patients.txt`, `users.txt`, `vitals_history.txt`, `medical_files.txt`, or similar prototype files.
+- `smart_patient_monitoring.db` contains all application data.
+- `uploads/` stores medical files uploaded through the application.
+
+---
+
+# Why SQLite?
+
+SQLite was selected because it provides:
+
+- Lightweight local database
+- No external server required
+- Fast data access
+- SQL querying support
+- Easy deployment
+- Reliable local storage
+- Simple backup and portability
+
+---
+
+# Prototype Evolution
+
+The first prototype stored information inside plain text files.
+
+As the project grew, text files became difficult to maintain because they made searching, updating, and organizing data more complicated.
+
+The project was migrated to SQLite to provide a structured and scalable storage solution.
+
+The current version no longer uses text files for runtime data.
+
+SQLite is now the only active data storage used by the application.
