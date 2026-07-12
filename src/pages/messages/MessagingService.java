@@ -30,7 +30,7 @@ public class MessagingService {
     }
 
     public long sendMessage(User sender, SqliteMessageDao.MessageWriteRecord record) throws SQLException {
-        require(PermissionHelper.canComposeMessage(sender), "Only Admin, Doctor, and Nurse users can compose messages in JavaFX.");
+        require(PermissionHelper.canComposeMessage(sender), "Login is required to send internal messages.");
         if (record != null && !record.getRecipientUsername().isBlank()
                 && record.getRecipientUsername().equalsIgnoreCase(username(sender))) {
             throw new IllegalArgumentException("You cannot send a message to yourself.");
@@ -129,35 +129,7 @@ public class MessagingService {
     }
 
     private void validateTargetPermission(User sender, SqliteMessageDao.MessageWriteRecord record) {
-        String senderRole = PermissionHelper.roleGroup(sender);
-        if ("ADMIN".equals(senderRole)) {
-            return;
-        }
-        if ("DOCTOR".equals(senderRole)) {
-            if (!record.getRecipientRole().isBlank()) {
-                String target = record.getRecipientRole().toUpperCase(Locale.ROOT);
-                require(target.equals("ADMIN") || target.equals("DOCTOR") || target.equals("NURSE"),
-                        "Doctors can message Admin, Doctor, Nurse roles, or their section.");
-            }
-            if (!record.getRecipientSection().isBlank()) {
-                require(record.getRecipientSection().equalsIgnoreCase(section(sender)),
-                        "Doctors can message only their own section.");
-            }
-            return;
-        }
-        if ("NURSE".equals(senderRole)) {
-            if (!record.getRecipientRole().isBlank()) {
-                String target = record.getRecipientRole().toUpperCase(Locale.ROOT);
-                require(target.equals("ADMIN") || target.equals("DOCTOR") || target.equals("NURSE"),
-                        "Nurses can message Admin, Doctor, or Nurse roles.");
-            }
-            if (!record.getRecipientSection().isBlank()) {
-                require(record.getRecipientSection().equalsIgnoreCase(section(sender)),
-                        "Nurses can message only their own section.");
-            }
-            return;
-        }
-        throw new SecurityException("This role cannot compose messages.");
+        require(PermissionHelper.canComposeMessage(sender), "Login is required to send internal messages.");
     }
 
     private boolean matchesRequestFilter(SqliteMessageDao.MessageRow row, String requestFilter) {

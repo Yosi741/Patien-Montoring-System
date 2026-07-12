@@ -54,12 +54,12 @@ public class NotificationCenterService {
 
 
     public void markRead(User user, long id) throws SQLException {
-        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
+        require(PermissionHelper.canAcknowledgeAlerts(user), "Only Admin, Doctor, or Nurse users can acknowledge alerts.");
         notificationDao.markRead(id);
     }
 
     public void markRead(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
-        require(PermissionHelper.canViewNotifications(user), "Login is required to update notifications.");
+        require(PermissionHelper.canAcknowledgeAlerts(user), "Only Admin, Doctor, or Nurse users can acknowledge alerts.");
         if (isMessageRow(row)) {
             long messageId = parseSourceId(row);
             messageDao.markRead(messageId, username(user));

@@ -2,28 +2,21 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="800.0" prefWidth="1280.0" styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.layout.AppLayoutController">
 
     <left>
-        <VBox prefWidth="260.0" spacing="18.0" styleClass="app-sidebar">
+        <VBox prefWidth="280.0" spacing="18.0" styleClass="app-sidebar">
             <padding>
                 <Insets bottom="18.0" left="18.0" right="18.0" top="24.0" />
             </padding>
 
-            <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="sidebar-logo-block">
-                <StackPane styleClass="sidebar-logo-box">
-                    <ImageView fx:id="sidebarLogoImage" fitHeight="42.0" fitWidth="42.0" preserveRatio="true" smooth="true" styleClass="sidebar-logo-image">
-                        <image>
-                            <Image url="@../../photo/app-logo.png" />
-                        </image>
-                    </ImageView>
-                </StackPane>
-                <VBox spacing="2.0">
-                    <Label styleClass="shell-brand-title" text="SmartCare" />
-                    <Label styleClass="shell-brand-subtitle" text="Urgent Care Clinic System" />
+            <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="sidebar-logo-block">
+                <StackPane styleClass="sidebar-logo-box" />
+                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                    <Label styleClass="shell-brand-title" text="ClinicPulse" />
+                    <Label maxWidth="Infinity" styleClass="shell-brand-subtitle" text="Smart Patient Monitoring System" wrapText="true" />
                 </VBox>
             </HBox>
 

@@ -3,6 +3,7 @@ package app.core;
 import app.contracts.AppController;
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;
+import app.helpers.PermissionHelper;
 import app.layout.AppLayoutController;
 import app.navigation.AppNavigator;
 import app.placeholder.ComingSoonController;
@@ -21,6 +22,7 @@ public class AppShell extends Application {
 
     public static final String PRESENTATION_THEME = "/app/styles/dark-theme.css";
     public static final String LIGHT_THEME = "/app/styles/light-theme.css";
+    private static final String APP_NAME = "ClinicPulse";
     private static String activeThemePath = PRESENTATION_THEME;
 
     private Stage primaryStage;
@@ -40,13 +42,13 @@ public class AppShell extends Application {
         app.helpers.FxFileOpenHelper.registerHostServices(getHostServices());
         initializeDatabase();
 
-        primaryStage.setTitle("Smart Urgent Care Clinic System");
+        primaryStage.setTitle("ClinicPulse");
         showLogin();
         primaryStage.show();
     }
 
     public void showLogin() {
-        setView("/pages/login/LoginView.fxml", "Smart Urgent Care Clinic System - Login");
+        setView("/pages/login/LoginView.fxml", "ClinicPulse - Login");
         configureLoginWindow();
     }
 
@@ -59,7 +61,7 @@ public class AppShell extends Application {
         if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
             SessionContext.start(user, authSource);
         }
-        setShellContent("/pages/dashboard/DashboardView.fxml", "Smart Urgent Care Clinic System - Dashboard");
+        setShellContent("/pages/dashboard/DashboardView.fxml", windowTitle("Dashboard"));
         updateShellContext("dashboard", "Dashboard", "Home / Dashboard");
         primaryStage.setMaximized(true);
     }
@@ -69,23 +71,39 @@ public class AppShell extends Application {
     }
 
     public void showPatientDetail(String patientId) {
-        ensureShell("Smart Urgent Care Clinic System - Patient File");
+        if (!PermissionHelper.canViewPatientFile(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "You do not have permission to view the full patient file.",
+                    "Only Admin and Doctor users can open full patient files."
+            );
+            return;
+        }
+        ensureShell(windowTitle("Patient File"));
         AppNavigator.LoadedView detail = navigator.loadView("/pages/patient/patient_detail/PatientDetailView.fxml");
         if (detail.getController() instanceof PatientDetailController) {
             ((PatientDetailController) detail.getController()).loadPatient(patientId);
         }
         setShellLoadedContent(detail);
         updateShellContext("patients", "Patient File", "Home / Patients / Patient File");
-        primaryStage.setTitle("Smart Urgent Care Clinic System - Patient File");
+        primaryStage.setTitle(windowTitle("Patient File"));
     }
 
     public void showMessaging() {
-        setShellContent("/pages/messages/MessagingView.fxml", "Smart Urgent Care Clinic System - Messages");
+        setShellContent("/pages/messages/MessagingView.fxml", windowTitle("Messages"));
         updateShellContext("messages", "Messages", "Home / Messages");
     }
 
     public void showNotificationCenter() {
-        setShellContent("/pages/notification/NotificationCenterView.fxml", "Smart Urgent Care Clinic System - Alerts");
+        if (!PermissionHelper.canViewNotifications(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "Alerts are not available for your role.",
+                    "Only Admin, Doctor, and Nurse users can view clinical alerts."
+            );
+            return;
+        }
+        setShellContent("/pages/notification/NotificationCenterView.fxml", windowTitle("Alerts"));
         updateShellContext("alerts", "Alerts", "Home / Alerts");
     }
 
@@ -104,49 +122,81 @@ public class AppShell extends Application {
     }
 
     public void showScheduling() {
-        setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", "Smart Urgent Care Clinic System - Appointments");
+        setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", windowTitle("Appointments"));
         updateShellContext("appointments", "Appointments", "Home / Appointments");
     }
 
     public void showSchedulingForPatient(String patientId) {
-        ensureShell("Smart Urgent Care Clinic System - Patient Appointments");
+        ensureShell(windowTitle("Patient Appointments"));
         AppNavigator.LoadedView scheduling = navigator.loadView("/pages/scheduling/schedule_overview/SchedulingView.fxml");
         if (scheduling.getController() instanceof SchedulingController) {
             ((SchedulingController) scheduling.getController()).openForPatient(patientId);
         }
         setShellLoadedContent(scheduling);
         updateShellContext("appointments", "Patient Appointments", "Home / Appointments / Patient");
-        primaryStage.setTitle("Smart Urgent Care Clinic System - Patient Appointments");
+        primaryStage.setTitle(windowTitle("Patient Appointments"));
     }
 
     public void showMedicalFiles() {
-        setShellContent("/pages/patient/medical_files/MedicalFilesView.fxml", "Smart Urgent Care Clinic System - Medical Files");
+        if (!PermissionHelper.canViewMedicalFiles(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "Medical records are not available for your role.",
+                    "Only Admin and Doctor users can open the medical records page."
+            );
+            return;
+        }
+        setShellContent("/pages/patient/medical_files/MedicalFilesView.fxml", windowTitle("Medical Files"));
         updateShellContext("medical-files", "Medical Files", "Home / Medical Files");
     }
 
     public void showMedicalFilesForPatient(String patientId) {
-        ensureShell("Smart Urgent Care Clinic System - Patient Medical Files");
+        if (!PermissionHelper.canViewMedicalFiles(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "Medical records are not available for your role.",
+                    "Only Admin and Doctor users can open patient medical records."
+            );
+            return;
+        }
+        ensureShell(windowTitle("Patient Medical Files"));
         AppNavigator.LoadedView files = navigator.loadView("/pages/patient/medical_files/MedicalFilesView.fxml");
         if (files.getController() instanceof MedicalFilesController) {
             ((MedicalFilesController) files.getController()).openForPatient(patientId);
         }
         setShellLoadedContent(files);
         updateShellContext("medical-files", "Patient Medical Files", "Home / Medical Files / Patient");
-        primaryStage.setTitle("Smart Urgent Care Clinic System - Patient Medical Files");
+        primaryStage.setTitle(windowTitle("Patient Medical Files"));
     }
 
     public void showUserProfile() {
-        setShellContent("/pages/user/profile_settings/UserProfileView.fxml", "Smart Urgent Care Clinic System - Profile / Settings");
+        setShellContent("/pages/user/profile_settings/UserProfileView.fxml", windowTitle("Profile / Settings"));
         updateShellContext("profile", "Profile / Settings", "Home / Profile / Settings");
     }
 
     public void showUserDirectory() {
-        setShellContent("/pages/user/user_directory/UserDirectoryManagementView.fxml", "Smart Urgent Care Clinic System - Staff Management");
+        if (!PermissionHelper.canViewUserDirectory(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "Staff management is not available for your role.",
+                    "Only Admin users can manage staff accounts."
+            );
+            return;
+        }
+        setShellContent("/pages/user/user_directory/UserDirectoryManagementView.fxml", windowTitle("Staff Management"));
         updateShellContext("staff", "Staff Management", "Home / Staff Management");
     }
 
     public void showBilling() {
-        setShellContent("/pages/billing/billing_overview/BillingView.fxml", "Smart Urgent Care Clinic System - Billing / Payments");
+        if (!PermissionHelper.canViewBilling(Session.getCurrentUser())) {
+            showPlaceholder(
+                    "Access Denied",
+                    "Billing is not available for your role.",
+                    "Only Admin and Staff users can open the billing page."
+            );
+            return;
+        }
+        setShellContent("/pages/billing/billing_overview/BillingView.fxml", windowTitle("Billing / Payments"));
         updateShellContext("billing", "Billing / Payments", "Home / Billing");
     }
 
@@ -155,24 +205,24 @@ public class AppShell extends Application {
     }
 
     public void showPatientsWithSearch(String query) {
-        ensureShell("Smart Urgent Care Clinic System - Patients");
+        ensureShell(windowTitle("Patients"));
         AppNavigator.LoadedView patientList = navigator.loadView("/pages/patient/patient_board/PatientListView.fxml");
         if (patientList.getController() instanceof PatientListController) {
             ((PatientListController) patientList.getController()).applySearchQuery(query);
         }
         setShellLoadedContent(patientList);
         updateShellContext("patients", "Patients", "Home / Patients");
-        primaryStage.setTitle("Smart Urgent Care Clinic System - Patients");
+        primaryStage.setTitle(windowTitle("Patients"));
     }
 
     public void showPlaceholder(String title, String subtitle, String body) {
-        ensureShell("Smart Urgent Care Clinic System - " + title);
+        ensureShell(windowTitle(title));
         AppNavigator.LoadedView placeholder = navigator.loadView("/app/placeholder/ComingSoonView.fxml");
         if (placeholder.getController() instanceof ComingSoonController) {
             ((ComingSoonController) placeholder.getController()).setContent(title, subtitle, body);
         }
         setShellLoadedContent(placeholder);
-        primaryStage.setTitle("Smart Urgent Care Clinic System - " + title);
+        primaryStage.setTitle(windowTitle(title));
     }
 
     public void refreshNotificationCount() {
@@ -324,11 +374,18 @@ public class AppShell extends Application {
     }
 
     private void showPatientList(String pageTitle, String breadcrumb, String routeKey, String notice) {
-        setShellContent("/pages/patient/patient_board/PatientListView.fxml", "Smart Urgent Care Clinic System - " + pageTitle);
+        setShellContent("/pages/patient/patient_board/PatientListView.fxml", windowTitle(pageTitle));
         updateShellContext(routeKey, pageTitle, breadcrumb);
         if (notice != null && layoutController != null) {
             layoutController.showContextNotice(notice);
         }
+    }
+
+    private String windowTitle(String pageTitle) {
+        if (pageTitle == null || pageTitle.isBlank()) {
+            return APP_NAME;
+        }
+        return APP_NAME + " - " + pageTitle;
     }
 
     private void updateShellContext(String routeKey, String pageTitle, String breadcrumb) {

@@ -16,7 +16,6 @@ import javafx.stage.Window;
 import pages.user.User;
 import pages.user.dao.SqliteUserDao;
 import pages.user.user_form.UserFormController;
-import users.roles.RolePermissionService;
 
 import java.io.File;
 
@@ -160,7 +159,7 @@ public class StaffProfileDialogController {
         addPermission("View patients", true);
         addPermission("Enter vitals", PermissionHelper.canEnterVitals(user));
         addPermission("Manage appointments", PermissionHelper.canCreateAppointment(user));
-        addPermission("Manage staff accounts", RolePermissionService.canManageUsers(user) || "ADMIN".equalsIgnoreCase(PermissionHelper.roleGroup(row == null ? "" : row.getRole())));
+        addPermission("Manage staff accounts", PermissionHelper.canViewUserDirectory(user));
     }
 
     private void addPermission(String text, boolean allowed) {

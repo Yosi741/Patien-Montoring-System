@@ -1,7 +1,6 @@
 package pages.patient;
 
-import pages.patient.VitalSign;
-import users.Doctor;
+import pages.user.User;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -35,7 +34,7 @@ public class Patient {
     private String deathCertificatePath;
     private String deathCertificateNumber;
 
-    private Doctor doctor;
+    private User doctor;
     private VitalSign vitalSign;
 
     public Patient(String patientId, String firstName, String lastName,
@@ -186,11 +185,11 @@ public class Patient {
         return status != null && status.equalsIgnoreCase("DECEASED");
     }
 
-    public Doctor getDoctor() {
+    public User getDoctor() {
         return doctor;
     }
 
-    public void setDoctor(Doctor doctor) {
+    public void setDoctor(User doctor) {
         this.doctor = doctor;
     }
 

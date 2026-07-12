@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="680.0" prefWidth="1050.0" styleClass="content-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.user.profile_settings.UserProfileController">
+<BorderPane prefHeight="680.0" prefWidth="1050.0" styleClass="content-page profile-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.user.profile_settings.UserProfileController">
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-clear profile-scroll">
@@ -15,47 +15,49 @@
                         <Insets bottom="28.0" left="24.0" right="24.0" top="24.0" />
                     </padding>
 
-                    <VBox spacing="4.0" styleClass="page-header-card">
-                        <Label styleClass="page-header-subtitle" text="Manage your account details, contact information, and role permissions." wrapText="true">
+                    <VBox spacing="6.0" styleClass="page-header-card profile-page-header">
+                        <Label styleClass="profile-page-eyebrow" text="Profile / Settings" />
+                        <Label styleClass="page-header-title profile-page-title" text="Account overview" />
+                        <Label styleClass="page-header-subtitle profile-page-subtitle" text="Manage your account details, contact information, and role permissions." wrapText="true">
                      <font>
                         <Font size="14.0" />
                      </font></Label>
                     </VBox>
 
-                    <GridPane hgap="16.0" styleClass="profile-metric-grid" vgap="16.0">
+                    <GridPane hgap="16.0" styleClass="profile-metric-grid profile-summary-grid" vgap="16.0">
                         <columnConstraints>
                             <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
                             <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
                             <ColumnConstraints hgrow="ALWAYS" percentWidth="33.4" />
                         </columnConstraints>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label styleClass="metric-label" text="Staff ID" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label styleClass="metric-label profile-summary-label" text="Staff ID" />
                             <Label fx:id="staffIdLabel" styleClass="detail-value profile-card-value" text="-" />
                         </VBox>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label styleClass="metric-label" text="Username" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label styleClass="metric-label profile-summary-label" text="Username" />
                             <Label fx:id="usernameLabel" styleClass="detail-value profile-card-value" text="-" />
                         </VBox>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                            <Label styleClass="metric-label" text="Role" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <Label styleClass="metric-label profile-summary-label" text="Role" />
                             <Label fx:id="roleLabel" styleClass="detail-value profile-card-value" text="-" />
                         </VBox>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                            <Label styleClass="metric-label" text="Account Status" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label styleClass="metric-label profile-summary-label" text="Account Status" />
                             <Label fx:id="accountStatusLabel" styleClass="detail-value profile-card-value success-value" text="-" />
                         </VBox>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label styleClass="metric-label" text="Login Source" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label styleClass="metric-label profile-summary-label" text="Login Source" />
                             <Label fx:id="authSourceLabel" styleClass="detail-value profile-card-value accent-value" text="-" />
                         </VBox>
 
-                        <VBox spacing="6.0" styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                            <Label styleClass="metric-label" text="Login Time" />
+                        <VBox spacing="6.0" styleClass="metric-card profile-summary-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <Label styleClass="metric-label profile-summary-label" text="Login Time" />
                             <Label fx:id="loginTimeLabel" styleClass="profile-card-value" text="-" />
                         </VBox>
                   <rowConstraints>
@@ -64,8 +66,9 @@
                   </rowConstraints>
                     </GridPane>
 
-                    <VBox spacing="12.0" styleClass="panel-card">
+                    <VBox spacing="12.0" styleClass="panel-card profile-contact-card">
                         <Label styleClass="section-title" text="Contact &amp; Security" />
+                        <Label styleClass="muted-text profile-subsection-copy" text="Update the contact details used in this local clinic workspace." wrapText="true" />
 
                         <GridPane hgap="14.0" vgap="10.0">
                             <columnConstraints>
@@ -73,25 +76,25 @@
                                 <ColumnConstraints percentWidth="50.0" />
                             </columnConstraints>
 
-                            <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label styleClass="metric-label" text="Email" />
-                                <TextField fx:id="emailField" promptText="name@clinic.local" styleClass="control-input" />
+                            <VBox spacing="6.0" styleClass="profile-field-group" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label profile-field-label" text="Email" />
+                                <TextField fx:id="emailField" promptText="name@clinic.local" styleClass="control-input profile-text-field" />
                             </VBox>
 
-                            <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label styleClass="metric-label" text="Phone" />
-                                <TextField fx:id="phoneField" promptText="Department phone or extension" styleClass="control-input" />
+                            <VBox spacing="6.0" styleClass="profile-field-group" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="metric-label profile-field-label" text="Phone" />
+                                <TextField fx:id="phoneField" promptText="Department phone or extension" styleClass="control-input profile-text-field" />
                             </VBox>
                      <rowConstraints>
                         <RowConstraints />
                      </rowConstraints>
                         </GridPane>
 
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <Button onAction="#saveProfile" styleClass="primary-button" text="Save Profile" />
-                            <Button onAction="#changePassword" styleClass="secondary-button" text="Change Password" />
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="profile-actions-row">
+                            <Button onAction="#saveProfile" styleClass="primary-button profile-save-button" text="Save Profile" />
+                            <Button onAction="#changePassword" styleClass="secondary-button profile-password-button" text="Change Password" />
                             <Label fx:id="profileStatusLabel"
-                                   styleClass="status-info"
+                                   styleClass="status-info profile-password-pill"
                                    text="Passwords are never displayed."
                                    wrapText="true" />
                         </HBox>
@@ -100,9 +103,9 @@
                     <VBox spacing="12.0" styleClass="panel-card profile-permissions-card">
                         <Label styleClass="section-title" text="Permission Preview" />
 
-                        <Label styleClass="muted-text" text="These actions are available for your current role." wrapText="true" />
+                        <Label styleClass="muted-text profile-permissions-subtitle" text="These actions are available for your current role." wrapText="true" />
 
-                        <VBox fx:id="permissionListBox" spacing="8.0" />
+                        <VBox fx:id="permissionListBox" spacing="8.0" styleClass="profile-permission-list" />
                     </VBox>
                 </VBox>
             </content>

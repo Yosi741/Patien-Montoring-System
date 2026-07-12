@@ -4,13 +4,30 @@ import pages.user.User;
 
 public final class PermissionHelper {
 
+    private PermissionHelper() {
+    }
 
+    public static boolean canViewDashboard(User user) {
+        return user != null;
+    }
+
+    public static boolean canViewPatients(User user) {
+        return user != null;
+    }
 
     public static boolean canCreatePatient(User user) {
-        return isAdmin(user) || isDoctor(user);
+        return isAdmin(user) || isDoctor(user) || isNurse(user) || isStaff(user);
     }
 
     public static boolean canUpdatePatient(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user) || isStaff(user);
+    }
+
+    public static boolean canDeletePatient(User user) {
+        return isAdmin(user);
+    }
+
+    public static boolean canViewPatientFile(User user) {
         return isAdmin(user) || isDoctor(user);
     }
 
@@ -38,24 +55,40 @@ public final class PermissionHelper {
         return isAdmin(user);
     }
 
+    public static boolean canViewUserDirectory(User user) {
+        return isAdmin(user);
+    }
+
     public static boolean canCreateAppointment(User user) {
-        return isAdmin(user) || isDoctor(user);
+        return isAdmin(user) || isStaff(user);
+    }
+
+    public static boolean canEditAppointment(User user) {
+        return isAdmin(user) || isStaff(user);
+    }
+
+    public static boolean canDeleteAppointment(User user) {
+        return isAdmin(user);
     }
 
     public static boolean canManageAppointment(User user) {
-        return isAdmin(user) || isDoctor(user);
+        return canEditAppointment(user);
     }
 
     public static boolean canViewScheduling(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
+        return user != null;
     }
 
     public static boolean canUploadMedicalFile(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
+        return isAdmin(user) || isDoctor(user);
     }
 
     public static boolean canViewMedicalFiles(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
+        return isAdmin(user) || isDoctor(user);
+    }
+
+    public static boolean canDeleteMedicalFile(User user) {
+        return isAdmin(user);
     }
 
     public static boolean canViewMessages(User user) {
@@ -63,19 +96,27 @@ public final class PermissionHelper {
     }
 
     public static boolean canComposeMessage(User user) {
-        return isAdmin(user) || isDoctor(user) || isNurse(user);
+        return user != null;
     }
 
     public static boolean canViewNotifications(User user) {
-        return user != null;
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
+    }
+
+    public static boolean canAcknowledgeAlerts(User user) {
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
 
     public static boolean canViewBilling(User user) {
-        return user != null;
+        return isAdmin(user) || isStaff(user);
     }
 
     public static boolean canManageBilling(User user) {
-        return user != null;
+        return isAdmin(user) || isStaff(user);
+    }
+
+    public static boolean canDeleteInvoice(User user) {
+        return isAdmin(user);
     }
 
     public static String roleGroup(User user) {
@@ -96,6 +137,9 @@ public final class PermissionHelper {
         if (upper.contains("NURSE") || upper.contains("NURSING")) {
             return "NURSE";
         }
+        if (upper.contains("SECRETARY") || upper.contains("STAFF") || upper.contains("RECEPTION")) {
+            return "STAFF";
+        }
         if (upper.isBlank() || upper.equals("UNKNOWN")) {
             return "UNKNOWN";
         }
@@ -112,5 +156,9 @@ public final class PermissionHelper {
 
     private static boolean isNurse(User user) {
         return "NURSE".equals(roleGroup(user));
+    }
+
+    private static boolean isStaff(User user) {
+        return "STAFF".equals(roleGroup(user));
     }
 }

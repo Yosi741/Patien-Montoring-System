@@ -94,7 +94,7 @@ public class PatientListController implements AppController {
     @FXML
     private void addPatient() {
         if (!canWritePatients) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Staff users can add patients.");
             return;
         }
         try {
@@ -272,7 +272,7 @@ public class PatientListController implements AppController {
     private void configureWritePermissions() {
         canWritePatients = PermissionHelper.canCreatePatient(Session.getCurrentUser())
                 || PermissionHelper.canUpdatePatient(Session.getCurrentUser());
-        canArchivePatients = PermissionHelper.canDeactivatePatient(Session.getCurrentUser());
+        canArchivePatients = PermissionHelper.canDeletePatient(Session.getCurrentUser());
         setButtonVisible(addPatientButton, canWritePatients);
     }
 
@@ -383,9 +383,14 @@ public class PatientListController implements AppController {
     }
 
     private void openPatientFile(SqlitePatientDao.PatientListRow row) {
-        if (row != null && appShell != null) {
-            appShell.showPatientDetail(row.getPatientId());
+        if (row == null || appShell == null) {
+            return;
         }
+        if (!PermissionHelper.canViewPatientFile(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "You do not have permission to view the full patient file.");
+            return;
+        }
+        appShell.showPatientDetail(row.getPatientId());
     }
 
     private void editPatient(SqlitePatientDao.PatientListRow row) {
@@ -393,7 +398,7 @@ public class PatientListController implements AppController {
             return;
         }
         if (!canWritePatients) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Staff users can edit patients.");
             return;
         }
         if (isArchived(row)) {
@@ -418,7 +423,7 @@ public class PatientListController implements AppController {
             return;
         }
         if (!canArchivePatients) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin users can delete patients.");
             return;
         }
         try {

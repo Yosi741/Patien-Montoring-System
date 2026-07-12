@@ -176,7 +176,7 @@ public class PatientDetailController implements AppController {
     @FXML
     private void uploadPatientMedicalFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin, Doctor, or Nurse role is required.");
+            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
             return;
         }
         if (patientId == null || patientId.isBlank()) {
@@ -204,8 +204,8 @@ public class PatientDetailController implements AppController {
 
     @FXML
     private void createPatientAppointment() {
-        if (!PermissionHelper.canManageAppointment(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
+        if (!PermissionHelper.canCreateAppointment(Session.getCurrentUser())) {
+            timelineStatusLabel.setText("Access denied. Only Admin or Staff users can create appointments.");
             return;
         }
         if (patientId == null || patientId.isBlank()) {
@@ -418,7 +418,7 @@ public class PatientDetailController implements AppController {
         setButtonVisible(editPatientButton, canEdit);
         boolean canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
         setButtonVisible(enterVitalsButton, canEnterVitals);
-        boolean canAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
+        boolean canAppointments = PermissionHelper.canCreateAppointment(Session.getCurrentUser());
         setButtonVisible(createAppointmentButton, canAppointments);
         boolean canUploadFiles = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         setButtonVisible(uploadMedicalFileButton, canUploadFiles);

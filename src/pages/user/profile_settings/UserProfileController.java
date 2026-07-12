@@ -138,41 +138,42 @@ public class UserProfileController implements AppController {
         return switch (roleGroup) {
             case "ADMIN" -> List.of(
                     "Manage patient records",
-                    "Add and edit staff accounts",
-                    "Create and manage appointments",
+                    "Delete patient records",
+                    "Manage appointments",
+                    "Delete appointments",
+                    "Manage invoices",
+                    "Delete invoices",
+                    "Manage medical records",
+                    "Delete medical records",
+                    "Manage staff accounts",
                     "View and acknowledge alerts",
-                    "Upload and view medical records",
-                    "Create and manage invoices",
-                    "Send and view internal messages",
-                    "Update own profile and password"
+                    "Send internal messages"
             );
             case "DOCTOR" -> List.of(
                     "View patient records",
+                    "View full patient file",
                     "Enter patient vitals",
+                    "View appointments",
                     "View medical records",
-                    "Create appointments",
-                    "View and acknowledge clinical alerts",
-                    "Send and view internal messages",
-                    "Update own profile and password"
+                    "View and acknowledge alerts",
+                    "Send internal messages"
             );
             case "NURSE" -> List.of(
-                    "View patient records",
+                    "Add and update patient basic records",
                     "Enter patient vitals",
-                    "View alerts",
                     "View appointments",
-                    "Send and view internal messages",
-                    "Update own profile and password"
+                    "View and acknowledge alerts",
+                    "Send internal messages"
             );
             case "STAFF" -> List.of(
-                    "Register and update patient contact details",
-                    "Create appointments",
+                    "Register and update patient basic records",
+                    "Manage appointments",
                     "Create invoices",
-                    "View basic patient records",
-                    "Send and view internal messages",
-                    "Update own profile and password"
+                    "View billing records",
+                    "Send internal messages"
             );
             default -> List.of(
-                    "Update own profile and password"
+                    "View profile and settings"
             );
         };
     }
@@ -183,6 +184,8 @@ public class UserProfileController implements AppController {
         }
         Label row = new Label(label);
         row.getStyleClass().add("permission-allowed");
+        row.getStyleClass().add("profile-permission-item");
+        row.setMaxWidth(Double.MAX_VALUE);
         row.setWrapText(true);
         permissionListBox.getChildren().add(row);
     }

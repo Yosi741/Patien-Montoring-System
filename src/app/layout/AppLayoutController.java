@@ -227,7 +227,7 @@ public class AppLayoutController implements AppController {
     @FXML
     private void handleQuickAddPatient() {
         if (!PermissionHelper.canCreatePatient(Session.getCurrentUser())) {
-            appShell.showPatientsWithNotice("Only Admin or Doctor users can add a patient from Quick Actions.");
+            appShell.showPatientsWithNotice("Only Admin, Doctor, Nurse, or Staff users can add a patient from Quick Actions.");
             return;
         }
         try {
@@ -253,6 +253,10 @@ public class AppLayoutController implements AppController {
 
     @FXML
     private void handleQuickAddPayment() {
+        if (!PermissionHelper.canViewBilling(Session.getCurrentUser())) {
+            showContextNotice("Billing is available only for Admin and Staff users.");
+            return;
+        }
         appShell.showBilling();
     }
 
@@ -287,7 +291,13 @@ public class AppLayoutController implements AppController {
     }
 
     private void configurePermissions() {
-        boolean canSeeStaff = roleGroup(SessionContext.role()).equals("ADMIN");
+        boolean canSeeMedicalFiles = PermissionHelper.canViewMedicalFiles(Session.getCurrentUser());
+        boolean canSeeBilling = PermissionHelper.canViewBilling(Session.getCurrentUser());
+        boolean canSeeAlerts = PermissionHelper.canViewNotifications(Session.getCurrentUser());
+        boolean canSeeStaff = PermissionHelper.canViewUserDirectory(Session.getCurrentUser());
+        setButtonVisible(medicalFilesButton, canSeeMedicalFiles);
+        setButtonVisible(billingButton, canSeeBilling);
+        setButtonVisible(alertsIconButton, canSeeAlerts);
         setButtonVisible(staffManagementButton, canSeeStaff);
         setButtonVisible(messagesIconButton, true);
     }
@@ -299,7 +309,7 @@ public class AppLayoutController implements AppController {
         try {
             int unreadAlerts = notificationDao.unreadCountForUser(
                     SessionContext.username(),
-                    roleGroup(SessionContext.role()),
+                    PermissionHelper.roleGroup(SessionContext.role()),
                     SessionContext.section());
             if (alertsIconButton != null) {
                 alertsIconButton.setText("\uD83D\uDD14 " + unreadAlerts);
@@ -312,7 +322,7 @@ public class AppLayoutController implements AppController {
         try {
             int unreadMessages = messageDao.unreadInboxCount(
                     SessionContext.username(),
-                    roleGroup(SessionContext.role()),
+                    PermissionHelper.roleGroup(SessionContext.role()),
                     SessionContext.section());
             if (messagesIconButton != null) {
                 messagesIconButton.setText("\uD83D\uDCAC " + unreadMessages);
@@ -378,23 +388,4 @@ public class AppLayoutController implements AppController {
         }
     }
 
-    private String roleGroup(String role) {
-        if (role == null) {
-            return "UNKNOWN";
-        }
-        String upper = role.toUpperCase();
-        if (upper.contains("ADMIN")) {
-            return "ADMIN";
-        }
-        if (upper.contains("DOCTOR") || upper.contains("MEDICAL")) {
-            return "DOCTOR";
-        }
-        if (upper.contains("NURSE")) {
-            return "NURSE";
-        }
-        if (upper.contains("STAFF")) {
-            return "STAFF";
-        }
-        return "UNKNOWN";
-    }
 }

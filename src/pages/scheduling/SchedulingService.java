@@ -31,14 +31,14 @@ public class SchedulingService {
     }
 
     public long createAppointment(User currentUser, AppointmentRequest request) throws SQLException {
-        requireAppointmentPermission(currentUser);
+        requireCreatePermission(currentUser);
         validateAppointment(request, false);
         SqliteAppointmentDao.AppointmentRecord record = cleanAppointment(request, 0, username(currentUser));
         return appointmentDao.insertAppointment(record);
     }
 
     public void updateAppointment(User currentUser, AppointmentRequest request) throws SQLException {
-        requireAppointmentPermission(currentUser);
+        requireEditPermission(currentUser);
         if (request.id <= 0) {
             throw new IllegalArgumentException("Appointment ID is required for update.");
         }
@@ -47,14 +47,14 @@ public class SchedulingService {
     }
 
     public void cancelAppointment(User currentUser, long appointmentId) throws SQLException {
-        requireAppointmentPermission(currentUser);
+        requireEditPermission(currentUser);
         SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
         appointmentDao.updateStatus(appointmentId, "CANCELLED");
     }
 
     public void deleteAppointment(User currentUser, long appointmentId) throws SQLException {
-        requireAppointmentPermission(currentUser);
+        requireDeletePermission(currentUser);
         SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
         if (!appointmentDao.deleteAppointment(appointmentId)) {
@@ -63,7 +63,7 @@ public class SchedulingService {
     }
 
     public void markAppointmentCompleted(User currentUser, long appointmentId) throws SQLException {
-        requireAppointmentPermission(currentUser);
+        requireEditPermission(currentUser);
         SqliteAppointmentDao.AppointmentRecord appointment = appointmentDao.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found in SQLite: " + appointmentId));
         if ("CANCELLED".equalsIgnoreCase(appointment.getStatus())) {
@@ -83,9 +83,21 @@ public class SchedulingService {
         );
     }
 
-    private void requireAppointmentPermission(User currentUser) {
-        if (!PermissionHelper.canManageAppointment(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can create, edit, cancel, or complete appointments.");
+    private void requireCreatePermission(User currentUser) {
+        if (!PermissionHelper.canCreateAppointment(currentUser)) {
+            throw new SecurityException("Only Admin or Staff users can create appointments.");
+        }
+    }
+
+    private void requireEditPermission(User currentUser) {
+        if (!PermissionHelper.canEditAppointment(currentUser)) {
+            throw new SecurityException("Only Admin or Staff users can edit, cancel, or complete appointments.");
+        }
+    }
+
+    private void requireDeletePermission(User currentUser) {
+        if (!PermissionHelper.canDeleteAppointment(currentUser)) {
+            throw new SecurityException("Only Admin users can delete appointments.");
         }
     }
 

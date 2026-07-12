@@ -165,7 +165,9 @@ public class UserDirectoryController implements AppController {
     private void configureTable() {
         if (userTable != null) {
             userTable.setItems(rows);
-            userTable.setPlaceholder(new Label("No staff members found."));
+            Label placeholder = new Label("No staff members found.");
+            placeholder.getStyleClass().add("staff-table-placeholder");
+            userTable.setPlaceholder(placeholder);
             userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
         if (usernameColumn != null) {
@@ -236,11 +238,11 @@ public class UserDirectoryController implements AppController {
                         return;
                     }
                     Button viewButton = new Button("\uD83D\uDC41");
-                    viewButton.getStyleClass().add("action-icon-button");
+                    viewButton.getStyleClass().addAll("action-icon-button", "staff-view-button");
                     viewButton.setOnAction(event -> openProfile(item));
 
                     Button editButton = new Button("\u270E");
-                    editButton.getStyleClass().add("action-icon-button");
+                    editButton.getStyleClass().addAll("action-icon-button", "staff-edit-button");
                     editButton.setDisable(!PermissionHelper.canUpdateUser(Session.getCurrentUser()));
                     editButton.setOnAction(event -> editStaff(item));
 
@@ -387,8 +389,7 @@ public class UserDirectoryController implements AppController {
     }
 
     private boolean isAdmin() {
-        String role = SessionContext.role();
-        return role != null && role.toUpperCase(Locale.ROOT).contains("ADMIN");
+        return PermissionHelper.canViewUserDirectory(Session.getCurrentUser());
     }
 
     private String internalRoleFilter(String visibleRole) {

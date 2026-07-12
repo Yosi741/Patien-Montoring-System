@@ -21,7 +21,7 @@
 
             <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
                 <Label styleClass="warning-value" text="Access denied" />
-                <Label styleClass="body-text" text="Medical Records is available to Admin, Doctor, and Nurse roles for authorized clinic use." wrapText="true" />
+                <Label styleClass="body-text" text="Medical Records is available only to Admin and Doctor roles for authorized clinic use." wrapText="true" />
             </VBox>
 
             <VBox fx:id="contentPane" spacing="16.0" VBox.vgrow="ALWAYS">
@@ -31,15 +31,15 @@
 
                 <VBox spacing="14.0" styleClass="panel-card records-toolbar">
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <TextField fx:id="searchField" minHeight="35.0" prefHeight="35.0" promptText="Search by patient name, patient ID, or filename..." styleClass="global-search-field toolbar-text-field" HBox.hgrow="ALWAYS" />
-                        <ComboBox fx:id="dateRangeFilter" minHeight="35.0" prefHeight="35.0" prefWidth="170.0" styleClass="control-input toolbar-combo" />
+                        <TextField fx:id="searchField" minHeight="35.0" prefHeight="35.0" promptText="Search by patient name, patient ID, or filename..." styleClass="global-search-field toolbar-text-field records-search-field" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="dateRangeFilter" minHeight="35.0" prefHeight="35.0" prefWidth="170.0" styleClass="control-input toolbar-combo records-date-filter" />
                         <Button minHeight="35.0" minWidth="128.0" onAction="#clearFilters" prefHeight="35.0" styleClass="secondary-button toolbar-secondary-button" text="Clear Filters" />
                         <Button fx:id="uploadButton" minHeight="35.0" minWidth="168.0" onAction="#uploadFile" prefHeight="35.0" styleClass="new-record-button toolbar-primary-button" text="+ New Record" />
                     </HBox>
 
                     <HBox alignment="CENTER_LEFT" spacing="12.0">
-                        <Label minHeight="35.0" prefHeight="35.0" styleClass="field-label" text="Uploaded By" />
-                        <TextField fx:id="uploadedByFilter" minHeight="35.0" prefHeight="35.0" prefWidth="220.0" promptText="Username" styleClass="control-input" />
+                        <Label minHeight="35.0" prefHeight="35.0" styleClass="field-label records-filter-label" text="Uploaded By" />
+                        <TextField fx:id="uploadedByFilter" minHeight="35.0" prefHeight="35.0" prefWidth="220.0" promptText="Username" styleClass="control-input records-uploaded-by-field" />
                     </HBox>
                 </VBox>
 
@@ -54,7 +54,7 @@
                             <TableColumn fx:id="actionsColumn" prefWidth="150.0" text="Actions" />
                         </columns>
                     </TableView>
-                     <Label fx:id="statusLabel" styleClass="muted-text" text="Medical records not loaded yet." wrapText="true" />
+                     <Label fx:id="statusLabel" styleClass="muted-text records-status-pill" text="Medical records not loaded yet." wrapText="true" />
                 </VBox>
             </VBox>
         </VBox>

@@ -87,7 +87,7 @@ public class BillingService {
     }
 
     public void deleteInvoice(User actor, long invoiceId) throws SQLException {
-        require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
+        require(PermissionHelper.canDeleteInvoice(actor), "Only Admin users can delete invoices.");
         findInvoice(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found in the local clinic database: " + invoiceId));
         boolean deleted = billingDao.deleteInvoice(invoiceId);
         if (!deleted) {

@@ -32,6 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Window;
 import pages.notification.NotificationHelper;
 import pages.patient.dao.SqliteMedicalFileDao;
@@ -117,7 +118,7 @@ public class MedicalFilesController implements AppController {
     @FXML
     private void uploadFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
             return;
         }
         try {
@@ -243,23 +244,29 @@ public class MedicalFilesController implements AppController {
         if (actionsColumn != null) {
             actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             actionsColumn.setCellFactory(column -> new TableCell<>() {
-                private final Button viewButton = new Button("\uD83D\uDC41");
-                private final Button openButton = new Button("\u2B07");
-                private final Button deleteButton = new Button("\uD83D\uDDD1");
-                private final HBox actionsBox = new HBox(8, viewButton, openButton, deleteButton);
+                private final Button viewButton = createActionButton(
+                        "record-action-view",
+                        "M1 8s2.5-4 7-4 7 4 7 4-2.5 4-7 4-7-4-7-4zm7 3a3 3 0 1 0 0-6a3 3 0 0 0 0 6z",
+                        "View medical record");
+                private final Button downloadButton = createActionButton(
+                        "record-action-download",
+                        "M7 1h2v7.2l2.5-2.5l1.5 1.5L8 13L2.9 7.2l1.5-1.5L7 8.2V1zm-4 12h10v2H3z",
+                        "Open stored medical record");
+                private final Button deleteButton = createActionButton(
+                        "record-action-delete",
+                        "M5 1h6l1 2h3v2H1V3h3l1-2zm-1 5h2v7H4V6zm5 0h2v7H9V6z",
+                        "Delete medical record");
+                private final HBox actionsBox = new HBox(8, viewButton, downloadButton, deleteButton);
 
                 {
                     actionsBox.setAlignment(Pos.CENTER);
-                    viewButton.getStyleClass().add("record-action-button");
-                    openButton.getStyleClass().add("record-action-button");
-                    deleteButton.getStyleClass().addAll("record-action-button", "table-action-danger-button");
                     viewButton.setOnAction(event -> {
                         SqliteMedicalFileDao.MedicalFileRecord record = getCurrentTableRow();
                         if (record != null) {
                             showRecordDetails(record);
                         }
                     });
-                    openButton.setOnAction(event -> {
+                    downloadButton.setOnAction(event -> {
                         SqliteMedicalFileDao.MedicalFileRecord record = getCurrentTableRow();
                         if (record != null) {
                             openRecordFile(record);
@@ -281,6 +288,7 @@ public class MedicalFilesController implements AppController {
                         setGraphic(null);
                         setText(null);
                     } else {
+                        deleteButton.setDisable(!PermissionHelper.canDeleteMedicalFile(Session.getCurrentUser()));
                         getStyleClass().add("table-centered-cell");
                         setAlignment(Pos.CENTER);
                         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -297,7 +305,9 @@ public class MedicalFilesController implements AppController {
             });
         }
         if (filesTable != null) {
-            filesTable.setPlaceholder(new Label("No medical records found."));
+            Label placeholder = new Label("No medical records found.");
+            placeholder.getStyleClass().add("records-placeholder");
+            filesTable.setPlaceholder(placeholder);
             filesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
             filesTable.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
@@ -467,8 +477,8 @@ public class MedicalFilesController implements AppController {
         if (file == null) {
             return;
         }
-        if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Only Admin, Doctor, or Nurse users can delete medical records.");
+        if (!PermissionHelper.canDeleteMedicalFile(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only Admin users can delete medical records.");
             return;
         }
         String summary = file.getPatientName() + " | " + formatType(file.getFileType()) + " | " + blankTo(file.getUploadedAt(), "-");
@@ -588,5 +598,20 @@ public class MedicalFilesController implements AppController {
 
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private Button createActionButton(String variantClass, String svgPath, String accessibleText) {
+        Button button = new Button();
+        button.getStyleClass().addAll("record-action-button", variantClass);
+        button.setFocusTraversable(false);
+        button.setAccessibleText(accessibleText);
+
+        SVGPath icon = new SVGPath();
+        icon.setContent(svgPath);
+        icon.getStyleClass().add("record-action-icon");
+
+        button.setGraphic(icon);
+        button.setText(null);
+        return button;
     }
 }

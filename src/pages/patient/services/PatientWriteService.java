@@ -93,8 +93,8 @@ public class PatientWriteService {
     }
 
     public SqlitePatientDao.RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
-        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can delete patients.");
+        if (!PermissionHelper.canDeletePatient(currentUser)) {
+            throw new SecurityException("Only Admin users can delete patients.");
         }
         FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
         if (!validation.isValid()) {
@@ -107,8 +107,8 @@ public class PatientWriteService {
     }
 
     public void deletePatient(User currentUser, String patientId) throws SQLException {
-        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can delete patients.");
+        if (!PermissionHelper.canDeletePatient(currentUser)) {
+            throw new SecurityException("Only Admin users can delete patients.");
         }
         FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
         if (!validation.isValid()) {
@@ -159,7 +159,7 @@ public class PatientWriteService {
 
     private void requireWritePermission(User currentUser) {
         if (!PermissionHelper.canCreatePatient(currentUser) && !PermissionHelper.canUpdatePatient(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can add or edit patients.");
+            throw new SecurityException("Only Admin, Doctor, Nurse, or Staff users can add or edit patients.");
         }
     }
 

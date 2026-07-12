@@ -30,9 +30,9 @@ bin/
 .DS_Store
 sources.txt
 # Runtime/generated data
-data/uploads/
-data/generated/
-data/backups/
+data-upload/uploads/
+data-upload/generated/
+data-upload/backups/
 data/*.db
 data/*.db-journal
 data/*.db-wal

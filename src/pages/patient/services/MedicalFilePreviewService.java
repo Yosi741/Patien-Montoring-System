@@ -102,7 +102,7 @@ public class MedicalFilePreviewService {
 
     private void requireViewPermission(User currentUser) {
         if (!PermissionHelper.canViewMedicalFiles(currentUser)) {
-            throw new SecurityException("Only Admin, Doctor, and Nurse users can view medical files.");
+            throw new SecurityException("Only Admin and Doctor users can view medical records.");
         }
     }
 

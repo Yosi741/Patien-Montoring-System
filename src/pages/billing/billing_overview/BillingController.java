@@ -141,7 +141,7 @@ public class BillingController implements AppController {
     @FXML
     private void createInvoice() {
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Billing access is not available for this user.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can create invoices.");
             return;
         }
         Window owner = billingTable == null || billingTable.getScene() == null ? null : billingTable.getScene().getWindow();
@@ -540,8 +540,9 @@ public class BillingController implements AppController {
                     Button markPaidButton = actionButton("\u2713", event -> handleMarkPaid(item));
                     Button deleteButton = actionButton("\uD83D\uDDD1", event -> handleDeleteInvoice(item));
                     boolean canManage = PermissionHelper.canManageBilling(Session.getCurrentUser());
+                    boolean canDelete = PermissionHelper.canDeleteInvoice(Session.getCurrentUser());
                     markPaidButton.setDisable(item.isPaid() || item.isCancelled());
-                    deleteButton.setDisable(!canManage);
+                    deleteButton.setDisable(!canDelete);
                     HBox actions = new HBox(8, viewButton, markPaidButton, deleteButton);
                     actions.setAlignment(Pos.CENTER);
                     setText(null);
@@ -633,7 +634,7 @@ public class BillingController implements AppController {
             return;
         }
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Billing access is not available for this user.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can mark invoices paid.");
             return;
         }
         try {
@@ -657,7 +658,7 @@ public class BillingController implements AppController {
             return;
         }
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Billing access is not available for this user.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can update invoices.");
             return;
         }
         if (!DialogHelper.confirm("Cancel Invoice", "Cancel invoice " + record.getInvoiceNo() + "?")) {
@@ -676,8 +677,8 @@ public class BillingController implements AppController {
         if (record == null) {
             return;
         }
-        if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Billing access is not available for this user.");
+        if (!PermissionHelper.canDeleteInvoice(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Only Admin users can delete invoices.");
             return;
         }
         if (!confirmDeleteInvoice()) {

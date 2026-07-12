@@ -22,7 +22,7 @@
 
                     <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
                         <Label styleClass="warning-value" text="Access denied" />
-                        <Label styleClass="body-text" text="Appointments are available only to authorized Admin, Doctor, and Nurse roles." wrapText="true" />
+                        <Label styleClass="body-text" text="Appointments are available only to authorized clinic users." wrapText="true" />
                     </VBox>
 
                     <VBox fx:id="contentPane" spacing="18.0">

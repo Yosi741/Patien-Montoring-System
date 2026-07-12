@@ -123,8 +123,8 @@ public class SchedulingController implements AppController {
 
     @FXML
     private void createAppointment() {
-        if (!PermissionHelper.canManageAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+        if (!PermissionHelper.canCreateAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can create appointments.");
             return;
         }
         try {
@@ -139,8 +139,8 @@ public class SchedulingController implements AppController {
 
     @FXML
     private void editAppointment() {
-        if (!PermissionHelper.canManageAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can edit appointments.");
             return;
         }
         SqliteAppointmentDao.AppointmentRow selected = selectedAppointment();
@@ -163,6 +163,10 @@ public class SchedulingController implements AppController {
         if (selected == null) {
             return;
         }
+        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
+            return;
+        }
         try {
             schedulingService.markAppointmentCompleted(Session.getCurrentUser(), selected.getId());
             loadScheduling();
@@ -176,6 +180,10 @@ public class SchedulingController implements AppController {
     private void cancelAppointment() {
         SqliteAppointmentDao.AppointmentRow selected = selectedAppointment();
         if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
             return;
         }
         if (!DialogHelper.confirm("Cancel Appointment", "Cancel appointment " + selected.getTitle() + "?")) {
@@ -316,9 +324,10 @@ public class SchedulingController implements AppController {
                 editButton.setAccessibleText("Edit appointment");
                 Button deleteButton = actionButton("\uD83D\uDDD1", "appointment-action-icon-button table-action-danger-button", event -> deleteAppointment(row));
                 deleteButton.setAccessibleText("Delete appointment");
-                boolean canManage = PermissionHelper.canManageAppointment(Session.getCurrentUser());
-                editButton.setDisable(!canManage);
-                deleteButton.setDisable(!canManage);
+                boolean canEdit = PermissionHelper.canEditAppointment(Session.getCurrentUser());
+                boolean canDelete = PermissionHelper.canDeleteAppointment(Session.getCurrentUser());
+                editButton.setDisable(!canEdit);
+                deleteButton.setDisable(!canDelete);
                 HBox actions = new HBox(8, viewButton, editButton, deleteButton);
                 actions.setAlignment(Pos.CENTER);
                 getStyleClass().remove("appointment-action-cell");
@@ -341,9 +350,9 @@ public class SchedulingController implements AppController {
     }
 
     private void configureWriteButtons() {
-        boolean canManageAppointments = PermissionHelper.canManageAppointment(Session.getCurrentUser());
-        newAppointmentButton.setVisible(canManageAppointments);
-        newAppointmentButton.setManaged(canManageAppointments);
+        boolean canCreateAppointments = PermissionHelper.canCreateAppointment(Session.getCurrentUser());
+        newAppointmentButton.setVisible(canCreateAppointments);
+        newAppointmentButton.setManaged(canCreateAppointments);
         updatePatientFilterChip();
     }
 
@@ -388,7 +397,7 @@ public class SchedulingController implements AppController {
         if (editButton != null) {
             editButton.setText("Edit Appointment");
             editButton.getStyleClass().add("primary-button");
-            editButton.setDisable(!PermissionHelper.canManageAppointment(Session.getCurrentUser()));
+            editButton.setDisable(!PermissionHelper.canEditAppointment(Session.getCurrentUser()));
         }
 
         VBox content = new VBox(12,
@@ -428,7 +437,7 @@ public class SchedulingController implements AppController {
             return;
         }
         if (!PermissionHelper.canManageAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin or Doctor role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can edit appointments.");
             return;
         }
         try {
@@ -458,6 +467,10 @@ public class SchedulingController implements AppController {
         if (selected == null) {
             return;
         }
+        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
+            return;
+        }
         String patientName = blankTo(selected.getPatientName(), "Unknown patient");
         String appointmentTime = formatAppointmentStart(selected);
         String message = "Cancel appointment?\n\nPatient: " + patientName + "\nTime: " + appointmentTime;
@@ -475,6 +488,10 @@ public class SchedulingController implements AppController {
 
     private void deleteAppointment(SqliteAppointmentDao.AppointmentRow selected) {
         if (selected == null) {
+            return;
+        }
+        if (!PermissionHelper.canDeleteAppointment(Session.getCurrentUser())) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin users can delete appointments.");
             return;
         }
         if (!showDeleteConfirmation()) {

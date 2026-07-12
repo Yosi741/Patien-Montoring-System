@@ -3,101 +3,98 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane prefHeight="760.0" prefWidth="1180.0" styleClass="login-page" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pages.login.LoginController">
 
     <center>
         <StackPane styleClass="login-stage">
-            <HBox maxHeight="610.0" maxWidth="1080.0" styleClass="login-shell-card">
+            <HBox maxHeight="630.0" maxWidth="1080.0" styleClass="login-shell-card">
 
                 <!-- LEFT BRAND PANEL -->
-                <VBox alignment="CENTER" prefWidth="455.0" spacing="22.0" styleClass="login-brand-panel">
+                <VBox alignment="CENTER" prefWidth="455.0" spacing="26.0" styleClass="login-brand-panel">
 
-                    <VBox alignment="CENTER" spacing="16.0" styleClass="login-brand-box">
+                    <VBox alignment="CENTER" spacing="18.0" styleClass="login-brand-box">
 
-                        <!-- BIGGER LOGO AREA -->
-                        <StackPane prefHeight="240.0" prefWidth="455.0" styleClass="login-logo-zone">
-
-                            <!-- REAL LOGO IMAGE -->
-                            <ImageView fx:id="loginLogoImage" cache="true" fitHeight="235.0" fitWidth="430.0" preserveRatio="true" smooth="true" styleClass="login-logo-image" visible="false" />
+                        <StackPane prefHeight="250.0" prefWidth="455.0" styleClass="login-logo-zone">
+                             <ImageView fx:id="loginLogoImage" cache="true" fitHeight="230.0" fitWidth="300.0" preserveRatio="true" smooth="true" styleClass="login-logo-image" visible="false" />
                         </StackPane>
 
-                        <VBox alignment="CENTER" spacing="14.0">
-                            <Label styleClass="login-brand-title" text="CPMS" />
+                        <VBox alignment="CENTER" maxWidth="340.0" spacing="12.0">
+                            <Label styleClass="login-brand-title" text="ClinicPulse" />
 
-                            <Label alignment="CENTER" styleClass="login-brand-subtitle" text="Clinic Patient Monitoring System" textAlignment="CENTER" />
+                            <Label alignment="CENTER" styleClass="login-brand-subtitle" text="Smart Patient Monitoring System" textAlignment="CENTER" />
                         </VBox>
                     </VBox>
 
-                    <Region prefHeight="8.0" />
+                    <VBox alignment="CENTER" maxWidth="340.0" spacing="14.0">
 
-                    <VBox alignment="CENTER" maxWidth="340.0" spacing="18.0">
+                        <Label alignment="CENTER" styleClass="login-brand-message" text="Clinical workspace for patient monitoring, alerts, appointments, and medical files." textAlignment="CENTER" wrapText="true" />
 
-                        <Label alignment="CENTER" styleClass="login-brand-message" text="Clinical workspace for patient monitoring" textAlignment="CENTER" wrapText="true" />
-
-                        <Label alignment="CENTER" styleClass="login-brand-helper" text="Patients | Alerts | Appointments | Medical Files" textAlignment="CENTER" wrapText="true" />
+                        <Label alignment="CENTER" styleClass="login-brand-helper" text="Presentation-ready access for clinic staff and coordinated patient care." textAlignment="CENTER" wrapText="true" />
                     </VBox>
 
                     <Region VBox.vgrow="ALWAYS" />
 
-                    <HBox alignment="CENTER" spacing="12.0" styleClass="login-security-strip">
+                    <VBox alignment="CENTER_LEFT" maxWidth="340.0" spacing="12.0" styleClass="login-security-strip">
+                        <Label styleClass="login-security-badge" text="Protected Access" />
 
-                        <Label styleClass="login-security-icon" text="OK" />
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
 
-                        <VBox spacing="2.0">
-                            <Label styleClass="login-security-title" text="Protected clinical access" />
+                            <VBox spacing="4.0">
+                                <Label styleClass="login-security-title" text="Secure staff sign-in" />
 
-                            <Label styleClass="login-security-text" text="Private | Reliable | Local clinic system" />
-                        </VBox>
-                    </HBox>
+                                <Label styleClass="login-security-text" text="Authorized staff only with protected local access to patient workflows." wrapText="true" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
                 </VBox>
 
                 <!-- RIGHT LOGIN FORM PANEL -->
-                <VBox alignment="CENTER" prefWidth="625.0" spacing="28.0" styleClass="login-form-panel">
+                <VBox alignment="CENTER" prefWidth="625.0" spacing="30.0" styleClass="login-form-panel">
 
-                    <VBox alignment="CENTER" spacing="10.0">
-                        <StackPane styleClass="login-user-icon-wrap">
-                            <Label styleClass="login-user-icon" text="Staff" />
-                        </StackPane>
+                    <VBox alignment="CENTER_LEFT" maxWidth="470.0" spacing="12.0">
+                        <HBox alignment="CENTER" spacing="8.0" styleClass="login-staff-badge">
+                            <Region styleClass="login-staff-badge-dot" />
+                            <Label styleClass="login-staff-badge-text" text="Staff Badge" />
+                        </HBox>
 
                         <Label styleClass="login-title" text="Welcome Back" />
 
-                        <Label alignment="CENTER" styleClass="login-subtitle" text="Login to continue to your clinic workspace" textAlignment="CENTER" wrapText="true" />
+                        <Label styleClass="login-subtitle" text="Sign in to continue to the ClinicPulse clinical workspace." wrapText="true" />
                     </VBox>
 
-                    <VBox fillWidth="true" maxWidth="470.0" spacing="18.0">
+                    <VBox fillWidth="true" maxWidth="470.0" spacing="18.0" styleClass="login-form-stack">
 
-                        <VBox spacing="8.0">
+                        <VBox spacing="8.0" styleClass="login-field-block">
                             <Label styleClass="login-field-label" text="Username" />
 
                             <TextField fx:id="usernameField" promptText="Enter your username" styleClass="login-input" />
                         </VBox>
 
-                        <VBox spacing="8.0">
+                        <VBox spacing="8.0" styleClass="login-field-block">
                             <Label styleClass="login-field-label" text="Password" />
 
                             <PasswordField fx:id="passwordField" onAction="#handleLogin" promptText="Enter your password" styleClass="login-input" />
                         </VBox>
                     </VBox>
 
-                    <VBox fillWidth="true" maxWidth="470.0" spacing="14.0">
+                    <VBox fillWidth="true" maxWidth="470.0" spacing="14.0" styleClass="login-actions-stack">
 
                         <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="login-primary-button" text="Login" />
 
-                        <HBox alignment="CENTER" spacing="14.0">
+                        <HBox alignment="CENTER" spacing="14.0" styleClass="login-divider-row">
                             <Separator HBox.hgrow="ALWAYS" />
                             <Label styleClass="login-divider-text" text="or" />
                             <Separator HBox.hgrow="ALWAYS" />
                         </HBox>
 
-                        <HBox alignment="CENTER" spacing="12.0">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <Button onAction="#handleForgotPasswordRequest" styleClass="login-link-button" text="Forgot Password?" />
 
                             <Button onAction="#handleClearLoginForm" styleClass="login-clear-button" text="Clear" />
                         </HBox>
                     </VBox>
-
-                    <Label fx:id="statusLabel" alignment="CENTER" maxWidth="470.0" styleClass="login-status-text" textAlignment="CENTER" wrapText="true" />
                 </VBox>
             </HBox>
         </StackPane>
@@ -116,7 +113,10 @@
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <Label styleClass="login-footer-muted" text="Version 1.0.0" />
+            <Label styleClass="login-footer-muted" text="Version 4.0.0">
+            <font>
+               <Font size="14.0" />
+            </font></Label>
         </HBox>
     </bottom>
 </BorderPane>
