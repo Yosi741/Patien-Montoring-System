@@ -14,6 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Window;
 import pages.patient.services.PatientWriteService;
 import app.navigation.AppNavigator;
@@ -83,6 +85,8 @@ public class PatientFormController {
             app.helpers.DialogThemeHelper.apply(dialog);
             dialog.initOwner(owner);
             dialog.getDialogPane().setContent(root);
+            dialog.setResizable(true);
+            configureDialogSize(dialog);
             dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, saveButtonType);
             dialog.getDialogPane().lookupButton(saveButtonType).addEventFilter(ActionEvent.ACTION, event -> {
                 if (!controller.save()) {
@@ -94,6 +98,18 @@ public class PatientFormController {
         } catch (Exception e) {
             throw new IllegalStateException("Could not open patient form: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Keeps the dialog chrome on screen while the long form body scrolls.
+     */
+    private static void configureDialogSize(Dialog<?> dialog) {
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        double preferredHeight = Math.min(650, bounds.getHeight() * 0.72);
+
+        dialog.getDialogPane().setPrefWidth(760);
+        dialog.getDialogPane().setPrefHeight(Math.max(420, preferredHeight));
+        dialog.getDialogPane().setMinHeight(420);
     }
 
     @FXML

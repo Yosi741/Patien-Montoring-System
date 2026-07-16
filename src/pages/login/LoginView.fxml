@@ -77,6 +77,8 @@
 
                             <PasswordField fx:id="passwordField" onAction="#handleLogin" promptText="Enter your password" styleClass="login-input" />
                         </VBox>
+
+                        <Label fx:id="statusLabel" managed="false" styleClass="login-status-label" visible="false" wrapText="true" />
                     </VBox>
 
                     <VBox fillWidth="true" maxWidth="470.0" spacing="14.0" styleClass="login-actions-stack">

@@ -59,25 +59,25 @@ public class LoginController implements AppController {
             if (sqliteUserDao.verifyPassword(username, password)) {
                 User user = sqliteUserDao.findByUsername(username).orElse(null);
                 if (user == null) {
-                    statusLabel.setText("Invalid username or password.");
+                    showStatus("Invalid username or password.");
                     return;
                 }
                 appShell.showDashboard(user, "Local database");
                 return;
             }
         } catch (Exception e) {
-            statusLabel.setText("Could not check local database login: " + e.getMessage());
+            showStatus("Could not check local database login: " + e.getMessage());
             return;
         }
 
-        statusLabel.setText("Invalid username or password.");
+        showStatus("Invalid username or password.");
     }
 
     @FXML
     private void handleClearLoginForm() {
         usernameField.clear();
         passwordField.clear();
-        statusLabel.setText("");
+        showStatus("");
     }
 
     @FXML
@@ -115,19 +115,19 @@ public class LoginController implements AppController {
                 showForgotPasswordResult(result);
             }
         } catch (Exception e) {
-            statusLabel.setText("Could not process password reset request: " + e.getMessage());
+            showStatus("Could not process password reset request: " + e.getMessage());
         }
     }
 
     private void showForgotPasswordResult(ForgotPasswordService.ForgotPasswordResult result) {
         if (result == null) {
-            statusLabel.setText("Could not process password reset request.");
+            showStatus("Could not process password reset request.");
             return;
         }
         switch (result.status()) {
-            case EMPTY_CREDENTIALS -> statusLabel.setText("Username and Staff ID are required.");
-            case CREDENTIALS_MISMATCH -> statusLabel.setText("The username and staff ID do not match our records.");
-            case READY_FOR_RESET -> statusLabel.setText("Enter a new password to finish the reset.");
+            case EMPTY_CREDENTIALS -> showStatus("Username and Staff ID are required.");
+            case CREDENTIALS_MISMATCH -> showStatus("The username and staff ID do not match our records.");
+            case READY_FOR_RESET -> showStatus("Enter a new password to finish the reset.");
         }
     }
 
@@ -164,7 +164,7 @@ public class LoginController implements AppController {
 
         try {
             forgotPasswordService.updatePassword(username, staffId, newPasswordField.getText(), confirmPasswordField.getText());
-            statusLabel.setText("Password was updated. You can now log in with the new password.");
+            showStatus("Password was updated. You can now log in with the new password.");
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Password Updated");
             alert.setHeaderText("Password reset complete");
@@ -173,8 +173,20 @@ public class LoginController implements AppController {
             alert.initOwner(usernameField.getScene().getWindow());
             alert.showAndWait();
         } catch (Exception e) {
-            statusLabel.setText(e.getMessage());
+            showStatus(e.getMessage());
         }
+    }
+
+    private void showStatus(String message) {
+        if (statusLabel == null) {
+            System.err.println("LoginController: statusLabel was not injected from FXML.");
+            return;
+        }
+
+        boolean hasMessage = message != null && !message.isBlank();
+        statusLabel.setText(hasMessage ? message : "");
+        statusLabel.setVisible(hasMessage);
+        statusLabel.setManaged(hasMessage);
     }
 
     private void loadLogoImage() {

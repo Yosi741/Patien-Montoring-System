@@ -72,6 +72,17 @@ public class NotificationCenterService {
         try {
             createNotification(new SqliteNotificationDao.NotificationWriteRecord(
                     "",
+                    "ADMIN",
+                    "",
+                    patientId,
+                    "WARNING".equalsIgnoreCase(severity) ? "WARNING" : "CRITICAL",
+                    "Patient alert: " + nullTo(patientId, "Unknown patient"),
+                    message,
+                    "ALERT",
+                    sourceId
+            ));
+            createNotification(new SqliteNotificationDao.NotificationWriteRecord(
+                    "",
                     "DOCTOR",
                     "",
                     patientId,

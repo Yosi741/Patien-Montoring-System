@@ -973,6 +973,17 @@
     -fx-background-color: rgba(148, 163, 184, 0.26);
 }
 
+.login-status-label {
+    -fx-text-fill: #fecaca;
+    -fx-background-color: rgba(127, 29, 29, 0.22);
+    -fx-border-color: rgba(248, 113, 113, 0.28);
+    -fx-border-width: 1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+}
+
 .login-divider-row .separator .line {
     -fx-border-color: #284563;
     -fx-border-width: 1 0 0 0;
@@ -3162,6 +3173,25 @@
     -fx-padding: 16 18;
 }
 
+.patient-form-dialog {
+    -fx-padding: 18;
+}
+
+.patient-form-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 12 2 0 0;
+}
+
+.patient-form-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.patient-form-content {
+    -fx-padding: 0 10 4 0;
+}
+
 .dialog-title,
 .page-title {
     -fx-text-fill: #F8FAFC;
@@ -5169,6 +5199,22 @@
     -fx-background-color: rgba(34, 211, 238, 0.14);
     -fx-border-color: rgba(139, 92, 246, 0.46);
     -fx-text-fill: #ddd6fe;
+}
+
+.patient-action-vitals {
+    -fx-background-color: #132036;
+    -fx-border-color: #3B5B7D;
+    -fx-text-fill: #22D3EE;
+}
+
+.patient-action-vitals:hover {
+    -fx-background-color: #172A44;
+    -fx-border-color: rgba(34, 211, 238, 0.56);
+    -fx-text-fill: #60A5FA;
+}
+
+.patient-action-vitals:pressed {
+    -fx-background-color: #0f1f34;
 }
 
 .patient-action-delete {

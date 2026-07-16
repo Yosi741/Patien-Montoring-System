@@ -21,14 +21,19 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import pages.alert.AlertSoundService;
 import pages.notification.NotificationHelper;
 import pages.patient.dao.SqlitePatientDao;
 import pages.patient.patient_form.PatientFormController;
 import pages.patient.services.PatientWriteService;
+import pages.patient.services.VitalThresholdService;
+import pages.patient.services.VitalsWriteService;
+import pages.patient.vitals_entry.VitalsEntryController;
 import users.Session;
 
 import java.time.LocalDate;
@@ -51,6 +56,7 @@ public class PatientListController implements AppController {
     private boolean filterListenersConfigured;
     private boolean canWritePatients;
     private boolean canArchivePatients;
+    private boolean canEnterVitals;
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> statusFilter;
@@ -94,7 +100,7 @@ public class PatientListController implements AppController {
     @FXML
     private void addPatient() {
         if (!canWritePatients) {
-            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Staff users can add patients.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Secretary users can add patients.");
             return;
         }
         try {
@@ -273,6 +279,7 @@ public class PatientListController implements AppController {
         canWritePatients = PermissionHelper.canCreatePatient(Session.getCurrentUser())
                 || PermissionHelper.canUpdatePatient(Session.getCurrentUser());
         canArchivePatients = PermissionHelper.canDeletePatient(Session.getCurrentUser());
+        canEnterVitals = PermissionHelper.canEnterVitals(Session.getCurrentUser());
         setButtonVisible(addPatientButton, canWritePatients);
     }
 
@@ -366,19 +373,30 @@ public class PatientListController implements AppController {
         editButton.setDisable(!canWritePatients || isArchived(row));
         editButton.setOnAction(event -> editPatient(row));
 
+        Button vitalsButton = iconButton("\u2665", "patient-action-vitals", "Add vitals");
+        vitalsButton.setDisable(!canEnterVitals || isArchived(row));
+        vitalsButton.setOnAction(event -> addVitals(row));
+
         Button deleteButton = iconButton("\uD83D\uDDD1", "patient-action-delete");
         deleteButton.setDisable(!canArchivePatients);
         deleteButton.setOnAction(event -> deletePatient(row));
 
-        HBox actions = new HBox(8.0, viewButton, editButton, deleteButton);
+        HBox actions = new HBox(6.0, viewButton, editButton, vitalsButton, deleteButton);
         actions.setAlignment(Pos.CENTER);
         return actions;
     }
 
     private Button iconButton(String text, String extraClass) {
+        return iconButton(text, extraClass, null);
+    }
+
+    private Button iconButton(String text, String extraClass, String tooltipText) {
         Button button = new Button(text);
         button.getStyleClass().addAll("patient-action-button", extraClass);
         button.setFocusTraversable(false);
+        if (tooltipText != null && !tooltipText.isBlank()) {
+            button.setTooltip(new Tooltip(tooltipText));
+        }
         return button;
     }
 
@@ -398,7 +416,7 @@ public class PatientListController implements AppController {
             return;
         }
         if (!canWritePatients) {
-            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Staff users can edit patients.");
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, Nurse, or Secretary users can edit patients.");
             return;
         }
         if (isArchived(row)) {
@@ -415,6 +433,71 @@ public class PatientListController implements AppController {
             }
         } catch (Exception e) {
             NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private void addVitals(SqlitePatientDao.PatientListRow row) {
+        if (row == null) {
+            return;
+        }
+        if (!canEnterVitals) {
+            NotificationHelper.showError(statusLabel, "Access denied. Only Admin, Doctor, or Nurse users can enter vitals.");
+            return;
+        }
+        if (isArchived(row)) {
+            NotificationHelper.showInfo(statusLabel, "Archived patient records can be viewed but not updated here.");
+            return;
+        }
+        try {
+            VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
+                    patientTable.getScene().getWindow(),
+                    Session.getCurrentUser(),
+                    row.getPatientId());
+            if (result != null) {
+                loadPatients();
+                if (appShell != null) {
+                    appShell.refreshNotificationCount();
+                }
+                showVitalAlertPopupIfNeeded(row, result);
+                NotificationHelper.showSuccess(statusLabel,
+                        "Vitals saved for " + row.getName() + ": " + result.getVitalType()
+                                + " = " + result.getValue() + " " + result.getUnit()
+                                + " as " + result.getStatus() + ".");
+            }
+        } catch (Exception e) {
+            NotificationHelper.showError(statusLabel, e.getMessage());
+        }
+    }
+
+    private void showVitalAlertPopupIfNeeded(SqlitePatientDao.PatientListRow row, VitalsWriteService.VitalsWriteResult result) {
+        if (result == null || result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
+            return;
+        }
+
+        Alert.AlertType alertType = result.getStatus() == VitalThresholdService.VitalStatus.WARNING
+                ? Alert.AlertType.WARNING
+                : Alert.AlertType.ERROR;
+
+        Alert alert = new Alert(alertType);
+        alert.setTitle(result.getStatus() + " Vital Alert");
+        DialogThemeHelper.apply(alert);
+        alert.setHeaderText(result.getStatus() + " vital reading detected");
+        alert.setContentText(
+                "Patient: " + (row == null ? "Unknown patient" : row.getName())
+                        + "\nPatient ID: " + (row == null ? "" : row.getPatientId())
+                        + "\nVital: " + result.getVitalType()
+                        + "\nValue: " + result.getValue() + " " + result.getUnit()
+                        + "\n\nImmediate staff review is required."
+        );
+        if (patientTable != null && patientTable.getScene() != null) {
+            alert.initOwner(patientTable.getScene().getWindow());
+        }
+
+        AlertSoundService.playAlertSound();
+        try {
+            alert.showAndWait();
+        } finally {
+            AlertSoundService.stopAlertSound();
         }
     }
 

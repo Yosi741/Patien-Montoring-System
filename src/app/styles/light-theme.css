@@ -265,6 +265,17 @@
     -fx-background-color: #dde8f5;
 }
 
+.login-status-label {
+    -fx-text-fill: #991b1b;
+    -fx-background-color: #fff1f2;
+    -fx-border-color: #fecdd3;
+    -fx-border-width: 1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+}
+
 .login-divider-row .separator .line {
     -fx-border-color: #c9d8ea;
     -fx-border-width: 1 0 0 0;
@@ -3463,6 +3474,22 @@
     -fx-background-color: #eefcff;
     -fx-border-color: #8b5cf6;
     -fx-text-fill: #6d28d9;
+}
+
+.patient-action-vitals {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c9d8ea;
+    -fx-text-fill: #14b8c4;
+}
+
+.patient-action-vitals:hover {
+    -fx-background-color: #f8fbff;
+    -fx-border-color: #93c5fd;
+    -fx-text-fill: #2563eb;
+}
+
+.patient-action-vitals:pressed {
+    -fx-background-color: #eaf4ff;
 }
 
 .patient-action-delete {

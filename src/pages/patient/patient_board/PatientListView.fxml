@@ -41,7 +41,7 @@
                                 <TableColumn fx:id="ageGenderColumn" prefWidth="140.0" text="Age / Gender" />
                                 <TableColumn fx:id="contactColumn" prefWidth="190.0" text="Contact" />
                                 <TableColumn fx:id="statusColumn" prefWidth="140.0" text="Status" />
-                                <TableColumn fx:id="actionsColumn" prefWidth="150.0" sortable="false" text="Actions" />
+                                <TableColumn fx:id="actionsColumn" prefWidth="190.0" sortable="false" text="Actions" />
                             </columns>
                         </TableView>
                     </VBox>
