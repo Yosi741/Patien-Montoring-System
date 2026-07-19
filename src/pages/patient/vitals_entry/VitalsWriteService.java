@@ -1,9 +1,7 @@
-package pages.patient.services;
+package pages.patient.vitals_entry;
 
 import pages.alert.SqliteAlertDao;
-import pages.patient.dao.SqlitePatientDao;
-import pages.patient.dao.SqliteVitalReadingDao;
-import pages.patient.VitalRecord;
+import pages.patient.patient_detail.SqlitePatientDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.alert.AlertPersistenceService;

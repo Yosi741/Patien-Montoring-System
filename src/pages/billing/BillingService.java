@@ -1,7 +1,7 @@
 package pages.billing;
 
 import app.helpers.PermissionHelper;
-import pages.patient.dao.SqlitePatientDao;
+import pages.patient.patient_detail.SqlitePatientDao;
 import pages.user.User;
 
 import java.sql.SQLException;

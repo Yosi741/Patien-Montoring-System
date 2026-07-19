@@ -36,7 +36,7 @@ import javafx.stage.Window;
 import pages.billing.BillingRecord;
 import pages.billing.BillingService;
 import pages.notification.NotificationHelper;
-import users.Session;
+import pages.user.Session;
 
 import java.util.ArrayList;
 import java.util.List;

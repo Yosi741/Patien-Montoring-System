@@ -2,7 +2,6 @@ package pages.user.user_directory;
 
 import app.core.AppShell;
 import app.contracts.AppController;
-import app.core.SessionContext;
 import app.helpers.DialogHelper;
 import app.helpers.PermissionHelper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -26,10 +25,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.notification.NotificationHelper;
 import pages.user.UserRole;
-import pages.user.dao.SqliteUserDao;
-import pages.user.services.UserWriteService;
+import pages.user.profile_settings.SqliteUserDao;
+import pages.user.profile_settings.UserWriteService;
 import pages.user.user_form.UserFormController;
-import users.Session;
+import pages.user.Session;
 
 import java.io.File;
 import java.util.Locale;

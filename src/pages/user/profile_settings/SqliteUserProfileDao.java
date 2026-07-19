@@ -1,4 +1,4 @@
-package pages.user.dao;
+package pages.user.profile_settings;
 
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;

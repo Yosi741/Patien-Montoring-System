@@ -1,6 +1,5 @@
-package pages.patient.services;
+package pages.patient.patient_detail;
 
-import pages.patient.dao.SqlitePatientDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;

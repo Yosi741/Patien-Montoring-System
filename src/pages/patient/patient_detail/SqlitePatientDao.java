@@ -1,16 +1,13 @@
-package pages.patient.dao;
+package pages.patient.patient_detail;
 
 import app.database.DatabaseManager;
-import pages.patient.Patient;
+import pages.patient.patient_board.PatientDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

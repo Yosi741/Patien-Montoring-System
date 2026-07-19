@@ -1,13 +1,11 @@
-package pages.patient.dao;
+package pages.patient.vitals_entry;
 
 import app.database.DatabaseManager;
-import pages.patient.VitalRecord;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

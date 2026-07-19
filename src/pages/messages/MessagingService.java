@@ -1,7 +1,7 @@
 package pages.messages;
 
-import pages.patient.dao.SqlitePatientDao;
-import pages.user.dao.SqliteUserDao;
+import pages.patient.patient_detail.SqlitePatientDao;
+import pages.user.profile_settings.SqliteUserDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;

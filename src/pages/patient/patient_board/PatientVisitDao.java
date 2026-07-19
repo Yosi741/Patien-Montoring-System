@@ -1,6 +1,6 @@
-package pages.patient.dao;
+package pages.patient.patient_board;
 
-import pages.patient.PatientVisit;
+import pages.patient.patient_detail.PatientVisit;
 
 import java.sql.SQLException;
 import java.util.List;

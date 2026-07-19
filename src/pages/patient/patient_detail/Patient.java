@@ -1,5 +1,6 @@
-package pages.patient;
+package pages.patient.patient_detail;
 
+import pages.patient.vitals_entry.VitalSign;
 import pages.user.User;
 
 import java.time.LocalDate;

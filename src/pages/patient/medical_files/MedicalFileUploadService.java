@@ -1,8 +1,6 @@
-package pages.patient.services;
+package pages.patient.medical_files;
 
-import pages.patient.dao.SqliteMedicalFileDao;
-import pages.patient.dao.SqlitePatientDao;
-import pages.patient.MedicalFile;
+import pages.patient.patient_detail.SqlitePatientDao;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import app.helpers.FormValidationHelper;

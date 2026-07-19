@@ -1,4 +1,4 @@
-package pages.patient.services;
+package pages.patient.vitals_entry;
 
 import java.util.List;
 import java.util.Locale;

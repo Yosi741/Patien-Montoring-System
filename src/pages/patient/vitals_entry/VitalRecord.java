@@ -1,4 +1,4 @@
-package pages.patient;
+package pages.patient.vitals_entry;
 
 public class VitalRecord {
 

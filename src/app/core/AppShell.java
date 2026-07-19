@@ -16,7 +16,7 @@ import pages.patient.patient_board.PatientListController;
 import pages.patient.patient_detail.PatientDetailController;
 import pages.scheduling.schedule_overview.SchedulingController;
 import pages.user.User;
-import users.Session;
+import pages.user.Session;
 
 public class AppShell extends Application {
 

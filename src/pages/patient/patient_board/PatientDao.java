@@ -1,7 +1,7 @@
-package pages.patient.dao;
+package pages.patient.patient_board;
 
 import app.database.CrudDao;
-import pages.patient.Patient;
+import pages.patient.patient_detail.Patient;
 
 import java.sql.SQLException;
 import java.util.List;

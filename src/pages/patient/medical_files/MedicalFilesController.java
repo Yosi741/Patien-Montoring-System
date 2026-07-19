@@ -35,9 +35,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Window;
 import pages.notification.NotificationHelper;
-import pages.patient.dao.SqliteMedicalFileDao;
-import pages.patient.services.MedicalFilePreviewService;
-import users.Session;
+import pages.user.Session;
 
 import java.io.File;
 import java.util.Locale;

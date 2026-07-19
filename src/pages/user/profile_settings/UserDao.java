@@ -1,4 +1,4 @@
-package pages.user.dao;
+package pages.user.profile_settings;
 
 import app.database.CrudDao;
 import pages.user.User;

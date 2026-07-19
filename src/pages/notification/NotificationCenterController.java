@@ -25,7 +25,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import users.Session;
+import pages.user.Session;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

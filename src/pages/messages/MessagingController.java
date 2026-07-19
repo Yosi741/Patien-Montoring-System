@@ -23,8 +23,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.notification.NotificationHelper;
 import pages.user.User;
-import pages.user.dao.SqliteUserDao;
-import users.Session;
+import pages.user.profile_settings.SqliteUserDao;
+import pages.user.Session;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

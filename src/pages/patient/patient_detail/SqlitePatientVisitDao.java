@@ -1,7 +1,7 @@
-package pages.patient.dao;
+package pages.patient.patient_detail;
 
 import app.database.DatabaseManager;
-import pages.patient.PatientVisit;
+import pages.patient.patient_board.PatientVisitDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

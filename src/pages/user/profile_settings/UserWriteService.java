@@ -1,6 +1,5 @@
-package pages.user.services;
+package pages.user.profile_settings;
 
-import pages.user.dao.SqliteUserDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.user.User;

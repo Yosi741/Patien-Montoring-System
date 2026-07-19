@@ -10,13 +10,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
-import pages.user.services.UserProfileService;
+
 import app.core.AppShell;
 import app.contracts.AppController;
 import app.core.SessionContext;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
-import users.Session;
+import pages.user.Session;
 import pages.user.User;
 import pages.user.UserRole;
 

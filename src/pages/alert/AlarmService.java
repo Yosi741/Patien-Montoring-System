@@ -1,9 +1,9 @@
 package pages.alert;
 
-import pages.patient.Patient;
+import pages.patient.patient_detail.Patient;
 import pages.notification.NotificationCenterService;
-import pages.patient.VitalSign;
-import users.Session;
+import pages.patient.vitals_entry.VitalSign;
+import pages.user.Session;
 
 import javax.sound.sampled.*;
 import javafx.application.Platform;

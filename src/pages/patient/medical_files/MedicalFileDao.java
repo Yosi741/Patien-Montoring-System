@@ -1,6 +1,4 @@
-package pages.patient.dao;
-
-import pages.patient.MedicalFile;
+package pages.patient.medical_files;
 
 import java.sql.SQLException;
 

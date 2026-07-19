@@ -1,6 +1,4 @@
-package users;
-
-import pages.user.User;
+package pages.user;
 
 public class Session {
 

@@ -14,7 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import pages.user.User;
-import pages.user.dao.SqliteUserDao;
+import pages.user.profile_settings.SqliteUserDao;
 import pages.user.user_form.UserFormController;
 
 import java.io.File;

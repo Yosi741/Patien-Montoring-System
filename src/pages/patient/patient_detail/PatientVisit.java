@@ -1,4 +1,4 @@
-package pages.patient;
+package pages.patient.patient_detail;
 
 public class PatientVisit {
 

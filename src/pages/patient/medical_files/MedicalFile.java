@@ -1,4 +1,4 @@
-package pages.patient;
+package pages.patient.medical_files;
 
 public class MedicalFile {
 

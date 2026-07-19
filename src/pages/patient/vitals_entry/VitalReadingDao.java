@@ -1,7 +1,6 @@
-package pages.patient.dao;
+package pages.patient.vitals_entry;
 
 import app.database.CrudDao;
-import pages.patient.VitalRecord;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,6 +1,6 @@
 package pages.patient.patient_form;
 
-import pages.patient.dao.SqlitePatientDao;
+import pages.patient.patient_detail.SqlitePatientDao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import pages.patient.services.PatientWriteService;
+import pages.patient.patient_detail.PatientWriteService;
 import app.navigation.AppNavigator;
 import app.helpers.DatePickerHelper;
 import app.helpers.DialogHelper;

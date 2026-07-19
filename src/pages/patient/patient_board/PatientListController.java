@@ -28,13 +28,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.alert.AlertSoundService;
 import pages.notification.NotificationHelper;
-import pages.patient.dao.SqlitePatientDao;
+import pages.patient.patient_detail.SqlitePatientDao;
 import pages.patient.patient_form.PatientFormController;
-import pages.patient.services.PatientWriteService;
-import pages.patient.services.VitalThresholdService;
-import pages.patient.services.VitalsWriteService;
+import pages.patient.patient_detail.PatientWriteService;
+import pages.patient.vitals_entry.VitalThresholdService;
+import pages.patient.vitals_entry.VitalsWriteService;
 import pages.patient.vitals_entry.VitalsEntryController;
-import users.Session;
+import pages.user.Session;
 
 import java.time.LocalDate;
 import java.time.Period;

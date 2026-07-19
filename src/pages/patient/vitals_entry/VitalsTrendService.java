@@ -1,4 +1,4 @@
-package pages.patient.services;
+package pages.patient.vitals_entry;
 
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;

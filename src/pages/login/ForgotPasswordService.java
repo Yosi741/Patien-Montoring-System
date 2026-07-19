@@ -1,7 +1,7 @@
 package pages.login;
 
 import pages.user.User;
-import pages.user.dao.SqliteUserDao;
+import pages.user.profile_settings.SqliteUserDao;
 
 import java.sql.SQLException;
 

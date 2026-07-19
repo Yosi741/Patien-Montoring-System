@@ -1,8 +1,6 @@
-package pages.patient.services;
+package pages.patient.patient_detail;
 
-import pages.patient.PatientVisit;
-import pages.patient.dao.PatientVisitDao;
-import pages.patient.dao.SqlitePatientVisitDao;
+import pages.patient.patient_board.PatientVisitDao;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;

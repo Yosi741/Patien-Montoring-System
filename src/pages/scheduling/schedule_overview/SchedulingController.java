@@ -32,7 +32,7 @@ import app.helpers.DialogThemeHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import app.helpers.SelectionHelper;
-import users.Session;
+import pages.user.Session;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

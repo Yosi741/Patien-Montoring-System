@@ -1,7 +1,6 @@
 package pages.patient.patient_detail;
 
-import pages.patient.dao.SqlitePatientDao;
-import pages.patient.dao.SqliteVitalReadingDao;
+import pages.patient.vitals_entry.*;
 import pages.alert.SqliteAlertDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,14 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import pages.patient.PatientVisit;
-import pages.patient.VitalRecord;
 import pages.alert.AlertSoundService;
-import pages.patient.services.PatientVisitService;
-import pages.patient.services.PatientWriteService;
-import pages.patient.services.VitalThresholdService;
-import pages.patient.services.VitalTypeCatalog;
-import pages.patient.services.VitalsTrendService;
+import pages.patient.vitals_entry.VitalThresholdService;
+import pages.patient.vitals_entry.VitalTypeCatalog;
 import app.core.AppShell;
 import app.contracts.AppController;
 import pages.notification.NotificationHelper;
@@ -36,8 +30,7 @@ import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
 import pages.patient.medical_files.MedicalFileUploadController;
 import pages.patient.patient_form.PatientFormController;
-import pages.patient.vitals_entry.VitalsEntryController;
-import users.Session;
+import pages.user.Session;
 import javafx.scene.control.Alert;
 
 import java.util.LinkedHashMap;
@@ -293,7 +286,7 @@ public class PatientDetailController implements AppController {
             return;
         }
         try {
-            pages.patient.services.VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
+            VitalsWriteService.VitalsWriteResult result = VitalsEntryController.showDialog(
                     nameLabel.getScene().getWindow(),
                     Session.getCurrentUser(),
                     patientId
@@ -535,7 +528,7 @@ public class PatientDetailController implements AppController {
         return "severity-warning";
     }
 
-    private void showVitalAlertPopupIfNeeded(pages.patient.services.VitalsWriteService.VitalsWriteResult result) {
+    private void showVitalAlertPopupIfNeeded(VitalsWriteService.VitalsWriteResult result) {
         if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;
         }

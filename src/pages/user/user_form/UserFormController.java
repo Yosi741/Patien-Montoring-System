@@ -24,10 +24,10 @@ import javafx.stage.Window;
 import pages.notification.NotificationHelper;
 import pages.user.User;
 import pages.user.UserRole;
-import pages.user.dao.SqliteUserDao;
-import pages.user.dao.SqliteUserProfileDao;
-import pages.user.services.UserProfileService;
-import pages.user.services.UserWriteService;
+import pages.user.profile_settings.SqliteUserDao;
+import pages.user.profile_settings.SqliteUserProfileDao;
+import pages.user.profile_settings.UserProfileService;
+import pages.user.profile_settings.UserWriteService;
 
 import java.io.File;
 

@@ -1,11 +1,8 @@
-package pages.patient.services;
+package pages.patient.vitals_entry;
 
 import pages.alert.CriticalAlertManager;
-import pages.patient.dao.SqliteVitalReadingDao;
-import pages.patient.Patient;
-import pages.patient.VitalRecord;
-import pages.patient.VitalSign;
-import users.Session;
+import pages.patient.patient_detail.Patient;
+import pages.user.Session;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

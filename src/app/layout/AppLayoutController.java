@@ -21,7 +21,7 @@ import pages.messages.SqliteMessageDao;
 import pages.notification.SqliteNotificationDao;
 import pages.patient.patient_form.PatientFormController;
 import pages.user.UserRole;
-import users.Session;
+import pages.user.Session;
 
 import java.net.URL;
 import java.time.LocalDateTime;

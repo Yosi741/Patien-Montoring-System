@@ -1,6 +1,6 @@
 package pages.alert;
 
-import pages.patient.Patient;
+import pages.patient.patient_detail.Patient;
 
 public class AlertPersistenceService {
 
