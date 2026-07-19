@@ -128,7 +128,7 @@ public class AppShell extends Application {
             showPlaceholder(
                     "Access Denied",
                     "Medical records are not available for your role.",
-                    "Only Admin and Doctor users can open the medical records page."
+                    "Only Admin, Doctor, and Nurse users can open the medical records page."
             );
             return;
         }
@@ -141,7 +141,7 @@ public class AppShell extends Application {
             showPlaceholder(
                     "Access Denied",
                     "Medical records are not available for your role.",
-                    "Only Admin and Doctor users can open patient medical records."
+                    "Only Admin, Doctor, and Nurse users can open patient medical records."
             );
             return;
         }

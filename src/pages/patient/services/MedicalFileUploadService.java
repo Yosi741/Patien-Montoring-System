@@ -46,7 +46,7 @@ public class MedicalFileUploadService {
 
     public UploadResult uploadMedicalFile(User currentUser, UploadRequest request) throws IOException, SQLException {
         if (!PermissionHelper.canUploadMedicalFile(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can upload medical records.");
+            throw new SecurityException("Only Admin, Doctor, and Nurse users can upload medical records.");
         }
         validateRequest(request);
 

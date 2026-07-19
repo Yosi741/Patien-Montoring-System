@@ -81,11 +81,11 @@ public final class PermissionHelper {
     }
 
     public static boolean canUploadMedicalFile(User user) {
-        return isAdmin(user) || isDoctor(user);
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
 
     public static boolean canViewMedicalFiles(User user) {
-        return isAdmin(user) || isDoctor(user);
+        return isAdmin(user) || isDoctor(user) || isNurse(user);
     }
 
     public static boolean canDeleteMedicalFile(User user) {

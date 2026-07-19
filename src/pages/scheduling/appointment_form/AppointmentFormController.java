@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
@@ -98,6 +99,7 @@ public class AppointmentFormController {
         statusBox.getSelectionModel().select("SCHEDULED");
         durationBox.getSelectionModel().select(DEFAULT_DURATION);
         DatePickerHelper.configureDdMmYyyy(appointmentDatePicker);
+        installAppointmentDateRules();
         installNineDigitFilter(patientIdField);
         typeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (suppressUiRefresh) {
@@ -164,6 +166,9 @@ public class AppointmentFormController {
             }
             if (appointmentDatePicker.getValue() == null) {
                 throw new IllegalArgumentException("Appointment date is required.");
+            }
+            if (appointmentDatePicker.getValue().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Appointment date cannot be in the past.");
             }
             WorkingHours hours = workingHoursFor(appointmentDatePicker.getValue());
             if (hours.closed()) {
@@ -258,6 +263,21 @@ public class AppointmentFormController {
             }
             if (!clean.equals(newValue)) {
                 field.setText(clean);
+            }
+        });
+    }
+
+    private void installAppointmentDateRules() {
+        if (appointmentDatePicker == null) {
+            return;
+        }
+        appointmentDatePicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                boolean pastAppointmentDate = date != null
+                        && date.isBefore(LocalDate.now());
+                setDisable(empty || pastAppointmentDate);
             }
         });
     }

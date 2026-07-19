@@ -6,6 +6,7 @@ import pages.patient.dao.SqlitePatientDao;
 import pages.user.User;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -130,6 +131,9 @@ public class SchedulingService {
         }
         LocalDateTime start = parseDateTime(request.startTime);
         LocalDateTime end = parseDateTime(request.endTime);
+        if (start.toLocalDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Appointment date cannot be in the past.");
+        }
         if (!start.isBefore(end)) {
             throw new IllegalArgumentException("Appointment start time must be before end time.");
         }
