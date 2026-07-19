@@ -84,9 +84,7 @@ public class PatientDetailController implements AppController {
     @FXML private TableColumn<VitalRecord, String> valueColumn;
     @FXML private TableColumn<VitalRecord, String> unitColumn;
     @FXML private TableColumn<VitalRecord, String> timeColumn;
-    @FXML private TableColumn<VitalRecord, String> sourceColumn;
     @FXML private TableColumn<VitalRecord, String> staffColumn;
-    @FXML private TableColumn<VitalRecord, String> deviceColumn;
     @FXML private TableColumn<PatientVisit, String> visitDateColumn;
     @FXML private TableColumn<PatientVisit, String> dischargeDateColumn;
     @FXML private TableColumn<PatientVisit, String> visitStatusColumn;
@@ -366,13 +364,12 @@ public class PatientDetailController implements AppController {
     }
 
     private void configureTable() {
+        vitalsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("vitalType"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
         timeColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
-        sourceColumn.setCellValueFactory(new PropertyValueFactory<>("sourceType"));
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("staffName"));
-        deviceColumn.setCellValueFactory(new PropertyValueFactory<>("deviceId"));
     }
 
     private void configureVisitTable() {

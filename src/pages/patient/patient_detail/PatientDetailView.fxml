@@ -243,13 +243,11 @@
 
                         <TableView fx:id="vitalsTable" prefHeight="360.0" VBox.vgrow="ALWAYS" styleClass="patient-file-table clinical-table">
                             <columns>
-                                <TableColumn fx:id="typeColumn" text="Type" prefWidth="150.0" />
-                                <TableColumn fx:id="valueColumn" text="Value" prefWidth="110.0" />
-                                <TableColumn fx:id="unitColumn" text="Unit" prefWidth="90.0" />
-                                <TableColumn fx:id="timeColumn" text="Recorded Time" prefWidth="190.0" />
-                                <TableColumn fx:id="sourceColumn" text="Source" prefWidth="120.0" />
-                                <TableColumn fx:id="staffColumn" text="Staff User" prefWidth="150.0" />
-                                <TableColumn fx:id="deviceColumn" text="Device ID" prefWidth="150.0" />
+                                <TableColumn fx:id="typeColumn" text="Type" prefWidth="210.0" />
+                                <TableColumn fx:id="valueColumn" text="Value" prefWidth="120.0" />
+                                <TableColumn fx:id="unitColumn" text="Unit" prefWidth="100.0" />
+                                <TableColumn fx:id="timeColumn" text="Recorded Time" prefWidth="260.0" />
+                                <TableColumn fx:id="staffColumn" text="Staff User" prefWidth="190.0" />
                             </columns>
                         </TableView>
 
