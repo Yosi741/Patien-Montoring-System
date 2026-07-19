@@ -116,7 +116,7 @@ public class MedicalFilesController implements AppController {
     @FXML
     private void uploadFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, or Nurse role is required.");
+            NotificationHelper.showError(statusLabel, "Access denied. Admin, Doctor, Nurse, or Secretary role is required.");
             return;
         }
         try {

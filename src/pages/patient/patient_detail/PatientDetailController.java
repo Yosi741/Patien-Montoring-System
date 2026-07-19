@@ -170,7 +170,7 @@ public class PatientDetailController implements AppController {
     @FXML
     private void uploadPatientMedicalFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
-            timelineStatusLabel.setText("Access denied. Admin or Doctor role is required.");
+            timelineStatusLabel.setText("Access denied. Admin, Doctor, Nurse, or Secretary role is required.");
             return;
         }
         if (patientId == null || patientId.isBlank()) {

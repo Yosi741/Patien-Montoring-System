@@ -21,7 +21,7 @@
 
             <VBox fx:id="accessDeniedPane" managed="false" spacing="10.0" styleClass="warning-panel" visible="false">
                 <Label styleClass="warning-value" text="Access denied" />
-                <Label styleClass="body-text" text="Medical Records is available only to Admin, Doctor, and Nurse roles for authorized clinic use." wrapText="true" />
+                <Label styleClass="body-text" text="Medical Records is available only to Admin, Doctor, Nurse, and Secretary roles for authorized clinic use." wrapText="true" />
             </VBox>
 
             <VBox fx:id="contentPane" spacing="16.0" VBox.vgrow="ALWAYS">

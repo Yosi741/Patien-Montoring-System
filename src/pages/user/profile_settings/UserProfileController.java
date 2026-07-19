@@ -171,6 +171,7 @@ public class UserProfileController implements AppController {
                     "Manage appointments",
                     "Create invoices",
                     "View billing records",
+                    "Upload and view medical records",
                     "Send internal messages"
             );
             default -> List.of(
