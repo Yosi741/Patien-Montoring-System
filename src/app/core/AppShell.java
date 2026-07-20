@@ -178,7 +178,7 @@ public class AppShell extends Application {
             showPlaceholder(
                     "Access Denied",
                     "Billing is not available for your role.",
-                    "Only Admin and Staff users can open the billing page."
+                    "Only Admin and Secretary users can open the billing page."
             );
             return;
         }
@@ -353,10 +353,6 @@ public class AppShell extends Application {
         }
         scene.getStylesheets().clear();
         scene.getStylesheets().add(AppNavigator.resolve(activeThemePath).toExternalForm());
-    }
-
-    private String safe(String value) {
-        return value == null || value.isBlank() ? "-" : value;
     }
 
     private void showPatientList(String pageTitle, String breadcrumb, String routeKey, String notice) {

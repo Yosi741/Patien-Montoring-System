@@ -141,7 +141,7 @@ public class BillingController implements AppController {
     @FXML
     private void createInvoice() {
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can create invoices.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Secretary users can create invoices.");
             return;
         }
         Window owner = billingTable == null || billingTable.getScene() == null ? null : billingTable.getScene().getWindow();
@@ -634,7 +634,7 @@ public class BillingController implements AppController {
             return;
         }
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can mark invoices paid.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Secretary users can mark invoices paid.");
             return;
         }
         try {
@@ -658,7 +658,7 @@ public class BillingController implements AppController {
             return;
         }
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Only Admin or Staff users can update invoices.");
+            NotificationHelper.showError(statusLabel, "Only Admin or Secretary users can update invoices.");
             return;
         }
         if (!DialogHelper.confirm("Cancel Invoice", "Cancel invoice " + record.getInvoiceNo() + "?")) {

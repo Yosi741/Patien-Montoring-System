@@ -12,7 +12,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import app.core.AppShell;
 import app.contracts.AppController;
 import pages.user.User;
@@ -36,9 +35,6 @@ public class LoginController implements AppController {
 
     @FXML
     private ImageView loginLogoImage;
-
-    @FXML
-    private StackPane fallbackLogoMark;
 
     @FXML
     private void initialize() {
@@ -202,10 +198,6 @@ public class LoginController implements AppController {
             loginLogoImage.setImage(new Image(logoUrl.toExternalForm()));
             loginLogoImage.setVisible(true);
             loginLogoImage.setManaged(true);
-            if (fallbackLogoMark != null) {
-                fallbackLogoMark.setVisible(false);
-                fallbackLogoMark.setManaged(false);
-            }
         } catch (Exception e) {
             showFallbackLogo();
         }
@@ -215,10 +207,6 @@ public class LoginController implements AppController {
         if (loginLogoImage != null) {
             loginLogoImage.setVisible(false);
             loginLogoImage.setManaged(false);
-        }
-        if (fallbackLogoMark != null) {
-            fallbackLogoMark.setVisible(true);
-            fallbackLogoMark.setManaged(true);
         }
     }
 }

@@ -53,6 +53,7 @@ public class MedicalFilesController implements AppController {
 
     @FXML private VBox accessDeniedPane;
     @FXML private VBox contentPane;
+    @FXML private HBox patientFilterBar;
     @FXML private Label patientFilterChip;
     @FXML private Button clearPatientFilterButton;
     @FXML private Button uploadButton;
@@ -534,6 +535,10 @@ public class MedicalFilesController implements AppController {
 
     private void updatePatientFilterChip() {
         boolean filtered = patientIdFilter != null && !patientIdFilter.isBlank();
+        if (patientFilterBar != null) {
+            patientFilterBar.setVisible(filtered);
+            patientFilterBar.setManaged(filtered);
+        }
         if (patientFilterChip != null) {
             patientFilterChip.setVisible(filtered);
             patientFilterChip.setManaged(filtered);

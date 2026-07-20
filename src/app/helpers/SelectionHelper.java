@@ -2,14 +2,11 @@ package app.helpers;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
 
 public final class SelectionHelper {
 

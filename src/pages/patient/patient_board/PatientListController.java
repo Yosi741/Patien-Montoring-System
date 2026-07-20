@@ -329,23 +329,6 @@ public class PatientListController implements AppController {
         return label;
     }
 
-    private VBox buildContactCell(SqlitePatientDao.PatientListRow row) {
-        String phone = row == null ? "" : safeText(row.getPhone());
-        String email = row == null ? "" : safeText(row.getEmail());
-        if (phone.isBlank() && email.isBlank()) {
-            return new VBox(buildSingleLineCell("\u2014", "contact-cell-primary"));
-        }
-        VBox box = new VBox(1.0);
-        box.setAlignment(Pos.CENTER_LEFT);
-        if (!phone.isBlank()) {
-            box.getChildren().add(buildSingleLineCell(phone, "contact-cell-primary"));
-        }
-        if (!email.isBlank()) {
-            box.getChildren().add(buildSingleLineCell(email, phone.isBlank() ? "contact-cell-primary" : "contact-cell-secondary"));
-        }
-        return box;
-    }
-
     private VBox buildCenteredContactCell(SqlitePatientDao.PatientListRow row) {
         String phone = row == null ? "" : safeText(row.getPhone());
         String email = row == null ? "" : safeText(row.getEmail());

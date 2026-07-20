@@ -86,13 +86,13 @@ public class SchedulingService {
 
     private void requireCreatePermission(User currentUser) {
         if (!PermissionHelper.canCreateAppointment(currentUser)) {
-            throw new SecurityException("Only Admin or Staff users can create appointments.");
+            throw new SecurityException("Only Admin or Secretary users can create appointments.");
         }
     }
 
     private void requireEditPermission(User currentUser) {
         if (!PermissionHelper.canEditAppointment(currentUser)) {
-            throw new SecurityException("Only Admin or Staff users can edit, cancel, or complete appointments.");
+            throw new SecurityException("Only Admin or Secretary users can edit, cancel, or complete appointments.");
         }
     }
 

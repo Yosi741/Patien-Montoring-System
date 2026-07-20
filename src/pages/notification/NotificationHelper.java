@@ -1,9 +1,7 @@
 package pages.notification;
 
-import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.util.Duration;
 
 public final class NotificationHelper {
 

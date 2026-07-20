@@ -361,10 +361,7 @@ public class AppLayoutController implements AppController {
         }
         String[] candidates = {
                 "/photo/app-logo.png",
-                "/photo/spms-icon.png",
-                "/photo/spms-logo.png",
-                "/photo/SPMS-Logo.jpeg",
-                "/photo/1.png"
+                "/photo/ICON-Logo.png"
         };
         for (String candidate : candidates) {
             URL logoUrl = getClass().getResource(candidate);

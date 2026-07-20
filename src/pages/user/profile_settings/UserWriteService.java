@@ -195,12 +195,6 @@ public class UserWriteService {
                 && admin.getUsername().equalsIgnoreCase(username.trim());
     }
 
-    private String username(User user) {
-        return user == null || user.getUsername() == null || user.getUsername().isBlank()
-                ? "Unknown"
-                : user.getUsername();
-    }
-
     private String visibleRole(String internalRole) {
         return UserRole.fromValue(internalRole).displayName();
     }

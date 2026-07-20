@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="800.0" prefWidth="1280.0" styleClass="app-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.layout.AppLayoutController">
@@ -13,7 +14,9 @@
             </padding>
 
             <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="sidebar-logo-block">
-                <StackPane styleClass="sidebar-logo-box" />
+                <StackPane styleClass="sidebar-logo-box">
+                    <ImageView fx:id="sidebarLogoImage" fitHeight="42.0" fitWidth="42.0" preserveRatio="true" smooth="true" styleClass="sidebar-logo-image" />
+                </StackPane>
                 <VBox spacing="2.0" HBox.hgrow="ALWAYS">
                     <Label styleClass="shell-brand-title" text="ClinicPulse" />
                     <Label maxWidth="Infinity" styleClass="shell-brand-subtitle" text="Smart Patient Monitoring System" wrapText="true" />
@@ -41,7 +44,7 @@
                         <Label fx:id="roleLabel" styleClass="shell-user-meta" text="Role" />
                     </VBox>
                 </HBox>
-                <Button fx:id="sidebarLogoutButton" maxWidth="Infinity" onAction="#logout" styleClass="secondary-button" text="Logout" />
+                <Button maxWidth="Infinity" onAction="#logout" styleClass="secondary-button" text="Logout" />
             </VBox>
         </VBox>
     </left>
@@ -64,7 +67,7 @@
 
                 <Label fx:id="dateTimeLabel" styleClass="muted-text top-bar-datetime" text="--" />
 
-                <MenuButton fx:id="quickActionsButton" styleClass="quick-actions-button" text="+ Quick Actions">
+                <MenuButton styleClass="quick-actions-button" text="+ Quick Actions">
                     <items>
                         <MenuItem onAction="#handleQuickCheckIn" text="Check-in Patient" />
                         <MenuItem onAction="#handleQuickAddPatient" text="Add Patient" />

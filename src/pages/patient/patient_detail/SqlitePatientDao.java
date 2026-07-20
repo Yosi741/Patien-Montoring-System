@@ -416,19 +416,6 @@ public class SqlitePatientDao implements PatientDao {
         }
     }
 
-    private List<String> findDistinctValues(String columnName) throws SQLException {
-        ArrayList<String> values = new ArrayList<>();
-        String sql = "SELECT DISTINCT " + columnName + " FROM patients WHERE " + columnName + " IS NOT NULL AND TRIM(" + columnName + ") <> '' ORDER BY " + columnName;
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                values.add(resultSet.getString(1));
-            }
-        }
-        return values;
-    }
-
     private void bindWriteRecord(PreparedStatement statement, PatientWriteRecord patient) throws SQLException {
         statement.setString(1, patient.getPatientId());
         statement.setString(2, patient.getFirstName());

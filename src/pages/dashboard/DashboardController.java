@@ -30,7 +30,6 @@ public class DashboardController implements AppController {
     private Timeline refreshTimeline;
 
     @FXML private Label welcomeLabel;
-    @FXML private Label roleLabel;
     @FXML private Label databaseStatusLabel;
     @FXML private Label refreshStatusLabel;
     @FXML private Label totalPatientsLabel;
@@ -57,13 +56,9 @@ public class DashboardController implements AppController {
     private void refresh() {
         User user = Session.getCurrentUser();
         String username = user == null ? "Team" : user.getUsername();
-        String role = user == null ? "Unknown" : user.getRole();
 
         if (welcomeLabel != null) {
             welcomeLabel.setText("Welcome back, " + username + "!");
-        }
-        if (roleLabel != null) {
-            roleLabel.setText(formatRole(role));
         }
         if (databaseStatusLabel != null && appShell != null) {
             databaseStatusLabel.setText(appShell.getDatabaseStatus());
@@ -250,25 +245,4 @@ public class DashboardController implements AppController {
         return "info-pill";
     }
 
-    private String formatRole(String role) {
-        if (role == null || role.isBlank()) {
-            return "Clinic overview";
-        }
-        String normalized = role.trim().replace('_', ' ').toLowerCase();
-        String[] parts = normalized.split("\\s+");
-        StringBuilder builder = new StringBuilder();
-        for (String part : parts) {
-            if (part.isBlank()) {
-                continue;
-            }
-            if (!builder.isEmpty()) {
-                builder.append(' ');
-            }
-            builder.append(Character.toUpperCase(part.charAt(0)));
-            if (part.length() > 1) {
-                builder.append(part.substring(1));
-            }
-        }
-        return builder.toString();
-    }
 }

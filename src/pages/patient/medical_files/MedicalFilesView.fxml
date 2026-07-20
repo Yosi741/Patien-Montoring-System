@@ -25,7 +25,8 @@
             </VBox>
 
             <VBox fx:id="contentPane" spacing="16.0" VBox.vgrow="ALWAYS">
-                <HBox alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+                <HBox fx:id="patientFilterBar" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+                    <Label fx:id="patientFilterChip" managed="false" styleClass="badge-pill info-pill" text="" visible="false" />
                     <Button fx:id="clearPatientFilterButton" managed="false" onAction="#clearPatientFilter" styleClass="secondary-button" text="Clear Patient Filter" visible="false" />
                 </HBox>
 
