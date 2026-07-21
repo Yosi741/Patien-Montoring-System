@@ -12,8 +12,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pages.patient.medical_files.MedicalFilesController;
-import pages.patient.patient_board.PatientListController;
-import pages.patient.patient_detail.PatientDetailController;
+import pages.patient.patient_directory.PatientDirectoryController;
+import pages.patient.patient_details.PatientDetailsController;
 import pages.scheduling.schedule_overview.SchedulingController;
 import pages.user.User;
 import pages.user.Session;
@@ -105,9 +105,9 @@ public class AppShell extends Application {
             return;
         }
         ensureShell(windowTitle("Patient File"));
-        AppNavigator.LoadedView detail = navigator.loadView("/pages/patient/patient_detail/PatientDetailView.fxml");
-        if (detail.getController() instanceof PatientDetailController) {
-            ((PatientDetailController) detail.getController()).loadPatient(patientId);
+        AppNavigator.LoadedView detail = navigator.loadView("/pages/patient/patient_details/PatientDetailsView.fxml");
+        if (detail.getController() instanceof PatientDetailsController) {
+            ((PatientDetailsController) detail.getController()).loadPatient(patientId);
         }
         setShellLoadedContent(detail);
         updateShellContext("patients", "Patient File", "Home / Patients / Patient File");
@@ -250,9 +250,9 @@ public class AppShell extends Application {
      */
     public void showPatientsWithSearch(String query) {
         ensureShell(windowTitle("Patients"));
-        AppNavigator.LoadedView patientList = navigator.loadView("/pages/patient/patient_board/PatientListView.fxml");
-        if (patientList.getController() instanceof PatientListController) {
-            ((PatientListController) patientList.getController()).applySearchQuery(query);
+        AppNavigator.LoadedView patientList = navigator.loadView("/pages/patient/patient_directory/PatientDirectoryView.fxml");
+        if (patientList.getController() instanceof PatientDirectoryController) {
+            ((PatientDirectoryController) patientList.getController()).applySearchQuery(query);
         }
         setShellLoadedContent(patientList);
         updateShellContext("patients", "Patients", "Home / Patients");
@@ -459,7 +459,7 @@ public class AppShell extends Application {
      * Displays patient list to the user.
      */
     private void showPatientList(String pageTitle, String breadcrumb, String routeKey, String notice) {
-        setShellContent("/pages/patient/patient_board/PatientListView.fxml", windowTitle(pageTitle));
+        setShellContent("/pages/patient/patient_directory/PatientDirectoryView.fxml", windowTitle(pageTitle));
         updateShellContext(routeKey, pageTitle, breadcrumb);
         if (notice != null && layoutController != null) {
             layoutController.showContextNotice(notice);
@@ -485,3 +485,6 @@ public class AppShell extends Application {
         }
     }
 }
+
+
+

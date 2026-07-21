@@ -1,4 +1,4 @@
-package pages.patient.medical_files.Upload;
+package pages.patient.medical_files;
 
 /**
  * Represents uploaded medical-file metadata associated with a patient record.
@@ -56,3 +56,4 @@ public class MedicalFile {
         return uploadedAt;
     }
 }
+

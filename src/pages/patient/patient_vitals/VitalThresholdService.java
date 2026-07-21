@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -208,3 +208,4 @@ public class VitalThresholdService {
         EMERGENCY
     }
 }
+

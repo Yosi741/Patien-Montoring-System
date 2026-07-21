@@ -1,9 +1,9 @@
 package pages.messages;
 
-import pages.patient.Add_Edit_Patient_Dao;
 import pages.user.profile_settings.SqliteUserDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
+import pages.patient.patient_registration.PatientRegistrationRepository;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -20,22 +20,23 @@ public class MessagingService {
 
     private final SqliteMessageDao messageDao;
     private final SqliteUserDao userDao;
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientRegistrationRepository patientRegistrationRepository;
 
     /**
      * Creates the service with the dependencies used by the messaging workflow.
      */
     public MessagingService() {
-        this(new SqliteMessageDao(), new SqliteUserDao(), new Add_Edit_Patient_Dao());
+        this(new SqliteMessageDao(), new SqliteUserDao(), new PatientRegistrationRepository());
     }
 
     /**
      * Creates the service with the dependencies used by the messaging workflow.
      */
-    public MessagingService(SqliteMessageDao messageDao, SqliteUserDao userDao, Add_Edit_Patient_Dao patientDao) {
+    public MessagingService(SqliteMessageDao messageDao, SqliteUserDao userDao,
+                            PatientRegistrationRepository patientRegistrationRepository) {
         this.messageDao = messageDao;
         this.userDao = userDao;
-        this.patientDao = patientDao;
+        this.patientRegistrationRepository = patientRegistrationRepository;
     }
 
     /**
@@ -152,7 +153,7 @@ public class MessagingService {
         if (!record.getRecipientUsername().isBlank() && !userDao.usernameExists(record.getRecipientUsername())) {
             throw new IllegalArgumentException("Recipient user does not exist in SQLite: " + record.getRecipientUsername());
         }
-        if (!record.getPatientId().isBlank() && !patientDao.existsByPatientId(record.getPatientId())) {
+        if (!record.getPatientId().isBlank() && !patientRegistrationRepository.patientIdExists(record.getPatientId())) {
             throw new IllegalArgumentException("Linked patient does not exist in SQLite: " + record.getPatientId());
         }
     }
@@ -265,3 +266,4 @@ public class MessagingService {
         return user == null || user.getSection() == null || user.getSection().isBlank() ? "All" : user.getSection();
     }
 }
+

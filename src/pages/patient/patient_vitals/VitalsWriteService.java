@@ -1,11 +1,13 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import pages.alert.SqliteAlertDao;
-import pages.patient.Add_Edit_Patient_Dao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.alert.AlertPersistenceService;
 import pages.notification.NotificationCenterService;
+import pages.patient.patient_details.PatientDetail;
+import pages.patient.patient_details.PatientDetailsRepository;
+import pages.patient.patient_registration.PatientRegistrationRepository;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -26,7 +28,8 @@ public class VitalsWriteService {
     private static final int STABLE_MINUTES_REQUIRED = 30;
 
     private final SqliteVitalReadingDao vitalReadingDao;
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientDetailsRepository patientDetailsRepository;
+    private final PatientRegistrationRepository patientRegistrationRepository;
     private final SqliteAlertDao alertDao;
     private final VitalThresholdService thresholdService;
 
@@ -34,23 +37,30 @@ public class VitalsWriteService {
      * Creates the service with the dependencies used by the patient workflow.
      */
     public VitalsWriteService() {
-        this(new SqliteVitalReadingDao(), new Add_Edit_Patient_Dao(), new SqliteAlertDao(), new VitalThresholdService());
+        this(new SqliteVitalReadingDao(), new PatientDetailsRepository(), new PatientRegistrationRepository(),
+                new SqliteAlertDao(), new VitalThresholdService());
     }
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, Add_Edit_Patient_Dao patientDao, VitalThresholdService thresholdService) {
-        this(vitalReadingDao, patientDao, new SqliteAlertDao(), thresholdService);
+    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao,
+                              PatientDetailsRepository patientDetailsRepository,
+                              PatientRegistrationRepository patientRegistrationRepository,
+                              VitalThresholdService thresholdService) {
+        this(vitalReadingDao, patientDetailsRepository, patientRegistrationRepository, new SqliteAlertDao(), thresholdService);
     }
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, Add_Edit_Patient_Dao patientDao,
+    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao,
+                              PatientDetailsRepository patientDetailsRepository,
+                              PatientRegistrationRepository patientRegistrationRepository,
                               SqliteAlertDao alertDao, VitalThresholdService thresholdService) {
         this.vitalReadingDao = vitalReadingDao;
-        this.patientDao = patientDao;
+        this.patientDetailsRepository = patientDetailsRepository;
+        this.patientRegistrationRepository = patientRegistrationRepository;
         this.alertDao = alertDao;
         this.thresholdService = thresholdService;
     }
@@ -69,7 +79,7 @@ public class VitalsWriteService {
         String recordedAtText = recordedAt.format(DISPLAY_DATE_TIME);
         String normalizedType = VitalTypeCatalog.normalize(request.vitalType);
         String unit = VitalTypeCatalog.expectedUnit(normalizedType);
-        Add_Edit_Patient_Dao.PatientDetail patient = patientDao.findDetailById(request.patientId)
+        PatientDetail patient = patientDetailsRepository.findPatientDetailsById(request.patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId));
         String birthDate = patient.getBirthDate();
 
@@ -125,7 +135,7 @@ public class VitalsWriteService {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
-        if (!patientDao.existsByPatientId(request.patientId)) {
+        if (!patientRegistrationRepository.patientIdExists(request.patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId);
         }
         LocalDateTime recordedAt = parseDateTime(request.recordedAt);
@@ -249,7 +259,7 @@ public class VitalsWriteService {
      */
     private void syncPatientPriority(String staffUser, String patientId, String severity, String vitalType, String value, String unit) throws SQLException {
         String priority = priorityForSeverity(severity);
-        patientDao.updatePriorityIfHigher(patientId, priority);
+        patientDetailsRepository.updatePatientPriorityIfHigher(patientId, priority);
     }
 
     /**
@@ -271,7 +281,7 @@ public class VitalsWriteService {
     /**
      * Attempts stable priority downgrade only when the safety conditions are met.
      */
-    private void attemptStablePriorityDowngrade(String staffUser, Add_Edit_Patient_Dao.PatientDetail patient, String birthDate) throws SQLException {
+    private void attemptStablePriorityDowngrade(String staffUser, PatientDetail patient, String birthDate) throws SQLException {
         if (patient == null || patient.getPatientId() == null || patient.getPatientId().isBlank()) {
             return;
         }
@@ -319,7 +329,7 @@ public class VitalsWriteService {
             return;
         }
         // Demo decision-support rule. Real hospitals use local clinical protocols.
-        patientDao.updatePriorityIfLower(patient.getPatientId(), nextPriority);
+        patientDetailsRepository.updatePatientPriorityIfLower(patient.getPatientId(), nextPriority);
     }
 
     /**
@@ -405,3 +415,7 @@ public class VitalsWriteService {
         public String getRecordedAt() { return recordedAt; }
     }
 }
+
+
+
+

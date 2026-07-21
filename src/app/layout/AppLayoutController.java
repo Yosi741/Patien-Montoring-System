@@ -19,7 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import pages.messages.SqliteMessageDao;
 import pages.notification.SqliteNotificationDao;
-import pages.patient.patient_form.PatientFormController;
+import pages.patient.patient_registration.PatientRegistrationController;
 import pages.user.User;
 import pages.user.UserRole;
 import pages.user.Session;
@@ -298,7 +298,7 @@ public class AppLayoutController implements AppController {
             return;
         }
         try {
-            boolean saved = PatientFormController.showCreateDialog(contentPane.getScene().getWindow(), Session.getCurrentUser());
+            boolean saved = PatientRegistrationController.showCreateDialog(contentPane.getScene().getWindow(), Session.getCurrentUser());
             if (saved) {
                 appShell.showPatientsWithNotice("Patient record saved.");
             }
@@ -517,3 +517,4 @@ public class AppLayoutController implements AppController {
     }
 
 }
+

@@ -1,6 +1,6 @@
 package pages.patient.medical_files;
 
-import pages.patient.medical_files.Upload.MedicalFile;
+import pages.patient.medical_files.MedicalFile;
 
 import java.sql.SQLException;
 
@@ -18,3 +18,4 @@ public interface MedicalFileDao {
      */
     int count() throws SQLException;
 }
+

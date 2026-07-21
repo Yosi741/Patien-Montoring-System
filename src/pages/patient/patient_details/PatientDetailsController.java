@@ -1,6 +1,6 @@
-package pages.patient.patient_detail;
+package pages.patient.patient_details;
 
-import pages.patient.vitals_entry.*;
+import pages.patient.patient_vitals.*;
 import pages.alert.SqliteAlertDao;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,19 +21,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import pages.alert.AlertSoundService;
-import pages.patient.vitals_entry.VitalThresholdService;
-import pages.patient.vitals_entry.VitalTypeCatalog;
+import pages.patient.patient_vitals.VitalThresholdService;
+import pages.patient.patient_vitals.VitalTypeCatalog;
 import app.core.AppShell;
 import app.contracts.AppController;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
 import pages.patient.medical_files.MedicalFileUploadController;
-import pages.patient.Add_Edit_Patient_Dao;
-import pages.patient.model.PatientVisit;
-import pages.patient.patient_form.PatientFormController;
-import pages.patient.services.PatientVisitService;
-import pages.patient.services.PatientWriteService;
+import pages.patient.patient_details.PatientDetail;
+import pages.patient.patient_details.PatientDetailsRepository;
+import pages.patient.patient_details.PatientVisit;
+import pages.patient.patient_registration.PatientRegistrationController;
+import pages.patient.patient_details.PatientVisitService;
+import pages.patient.patient_registration.PatientRegistrationService;
 import pages.user.Session;
 import javafx.scene.control.Alert;
 
@@ -41,14 +42,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Controls PatientDetailView.fxml and presents the patient file, visits, vitals, alerts, and patient actions.
+ * Controls PatientDetailsView.fxml and presents the patient file, visits, vitals, alerts, and patient actions.
  */
-public class PatientDetailController implements AppController {
+public class PatientDetailsController implements AppController {
 
-    private final Add_Edit_Patient_Dao patientDao = new Add_Edit_Patient_Dao();
+    private final PatientDetailsRepository patientDetailsRepository = new PatientDetailsRepository();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();
     private final SqliteAlertDao alertDao = new SqliteAlertDao();
-    private final PatientWriteService patientWriteService = new PatientWriteService();
+    private final PatientRegistrationService patientRegistrationService = new PatientRegistrationService();
     private final PatientVisitService patientVisitService = new PatientVisitService();
     private final VitalsTrendService vitalsTrendService = new VitalsTrendService();
     private final ObservableList<VitalRecord> vitals = FXCollections.observableArrayList();
@@ -126,7 +127,7 @@ public class PatientDetailController implements AppController {
     public void loadPatient(String patientId) {
         this.patientId = patientId;
         try {
-            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId)
+            PatientDetail detail = patientDetailsRepository.findPatientDetailsById(patientId)
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + patientId));
             nameLabel.setText(detail.getName());
             patientIdLabel.setText(detail.getPatientId());
@@ -270,7 +271,7 @@ public class PatientDetailController implements AppController {
             return;
         }
         try {
-            patientWriteService.dischargePatient(Session.getCurrentUser(), patientId, dischargeSummary);
+            patientRegistrationService.dischargePatient(Session.getCurrentUser(), patientId, dischargeSummary);
             loadPatient(patientId);
             NotificationHelper.showSuccess(timelineStatusLabel, "Patient discharged and visit summary saved.");
         } catch (Exception e) {
@@ -292,9 +293,9 @@ public class PatientDetailController implements AppController {
             return;
         }
         try {
-            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId)
+            PatientDetail detail = patientDetailsRepository.findPatientDetailsById(patientId)
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + patientId));
-            boolean saved = PatientFormController.showEditDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), detail);
+            boolean saved = PatientRegistrationController.showEditDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), detail);
             if (saved) {
                 loadPatient(patientId);
                 NotificationHelper.showSuccess(timelineStatusLabel, "Patient updated. System data updated.");
@@ -674,3 +675,8 @@ public class PatientDetailController implements AppController {
         return dialog.showAndWait().orElse(null);
     }
 }
+
+
+
+
+

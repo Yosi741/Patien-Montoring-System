@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import app.database.DatabaseManager;
 
@@ -123,22 +123,7 @@ public class SqliteVitalReadingDao implements VitalReadingDao {
         }
     }
 
-    /**
-     * Finds latest by patient ID in SQLite.
-     */
-    public Optional<VitalRecord> findLatestByPatientId(String patientId) throws SQLException {
-        String sql = "SELECT id, patient_id, vital_type, value, unit, recorded_at, source_type, staff_user FROM vital_readings WHERE patient_id = ? ORDER BY recorded_at DESC, id DESC LIMIT 1";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, patientId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return Optional.of(mapRecord(resultSet));
-                }
-            }
-        }
-        return Optional.empty();
-    }
+
 
     /**
      * Finds recent by patient ID in SQLite.
@@ -176,3 +161,4 @@ public class SqliteVitalReadingDao implements VitalReadingDao {
         );
     }
 }
+

@@ -8,7 +8,7 @@
         prefHeight="520.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.patient.patient_form.PatientFormController" styleClass="panel-card dialog-root patient-form-dialog">
+        fx:controller="pages.patient.patient_registration.PatientRegistrationController" styleClass="panel-card dialog-root patient-form-dialog">
 
     <top>
     <VBox spacing="4.0" styleClass="dialog-header-card">
@@ -120,3 +120,4 @@
     </ScrollPane>
     </center>
 </BorderPane>
+

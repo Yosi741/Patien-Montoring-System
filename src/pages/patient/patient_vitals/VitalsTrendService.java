@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;
@@ -277,3 +277,4 @@ public class VitalsTrendService {
         public VitalThresholdService.VitalStatus getStatus() { return status; }
     }
 }
+

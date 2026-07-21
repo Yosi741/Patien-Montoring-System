@@ -2,7 +2,7 @@ package pages.patient.medical_files;
 
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;
-import pages.patient.medical_files.Upload.MedicalFile;
+import pages.patient.medical_files.MedicalFile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -321,3 +321,4 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         public String getNotes() { return notes; }
     }
 }
+

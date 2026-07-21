@@ -1,7 +1,8 @@
 package pages.billing;
 
 import app.helpers.PermissionHelper;
-import pages.patient.Add_Edit_Patient_Dao;
+import pages.patient.patient_details.PatientDetail;
+import pages.patient.patient_details.PatientDetailsRepository;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -19,21 +20,21 @@ public class BillingService {
     private static final DateTimeFormatter SQL_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final BillingDao billingDao;
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientDetailsRepository patientDetailsRepository;
 
     /**
      * Creates the service with the dependencies used by the billing workflow.
      */
     public BillingService() {
-        this(new SqliteBillingDao(), new Add_Edit_Patient_Dao());
+        this(new SqliteBillingDao(), new PatientDetailsRepository());
     }
 
     /**
      * Creates the service with the dependencies used by the billing workflow.
      */
-    public BillingService(BillingDao billingDao, Add_Edit_Patient_Dao patientDao) {
+    public BillingService(BillingDao billingDao, PatientDetailsRepository patientDetailsRepository) {
         this.billingDao = billingDao;
-        this.patientDao = patientDao;
+        this.patientDetailsRepository = patientDetailsRepository;
     }
 
     /**
@@ -52,7 +53,7 @@ public class BillingService {
     public BillingRecord createInvoice(User actor, InvoiceDraft draft) throws SQLException {
         require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
         validateDraft(draft);
-        Add_Edit_Patient_Dao.PatientDetail patient = patientDao.findDetailById(draft.patientId().trim())
+        PatientDetail patient = patientDetailsRepository.findPatientDetailsById(draft.patientId().trim())
                 .orElseThrow(() -> new IllegalArgumentException("Patient file was not found for this ID."));
         String status = normalizeInvoiceStatus(draft.paymentStatus());
         String paymentMethod = normalizePaymentMethod(draft.paymentMethod());
@@ -129,7 +130,7 @@ public class BillingService {
         if (patientId == null || patientId.isBlank()) {
             return Optional.empty();
         }
-        return patientDao.findDetailById(patientId.trim()).map(Add_Edit_Patient_Dao.PatientDetail::getName);
+        return patientDetailsRepository.findPatientDetailsById(patientId.trim()).map(PatientDetail::getName);
     }
 
     /**
@@ -280,3 +281,6 @@ public class BillingService {
     ) {
     }
 }
+
+
+

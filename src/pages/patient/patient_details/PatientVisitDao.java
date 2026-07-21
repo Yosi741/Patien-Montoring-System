@@ -1,6 +1,6 @@
-package pages.patient.patient_detail;
+package pages.patient.patient_details;
 
-import pages.patient.model.PatientVisit;
+import pages.patient.patient_details.PatientVisit;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -31,3 +31,6 @@ public interface PatientVisitDao {
      */
     boolean dischargeActiveVisit(String patientId, String dischargeDate, String report) throws SQLException;
 }
+
+
+

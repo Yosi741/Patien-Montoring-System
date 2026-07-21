@@ -1,8 +1,8 @@
-package pages.patient.services;
+package pages.patient.patient_details;
 
-import pages.patient.patient_detail.PatientVisitDao;
-import pages.patient.patient_detail.SqlitePatientVisitDao;
-import pages.patient.model.PatientVisit;
+import pages.patient.patient_details.PatientVisitDao;
+import pages.patient.patient_details.SqlitePatientVisitDao;
+import pages.patient.patient_details.PatientVisit;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -82,3 +82,6 @@ public class PatientVisitService {
         return trimmed.isEmpty() ? "Visit closed without a summary." : trimmed;
     }
 }
+
+
+

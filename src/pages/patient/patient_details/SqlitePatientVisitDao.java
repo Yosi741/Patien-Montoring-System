@@ -1,7 +1,7 @@
-package pages.patient.patient_detail;
+package pages.patient.patient_details;
 
 import app.database.DatabaseManager;
-import pages.patient.model.PatientVisit;
+import pages.patient.patient_details.PatientVisit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -114,3 +114,6 @@ public class SqlitePatientVisitDao implements PatientVisitDao {
         );
     }
 }
+
+
+

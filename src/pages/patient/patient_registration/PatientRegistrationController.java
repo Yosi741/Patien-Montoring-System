@@ -1,6 +1,5 @@
-package pages.patient.patient_form;
+package pages.patient.patient_registration;
 
-import pages.patient.Add_Edit_Patient_Dao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +16,10 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import pages.patient.services.PatientWriteService;
+import pages.patient.patient_details.PatientDetail;
+import pages.patient.patient_registration.PatientRegistrationData;
+import pages.patient.patient_registration.PatientRegistrationRepository;
+import pages.patient.patient_registration.PatientRegistrationService;
 import app.navigation.AppNavigator;
 import app.helpers.DatePickerHelper;
 import app.helpers.DialogHelper;
@@ -29,19 +31,19 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Controls PatientFormView.fxml for Add Patient, Edit Patient, and returning-patient validation workflows.
+ * Controls PatientRegistrationView.fxml for Add Patient, Edit Patient, and returning-patient validation workflows.
  */
-public class PatientFormController {
+public class PatientRegistrationController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final String ALLERGY_STATUS_NONE = "No allergies";
     private static final String ALLERGY_STATUS_HAS = "Has allergies";
     private static final String ALLERGY_STATUS_UNKNOWN = "Unknown";
 
-    private final Add_Edit_Patient_Dao patientDao = new Add_Edit_Patient_Dao();
-    private final PatientWriteService patientWriteService = new PatientWriteService();
+    private final PatientRegistrationRepository patientRegistrationRepository = new PatientRegistrationRepository();
+    private final PatientRegistrationService patientRegistrationService = new PatientRegistrationService();
     private User currentUser;
-    private Add_Edit_Patient_Dao.PatientDetail existingPatient;
+    private PatientDetail existingPatient;
     private boolean returningPatientMode;
     private boolean saved;
 
@@ -77,18 +79,18 @@ public class PatientFormController {
     /**
      * Displays edit dialog to the user.
      */
-    public static boolean showEditDialog(Window owner, User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
+    public static boolean showEditDialog(Window owner, User currentUser, PatientDetail patient) {
         return showDialog(owner, currentUser, patient);
     }
 
     /**
      * Displays dialog to the user.
      */
-    private static boolean showDialog(Window owner, User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
+    private static boolean showDialog(Window owner, User currentUser, PatientDetail patient) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/patient_form/PatientFormView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/patient_registration/PatientRegistrationView.fxml"));
             Parent root = loader.load();
-            PatientFormController controller = loader.getController();
+            PatientRegistrationController controller = loader.getController();
             controller.prepare(currentUser, patient);
 
             ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
@@ -149,7 +151,7 @@ public class PatientFormController {
     /**
      * Prepares the form with the selected patient record and mode.
      */
-    private void prepare(User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
+    private void prepare(User currentUser, PatientDetail patient) {
         this.currentUser = currentUser;
         this.existingPatient = patient;
         this.returningPatientMode = false;
@@ -173,13 +175,13 @@ public class PatientFormController {
     private boolean save() {
         try {
             DatePickerHelper.commitEditorText(birthDatePicker);
-            Add_Edit_Patient_Dao.PatientWriteRecord record = buildRecord();
+            PatientRegistrationData record = buildRecord();
             if (returningPatientMode) {
-                patientWriteService.reactivateReturningPatient(currentUser, record);
+                patientRegistrationService.reactivateReturningPatient(currentUser, record);
             } else if (existingPatient == null) {
-                patientWriteService.createPatient(currentUser, record);
+                patientRegistrationService.createNewPatient(currentUser, record);
             } else {
-                patientWriteService.updatePatient(currentUser, record);
+                patientRegistrationService.updateExistingPatient(currentUser, record);
             }
             saved = true;
             return true;
@@ -192,8 +194,8 @@ public class PatientFormController {
     /**
      * Builds record used by the patient view.
      */
-    private Add_Edit_Patient_Dao.PatientWriteRecord buildRecord() {
-        return new Add_Edit_Patient_Dao.PatientWriteRecord(
+    private PatientRegistrationData buildRecord() {
+        return new PatientRegistrationData(
                 patientIdField.getText(),
                 firstNameField.getText(),
                 lastNameField.getText(),
@@ -248,7 +250,7 @@ public class PatientFormController {
             return;
         }
         try {
-            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId).orElse(null);
+            PatientDetail detail = patientRegistrationRepository.findExistingPatientById(patientId).orElse(null);
             if (detail == null) {
                 NotificationHelper.showInfo(statusLabel, "No existing patient file was found for this ID.");
                 return;
@@ -312,7 +314,7 @@ public class PatientFormController {
     /**
      * Populates from patient detail from the selected record.
      */
-    private void populateFromPatientDetail(Add_Edit_Patient_Dao.PatientDetail patient, boolean returningVisit) {
+    private void populateFromPatientDetail(PatientDetail patient, boolean returningVisit) {
         patientIdField.setText(patient.getPatientId());
         patientIdField.setDisable(true);
         firstNameField.setText(patient.getFirstName());
@@ -444,3 +446,6 @@ public class PatientFormController {
         return "UNKNOWN".equalsIgnoreCase(normalized) ? "Unknown" : normalized.toUpperCase();
     }
 }
+
+
+

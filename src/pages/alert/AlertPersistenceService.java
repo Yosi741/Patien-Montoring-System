@@ -8,12 +8,6 @@ public class AlertPersistenceService {
     private static final SqliteAlertDao ALERT_DAO = new SqliteAlertDao();
 
     /**
-     * Creates the service with the dependencies used by the alert workflow.
-     */
-    private AlertPersistenceService() {
-    }
-
-    /**
      * Persists alert in SQLite using the active workflow rules.
      */
     public static void persistAlert(String patientId, String severity, String message, int cooldownMinutes) {

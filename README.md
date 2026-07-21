@@ -109,13 +109,10 @@ This is a local desktop demo. It uses a local login system and role-based access
 - `src/app/styles/` - shared JavaFX CSS themes
 - `src/pages/login/` - login and forgot-password flow
 - `src/pages/dashboard/` - clinic dashboard and overview metrics
-- `src/pages/patient/model/` - shared patient visit data model
-- `src/pages/patient/dao/` - patient persistence and visit DAO contracts/implementations
-- `src/pages/patient/services/` - patient write and visit business services
-- `src/pages/patient/patient_board/` - Patient Management table, search, filters, and row actions
-- `src/pages/patient/patient_form/` - Add/Edit Patient form and validation
-- `src/pages/patient/patient_detail/` - Patient File screen and patient-specific actions
-- `src/pages/patient/vitals_entry/` - vitals form, thresholds, trends, persistence, and alerts integration
+- `src/pages/patient/patient_directory/` - Patient Management table, search, filters, and row actions
+- `src/pages/patient/patient_registration/` - Add/Edit Patient dialog, patient-ID checking, validation, and create/update persistence
+- `src/pages/patient/patient_details/` - Patient File screen, detail loading, visit history model/service/DAO, and patient-specific actions
+- `src/pages/patient/patient_vitals/` - vitals form, thresholds, trends, persistence, and alerts integration
 - `src/pages/patient/medical_files/` - medical-record upload, metadata, preview, and file actions
 - `src/pages/alert/` - alert persistence and local alert sound handling
 - `src/pages/scheduling/` - appointments
@@ -127,4 +124,7 @@ This is a local desktop demo. It uses a local login system and role-based access
 - `src/sound/` - sound resources
 - `tools/` - demo reset, verification, login, and performance helper tools
 
-Use `PROJECT_STRUCTURE_MAP.md` for the teacher-facing "where is this feature implemented?" guide.
+Use `PROJECT_STRUCTURE_MAP.md` for the teacher-facing structure guide and `docs/FEATURE_METHOD_MAP.md` for "where is this method implemented?" questions.
+
+
+

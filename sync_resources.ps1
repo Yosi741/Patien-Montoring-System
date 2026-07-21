@@ -108,15 +108,15 @@ $legacyUserProfileView = Join-Path $targetViews "UserProfileView.fxml"
 if (Test-Path $legacyUserProfileView) {
     Remove-Item -Path $legacyUserProfileView -Force
 }
-$legacyPatientListView = Join-Path $targetViews "PatientListView.fxml"
+$legacyPatientListView = Join-Path $targetViews "PatientDirectoryView.fxml"
 if (Test-Path $legacyPatientListView) {
     Remove-Item -Path $legacyPatientListView -Force
 }
-$legacyPatientDetailView = Join-Path $targetViews "PatientDetailView.fxml"
+$legacyPatientDetailView = Join-Path $targetViews "PatientDetailsView.fxml"
 if (Test-Path $legacyPatientDetailView) {
     Remove-Item -Path $legacyPatientDetailView -Force
 }
-$legacyPatientFormView = Join-Path $targetViews "PatientFormView.fxml"
+$legacyPatientFormView = Join-Path $targetViews "PatientRegistrationView.fxml"
 if (Test-Path $legacyPatientFormView) {
     Remove-Item -Path $legacyPatientFormView -Force
 }
@@ -173,10 +173,17 @@ if (Test-Path $legacyNotificationCenterView) {
     Remove-Item -Path $legacyNotificationCenterView -Force
 }
 $legacyPatientPages = @(
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_board",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_detail",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_form",
-    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/vitals_entry",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/patient_board",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/patient_form",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/patient_detail",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/vitals_entry",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/model",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/services",
+    "out/production/untitledSmartPatientMonitoringSystem/pages/patient/medical_files/Upload",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_directory",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_details",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_registration",
+    "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/patient_vitals",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/medical_files",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/users",
     "out/production/untitledSmartPatientMonitoringSystem/ui/javafx/pages/profile_settings",
@@ -193,3 +200,5 @@ foreach ($legacyFolder in $legacyPatientPages) {
 }
 
 Write-Host "Resources synced successfully in the active project copy!"
+
+

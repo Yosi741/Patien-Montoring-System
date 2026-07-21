@@ -2,7 +2,7 @@ package pages.scheduling;
 
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import pages.patient.Add_Edit_Patient_Dao;
+import pages.patient.patient_registration.PatientRegistrationRepository;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -23,21 +23,21 @@ public class SchedulingService {
     private static final Set<String> APPOINTMENT_STATUSES = Set.of("SCHEDULED", "COMPLETED", "CANCELLED", "MISSED");
 
     private final SqliteAppointmentDao appointmentDao;
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientRegistrationRepository patientRegistrationRepository;
 
     /**
      * Creates the service with the dependencies used by the appointment workflow.
      */
     public SchedulingService() {
-        this(new SqliteAppointmentDao(), new Add_Edit_Patient_Dao());
+        this(new SqliteAppointmentDao(), new PatientRegistrationRepository());
     }
 
     /**
      * Creates the service with the dependencies used by the appointment workflow.
      */
-    public SchedulingService(SqliteAppointmentDao appointmentDao, Add_Edit_Patient_Dao patientDao) {
+    public SchedulingService(SqliteAppointmentDao appointmentDao, PatientRegistrationRepository patientRegistrationRepository) {
         this.appointmentDao = appointmentDao;
-        this.patientDao = patientDao;
+        this.patientRegistrationRepository = patientRegistrationRepository;
     }
 
     /**
@@ -134,7 +134,7 @@ public class SchedulingService {
         if (update && request.id <= 0) {
             throw new IllegalArgumentException("Appointment ID is required for update.");
         }
-        if (!patientDao.existsByPatientId(request.patientId)) {
+        if (!patientRegistrationRepository.patientIdExists(request.patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId);
         }
         String type = normalizeAppointmentType(request.appointmentType);
@@ -318,3 +318,4 @@ public class SchedulingService {
         public List<SqliteAppointmentDao.AppointmentRow> getAppointments() { return appointments; }
     }
 }
+

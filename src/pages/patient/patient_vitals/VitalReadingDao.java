@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import app.database.CrudDao;
 
@@ -14,3 +14,4 @@ public interface VitalReadingDao extends CrudDao<VitalRecord, String> {
      */
     List<VitalRecord> findByPatientId(String patientId) throws SQLException;
 }
+

@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 /**
  * Represents one recorded vital value with its unit, timestamp, and recording staff member.
@@ -29,7 +29,6 @@ public class VitalRecord {
         this.staffName = staffName;
     }
 
-    public String getRecordId() { return recordId; }
     public String getPatientId() { return patientId; }
     public String getVitalType() { return vitalType; }
     public String getValue() { return value; }
@@ -38,3 +37,4 @@ public class VitalRecord {
     public String getSourceType() { return sourceType; }
     public String getStaffName() { return staffName; }
 }
+

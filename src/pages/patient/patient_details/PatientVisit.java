@@ -1,4 +1,4 @@
-package pages.patient.model;
+package pages.patient.patient_details;
 
 /**
  * Represents one clinic visit, including its dates, status, and visit report.

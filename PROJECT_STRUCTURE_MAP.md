@@ -67,39 +67,42 @@ This is the short teacher-facing guide for explaining where the current JavaFX +
 
 ## 5. Patient Management
 
-- `src/pages/patient/patient_board/PatientListView.fxml`
-- `src/pages/patient/patient_board/PatientListController.java`
+- `src/pages/patient/patient_directory/PatientDirectoryView.fxml`
+- `src/pages/patient/patient_directory/PatientDirectoryController.java`
 - Patient list, search/filter, row actions, Add Patient, Edit Patient, and Add Vitals shortcut.
 
 ## 6. Patient File
 
-- `src/pages/patient/patient_detail/PatientDetailView.fxml`
-- `src/pages/patient/patient_detail/PatientDetailController.java`
+- `src/pages/patient/patient_details/PatientDetailsView.fxml`
+- `src/pages/patient/patient_details/PatientDetailsController.java`
 - Full patient file, visit history, vitals timeline, trends, alerts summary, and patient-specific actions.
 
-Shared patient data and logic:
+Patient file data and visit-history persistence:
 
-- `src/pages/patient/model/PatientVisit.java`
-- `src/pages/patient/dao/PatientVisitDao.java`
-- `src/pages/patient/dao/SqlitePatientDao.java`
-- `src/pages/patient/dao/SqlitePatientVisitDao.java`
-- `src/pages/patient/services/PatientWriteService.java`
-- `src/pages/patient/services/PatientVisitService.java`
+- `src/pages/patient/patient_details/PatientDetail.java`
+- `src/pages/patient/patient_details/PatientDetailsRepository.java`
+- `src/pages/patient/patient_details/PatientVisit.java`
+- `src/pages/patient/patient_details/PatientVisitDao.java`
+- `src/pages/patient/patient_details/SqlitePatientVisitDao.java`
+- `src/pages/patient/patient_details/PatientVisitService.java`
 
 ## 7. Patient Form
 
-- `src/pages/patient/patient_form/PatientFormView.fxml`
-- `src/pages/patient/patient_form/PatientFormController.java`
-- Add/Edit Patient form and validation.
+- `src/pages/patient/patient_registration/PatientRegistrationView.fxml`
+- `src/pages/patient/patient_registration/PatientRegistrationController.java`
+- `src/pages/patient/patient_registration/PatientRegistrationService.java`
+- `src/pages/patient/patient_registration/PatientRegistrationRepository.java`
+- `src/pages/patient/patient_registration/PatientRegistrationData.java`
+- Add/Edit Patient form, returning-patient ID check, validation, and SQLite create/update workflow.
 
 ## 8. Vitals
 
-- `src/pages/patient/vitals_entry/VitalsEntryView.fxml`
-- `src/pages/patient/vitals_entry/VitalsEntryController.java`
-- `src/pages/patient/vitals_entry/VitalsWriteService.java`
-- `src/pages/patient/vitals_entry/VitalsTrendService.java`
-- `src/pages/patient/vitals_entry/VitalThresholdService.java`
-- `src/pages/patient/vitals_entry/SqliteVitalReadingDao.java`
+- `src/pages/patient/patient_vitals/VitalsEntryView.fxml`
+- `src/pages/patient/patient_vitals/VitalsEntryController.java`
+- `src/pages/patient/patient_vitals/VitalsWriteService.java`
+- `src/pages/patient/patient_vitals/VitalsTrendService.java`
+- `src/pages/patient/patient_vitals/VitalThresholdService.java`
+- `src/pages/patient/patient_vitals/SqliteVitalReadingDao.java`
 - Vitals entry, validation, threshold classification, trend loading, SQLite writes, and alert integration.
 
 ## 9. Alerts / Notifications
@@ -136,6 +139,7 @@ Sound file:
 - `src/pages/patient/medical_files/MedicalFileUploadService.java`
 - `src/pages/patient/medical_files/MedicalFilePreviewService.java`
 - `src/pages/patient/medical_files/SqliteMedicalFileDao.java`
+- `src/pages/patient/medical_files/MedicalFile.java`
 - Medical Records page, upload flow, metadata, safe preview, and local stored files.
 
 ## 12. Billing
@@ -222,15 +226,15 @@ Set-Content .\sources.txt
   - `src/pages/login/LoginController.java`, method `handleForgotPasswordRequest()`
 
 - "Where is Add Patient?"
-  - `src/pages/patient/patient_board/PatientListController.java`
-  - form: `src/pages/patient/patient_form/PatientFormController.java`
+  - `src/pages/patient/patient_directory/PatientDirectoryController.java`
+  - form: `src/pages/patient/patient_registration/PatientRegistrationController.java`
 
 - "Where is the patient profile/file?"
-  - `src/pages/patient/patient_detail/PatientDetailController.java`
+  - `src/pages/patient/patient_details/PatientDetailsController.java`
 
 - "Where is Enter Vitals?"
-  - `src/pages/patient/vitals_entry/VitalsEntryController.java`
-  - save logic: `src/pages/patient/vitals_entry/VitalsWriteService.java`
+  - `src/pages/patient/patient_vitals/VitalsEntryController.java`
+  - save logic: `src/pages/patient/patient_vitals/VitalsWriteService.java`
 
 - "Where are Medical Records?"
   - `src/pages/patient/medical_files/MedicalFilesController.java`
@@ -250,3 +254,7 @@ Set-Content .\sources.txt
 - "Where is database setup?"
   - `src/app/database/SchemaInitializer.java`
   - `src/app/database/DatabaseManager.java`
+
+
+
+

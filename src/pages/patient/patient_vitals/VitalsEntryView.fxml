@@ -8,7 +8,7 @@
         prefWidth="680.0"
         xmlns="http://javafx.com/javafx/17.0.15"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="pages.patient.vitals_entry.VitalsEntryController" styleClass="panel-card dialog-root">
+        fx:controller="pages.patient.patient_vitals.VitalsEntryController" styleClass="panel-card dialog-root">
 
     <VBox spacing="4.0" styleClass="dialog-header-card">
         <Label text="Enter Vitals" styleClass="screen-title dialog-title" />
@@ -66,3 +66,4 @@
 
     <Label fx:id="statusLabel" text="-" wrapText="true" styleClass="status-success success-value" />
 </VBox>
+

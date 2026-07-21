@@ -1,11 +1,11 @@
 package pages.patient.medical_files;
 
-import pages.patient.Add_Edit_Patient_Dao;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import pages.patient.medical_files.Upload.MedicalFile;
+import pages.patient.patient_registration.PatientRegistrationRepository;
+import pages.patient.medical_files.MedicalFile;
 import pages.user.User;
 
 import java.io.File;
@@ -35,21 +35,22 @@ public class MedicalFileUploadService {
     private static final Set<String> CATEGORIES = Set.of("LAB_RESULT", "DISCHARGE_SUMMARY", "IMAGING", "PRESCRIPTION", "OTHER");
 
     private final SqliteMedicalFileDao medicalFileDao;
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientRegistrationRepository patientRegistrationRepository;
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
     public MedicalFileUploadService() {
-        this(new SqliteMedicalFileDao(), new Add_Edit_Patient_Dao());
+        this(new SqliteMedicalFileDao(), new PatientRegistrationRepository());
     }
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao, Add_Edit_Patient_Dao patientDao) {
+    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao,
+                                    PatientRegistrationRepository patientRegistrationRepository) {
         this.medicalFileDao = medicalFileDao;
-        this.patientDao = patientDao;
+        this.patientRegistrationRepository = patientRegistrationRepository;
     }
 
     /**
@@ -122,7 +123,7 @@ public class MedicalFileUploadService {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
-        if (!patientDao.existsByPatientId(request.patientId.trim())) {
+        if (!patientRegistrationRepository.patientIdExists(request.patientId.trim())) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId);
         }
         File file = new File(request.filePath);
@@ -319,3 +320,5 @@ public class MedicalFileUploadService {
         public String getExtractedSummary() { return extractedSummary; }
     }
 }
+
+

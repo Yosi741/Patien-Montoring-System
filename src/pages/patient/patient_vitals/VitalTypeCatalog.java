@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import java.util.List;
 import java.util.Locale;
@@ -105,3 +105,4 @@ public final class VitalTypeCatalog {
         }
     }
 }
+

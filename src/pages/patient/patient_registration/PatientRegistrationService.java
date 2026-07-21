@@ -1,8 +1,10 @@
-package pages.patient.services;
+package pages.patient.patient_registration;
 
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
-import pages.patient.Add_Edit_Patient_Dao;
+import pages.patient.patient_details.PatientDetailsRepository;
+import pages.patient.patient_details.RelatedRecordCounts;
+import pages.patient.patient_details.PatientVisitService;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -13,60 +15,64 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Validates permissions and patient data for create, update, archive, discharge, and delete workflows.
+ * Validates and saves Add/Edit Patient form data, including returning-patient visits.
  */
-public class PatientWriteService {
+public class PatientRegistrationService {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final Set<String> VALID_STATUSES = Set.of("ACTIVE", "DISCHARGED");
     private static final Set<String> VALID_PRIORITIES = Set.of("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
     private static final Set<String> VALID_BLOOD_TYPES = Set.of("UNKNOWN", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
-    private final Add_Edit_Patient_Dao patientDao;
+    private final PatientRegistrationRepository patientRegistrationRepository;
+    private final PatientDetailsRepository patientDetailsRepository;
     private final PatientVisitService patientVisitService;
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public PatientWriteService() {
-        this(new Add_Edit_Patient_Dao(), new PatientVisitService());
+    public PatientRegistrationService() {
+        this(new PatientRegistrationRepository(), new PatientDetailsRepository(), new PatientVisitService());
     }
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public PatientWriteService(Add_Edit_Patient_Dao patientDao) {
-        this(patientDao, new PatientVisitService());
+    public PatientRegistrationService(PatientRegistrationRepository patientRegistrationRepository) {
+        this(patientRegistrationRepository, new PatientDetailsRepository(), new PatientVisitService());
     }
 
     /**
      * Creates the service with the dependencies used by the patient workflow.
      */
-    public PatientWriteService(Add_Edit_Patient_Dao patientDao, PatientVisitService patientVisitService) {
-        this.patientDao = patientDao;
+    public PatientRegistrationService(PatientRegistrationRepository patientRegistrationRepository,
+                                      PatientDetailsRepository patientDetailsRepository,
+                                      PatientVisitService patientVisitService) {
+        this.patientRegistrationRepository = patientRegistrationRepository;
+        this.patientDetailsRepository = patientDetailsRepository;
         this.patientVisitService = patientVisitService;
     }
 
     /**
-     * Creates patient for the patient workflow.
+     * Creates a new patient and starts an active clinic visit.
      */
-    public void createPatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
+    public void createNewPatient(User currentUser, PatientRegistrationData patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, true);
-        patientDao.insertPatient(clean(patient));
+        patientRegistrationRepository.createPatient(clean(patient));
         patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
     /**
-     * Updates patient.
+     * Updates an existing patient record.
      */
-    public void updatePatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
+    public void updateExistingPatient(User currentUser, PatientRegistrationData patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);
-        if (!patientDao.existsByPatientId(patient.getPatientId())) {
+        if (!patientRegistrationRepository.patientIdExists(patient.getPatientId())) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId());
         }
-        patientDao.updatePatient(clean(patient));
+        patientRegistrationRepository.updateExistingPatient(clean(patient));
     }
 
     /**
@@ -80,17 +86,17 @@ public class PatientWriteService {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
-        if (!patientDao.existsByPatientId(patientId)) {
+        if (!patientRegistrationRepository.patientIdExists(patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
         }
-        patientDao.deactivatePatient(patientId, "DISCHARGED");
+        patientDetailsRepository.deactivatePatientRecord(patientId, "DISCHARGED");
         patientVisitService.dischargeVisit(patientId, dischargeSummary);
     }
 
     /**
      * Returns related record counts used by the patient workflow.
      */
-    public Add_Edit_Patient_Dao.RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
+    public RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
         if (!PermissionHelper.canDeletePatient(currentUser)) {
             throw new SecurityException("Only Admin users can delete patients.");
         }
@@ -98,10 +104,10 @@ public class PatientWriteService {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
-        if (!patientDao.existsByPatientId(patientId)) {
+        if (!patientRegistrationRepository.patientIdExists(patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
         }
-        return patientDao.countRelatedRecords(patientId);
+        return patientDetailsRepository.countPatientRelatedRecords(patientId);
     }
 
     /**
@@ -115,10 +121,10 @@ public class PatientWriteService {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
-        if (!patientDao.existsByPatientId(patientId)) {
+        if (!patientRegistrationRepository.patientIdExists(patientId)) {
             throw new IllegalArgumentException("Patient does not exist in SQLite: " + patientId);
         }
-        boolean deleted = patientDao.deletePatientAndRelatedRecords(patientId);
+        boolean deleted = patientDetailsRepository.deletePatientAndRelatedRecords(patientId);
         if (!deleted) {
             throw new IllegalStateException("Patient could not be deleted.");
         }
@@ -127,13 +133,13 @@ public class PatientWriteService {
     /**
      * Reactivates returning patient for a returning clinic visit.
      */
-    public void reactivateReturningPatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
+    public void reactivateReturningPatient(User currentUser, PatientRegistrationData patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);
-        patientDao.findDetailById(patient.getPatientId())
+        patientRegistrationRepository.findExistingPatientById(patient.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId()));
 
-        Add_Edit_Patient_Dao.PatientWriteRecord activeVisitRecord = new Add_Edit_Patient_Dao.PatientWriteRecord(
+        PatientRegistrationData activeVisitRecord = new PatientRegistrationData(
                 patient.getPatientId(),
                 patient.getFirstName(),
                 patient.getLastName(),
@@ -150,7 +156,7 @@ public class PatientWriteService {
                 patient.getEmergencyContactName(),
                 patient.getEmergencyContactPhone()
         );
-        patientDao.updatePatient(clean(activeVisitRecord));
+        patientRegistrationRepository.updateExistingPatient(clean(activeVisitRecord));
         patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
@@ -166,7 +172,7 @@ public class PatientWriteService {
     /**
      * Validates patient against the active business rules.
      */
-    private void validatePatient(Add_Edit_Patient_Dao.PatientWriteRecord patient, boolean create) throws SQLException {
+    private void validatePatient(PatientRegistrationData patient, boolean create) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Patient ID", patient.getPatientId()),
                 FormValidationHelper.validatePatientId(patient.getPatientId()),
@@ -195,7 +201,7 @@ public class PatientWriteService {
         validateChoice("Status", normalize(patient.getStatus()), VALID_STATUSES);
         validateChoice("Priority", normalize(patient.getPriority()), VALID_PRIORITIES);
         validateChoice("Blood type", normalizeBloodType(patient.getBloodType()).toUpperCase(Locale.ROOT), VALID_BLOOD_TYPES);
-        if (create && patientDao.existsByPatientId(patient.getPatientId())) {
+        if (create && patientRegistrationRepository.patientIdExists(patient.getPatientId())) {
             throw new IllegalArgumentException("A patient file already exists for this ID. Use Check ID to load the existing profile.");
         }
     }
@@ -231,8 +237,8 @@ public class PatientWriteService {
     /**
      * Trims and normalizes clean before storage or comparison.
      */
-    private Add_Edit_Patient_Dao.PatientWriteRecord clean(Add_Edit_Patient_Dao.PatientWriteRecord patient) {
-        return new Add_Edit_Patient_Dao.PatientWriteRecord(
+    private PatientRegistrationData clean(PatientRegistrationData patient) {
+        return new PatientRegistrationData(
                 trim(patient.getPatientId()),
                 trim(patient.getFirstName()),
                 trim(patient.getLastName()),
@@ -308,3 +314,7 @@ public class PatientWriteService {
         }
     }
 }
+
+
+
+

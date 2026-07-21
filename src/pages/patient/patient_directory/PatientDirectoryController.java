@@ -1,4 +1,4 @@
-package pages.patient.patient_board;
+package pages.patient.patient_directory;
 
 import app.core.AppShell;
 import app.contracts.AppController;
@@ -28,12 +28,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import pages.alert.AlertSoundService;
 import pages.notification.NotificationHelper;
-import pages.patient.Add_Edit_Patient_Dao;
-import pages.patient.patient_form.PatientFormController;
-import pages.patient.services.PatientWriteService;
-import pages.patient.vitals_entry.VitalThresholdService;
-import pages.patient.vitals_entry.VitalsWriteService;
-import pages.patient.vitals_entry.VitalsEntryController;
+import pages.patient.patient_details.PatientDetail;
+import pages.patient.patient_details.PatientDetailsRepository;
+import pages.patient.patient_details.RelatedRecordCounts;
+import pages.patient.patient_directory.PatientDirectoryRepository;
+import pages.patient.patient_directory.PatientListFilter;
+import pages.patient.patient_directory.PatientListRow;
+import pages.patient.patient_registration.PatientRegistrationController;
+import pages.patient.patient_registration.PatientRegistrationService;
+import pages.patient.patient_vitals.VitalThresholdService;
+import pages.patient.patient_vitals.VitalsWriteService;
+import pages.patient.patient_vitals.VitalsEntryController;
 import pages.user.Session;
 
 import java.time.LocalDate;
@@ -44,15 +49,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Controls PatientListView.fxml, including patient search, filtering, row actions, and related form navigation.
+ * Controls PatientDirectoryView.fxml, including patient search, filtering, row actions, and related form navigation.
  */
-public class PatientListController implements AppController {
+public class PatientDirectoryController implements AppController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    private final Add_Edit_Patient_Dao patientDao = new Add_Edit_Patient_Dao();
-    private final PatientWriteService patientWriteService = new PatientWriteService();
-    private final ObservableList<Add_Edit_Patient_Dao.PatientListRow> patients = FXCollections.observableArrayList();
+    private final PatientDirectoryRepository patientDirectoryRepository = new PatientDirectoryRepository();
+    private final PatientDetailsRepository patientDetailsRepository = new PatientDetailsRepository();
+    private final PatientRegistrationService patientRegistrationService = new PatientRegistrationService();
+    private final ObservableList<PatientListRow> patients = FXCollections.observableArrayList();
 
     private AppShell appShell;
     private boolean suppressFilterEvents;
@@ -64,13 +70,13 @@ public class PatientListController implements AppController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> statusFilter;
     @FXML private Label statusLabel;
-    @FXML private TableView<Add_Edit_Patient_Dao.PatientListRow> patientTable;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, Add_Edit_Patient_Dao.PatientListRow> patientColumn;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, String> idColumn;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, Add_Edit_Patient_Dao.PatientListRow> ageGenderColumn;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, Add_Edit_Patient_Dao.PatientListRow> contactColumn;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, Add_Edit_Patient_Dao.PatientListRow> statusColumn;
-    @FXML private TableColumn<Add_Edit_Patient_Dao.PatientListRow, Add_Edit_Patient_Dao.PatientListRow> actionsColumn;
+    @FXML private TableView<PatientListRow> patientTable;
+    @FXML private TableColumn<PatientListRow, PatientListRow> patientColumn;
+    @FXML private TableColumn<PatientListRow, String> idColumn;
+    @FXML private TableColumn<PatientListRow, PatientListRow> ageGenderColumn;
+    @FXML private TableColumn<PatientListRow, PatientListRow> contactColumn;
+    @FXML private TableColumn<PatientListRow, PatientListRow> statusColumn;
+    @FXML private TableColumn<PatientListRow, PatientListRow> actionsColumn;
     @FXML private Button addPatientButton;
 
     /**
@@ -96,7 +102,7 @@ public class PatientListController implements AppController {
     @FXML
     private void loadPatients() {
         try {
-            List<Add_Edit_Patient_Dao.PatientListRow> loadedPatients = patientDao.findPatientListRows(buildFilter());
+            List<PatientListRow> loadedPatients = patientDirectoryRepository.findPatientsForDirectory(buildFilter());
             SelectionHelper.runWhenTablesStable(() -> {
                 SelectionHelper.safeReplaceItems(patientTable, patients, loadedPatients);
                 updateStatusLine(loadedPatients.size());
@@ -116,7 +122,7 @@ public class PatientListController implements AppController {
             return;
         }
         try {
-            boolean saved = PatientFormController.showCreateDialog(patientTable.getScene().getWindow(), Session.getCurrentUser());
+            boolean saved = PatientRegistrationController.showCreateDialog(patientTable.getScene().getWindow(), Session.getCurrentUser());
             if (saved) {
                 loadPatients();
                 NotificationHelper.showSuccess(statusLabel, "Patient record saved.");
@@ -171,7 +177,7 @@ public class PatientListController implements AppController {
              * Updates item.
              */
             @Override
-            protected void updateItem(Add_Edit_Patient_Dao.PatientListRow row, boolean empty) {
+            protected void updateItem(PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
                 setAlignment(Pos.CENTER_LEFT);
                 if (empty || row == null) {
@@ -211,7 +217,7 @@ public class PatientListController implements AppController {
              * Updates item.
              */
             @Override
-            protected void updateItem(Add_Edit_Patient_Dao.PatientListRow row, boolean empty) {
+            protected void updateItem(PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
                 getStyleClass().remove("patient-age-cell");
                 setAlignment(Pos.CENTER);
@@ -232,7 +238,7 @@ public class PatientListController implements AppController {
              * Updates item.
              */
             @Override
-            protected void updateItem(Add_Edit_Patient_Dao.PatientListRow row, boolean empty) {
+            protected void updateItem(PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
                 getStyleClass().remove("patient-contact-cell");
                 setAlignment(Pos.CENTER);
@@ -253,7 +259,7 @@ public class PatientListController implements AppController {
              * Updates item.
              */
             @Override
-            protected void updateItem(Add_Edit_Patient_Dao.PatientListRow row, boolean empty) {
+            protected void updateItem(PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
                 setAlignment(Pos.CENTER);
                 getStyleClass().remove("patient-status-cell");
@@ -275,7 +281,7 @@ public class PatientListController implements AppController {
              * Updates item.
              */
             @Override
-            protected void updateItem(Add_Edit_Patient_Dao.PatientListRow row, boolean empty) {
+            protected void updateItem(PatientListRow row, boolean empty) {
                 super.updateItem(row, empty);
                 setAlignment(Pos.CENTER);
                 if (empty || row == null) {
@@ -289,7 +295,7 @@ public class PatientListController implements AppController {
         });
 
         patientTable.setRowFactory(table -> {
-            TableRow<Add_Edit_Patient_Dao.PatientListRow> row = new TableRow<>();
+            TableRow<PatientListRow> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty() && row.getItem() != null) {
                     openPatientFile(row.getItem());
@@ -331,8 +337,8 @@ public class PatientListController implements AppController {
     /**
      * Builds filter used by the patient view.
      */
-    private Add_Edit_Patient_Dao.PatientFilter buildFilter() {
-        Add_Edit_Patient_Dao.PatientFilter filter = new Add_Edit_Patient_Dao.PatientFilter();
+    private PatientListFilter buildFilter() {
+        PatientListFilter filter = new PatientListFilter();
         filter.setSearch(searchField == null ? "" : searchField.getText());
         filter.setDisplayStatus(statusFilter == null || statusFilter.getValue() == null ? "All" : statusFilter.getValue());
         return filter;
@@ -341,7 +347,7 @@ public class PatientListController implements AppController {
     /**
      * Builds the JavaFX control used for build patient cell.
      */
-    private HBox buildPatientCell(Add_Edit_Patient_Dao.PatientListRow row) {
+    private HBox buildPatientCell(PatientListRow row) {
         StackPane avatar = new StackPane();
         avatar.getStyleClass().add("patient-avatar");
         Label initials = new Label(initialsFor(row.getName()));
@@ -389,7 +395,7 @@ public class PatientListController implements AppController {
     /**
      * Builds the JavaFX control used for build centered contact cell.
      */
-    private VBox buildCenteredContactCell(Add_Edit_Patient_Dao.PatientListRow row) {
+    private VBox buildCenteredContactCell(PatientListRow row) {
         String phone = row == null ? "" : safeText(row.getPhone());
         String email = row == null ? "" : safeText(row.getEmail());
         if (phone.isBlank() && email.isBlank()) {
@@ -411,7 +417,7 @@ public class PatientListController implements AppController {
     /**
      * Builds the JavaFX control used for build actions cell.
      */
-    private HBox buildActionsCell(Add_Edit_Patient_Dao.PatientListRow row) {
+    private HBox buildActionsCell(PatientListRow row) {
         Button viewButton = iconButton("\uD83D\uDC41", "patient-action-view");
         viewButton.setOnAction(event -> openPatientFile(row));
 
@@ -455,7 +461,7 @@ public class PatientListController implements AppController {
     /**
      * Opens patient file for the selected record.
      */
-    private void openPatientFile(Add_Edit_Patient_Dao.PatientListRow row) {
+    private void openPatientFile(PatientListRow row) {
         if (row == null || appShell == null) {
             return;
         }
@@ -469,7 +475,7 @@ public class PatientListController implements AppController {
     /**
      * Opens the edit form for patient.
      */
-    private void editPatient(Add_Edit_Patient_Dao.PatientListRow row) {
+    private void editPatient(PatientListRow row) {
         if (row == null) {
             return;
         }
@@ -482,9 +488,9 @@ public class PatientListController implements AppController {
             return;
         }
         try {
-            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(row.getPatientId())
+            PatientDetail detail = patientDetailsRepository.findPatientDetailsById(row.getPatientId())
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + row.getPatientId()));
-            boolean saved = PatientFormController.showEditDialog(patientTable.getScene().getWindow(), Session.getCurrentUser(), detail);
+            boolean saved = PatientRegistrationController.showEditDialog(patientTable.getScene().getWindow(), Session.getCurrentUser(), detail);
             if (saved) {
                 loadPatients();
                 NotificationHelper.showSuccess(statusLabel, "Patient record updated.");
@@ -497,7 +503,7 @@ public class PatientListController implements AppController {
     /**
      * Adds vitals to the current patient workflow.
      */
-    private void addVitals(Add_Edit_Patient_Dao.PatientListRow row) {
+    private void addVitals(PatientListRow row) {
         if (row == null) {
             return;
         }
@@ -533,7 +539,7 @@ public class PatientListController implements AppController {
     /**
      * Displays vital alert popup if needed to the user.
      */
-    private void showVitalAlertPopupIfNeeded(Add_Edit_Patient_Dao.PatientListRow row, VitalsWriteService.VitalsWriteResult result) {
+    private void showVitalAlertPopupIfNeeded(PatientListRow row, VitalsWriteService.VitalsWriteResult result) {
         if (result == null || result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;
         }
@@ -568,7 +574,7 @@ public class PatientListController implements AppController {
     /**
      * Deletes patient after the required checks.
      */
-    private void deletePatient(Add_Edit_Patient_Dao.PatientListRow row) {
+    private void deletePatient(PatientListRow row) {
         if (row == null) {
             return;
         }
@@ -577,12 +583,12 @@ public class PatientListController implements AppController {
             return;
         }
         try {
-            Add_Edit_Patient_Dao.RelatedRecordCounts relatedRecordCounts =
-                    patientWriteService.getRelatedRecordCounts(Session.getCurrentUser(), row.getPatientId());
+            RelatedRecordCounts relatedRecordCounts =
+                    patientRegistrationService.getRelatedRecordCounts(Session.getCurrentUser(), row.getPatientId());
             if (!confirmDeletePatient(relatedRecordCounts)) {
                 return;
             }
-            patientWriteService.deletePatient(Session.getCurrentUser(), row.getPatientId());
+            patientRegistrationService.deletePatient(Session.getCurrentUser(), row.getPatientId());
             loadPatients();
             NotificationHelper.showSuccess(statusLabel, "Patient deleted successfully.");
         } catch (Exception e) {
@@ -593,7 +599,7 @@ public class PatientListController implements AppController {
     /**
      * Requests confirmation before delete patient.
      */
-    private boolean confirmDeletePatient(Add_Edit_Patient_Dao.RelatedRecordCounts relatedRecordCounts) {
+    private boolean confirmDeletePatient(RelatedRecordCounts relatedRecordCounts) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Patient");
         alert.setHeaderText("Delete Patient");
@@ -628,7 +634,7 @@ public class PatientListController implements AppController {
     /**
      * Returns formatted display text for blood type text.
      */
-    private String bloodTypeText(Add_Edit_Patient_Dao.PatientListRow row) {
+    private String bloodTypeText(PatientListRow row) {
         if (row == null || row.getBloodType() == null || row.getBloodType().isBlank() || "Unknown".equalsIgnoreCase(row.getBloodType())) {
             return "Blood type unknown";
         }
@@ -638,7 +644,7 @@ public class PatientListController implements AppController {
     /**
      * Formats age gender for display.
      */
-    private String formatAgeGender(Add_Edit_Patient_Dao.PatientListRow row) {
+    private String formatAgeGender(PatientListRow row) {
         String ageText = ageText(row == null ? null : row.getBirthDate());
         String genderText = genderText(row == null ? null : row.getGender());
         if (!ageText.isBlank() && !genderText.isBlank()) {
@@ -686,7 +692,7 @@ public class PatientListController implements AppController {
     /**
      * Returns formatted display text for visible status text.
      */
-    private String visibleStatusText(Add_Edit_Patient_Dao.PatientListRow row) {
+    private String visibleStatusText(PatientListRow row) {
         if (row == null) {
             return "Active";
         }
@@ -705,7 +711,7 @@ public class PatientListController implements AppController {
     /**
      * Returns the CSS style class for visible status style.
      */
-    private String visibleStatusStyle(Add_Edit_Patient_Dao.PatientListRow row) {
+    private String visibleStatusStyle(PatientListRow row) {
         if (row == null) {
             return "patient-status-active-badge";
         }
@@ -724,7 +730,7 @@ public class PatientListController implements AppController {
     /**
      * Determines whether is critical for the current record or user.
      */
-    private boolean isCritical(Add_Edit_Patient_Dao.PatientListRow row) {
+    private boolean isCritical(PatientListRow row) {
         if (row == null || row.getPriority() == null) {
             return false;
         }
@@ -732,14 +738,14 @@ public class PatientListController implements AppController {
         return "CRITICAL".equals(priority) || "EMERGENCY".equals(priority);
     }
 
-    private boolean isDischarged(Add_Edit_Patient_Dao.PatientListRow row) {
+    private boolean isDischarged(PatientListRow row) {
         return row != null && row.getStatus() != null && "DISCHARGED".equalsIgnoreCase(row.getStatus().trim());
     }
 
     /**
      * Determines whether is archived for the current record or user.
      */
-    private boolean isArchived(Add_Edit_Patient_Dao.PatientListRow row) {
+    private boolean isArchived(PatientListRow row) {
         if (row == null || row.getStatus() == null) {
             return false;
         }
@@ -783,3 +789,7 @@ public class PatientListController implements AppController {
         return value == null ? "" : value.trim();
     }
 }
+
+
+
+

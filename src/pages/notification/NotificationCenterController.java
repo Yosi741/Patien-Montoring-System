@@ -674,3 +674,4 @@ public class NotificationCenterController implements AppController {
         }
     }
 }
+

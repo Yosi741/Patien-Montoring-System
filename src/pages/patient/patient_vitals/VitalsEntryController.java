@@ -1,4 +1,4 @@
-package pages.patient.vitals_entry;
+package pages.patient.patient_vitals;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -47,7 +47,7 @@ public class VitalsEntryController {
      */
     public static VitalsWriteService.VitalsWriteResult showDialog(Window owner, User currentUser, String patientId) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/vitals_entry/VitalsEntryView.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/patient_vitals/VitalsEntryView.fxml"));
             Parent root = loader.load();
             VitalsEntryController controller = loader.getController();
             controller.prepare(currentUser, patientId);
@@ -141,3 +141,4 @@ public class VitalsEntryController {
         return VitalTypeCatalog.expectedUnit(type);
     }
 }
+

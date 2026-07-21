@@ -708,3 +708,4 @@ public class MedicalFilesController implements AppController {
         return button;
     }
 }
+
