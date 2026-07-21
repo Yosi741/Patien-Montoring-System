@@ -13,15 +13,24 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * Queries SQLite for the aggregate counts and recent records shown on the ClinicPulse dashboard.
+ */
 public class DashboardMetricsService {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * Creates the service with the dependencies used by the dashboard workflow.
+     */
     public DashboardMetricsService() {
         ensureSchema();
     }
 
+    /**
+     * Loads metrics for the dashboard workflow.
+     */
     public DashboardMetrics loadMetrics() throws SQLException {
         try (Connection connection = DatabaseManager.getConnection()) {
             LocalDate today = LocalDate.now();
@@ -62,6 +71,9 @@ public class DashboardMetricsService {
         }
     }
 
+    /**
+     * Loads recent alerts for the dashboard workflow.
+     */
     private List<RecentAlert> loadRecentAlerts(Connection connection) throws SQLException {
         ArrayList<RecentAlert> alerts = new ArrayList<>();
         String sql = "SELECT a.id, a.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
@@ -85,6 +97,9 @@ public class DashboardMetricsService {
         return alerts;
     }
 
+    /**
+     * Loads latest vitals for the dashboard workflow.
+     */
     private List<LatestVital> loadLatestVitals(Connection connection) throws SQLException {
         ArrayList<LatestVital> vitals = new ArrayList<>();
         String sql = "SELECT v.id, v.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
@@ -107,6 +122,9 @@ public class DashboardMetricsService {
         return vitals;
     }
 
+    /**
+     * Counts count.
+     */
     private int count(Connection connection, String sql) throws SQLException {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
@@ -114,6 +132,9 @@ public class DashboardMetricsService {
         }
     }
 
+    /**
+     * Counts today.
+     */
     private int countToday(Connection connection, String sql, String displayToday, String isoToday) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, displayToday);
@@ -124,6 +145,9 @@ public class DashboardMetricsService {
         }
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -132,6 +156,9 @@ public class DashboardMetricsService {
         }
     }
 
+    /**
+     * Reads value safely from the current SQLite row.
+     */
     private String value(String value) {
         return value == null ? "" : value;
     }
@@ -173,6 +200,9 @@ public class DashboardMetricsService {
         private final String message;
         private final String createdAt;
 
+        /**
+         * Creates a recent alert from the supplied record values.
+         */
         public RecentAlert(long id, String patientId, String patientName, String severity, String status, String message, String createdAt) {
             this.id = id;
             this.patientId = patientId;
@@ -200,6 +230,9 @@ public class DashboardMetricsService {
         private final String unit;
         private final String recordedAt;
 
+        /**
+         * Creates a latest vital from the supplied record values.
+         */
         public LatestVital(String patientId, String patientName, String vitalType, String value, String unit, String recordedAt) {
             this.patientId = patientId;
             this.patientName = patientName;

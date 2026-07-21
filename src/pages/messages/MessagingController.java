@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Controls MessagingView.fxml for inbox, sent messages, composition, and message actions.
+ */
 public class MessagingController implements AppController {
 
     private static final DateTimeFormatter STORAGE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -95,6 +98,9 @@ public class MessagingController implements AppController {
     @FXML private TextField subjectField;
     @FXML private TextArea bodyArea;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -106,6 +112,9 @@ public class MessagingController implements AppController {
         loadMessages();
     }
 
+    /**
+     * Handles the load messages UI action.
+     */
     @FXML
     private void loadMessages() {
         if (!PermissionHelper.canViewMessages(Session.getCurrentUser())) {
@@ -125,21 +134,33 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the show inbox UI action.
+     */
     @FXML
     private void showInbox() {
         setCurrentView(MailboxView.INBOX);
     }
 
+    /**
+     * Handles the show sent UI action.
+     */
     @FXML
     private void showSent() {
         setCurrentView(MailboxView.SENT);
     }
 
+    /**
+     * Handles the show requests UI action.
+     */
     @FXML
     private void showRequests() {
         setCurrentView(MailboxView.REQUESTS);
     }
 
+    /**
+     * Handles the show compose overlay UI action.
+     */
     @FXML
     private void showComposeOverlay() {
         clearCompose();
@@ -153,12 +174,18 @@ public class MessagingController implements AppController {
         });
     }
 
+    /**
+     * Handles the hide compose overlay UI action.
+     */
     @FXML
     private void hideComposeOverlay() {
         composeOverlay.setVisible(false);
         composeOverlay.setManaged(false);
     }
 
+    /**
+     * Handles the hide detail overlay UI action.
+     */
     @FXML
     private void hideDetailOverlay() {
         detailOverlay.setVisible(false);
@@ -168,6 +195,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the send message UI action.
+     */
     @FXML
     private void sendMessage() {
         try {
@@ -185,6 +215,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the mark read UI action.
+     */
     @FXML
     private void markRead() {
         SqliteMessageDao.MessageRow row = selectedMessage();
@@ -207,6 +240,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the archive message UI action.
+     */
     @FXML
     private void archiveMessage() {
         SqliteMessageDao.MessageRow row = selectedMessage();
@@ -223,6 +259,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the open linked patient UI action.
+     */
     @FXML
     private void openLinkedPatient() {
         SqliteMessageDao.MessageRow row = selectedMessage();
@@ -231,11 +270,17 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Handles the show dashboard UI action.
+     */
     @FXML
     private void showDashboard() {
         appShell.showDashboard(Session.getCurrentUser());
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean allowed = PermissionHelper.canViewMessages(Session.getCurrentUser());
         accessDeniedPane.setVisible(!allowed);
@@ -244,6 +289,9 @@ public class MessagingController implements AppController {
         contentPane.setManaged(allowed);
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         statusFilter.setItems(FXCollections.observableArrayList("All", "Unread", "Read", "Archived"));
         requestStatusFilter.setItems(FXCollections.observableArrayList(
@@ -255,6 +303,9 @@ public class MessagingController implements AppController {
         requestStatusFilter.valueProperty().addListener((obs, old, value) -> loadMessages());
     }
 
+    /**
+     * Configures message list.
+     */
     private void configureMessageList() {
         messageListView.setItems(visibleRows);
         Label placeholder = new Label("No messages to show.");
@@ -268,6 +319,9 @@ public class MessagingController implements AppController {
         });
     }
 
+    /**
+     * Configures compose.
+     */
     private void configureCompose() {
         priorityBox.setItems(FXCollections.observableArrayList("NORMAL", "HIGH", "URGENT"));
         priorityBox.getSelectionModel().select("NORMAL");
@@ -300,6 +354,9 @@ public class MessagingController implements AppController {
         reloadUsers();
     }
 
+    /**
+     * Reloads users from SQLite.
+     */
     private void reloadUsers() {
         try {
             availableTargets.setAll(userDao.findMessageTargetsExcept(Session.getUsername()));
@@ -312,6 +369,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Updates current view for the current object.
+     */
     private void setCurrentView(MailboxView view) {
         currentView = view == null ? MailboxView.INBOX : view;
         updateFilterPills();
@@ -321,12 +381,18 @@ public class MessagingController implements AppController {
         refreshVisibleMessages(selectedMessageId());
     }
 
+    /**
+     * Updates filter pills.
+     */
     private void updateFilterPills() {
         applyFilterState(inboxFilterButton, currentView == MailboxView.INBOX);
         applyFilterState(sentFilterButton, currentView == MailboxView.SENT);
         applyFilterState(requestFilterButton, currentView == MailboxView.REQUESTS);
     }
 
+    /**
+     * Applies filter state to the current control or record.
+     */
     private void applyFilterState(Button button, boolean active) {
         if (button == null) {
             return;
@@ -337,6 +403,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Refreshes visible messages from the current application state.
+     */
     private void refreshVisibleMessages(Long preferredId) {
         switch (currentView) {
             case SENT -> visibleRows.setAll(sentRows);
@@ -346,6 +415,9 @@ public class MessagingController implements AppController {
         restoreSelection(preferredId);
     }
 
+    /**
+     * Restores selection after the backing items change.
+     */
     private void restoreSelection(Long preferredId) {
         if (messageListView == null) {
             return;
@@ -364,6 +436,9 @@ public class MessagingController implements AppController {
         }
     }
 
+    /**
+     * Builds record used by the messaging view.
+     */
     private SqliteMessageDao.MessageWriteRecord buildRecord() {
         SqliteUserDao.UserTarget selected = resolveExactRecipient(recipientSearchField.getText());
         if (selected == null || selected.getUsername().isBlank()) {
@@ -386,15 +461,24 @@ public class MessagingController implements AppController {
         );
     }
 
+    /**
+     * Selects selected message without using an invalid index.
+     */
     private SqliteMessageDao.MessageRow selectedMessage() {
         return messageListView == null ? null : messageListView.getSelectionModel().getSelectedItem();
     }
 
+    /**
+     * Selects selected message ID without using an invalid index.
+     */
     private Long selectedMessageId() {
         SqliteMessageDao.MessageRow row = selectedMessage();
         return row == null ? null : row.getId();
     }
 
+    /**
+     * Finds visible by ID.
+     */
     private SqliteMessageDao.MessageRow findVisibleById(Long id) {
         if (id == null) {
             return null;
@@ -407,6 +491,9 @@ public class MessagingController implements AppController {
         return null;
     }
 
+    /**
+     * Displays detail to the user.
+     */
     private void showDetail(SqliteMessageDao.MessageRow row) {
         if (row == null) {
             return;
@@ -437,6 +524,9 @@ public class MessagingController implements AppController {
         detailOverlay.setVisible(true);
     }
 
+    /**
+     * Clears compose and restores its default state.
+     */
     private void clearCompose() {
         selectedRecipientTarget = null;
         recipientSearchField.clear();
@@ -453,6 +543,9 @@ public class MessagingController implements AppController {
         hideSelectedRecipient();
     }
 
+    /**
+     * Responds when recipient query changed changes in the UI.
+     */
     private void onRecipientQueryChanged(String query) {
         clearComposeValidation();
         if (!matchesSelectedRecipient(query)) {
@@ -462,6 +555,9 @@ public class MessagingController implements AppController {
         updateRecipientSuggestions(query);
     }
 
+    /**
+     * Determines whether the current value matches selected recipient.
+     */
     private boolean matchesSelectedRecipient(String query) {
         if (selectedRecipientTarget == null) {
             return false;
@@ -469,6 +565,9 @@ public class MessagingController implements AppController {
         return normalizeRecipientText(query).equals(normalizeRecipientText(recipientFieldValue(selectedRecipientTarget)));
     }
 
+    /**
+     * Updates recipient suggestions.
+     */
     private void updateRecipientSuggestions(String query) {
         filteredTargets.clear();
         String normalizedQuery = normalizeRecipientText(query);
@@ -492,6 +591,9 @@ public class MessagingController implements AppController {
         recipientSuggestionList.setVisible(true);
     }
 
+    /**
+     * Determines whether the current value matches target.
+     */
     private boolean matchesTarget(String normalizedQuery, SqliteUserDao.UserTarget target) {
         if (target == null || normalizedQuery.isBlank()) {
             return false;
@@ -502,6 +604,9 @@ public class MessagingController implements AppController {
                 || containsNormalized(target.getRole(), normalizedQuery);
     }
 
+    /**
+     * Resolves exact recipient for the current workflow.
+     */
     private SqliteUserDao.UserTarget resolveExactRecipient(String query) {
         if (selectedRecipientTarget != null && matchesSelectedRecipient(query)) {
             return selectedRecipientTarget;
@@ -531,6 +636,9 @@ public class MessagingController implements AppController {
                 || normalizeRecipientText(target.getDisplayName()).equals(normalizedQuery);
     }
 
+    /**
+     * Selects recipient target without using an invalid index.
+     */
     private void selectRecipientTarget(SqliteUserDao.UserTarget target) {
         if (target == null) {
             return;
@@ -546,6 +654,9 @@ public class MessagingController implements AppController {
         selectedRecipientLabel.setVisible(true);
     }
 
+    /**
+     * Returns the text shown in the recipient field for the current selection.
+     */
     private String recipientFieldValue(SqliteUserDao.UserTarget target) {
         if (target == null) {
             return "";
@@ -553,6 +664,9 @@ public class MessagingController implements AppController {
         return target.getEmail().isBlank() ? target.getUsername() : target.getEmail();
     }
 
+    /**
+     * Builds the concise recipient summary shown by the compose form.
+     */
     private String recipientSummary(SqliteUserDao.UserTarget target) {
         if (target == null) {
             return "";
@@ -570,50 +684,80 @@ public class MessagingController implements AppController {
         return summary.toString();
     }
 
+    /**
+     * Clears compose validation and restores its default state.
+     */
     private void clearComposeValidation() {
         hideComposeValidation();
     }
 
+    /**
+     * Displays compose validation to the user.
+     */
     private void showComposeValidation(String message) {
         composeValidationLabel.setText(blankTo(message, "Recipient not found. Check the email or choose a staff member from the suggestions."));
         composeValidationLabel.setManaged(true);
         composeValidationLabel.setVisible(true);
     }
 
+    /**
+     * Hides compose validation and removes its layout space.
+     */
     private void hideComposeValidation() {
         composeValidationLabel.setManaged(false);
         composeValidationLabel.setVisible(false);
     }
 
+    /**
+     * Builds the JavaFX control used for show helper label.
+     */
     private void showHelperLabel(String message) {
         recipientHelperLabel.setText(blankTo(message, "No staff account found."));
         recipientHelperLabel.setManaged(true);
         recipientHelperLabel.setVisible(true);
     }
 
+    /**
+     * Hides helper label and removes its layout space.
+     */
     private void hideHelperLabel() {
         recipientHelperLabel.setManaged(false);
         recipientHelperLabel.setVisible(false);
     }
 
+    /**
+     * Hides selected recipient and removes its layout space.
+     */
     private void hideSelectedRecipient() {
         selectedRecipientLabel.setManaged(false);
         selectedRecipientLabel.setVisible(false);
     }
 
+    /**
+     * Hides suggestion list and removes its layout space.
+     */
     private void hideSuggestionList() {
         recipientSuggestionList.setManaged(false);
         recipientSuggestionList.setVisible(false);
     }
 
+    /**
+     * Determines whether the normalized content contains normalized.
+     */
     private boolean containsNormalized(String value, String normalizedQuery) {
         return normalizeRecipientText(value).contains(normalizedQuery);
     }
 
+    /**
+     * Returns formatted display text for normalize recipient text.
+     */
     private String normalizeRecipientText(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Normalizes normalized status filter to the stored application format.
+     */
     private String normalizedStatusFilter() {
         String status = statusFilter == null ? null : statusFilter.getValue();
         if (status == null || status.isBlank() || "All".equalsIgnoreCase(status)) {
@@ -625,6 +769,9 @@ public class MessagingController implements AppController {
         return status.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Formats name for username for display in the JavaFX UI.
+     */
     private String displayNameForUsername(String username) {
         String key = blankTo(username, "").trim().toLowerCase(Locale.ROOT);
         if (key.isBlank()) {
@@ -643,6 +790,9 @@ public class MessagingController implements AppController {
         });
     }
 
+    /**
+     * Formats a staff recipient for the message suggestion list.
+     */
     private String recipientDisplay(SqliteMessageDao.MessageRow row) {
         if (row == null) {
             return "-";
@@ -654,6 +804,9 @@ public class MessagingController implements AppController {
         return blankTo(row.getTargetSummary(), "-");
     }
 
+    /**
+     * Extracts the username from a displayed message-recipient summary.
+     */
     private String usernameFromTargetSummary(String targetSummary) {
         if (targetSummary == null) {
             return "";
@@ -665,6 +818,9 @@ public class MessagingController implements AppController {
         return "";
     }
 
+    /**
+     * Formats name for row for display in the JavaFX UI.
+     */
     private String displayNameForRow(SqliteMessageDao.MessageRow row) {
         if (row == null) {
             return "Unknown user";
@@ -675,6 +831,9 @@ public class MessagingController implements AppController {
         return displayNameForUsername(row.getSenderUsername());
     }
 
+    /**
+     * Returns formatted display text for subject text.
+     */
     private String subjectText(SqliteMessageDao.MessageRow row) {
         if (currentView == MailboxView.REQUESTS) {
             return blankTo(messagingService.requestType(row), "Request");
@@ -682,6 +841,9 @@ public class MessagingController implements AppController {
         return blankTo(row == null ? null : row.getSubject(), "No subject");
     }
 
+    /**
+     * Returns formatted display text for preview text.
+     */
     private String previewText(SqliteMessageDao.MessageRow row) {
         String text = cleanMessageBody(row == null ? null : row.getBody());
         if (text.isBlank()) {
@@ -693,6 +855,9 @@ public class MessagingController implements AppController {
         return text.length() > 96 ? text.substring(0, 93) + "..." : text;
     }
 
+    /**
+     * Trims and normalizes message body before storage or comparison.
+     */
     private String cleanMessageBody(String body) {
         if (body == null || body.isBlank()) {
             return "";
@@ -700,6 +865,9 @@ public class MessagingController implements AppController {
         return body.trim();
     }
 
+    /**
+     * Builds initials from for for an avatar fallback.
+     */
     private String initialsFor(String displayName) {
         String fallback = blankTo(displayName, "?").trim();
         if (fallback.isBlank()) {
@@ -715,6 +883,9 @@ public class MessagingController implements AppController {
         return (first + last).toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Converts timestamp to user-friendly display text.
+     */
     private String friendlyTimestamp(String createdAt) {
         if (createdAt == null || createdAt.isBlank()) {
             return "";
@@ -734,6 +905,9 @@ public class MessagingController implements AppController {
         return row != null && row.getStatus() != null && "SENT".equalsIgnoreCase(row.getStatus());
     }
 
+    /**
+     * Converts status to user-friendly display text.
+     */
     private String friendlyStatus(String status) {
         if (status == null || status.isBlank()) {
             return "Unknown";
@@ -745,6 +919,9 @@ public class MessagingController implements AppController {
                 + status.substring(1).toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Resolves priority style for the current clinical state.
+     */
     private String priorityStyle(String priority) {
         if (priority == null) {
             return "muted-pill";
@@ -757,6 +934,9 @@ public class MessagingController implements AppController {
         };
     }
 
+    /**
+     * Resolves status style for workflow display or ordering.
+     */
     private String statusStyle(String status) {
         if (status == null) {
             return "muted-pill";
@@ -770,6 +950,9 @@ public class MessagingController implements AppController {
         };
     }
 
+    /**
+     * Returns the CSS style class for apply pill style.
+     */
     private void applyPillStyle(Label label, String styleClass, String text) {
         if (label == null) {
             return;
@@ -778,6 +961,9 @@ public class MessagingController implements AppController {
         label.getStyleClass().setAll("badge-pill", styleClass);
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
@@ -797,6 +983,9 @@ public class MessagingController implements AppController {
         private final Label priorityBadge = new Label();
         private final Region unreadDot = new Region();
 
+        /**
+         * Creates a message row cell from the supplied record values.
+         */
         private MessageRowCell() {
             avatarPane.getStyleClass().add("message-avatar");
             initialsLabel.getStyleClass().add("message-initials");
@@ -824,6 +1013,9 @@ public class MessagingController implements AppController {
             row.getChildren().addAll(avatarPane, textBox, rightBox);
         }
 
+        /**
+         * Updates item.
+         */
         @Override
         protected void updateItem(SqliteMessageDao.MessageRow item, boolean empty) {
             super.updateItem(item, empty);
@@ -861,6 +1053,9 @@ public class MessagingController implements AppController {
             setGraphic(row);
         }
 
+        /**
+         * Updates selected.
+         */
         @Override
         public void updateSelected(boolean selected) {
             super.updateSelected(selected);
@@ -877,6 +1072,9 @@ public class MessagingController implements AppController {
         private final Label nameLabel = new Label();
         private final Label metaLabel = new Label();
 
+        /**
+         * Creates a recipient suggestion cell from the supplied record values.
+         */
         private RecipientSuggestionCell() {
             content.getStyleClass().add("message-suggestion-row");
             nameLabel.getStyleClass().add("message-suggestion-name");
@@ -885,6 +1083,9 @@ public class MessagingController implements AppController {
             content.getChildren().addAll(nameLabel, metaLabel);
         }
 
+        /**
+         * Updates item.
+         */
         @Override
         protected void updateItem(SqliteUserDao.UserTarget item, boolean empty) {
             super.updateItem(item, empty);

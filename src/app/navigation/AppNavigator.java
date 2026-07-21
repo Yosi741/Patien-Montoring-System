@@ -10,18 +10,30 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Resolves FXML resources and loads JavaFX views with their controllers for the application shell.
+ */
 public class AppNavigator {
 
     private final AppShell appShell;
 
+    /**
+     * Creates a app navigator from the supplied record values.
+     */
     public AppNavigator(AppShell appShell) {
         this.appShell = appShell;
     }
 
+    /**
+     * Loads load for the application workflow.
+     */
     public Parent load(String fxmlPath) {
         return loadView(fxmlPath).parent;
     }
 
+    /**
+     * Loads view for the application workflow.
+     */
     public LoadedView loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(resolve(fxmlPath));
@@ -37,6 +49,9 @@ public class AppNavigator {
         }
     }
 
+    /**
+     * Resolves resolve for the current workflow.
+     */
     public static URL resolve(String path) {
         File sourceFile = new File("src" + path.replace("/", File.separator));
         if (sourceFile.exists()) {
@@ -59,6 +74,9 @@ public class AppNavigator {
         private final Parent parent;
         private final Object controller;
 
+        /**
+         * Creates a loaded view from the supplied record values.
+         */
         public LoadedView(Parent parent, Object controller) {
             this.parent = parent;
             this.controller = controller;

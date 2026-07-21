@@ -1,5 +1,8 @@
 package pages.user;
 
+/**
+ * Represents a ClinicPulse staff account, role, department, contact details, and active state.
+ */
 public class User {
 
     private String username;
@@ -8,14 +11,23 @@ public class User {
     private String section;
     private String staffId;
 
+    /**
+     * Creates a user from the supplied record values.
+     */
     public User(String username, String password, String role) {
         this(username, password, role, defaultSection(role), "");
     }
 
+    /**
+     * Creates a user from the supplied record values.
+     */
     public User(String username, String password, String role, String section) {
         this(username, password, role, section, "");
     }
 
+    /**
+     * Creates a user from the supplied record values.
+     */
     public User(String username, String password, String role, String section, String staffId) {
         this.username = username;
         this.password = password;
@@ -44,6 +56,9 @@ public class User {
         this.staffId = staffId == null ? "" : staffId;
     }
 
+    /**
+     * Logs login for resource diagnostics.
+     */
     public boolean login(String enteredPassword) {
 
         return password.equals(enteredPassword);
@@ -53,6 +68,9 @@ public class User {
         return password;
     }
 
+    /**
+     * Returns the default section used by this workflow.
+     */
     private static String defaultSection(String role) {
         if (role.equals("Admin") || role.equals("System Admin") || role.equals("Hospital Director")) {
             return "All";

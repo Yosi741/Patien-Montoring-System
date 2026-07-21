@@ -19,6 +19,9 @@ import pages.user.User;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Controls VitalsEntryView.fxml and collects validated vital readings for a selected patient.
+ */
 public class VitalsEntryController {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -39,6 +42,9 @@ public class VitalsEntryController {
     @FXML private TextField staffUserField;
     @FXML private Label statusLabel;
 
+    /**
+     * Displays dialog to the user.
+     */
     public static VitalsWriteService.VitalsWriteResult showDialog(Window owner, User currentUser, String patientId) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/vitals_entry/VitalsEntryView.fxml"));
@@ -65,6 +71,9 @@ public class VitalsEntryController {
         }
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         vitalTypeBox.getItems().setAll(VitalTypeCatalog.javaFxEntryTypes());
@@ -79,6 +88,9 @@ public class VitalsEntryController {
         NotificationHelper.showInfo(statusLabel, "Abnormal JavaFX vitals create SQLite alerts, notifications, and a local JavaFX alarm sound.");
     }
 
+    /**
+     * Prepares the form with the selected patient record and mode.
+     */
     private void prepare(User currentUser, String patientId) {
         this.currentUser = currentUser;
         this.patientId = patientId;
@@ -86,6 +98,9 @@ public class VitalsEntryController {
         staffUserField.setText(currentUser == null ? SessionContext.username() : currentUser.getUsername());
     }
 
+    /**
+     * Validates and saves save.
+     */
     private boolean save() {
         try {
             result = vitalsWriteService.enterVitalReading(currentUser, new VitalsWriteService.VitalsEntryRequest(
@@ -103,6 +118,9 @@ public class VitalsEntryController {
         }
     }
 
+    /**
+     * Updates type fields.
+     */
     private void updateTypeFields() {
         String type = vitalTypeBox.getValue();
         boolean bloodPressure = VitalTypeCatalog.BLOOD_PRESSURE.equals(VitalTypeCatalog.normalize(type));
@@ -116,6 +134,9 @@ public class VitalsEntryController {
         unitField.setEditable(false);
     }
 
+    /**
+     * Resolves unit for for the supplied record.
+     */
     private String unitFor(String type) {
         return VitalTypeCatalog.expectedUnit(type);
     }

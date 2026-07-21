@@ -19,6 +19,9 @@ import pages.user.User;
 
 import java.io.File;
 
+/**
+ * Controls MedicalFileUploadView.fxml and collects metadata for a patient file upload.
+ */
 public class MedicalFileUploadController {
 
     private final MedicalFileUploadService uploadService = new MedicalFileUploadService();
@@ -33,6 +36,9 @@ public class MedicalFileUploadController {
     @FXML private Label uploadedByLabel;
     @FXML private Label statusLabel;
 
+    /**
+     * Displays dialog to the user.
+     */
     public static boolean showDialog(Window owner, User currentUser, String patientId) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/medical_files/MedicalFileUploadView.fxml"));
@@ -59,6 +65,9 @@ public class MedicalFileUploadController {
         }
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         categoryBox.getItems().setAll("LAB_RESULT", "DISCHARGE_SUMMARY", "IMAGING", "PRESCRIPTION", "OTHER");
@@ -66,6 +75,9 @@ public class MedicalFileUploadController {
         NotificationHelper.showInfo(statusLabel, "TXT/CSV/PDF text extraction only. Image OCR is not implemented.");
     }
 
+    /**
+     * Handles the browse file UI action.
+     */
     @FXML
     private void browseFile() {
         FileChooser chooser = new FileChooser();
@@ -83,6 +95,9 @@ public class MedicalFileUploadController {
         }
     }
 
+    /**
+     * Prepares the form with the selected patient record and mode.
+     */
     private void prepare(User currentUser, String patientId) {
         this.currentUser = currentUser;
         this.lockedPatientContext = patientId != null && !patientId.isBlank();
@@ -96,6 +111,9 @@ public class MedicalFileUploadController {
         uploadedByLabel.setText(currentUser == null ? "Unknown" : currentUser.getUsername());
     }
 
+    /**
+     * Uploads upload and stores its metadata in SQLite.
+     */
     private boolean upload() {
         try {
             if (lockedPatientContext && !patientIdField.getText().trim().matches("\\d{9}")) {

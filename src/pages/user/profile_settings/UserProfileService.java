@@ -15,6 +15,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Loads and updates the signed-in user's profile while enforcing profile-field validation.
+ */
 public class UserProfileService {
     private static final Set<String> PHOTO_EXTENSIONS = Set.of("png", "jpg", "jpeg");
     private static final DateTimeFormatter PHOTO_STAMP = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -22,19 +25,31 @@ public class UserProfileService {
     private final SqliteUserDao userDao;
     private final SqliteUserProfileDao profileDao;
 
+    /**
+     * Creates the service with the dependencies used by the staff workflow.
+     */
     public UserProfileService() {
         this(new SqliteUserDao(), new SqliteUserProfileDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the staff workflow.
+     */
     public UserProfileService(SqliteUserDao userDao, SqliteUserProfileDao profileDao) {
         this.userDao = userDao;
         this.profileDao = profileDao;
     }
 
+    /**
+     * Finds profile.
+     */
     public Optional<SqliteUserProfileDao.UserProfileRow> findProfile(String username) throws SQLException {
         return profileDao.findByUsername(username);
     }
 
+    /**
+     * Updates profile.
+     */
     public void updateProfile(User user, String email, String phone) throws SQLException {
         String username = username(user);
         validateProfile(email, phone);
@@ -42,6 +57,9 @@ public class UserProfileService {
         userDao.updateEmail(username, email);
     }
 
+    /**
+     * Inserts or updates staff profile in the user_profiles table.
+     */
     public void upsertStaffProfile(SqliteUserProfileDao.UserProfileWriteRecord record) throws SQLException {
         if (record == null || record.getUsername().isBlank()) {
             throw new IllegalArgumentException("Username is required for the staff profile.");
@@ -52,6 +70,9 @@ public class UserProfileService {
         userDao.updateEmail(record.getUsername(), record.getEmail());
     }
 
+    /**
+     * Copies profile photo to the requested destination.
+     */
     public String copyProfilePhoto(String username, File sourceFile) throws IOException {
         if (sourceFile == null || !sourceFile.exists() || !sourceFile.isFile()) {
             throw new IllegalArgumentException("Selected profile photo does not exist.");
@@ -70,6 +91,9 @@ public class UserProfileService {
         return destination.toString().replace('\\', '/');
     }
 
+    /**
+     * Validates and changes the current user's password.
+     */
     public void changeOwnPassword(User user, char[] currentPassword, char[] newPassword) throws SQLException {
         String username = username(user);
         if (!userDao.verifyPassword(username, currentPassword)) {
@@ -79,6 +103,9 @@ public class UserProfileService {
         userDao.updatePassword(username, newPassword == null ? "" : new String(newPassword));
     }
 
+    /**
+     * Validates profile against the active business rules.
+     */
     private void validateProfile(String email, String phone) {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateMaxLength("Email", email, 120),
@@ -92,6 +119,9 @@ public class UserProfileService {
         }
     }
 
+    /**
+     * Validates extended profile against the active business rules.
+     */
     private void validateExtendedProfile(String fullName, String address, String dutyStatus, String profilePhotoPath) {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateMaxLength("Full Name", fullName, 120),
@@ -112,12 +142,18 @@ public class UserProfileService {
         }
     }
 
+    /**
+     * Validates password against the active business rules.
+     */
     private void validatePassword(char[] newPassword) {
         if (newPassword == null || newPassword.length < 8) {
             throw new IllegalArgumentException("New password must be at least 8 characters.");
         }
     }
 
+    /**
+     * Returns the username associated with the current session or workflow record.
+     */
     private String username(User user) {
         if (user == null || user.getUsername() == null || user.getUsername().isBlank()) {
             throw new SecurityException("Login is required.");
@@ -125,6 +161,9 @@ public class UserProfileService {
         return user.getUsername();
     }
 
+    /**
+     * Returns the normalized file extension for the supplied path.
+     */
     private String extension(String name) {
         int dot = name == null ? -1 : name.lastIndexOf('.');
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase();

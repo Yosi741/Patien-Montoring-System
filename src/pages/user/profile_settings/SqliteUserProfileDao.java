@@ -9,12 +9,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+/**
+ * Stores and retrieves extended staff profile fields from the SQLite user_profiles table.
+ */
 public class SqliteUserProfileDao {
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteUserProfileDao() {
         ensureSchema();
     }
 
+    /**
+     * Finds by username in SQLite.
+     */
     public Optional<UserProfileRow> findByUsername(String username) throws SQLException {
         String sql = "SELECT username, full_name, email, phone, address, duty_status, profile_photo_path, updated_at "
                 + "FROM user_profiles WHERE username = ?";
@@ -39,6 +48,9 @@ public class SqliteUserProfileDao {
         return Optional.empty();
     }
 
+    /**
+     * Inserts or updates upsert in the user_profiles table.
+     */
     public void upsert(String username, String email, String phone) throws SQLException {
         String sql = "INSERT INTO user_profiles(username, email, phone, updated_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP) "
                 + "ON CONFLICT(username) DO UPDATE SET "
@@ -52,6 +64,9 @@ public class SqliteUserProfileDao {
         }
     }
 
+    /**
+     * Inserts or updates profile in the user_profiles table.
+     */
     public void upsertProfile(UserProfileWriteRecord record) throws SQLException {
         String sql = "INSERT INTO user_profiles(username, full_name, email, phone, address, duty_status, profile_photo_path, updated_at) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) "
@@ -76,6 +91,9 @@ public class SqliteUserProfileDao {
         }
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -84,10 +102,16 @@ public class SqliteUserProfileDao {
         }
     }
 
+    /**
+     * Reads value safely from the current SQLite row.
+     */
     private String value(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Normalizes the staff duty status used by the profile and directory views.
+     */
     private String dutyStatus(String value) {
         String normalized = value(value);
         if (normalized.isEmpty()) {
@@ -99,6 +123,9 @@ public class SqliteUserProfileDao {
         return "On Duty";
     }
 
+    /**
+     * Capitalizes a stored duty-status phrase for display.
+     */
     private String capitalizeWords(String value) {
         String lower = value == null ? "" : value.trim().toLowerCase();
         if (lower.isEmpty()) {
@@ -128,6 +155,9 @@ public class SqliteUserProfileDao {
         private final String profilePhotoPath;
         private final String updatedAt;
 
+        /**
+         * Creates a user profile row from the supplied record values.
+         */
         public UserProfileRow(String username, String fullName, String email, String phone, String address, String dutyStatus, String profilePhotoPath, String updatedAt) {
             this.username = username;
             this.fullName = fullName;
@@ -158,6 +188,9 @@ public class SqliteUserProfileDao {
         private final String dutyStatus;
         private final String profilePhotoPath;
 
+        /**
+         * Creates a user profile write record from the supplied record values.
+         */
         public UserProfileWriteRecord(String username, String fullName, String email, String phone, String address, String dutyStatus, String profilePhotoPath) {
             this.username = username == null ? "" : username.trim();
             this.fullName = fullName == null ? "" : fullName.trim();

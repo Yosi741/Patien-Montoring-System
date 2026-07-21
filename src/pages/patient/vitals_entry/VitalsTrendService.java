@@ -14,20 +14,29 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Builds filtered and summarized vital-history series for the patient trend chart.
+ */
 public class VitalsTrendService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private final VitalThresholdService thresholdService = new VitalThresholdService();
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public VitalsTrendService() {
         ensureSchema();
     }
 
+    /**
+     * Loads trend for the patient workflow.
+     */
     public TrendResult loadTrend(String patientId, String vitalFilter, String rangeFilter) throws SQLException {
         ArrayList<TrendReading> readings = new ArrayList<>();
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT id, patient_id, vital_type, value, unit, recorded_at, source_type, staff_user, device_id "
+                     "SELECT id, patient_id, vital_type, value, unit, recorded_at, source_type, staff_user "
                              + "FROM vital_readings WHERE patient_id = ?")) {
             statement.setString(1, patientId);
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -44,6 +53,9 @@ public class VitalsTrendService {
         return summarize(vitalFilter, rangeFilter, readings);
     }
 
+    /**
+     * Maps reading to the corresponding application model.
+     */
     private TrendReading mapReading(ResultSet resultSet) throws SQLException {
         String vitalType = resultSet.getString("vital_type");
         double numericValue = parseDouble(resultSet.getString("value"));
@@ -56,11 +68,13 @@ public class VitalsTrendService {
                 parseDateTime(resultSet.getString("recorded_at")),
                 value(resultSet.getString("source_type")),
                 value(resultSet.getString("staff_user")),
-                value(resultSet.getString("device_id")),
                 thresholdService.evaluate(vitalType, numericValue)
         );
     }
 
+    /**
+     * Summarizes summarize into concise display text.
+     */
     private TrendResult summarize(String vitalFilter, String rangeFilter, List<TrendReading> readings) {
         TrendResult result = new TrendResult(vitalFilter, rangeFilter);
         result.readings.addAll(readings);
@@ -89,6 +103,9 @@ public class VitalsTrendService {
         return result;
     }
 
+    /**
+     * Determines whether the current value matches filter.
+     */
     private boolean matchesFilter(String vitalType, String vitalFilter) {
         if (vitalFilter == null || vitalFilter.equalsIgnoreCase("All")) {
             return true;
@@ -114,6 +131,9 @@ public class VitalsTrendService {
         }
     }
 
+    /**
+     * Determines whether the current value matches range.
+     */
     private boolean matchesRange(LocalDateTime recordedTime, String rangeFilter) {
         if (recordedTime == null || recordedTime.equals(LocalDateTime.MIN) || rangeFilter == null || rangeFilter.equalsIgnoreCase("All")) {
             return true;
@@ -135,6 +155,9 @@ public class VitalsTrendService {
         return !recordedTime.isBefore(cutoff);
     }
 
+    /**
+     * Parses date time without exposing format failures to the caller.
+     */
     private LocalDateTime parseDateTime(String value) {
         if (value == null || value.isBlank()) {
             return LocalDateTime.MIN;
@@ -150,6 +173,9 @@ public class VitalsTrendService {
         }
     }
 
+    /**
+     * Parses double without exposing format failures to the caller.
+     */
     private double parseDouble(String value) {
         if (value == null || value.isBlank()) {
             return 0;
@@ -161,6 +187,9 @@ public class VitalsTrendService {
         }
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -169,6 +198,9 @@ public class VitalsTrendService {
         }
     }
 
+    /**
+     * Reads value safely from the current SQLite row.
+     */
     private String value(String value) {
         return value == null ? "" : value;
     }
@@ -185,6 +217,9 @@ public class VitalsTrendService {
         private int warningCount;
         private int criticalCount;
 
+        /**
+         * Creates a trend result from the supplied record values.
+         */
         private TrendResult(String vitalFilter, String rangeFilter) {
             this.vitalFilter = vitalFilter;
             this.rangeFilter = rangeFilter;
@@ -212,11 +247,13 @@ public class VitalsTrendService {
         private final LocalDateTime recordedTime;
         private final String sourceType;
         private final String staffUser;
-        private final String deviceId;
         private final VitalThresholdService.VitalStatus status;
 
+        /**
+         * Creates a trend reading from the supplied record values.
+         */
         private TrendReading(String vitalType, double numericValue, String rawValue, String unit, String recordedAt,
-                             LocalDateTime recordedTime, String sourceType, String staffUser, String deviceId,
+                             LocalDateTime recordedTime, String sourceType, String staffUser,
                              VitalThresholdService.VitalStatus status) {
             this.vitalType = vitalType;
             this.numericValue = numericValue;
@@ -226,7 +263,6 @@ public class VitalsTrendService {
             this.recordedTime = recordedTime;
             this.sourceType = sourceType;
             this.staffUser = staffUser;
-            this.deviceId = deviceId;
             this.status = status;
         }
 
@@ -238,7 +274,6 @@ public class VitalsTrendService {
         public LocalDateTime getRecordedTime() { return recordedTime; }
         public String getSourceType() { return sourceType; }
         public String getStaffUser() { return staffUser; }
-        public String getDeviceId() { return deviceId; }
         public VitalThresholdService.VitalStatus getStatus() { return status; }
     }
 }

@@ -7,8 +7,14 @@ import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Manual utility that measures representative ClinicPulse SQLite queries against the demo performance threshold.
+ */
 public class DemoPerformanceCheck {
 
+    /**
+     * Runs this manual ClinicPulse verification or demo utility.
+     */
     public static void main(String[] args) throws Exception {
         SchemaInitializer.initialize();
         Map<String, String> checks = new LinkedHashMap<>();
@@ -36,6 +42,9 @@ public class DemoPerformanceCheck {
         System.out.println("Demo performance check passed.");
     }
 
+    /**
+     * Runs query and records its verification result.
+     */
     private static int runQuery(Connection connection, String sql) throws Exception {
         int rows = 0;
         try (Statement statement = connection.createStatement();

@@ -9,27 +9,45 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Locale;
 
+/**
+ * Validates administrator-managed staff account creation, updates, activation, deletion, and password resets.
+ */
 public class UserWriteService {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private final SqliteUserDao userDao;
 
+    /**
+     * Creates the service with the dependencies used by the staff workflow.
+     */
     public UserWriteService() {
         this(new SqliteUserDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the staff workflow.
+     */
     public UserWriteService(SqliteUserDao userDao) {
         this.userDao = userDao;
     }
 
+    /**
+     * Generates next staff ID without colliding with existing records.
+     */
     public String generateNextStaffId() throws SQLException {
         return userDao.generateNextStaffId();
     }
 
+    /**
+     * Checks SQLite for staff ID exists.
+     */
     public boolean staffIdExists(String staffId) throws SQLException {
         return userDao.staffIdExists(staffId);
     }
 
+    /**
+     * Creates user for the staff workflow.
+     */
     public void createUser(User admin, SqliteUserDao.UserWriteRecord record, char[] password) throws SQLException {
         require(PermissionHelper.canCreateUser(admin), "Only ADMIN users can create staff accounts.");
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
@@ -47,10 +65,9 @@ public class UserWriteService {
         }
     }
 
-    public void updateUser(User admin, SqliteUserDao.UserWriteRecord record) throws SQLException {
-        updateUser(admin, record == null ? "" : record.getUsername(), record);
-    }
-
+    /**
+     * Updates user.
+     */
     public void updateUser(User admin, String originalUsername, SqliteUserDao.UserWriteRecord record) throws SQLException {
         require(PermissionHelper.canUpdateUser(admin), "Only ADMIN users can update staff accounts.");
         FormValidationHelper.ValidationResult validation = validateRecord(record, false);
@@ -65,21 +82,9 @@ public class UserWriteService {
         userDao.updateUser(original, record);
     }
 
-    public void deactivateUser(User admin, String affectedUsername, boolean confirmedSelfDeactivation) throws SQLException {
-        require(PermissionHelper.canDeactivateUser(admin), "Only ADMIN users can deactivate staff accounts.");
-        FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
-                FormValidationHelper.validateRequired("Username", affectedUsername),
-                FormValidationHelper.validateMaxLength("Username", affectedUsername, 64)
-        );
-        requireValid(validation);
-        require(userDao.usernameExists(affectedUsername.trim()), "User does not exist: " + affectedUsername);
-        if (isSameUser(admin, affectedUsername) && !confirmedSelfDeactivation) {
-            throw new IllegalStateException("Self-deactivation requires explicit confirmation.");
-        }
-
-        userDao.deactivateUser(affectedUsername.trim());
-    }
-
+    /**
+     * Deletes user after the required checks.
+     */
     public void deleteUser(User admin, String affectedUsername) throws SQLException {
         require(PermissionHelper.canDeactivateUser(admin), "Only ADMIN users can delete staff accounts.");
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
@@ -100,23 +105,9 @@ public class UserWriteService {
         userDao.deleteUserAccount(normalized);
     }
 
-    public void resetPassword(User admin, String affectedUsername, char[] newPassword) throws SQLException {
-        require(PermissionHelper.canResetUserPassword(admin), "Only ADMIN users can reset staff passwords.");
-        FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
-                FormValidationHelper.validateRequired("Username", affectedUsername),
-                FormValidationHelper.validateMaxLength("Username", affectedUsername, 64),
-                validatePassword(newPassword)
-        );
-        requireValid(validation);
-        require(userDao.usernameExists(affectedUsername.trim()), "User does not exist: " + affectedUsername);
-
-        try {
-            userDao.updatePassword(affectedUsername.trim(), newPassword == null ? "" : new String(newPassword));
-        } finally {
-            clear(newPassword);
-        }
-    }
-
+    /**
+     * Validates record against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validateRecord(SqliteUserDao.UserWriteRecord record, boolean create) {
         if (record == null) {
             return FormValidationHelper.ValidationResult.error("User record is required.");
@@ -135,6 +126,9 @@ public class UserWriteService {
         return base;
     }
 
+    /**
+     * Validates username against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validateUsername(String username) {
         if (!hasText(username)) {
             return FormValidationHelper.ValidationResult.error("Username is required.");
@@ -146,6 +140,9 @@ public class UserWriteService {
         return FormValidationHelper.ValidationResult.ok();
     }
 
+    /**
+     * Validates staff ID against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validateStaffId(String staffId) {
         if (!hasText(staffId)) {
             return FormValidationHelper.ValidationResult.ok();
@@ -157,6 +154,9 @@ public class UserWriteService {
         return FormValidationHelper.ValidationResult.ok();
     }
 
+    /**
+     * Validates role against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validateRole(String role) {
         try {
             UserRole.fromValue(role);
@@ -166,6 +166,9 @@ public class UserWriteService {
         }
     }
 
+    /**
+     * Validates password against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validatePassword(char[] password) {
         if (password == null || password.length == 0) {
             return FormValidationHelper.ValidationResult.error("Password is required.");
@@ -176,12 +179,18 @@ public class UserWriteService {
         return FormValidationHelper.ValidationResult.ok();
     }
 
+    /**
+     * Enforces require before the protected operation continues.
+     */
     private void require(boolean allowed, String message) {
         if (!allowed) {
             throw new SecurityException(message);
         }
     }
 
+    /**
+     * Enforces valid before the protected operation continues.
+     */
     private void requireValid(FormValidationHelper.ValidationResult validation) {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
@@ -195,14 +204,23 @@ public class UserWriteService {
                 && admin.getUsername().equalsIgnoreCase(username.trim());
     }
 
+    /**
+     * Maps the stored role value to its visible clinic label.
+     */
     private String visibleRole(String internalRole) {
         return UserRole.fromValue(internalRole).displayName();
     }
 
+    /**
+     * Returns formatted display text for has text.
+     */
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }
 
+    /**
+     * Clears clear and restores its default state.
+     */
     private void clear(char[] password) {
         if (password != null) {
             Arrays.fill(password, '\0');

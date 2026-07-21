@@ -31,12 +31,14 @@ import pages.user.profile_settings.UserWriteService;
 
 import java.io.File;
 
+/**
+ * Controls UserFormView.fxml for adding and editing staff accounts and profile photos.
+ */
 public class UserFormController {
 
     private enum Mode {
         CREATE,
-        EDIT,
-        RESET_PASSWORD
+        EDIT
     }
 
     private final UserWriteService userWriteService = new UserWriteService();
@@ -74,18 +76,23 @@ public class UserFormController {
     @FXML private Label passwordHelpLabel;
     @FXML private Label statusLabel;
 
+    /**
+     * Displays create dialog to the user.
+     */
     public static boolean showCreateDialog(Window owner, User currentUser) {
         return showDialog(owner, currentUser, null, Mode.CREATE);
     }
 
+    /**
+     * Displays edit dialog to the user.
+     */
     public static boolean showEditDialog(Window owner, User currentUser, SqliteUserDao.UserDirectoryRow user) {
         return showDialog(owner, currentUser, user, Mode.EDIT);
     }
 
-    public static boolean showResetPasswordDialog(Window owner, User currentUser, SqliteUserDao.UserDirectoryRow user) {
-        return showDialog(owner, currentUser, user, Mode.RESET_PASSWORD);
-    }
-
+    /**
+     * Displays dialog to the user.
+     */
     private static boolean showDialog(Window owner, User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/user/user_form/UserFormView.fxml"));
@@ -113,6 +120,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         roleBox.setItems(FXCollections.observableArrayList("Admin", "Doctor", "Nurse", "Secretary"));
@@ -130,10 +140,16 @@ public class UserFormController {
         NotificationHelper.showInfo(statusLabel, "Staff account form. Passwords are not displayed.");
     }
 
+    /**
+     * Attaches dialog to the current controller.
+     */
     private void attachDialog(Dialog<?> dialog) {
         this.dialog = dialog;
     }
 
+    /**
+     * Prepares the form with the selected staff record and mode.
+     */
     private void prepare(User currentUser, SqliteUserDao.UserDirectoryRow user, Mode mode) {
         this.currentUser = currentUser;
         this.existingUser = user;
@@ -170,47 +186,23 @@ public class UserFormController {
         staffIdField.setText(user.getStaffId());
         usernameField.setText(user.getUsername());
         usernameField.setEditable(false);
-        usernameField.setDisable(mode == Mode.RESET_PASSWORD);
         usernameHelpLabel.setText("Username cannot be changed after creation because it is used in system records.");
         roleBox.getSelectionModel().select(visibleRole(user.getRole()));
         activeCheckBox.setSelected(user.isActive());
         populateProfileFields(user);
 
-        if (mode == Mode.EDIT) {
-            titleLabel.setText("Edit Staff");
-            helpLabel.setText("Update profile details, role, and duty status.");
-            if (saveButton != null) {
-                saveButton.setText("Save");
-            }
-            hidePasswordFields();
-            passwordHelpLabel.setText("Password is used for local demo login. Use Reset Password to change it.");
-            return;
-        }
-
-        titleLabel.setText("Reset Staff Password");
-        helpLabel.setText("Set a new password for this clinic staff account.");
+        titleLabel.setText("Edit Staff");
+        helpLabel.setText("Update profile details, role, and duty status.");
         if (saveButton != null) {
-            saveButton.setText("Reset Password");
+            saveButton.setText("Save");
         }
-        if (cancelButton != null) {
-            cancelButton.setText("Cancel");
-        }
-        roleBox.setDisable(true);
-        dutyStatusBox.setDisable(true);
-        activeCheckBox.setDisable(true);
-        fullNameField.setDisable(true);
-        emailField.setDisable(true);
-        phoneField.setDisable(true);
-        addressArea.setDisable(true);
-        if (uploadPhotoButton != null) {
-            uploadPhotoButton.setDisable(true);
-        }
-        if (removePhotoButton != null) {
-            removePhotoButton.setDisable(true);
-        }
-        passwordHelpLabel.setText("Enter the new password twice. Minimum length is 8 characters.");
+        hidePasswordFields();
+        passwordHelpLabel.setText("Password changes use the Forgot Password workflow on the login screen.");
     }
 
+    /**
+     * Updates profile fields for create for the current object.
+     */
     private void setProfileFieldsForCreate() {
         fullNameField.clear();
         emailField.clear();
@@ -225,6 +217,9 @@ public class UserFormController {
         refreshPhotoPreview();
     }
 
+    /**
+     * Populates profile fields from the selected record.
+     */
     private void populateProfileFields(SqliteUserDao.UserDirectoryRow user) {
         try {
             SqliteUserProfileDao.UserProfileRow profile = profileService.findProfile(user.getUsername()).orElse(null);
@@ -249,6 +244,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Hides password fields and removes its layout space.
+     */
     private void hidePasswordFields() {
         passwordField.setVisible(false);
         passwordField.setManaged(false);
@@ -256,6 +254,9 @@ public class UserFormController {
         confirmPasswordField.setManaged(false);
     }
 
+    /**
+     * Handles the submit form UI action.
+     */
     @FXML
     private void submitForm(ActionEvent event) {
         if (save()) {
@@ -266,6 +267,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Handles the close dialog UI action.
+     */
     @FXML
     private void closeDialog() {
         if (dialog != null) {
@@ -273,6 +277,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Handles the choose profile photo UI action.
+     */
     @FXML
     private void chooseProfilePhoto() {
         FileChooser chooser = new FileChooser();
@@ -290,6 +297,9 @@ public class UserFormController {
         refreshPhotoPreview();
     }
 
+    /**
+     * Handles the remove profile photo UI action.
+     */
     @FXML
     private void removeProfilePhoto() {
         selectedPhotoFile = null;
@@ -298,12 +308,11 @@ public class UserFormController {
         refreshPhotoPreview();
     }
 
+    /**
+     * Validates and saves save.
+     */
     private boolean save() {
         try {
-            if (mode == Mode.RESET_PASSWORD) {
-                return savePasswordReset();
-            }
-
             String username = normalizedUsername();
             if (username.isBlank()) {
                 NotificationHelper.showError(statusLabel, "Username is required.");
@@ -351,23 +360,9 @@ public class UserFormController {
         }
     }
 
-    private boolean savePasswordReset() {
-        char[] password = passwordChars();
-        if (!passwordsMatch()) {
-            NotificationHelper.showError(statusLabel, "Passwords do not match.");
-            clear(password);
-            return false;
-        }
-        try {
-            userWriteService.resetPassword(currentUser, usernameField.getText(), password);
-            saved = true;
-            return true;
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-            return false;
-        }
-    }
-
+    /**
+     * Builds record used by the staff view.
+     */
     private SqliteUserDao.UserWriteRecord buildRecord() {
         String username = mode == Mode.CREATE || existingUser == null
                 ? normalizedUsername()
@@ -381,6 +376,9 @@ public class UserFormController {
         );
     }
 
+    /**
+     * Refreshes photo preview from the current application state.
+     */
     private void refreshPhotoPreview() {
         String initials = initials(fullNameField == null ? "" : fullNameField.getText(), normalizedUsername());
         if (photoInitialsLabel != null) {
@@ -420,6 +418,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Builds initials from initials for an avatar fallback.
+     */
     private String initials(String fullName, String username) {
         String source = fullName == null || fullName.trim().isEmpty() ? username : fullName;
         if (source == null || source.isBlank()) {
@@ -432,23 +433,38 @@ public class UserFormController {
         return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
     }
 
+    /**
+     * Maps the stored role value to its visible clinic label.
+     */
     private String visibleRole(String internalRole) {
         return UserRole.fromValue(internalRole).displayName();
     }
 
+    /**
+     * Maps the visible role label to the internal role value.
+     */
     private String internalRole(String visibleRole) {
         return UserRole.fromValue(visibleRole).databaseValue();
     }
 
+    /**
+     * Normalizes normalized username to the stored application format.
+     */
     private String normalizedUsername() {
         return usernameField.getText() == null ? "" : usernameField.getText().trim();
     }
 
+    /**
+     * Builds the JavaFX control used for configure read only staff ID field.
+     */
     private void configureReadOnlyStaffIdField() {
         staffIdField.setEditable(false);
         staffIdField.setFocusTraversable(false);
     }
 
+    /**
+     * Populates generated staff ID from the selected record.
+     */
     private void populateGeneratedStaffId() {
         try {
             staffIdField.setText(userWriteService.generateNextStaffId());
@@ -458,6 +474,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Ensures generated staff ID available exists before continuing.
+     */
     private void ensureGeneratedStaffIdAvailable() throws Exception {
         String currentStaffId = safe(staffIdField.getText()).toUpperCase();
         if (currentStaffId.isBlank() || !currentStaffId.matches("U\\d{4,}") || userWriteService.staffIdExists(currentStaffId)) {
@@ -465,6 +484,9 @@ public class UserFormController {
         }
     }
 
+    /**
+     * Returns section value without overwriting stored staff data.
+     */
     private String preservedSectionValue() {
         if (mode == Mode.CREATE) {
             return "";
@@ -472,26 +494,41 @@ public class UserFormController {
         return safe(preservedSection);
     }
 
+    /**
+     * Evaluates password chars for the staff form.
+     */
     private char[] passwordChars() {
         return passwordField.getText() == null ? new char[0] : passwordField.getText().toCharArray();
     }
 
+    /**
+     * Evaluates passwords match for the staff form.
+     */
     private boolean passwordsMatch() {
         String password = passwordField.getText() == null ? "" : passwordField.getText();
         String confirm = confirmPasswordField.getText() == null ? "" : confirmPasswordField.getText();
         return password.equals(confirm);
     }
 
+    /**
+     * Clears clear and restores its default state.
+     */
     private void clear(char[] password) {
         if (password != null) {
             java.util.Arrays.fill(password, '\0');
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for safe.
+     */
     private String safe(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Returns a safe display or filesystem value for duty status.
+     */
     private String safeDutyStatus(String value) {
         if ("Off Duty".equalsIgnoreCase(value)) {
             return "Off Duty";
@@ -502,12 +539,12 @@ public class UserFormController {
         return "On Duty";
     }
 
+    /**
+     * Returns the title for the current add or edit dialog mode.
+     */
     private static String dialogTitle(Mode mode) {
         if (mode == Mode.CREATE) {
             return "Add Staff";
-        }
-        if (mode == Mode.RESET_PASSWORD) {
-            return "Reset Staff Password";
         }
         return "Edit Staff";
     }

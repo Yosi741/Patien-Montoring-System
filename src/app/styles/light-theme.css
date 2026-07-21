@@ -33,43 +33,8 @@
     -fx-padding: 54 44 46 44;
 }
 
-.login-brand-badge {
-    -fx-background-color: rgba(47, 111, 237, 0.08);
-    -fx-border-color: rgba(47, 111, 237, 0.18);
-    -fx-background-radius: 999;
-    -fx-border-radius: 999;
-    -fx-padding: 7 14;
-    -fx-text-fill: #2563eb;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-}
-
-.login-logo-aura {
-    -fx-min-width: 270;
-    -fx-min-height: 270;
-    -fx-max-width: 270;
-    -fx-max-height: 270;
-    -fx-background-color: radial-gradient(center 50% 50%, radius 62%, rgba(20, 184, 196, 0.24), rgba(47, 111, 237, 0.12) 58%, rgba(255, 255, 255, 0) 80%);
-    -fx-background-radius: 999;
-}
-
-.login-logo-frame {
-    -fx-alignment: center;
-    -fx-min-width: 300;
-    -fx-min-height: 300;
-    -fx-background-color: rgba(255, 255, 255, 0.78);
-    -fx-border-color: rgba(201, 216, 234, 0.96);
-    -fx-border-radius: 32;
-    -fx-background-radius: 32;
-    -fx-padding: 24;
-}
-
 .login-logo-image {
     -fx-effect: dropshadow(gaussian, rgba(20, 184, 196, 0.18), 30, 0.16, 0, 0);
-}
-
-.login-logo-mark {
-    -fx-border-color: rgba(255, 255, 255, 0.58);
 }
 
 .login-brand-title {
@@ -113,7 +78,6 @@
     -fx-font-weight: 800;
 }
 
-.login-security-icon,
 .login-footer-icon {
     -fx-background-color: rgba(20, 184, 196, 0.12);
     -fx-background-radius: 999;
@@ -1998,16 +1962,10 @@
 .card,
 .panel,
 .page-header-card,
-.management-panel,
-.summary-card,
-.actions-card,
-.filter-toolbar,
-.table-section,
 .dashboard-summary-row,
 .dashboard-list-row,
 .detail-field-row,
 .notification-card-row,
-.timeline-card,
 .shell-status-card,
 .shell-user-block,
 .staff-filter-bar,
@@ -2030,7 +1988,6 @@
 .notification-counter-value,
 .notification-detail-value,
 .notification-card-title,
-.timeline-title,
 .shell-brand-title,
 .shell-user-name,
 .shell-status-title,
@@ -2048,9 +2005,6 @@
 .notification-muted,
 .notification-card-preview,
 .notification-card-meta,
-.timeline-time,
-.timeline-source,
-.timeline-description,
 .shell-brand-subtitle,
 .shell-user-meta,
 .shell-status-text,
@@ -2214,10 +2168,7 @@
 
 .table-view,
 .table-surface,
-.list-view,
-.timeline-list,
-.sections-table,
-.rooms-table {
+.list-view {
     -fx-background-color: #ffffff;
     -fx-border-color: #d7e0ea;
     -fx-table-cell-border-color: #e2e8f0;
@@ -2311,7 +2262,6 @@
 .dashboard-summary-row,
 .dashboard-list-row,
 .detail-field-row,
-.timeline-card,
 .shell-status-card,
 .shell-user-block {
     -fx-background-color: #f8fafc;
@@ -3006,10 +2956,6 @@
     -fx-text-fill: #0f172a;
     -fx-font-size: 19px;
     -fx-font-weight: 900;
-}
-
-.patient-detail-section {
-    -fx-text-fill: #0f172a;
 }
 
 .past-visits-card .patient-file-table {

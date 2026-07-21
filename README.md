@@ -60,8 +60,10 @@ src/Main.java
 
 Before compiling from the command line, rebuild `sources.txt` from the real Java files under `src` and `tools`:
 
-```cmd
-dir /s /b src\*.java tools\*.java > sources.txt
+```powershell
+Get-ChildItem -Path .\src,.\tools -Recurse -Filter *.java |
+ForEach-Object { $_.FullName.Substring((Get-Location).Path.Length + 1).Replace('\','/') } |
+Set-Content .\sources.txt
 ```
 
 From Windows `cmd.exe` inside `untitledSmartPatientMonitoringSystem`:
@@ -107,7 +109,14 @@ This is a local desktop demo. It uses a local login system and role-based access
 - `src/app/styles/` - shared JavaFX CSS themes
 - `src/pages/login/` - login and forgot-password flow
 - `src/pages/dashboard/` - clinic dashboard and overview metrics
-- `src/pages/patient/` - patient board, patient file, patient form, vitals, and medical files
+- `src/pages/patient/model/` - shared patient visit data model
+- `src/pages/patient/dao/` - patient persistence and visit DAO contracts/implementations
+- `src/pages/patient/services/` - patient write and visit business services
+- `src/pages/patient/patient_board/` - Patient Management table, search, filters, and row actions
+- `src/pages/patient/patient_form/` - Add/Edit Patient form and validation
+- `src/pages/patient/patient_detail/` - Patient File screen and patient-specific actions
+- `src/pages/patient/vitals_entry/` - vitals form, thresholds, trends, persistence, and alerts integration
+- `src/pages/patient/medical_files/` - medical-record upload, metadata, preview, and file actions
 - `src/pages/alert/` - alert persistence and local alert sound handling
 - `src/pages/scheduling/` - appointments
 - `src/pages/billing/` - local demo invoices and payment status tracking

@@ -3,6 +3,9 @@ package pages.patient.vitals_entry;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Defines the supported vital types, units, display names, and entry ranges used by vitals screens.
+ */
 public final class VitalTypeCatalog {
 
     public static final String HEART_RATE = "Heart Rate";
@@ -13,9 +16,15 @@ public final class VitalTypeCatalog {
     public static final String SUGAR_LEVEL = "Sugar Level";
     public static final String BLOOD_PRESSURE = "Blood Pressure";
 
+    /**
+     * Creates a vital type catalog from the supplied record values.
+     */
     private VitalTypeCatalog() {
     }
 
+    /**
+     * Returns the vital type labels used by JavaFX controls.
+     */
     public static List<String> javaFxEntryTypes() {
         return List.of(
                 HEART_RATE,
@@ -27,6 +36,9 @@ public final class VitalTypeCatalog {
         );
     }
 
+    /**
+     * Returns the vital type labels used by JavaFX controls.
+     */
     public static List<String> javaFxFilterTypes() {
         return List.of(
                 "All",
@@ -39,6 +51,9 @@ public final class VitalTypeCatalog {
         );
     }
 
+    /**
+     * Normalizes normalize to the stored application format.
+     */
     public static String normalize(String vitalType) {
         if (vitalType == null) {
             return "";
@@ -68,16 +83,9 @@ public final class VitalTypeCatalog {
         return vitalType.trim();
     }
 
-    public static boolean isSupportedSingleReading(String vitalType) {
-        String normalized = normalize(vitalType);
-        return HEART_RATE.equals(normalized)
-                || TEMPERATURE.equals(normalized)
-                || OXYGEN_SATURATION.equals(normalized)
-                || SYSTOLIC_PRESSURE.equals(normalized)
-                || DIASTOLIC_PRESSURE.equals(normalized)
-                || SUGAR_LEVEL.equals(normalized);
-    }
-
+    /**
+     * Returns the expected unit for the selected vital type.
+     */
     public static String expectedUnit(String vitalType) {
         switch (normalize(vitalType)) {
             case HEART_RATE:

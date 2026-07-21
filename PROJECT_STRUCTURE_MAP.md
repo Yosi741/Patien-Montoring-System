@@ -69,19 +69,22 @@ This is the short teacher-facing guide for explaining where the current JavaFX +
 
 - `src/pages/patient/patient_board/PatientListView.fxml`
 - `src/pages/patient/patient_board/PatientListController.java`
-- `src/pages/patient/patient_board/PatientDao.java`
 - Patient list, search/filter, row actions, Add Patient, Edit Patient, and Add Vitals shortcut.
 
 ## 6. Patient File
 
 - `src/pages/patient/patient_detail/PatientDetailView.fxml`
 - `src/pages/patient/patient_detail/PatientDetailController.java`
-- `src/pages/patient/patient_detail/Patient.java`
-- `src/pages/patient/patient_detail/SqlitePatientDao.java`
-- `src/pages/patient/patient_detail/PatientWriteService.java`
-- `src/pages/patient/patient_detail/PatientVisitService.java`
-- `src/pages/patient/patient_detail/SqlitePatientVisitDao.java`
 - Full patient file, visit history, vitals timeline, trends, alerts summary, and patient-specific actions.
+
+Shared patient data and logic:
+
+- `src/pages/patient/model/PatientVisit.java`
+- `src/pages/patient/dao/PatientVisitDao.java`
+- `src/pages/patient/dao/SqlitePatientDao.java`
+- `src/pages/patient/dao/SqlitePatientVisitDao.java`
+- `src/pages/patient/services/PatientWriteService.java`
+- `src/pages/patient/services/PatientVisitService.java`
 
 ## 7. Patient Form
 
@@ -201,8 +204,10 @@ Final roles:
 
 Before compiling from the command line, rebuild `sources.txt` from the current Java tree:
 
-```cmd
-dir /s /b src\*.java tools\*.java > sources.txt
+```powershell
+Get-ChildItem -Path .\src,.\tools -Recurse -Filter *.java |
+ForEach-Object { $_.FullName.Substring((Get-Location).Path.Length + 1).Replace('\','/') } |
+Set-Content .\sources.txt
 ```
 
 ## Common Teacher Questions

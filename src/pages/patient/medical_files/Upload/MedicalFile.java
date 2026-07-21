@@ -1,5 +1,8 @@
-package pages.patient.medical_files;
+package pages.patient.medical_files.Upload;
 
+/**
+ * Represents uploaded medical-file metadata associated with a patient record.
+ */
 public class MedicalFile {
 
     private String fileId;
@@ -10,6 +13,9 @@ public class MedicalFile {
     private String uploadedBy;
     private String uploadedAt;
 
+    /**
+     * Creates a medical file from the supplied record values.
+     */
     public MedicalFile(String fileId, String patientId, String originalName,
                        String storedPath, String fileType, String uploadedBy,
                        String uploadedAt) {

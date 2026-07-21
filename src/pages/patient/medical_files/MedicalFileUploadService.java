@@ -1,10 +1,11 @@
 package pages.patient.medical_files;
 
-import pages.patient.patient_detail.SqlitePatientDao;
+import pages.patient.Add_Edit_Patient_Dao;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
+import pages.patient.medical_files.Upload.MedicalFile;
 import pages.user.User;
 
 import java.io.File;
@@ -22,6 +23,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Validates upload permissions, patient identity, and file metadata before storing local medical files.
+ */
 public class MedicalFileUploadService {
 
     private static final long MAX_FILE_SIZE_BYTES = 10L * 1024L * 1024L;
@@ -31,17 +35,26 @@ public class MedicalFileUploadService {
     private static final Set<String> CATEGORIES = Set.of("LAB_RESULT", "DISCHARGE_SUMMARY", "IMAGING", "PRESCRIPTION", "OTHER");
 
     private final SqliteMedicalFileDao medicalFileDao;
-    private final SqlitePatientDao patientDao;
+    private final Add_Edit_Patient_Dao patientDao;
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public MedicalFileUploadService() {
-        this(new SqliteMedicalFileDao(), new SqlitePatientDao());
+        this(new SqliteMedicalFileDao(), new Add_Edit_Patient_Dao());
     }
 
-    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao, SqlitePatientDao patientDao) {
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
+    public MedicalFileUploadService(SqliteMedicalFileDao medicalFileDao, Add_Edit_Patient_Dao patientDao) {
         this.medicalFileDao = medicalFileDao;
         this.patientDao = patientDao;
     }
 
+    /**
+     * Uploads medical file and stores its metadata in SQLite.
+     */
     public UploadResult uploadMedicalFile(User currentUser, UploadRequest request) throws IOException, SQLException {
         if (!PermissionHelper.canUploadMedicalFile(currentUser)) {
             throw new SecurityException("Only Admin, Doctor, Nurse, and Secretary users can upload medical records.");
@@ -96,6 +109,9 @@ public class MedicalFileUploadService {
         return new UploadResult(fileId, destination.toString(), summary);
     }
 
+    /**
+     * Validates request against the active business rules.
+     */
     private void validateRequest(UploadRequest request) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validatePatientId(request.patientId),
@@ -128,12 +144,18 @@ public class MedicalFileUploadService {
         }
     }
 
+    /**
+     * Builds a collision-safe upload destination for the selected medical file.
+     */
     private Path destinationPath(String patientId, String originalName, String fileId) {
         String safeName = safeFilename(originalName);
         String stamp = LocalDateTime.now().format(FILE_STAMP);
         return Path.of("data", "uploads", patientId, stamp + "_" + fileId.substring(0, 8) + "_" + safeName);
     }
 
+    /**
+     * Cleans up copied file after a failed or cancelled operation.
+     */
     private void cleanupCopiedFile(Path destination) {
         try {
             Files.deleteIfExists(destination);
@@ -142,6 +164,9 @@ public class MedicalFileUploadService {
         }
     }
 
+    /**
+     * Extracts summary from the selected file.
+     */
     private String extractSummary(File file, String extension, String category) {
         try {
             switch (extension) {
@@ -163,6 +188,9 @@ public class MedicalFileUploadService {
         }
     }
 
+    /**
+     * Summarizes text into concise display text.
+     */
     private String summarizeText(List<String> lines) {
         ArrayList<String> important = new ArrayList<>();
         for (String line : lines) {
@@ -178,6 +206,9 @@ public class MedicalFileUploadService {
         return important.isEmpty() ? "Text file uploaded; no readable non-empty lines found." : "TXT summary: " + String.join(" | ", important);
     }
 
+    /**
+     * Summarizes csv into concise display text.
+     */
     private String summarizeCsv(List<String> lines) {
         if (lines.isEmpty()) {
             return "CSV file uploaded; no rows found.";
@@ -198,6 +229,9 @@ public class MedicalFileUploadService {
                 + (samples.isEmpty() ? "" : " Sample rows: " + String.join(" | ", samples));
     }
 
+    /**
+     * Summarizes pdf into concise display text.
+     */
     private String summarizePdf(File file) throws IOException {
         try (PDDocument document = PDDocument.load(file)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -211,26 +245,41 @@ public class MedicalFileUploadService {
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for filename.
+     */
     private String safeFilename(String name) {
         String safe = name == null ? "upload" : name.replaceAll("[^A-Za-z0-9._-]", "_");
         return safe.isBlank() ? "upload" : safe;
     }
 
+    /**
+     * Returns the normalized file extension for the supplied path.
+     */
     private String extension(String name) {
         int dot = name == null ? -1 : name.lastIndexOf('.');
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Normalizes category to the stored application format.
+     */
     private String normalizeCategory(String category) {
         return category == null || category.isBlank() ? "OTHER" : category.trim().toUpperCase();
     }
 
+    /**
+     * Returns the username associated with the current session or workflow record.
+     */
     private String username(User currentUser) {
         return currentUser == null || currentUser.getUsername() == null || currentUser.getUsername().isBlank()
                 ? "Unknown"
                 : currentUser.getUsername();
     }
 
+    /**
+     * Trims trim while preserving null handling.
+     */
     private String trim(String value) {
         return value == null ? "" : value.trim();
     }
@@ -241,6 +290,9 @@ public class MedicalFileUploadService {
         private final String category;
         private final String notes;
 
+        /**
+         * Creates a upload request from the supplied record values.
+         */
         public UploadRequest(String patientId, String filePath, String category, String notes) {
             this.patientId = patientId;
             this.filePath = filePath;
@@ -254,6 +306,9 @@ public class MedicalFileUploadService {
         private final String storedPath;
         private final String extractedSummary;
 
+        /**
+         * Creates a upload result from the supplied record values.
+         */
         public UploadResult(String fileId, String storedPath, String extractedSummary) {
             this.fileId = fileId;
             this.storedPath = storedPath;

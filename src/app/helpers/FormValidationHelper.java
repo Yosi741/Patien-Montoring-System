@@ -6,20 +6,32 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides reusable validation rules for identifiers, names, numbers, and dates across clinic forms.
+ */
 public final class FormValidationHelper {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Creates a form validation helper from the supplied record values.
+     */
     private FormValidationHelper() {
     }
 
+    /**
+     * Validates required against the active business rules.
+     */
     public static ValidationResult validateRequired(String label, String value) {
         return hasText(value)
                 ? ValidationResult.ok()
                 : ValidationResult.error(label + " is required.");
     }
 
+    /**
+     * Validates numeric against the active business rules.
+     */
     public static ValidationResult validateNumeric(String label, String value, double min, double max) {
         if (!hasText(value)) {
             return ValidationResult.error(label + " is required.");
@@ -35,6 +47,9 @@ public final class FormValidationHelper {
         }
     }
 
+    /**
+     * Validates date time against the active business rules.
+     */
     public static ValidationResult validateDateTime(String label, String value) {
         if (!hasText(value)) {
             return ValidationResult.error(label + " is required.");
@@ -58,10 +73,16 @@ public final class FormValidationHelper {
         }
     }
 
+    /**
+     * Validates patient ID against the active business rules.
+     */
     public static ValidationResult validatePatientId(String value) {
         return validateNineDigitId("Patient ID", value);
     }
 
+    /**
+     * Validates nine digit ID against the active business rules.
+     */
     public static ValidationResult validateNineDigitId(String label, String value) {
         if (!hasText(value)) {
             return ValidationResult.error(label + " is required.");
@@ -71,6 +92,9 @@ public final class FormValidationHelper {
                 : ValidationResult.error(label + " must contain only digits and exactly 9 digits.");
     }
 
+    /**
+     * Validates person name against the active business rules.
+     */
     public static ValidationResult validatePersonName(String label, String value) {
         if (!hasText(value)) {
             return ValidationResult.ok();
@@ -81,6 +105,9 @@ public final class FormValidationHelper {
                 : ValidationResult.error("Name must contain letters only.");
     }
 
+    /**
+     * Validates max length against the active business rules.
+     */
     public static ValidationResult validateMaxLength(String label, String value, int maxLength) {
         if (value != null && value.length() > maxLength) {
             return ValidationResult.error(label + " must be " + maxLength + " characters or fewer.");
@@ -90,6 +117,9 @@ public final class FormValidationHelper {
 
 
 
+    /**
+     * Combines combine into one validation result.
+     */
     public static ValidationResult combine(ValidationResult... results) {
         ArrayList<String> errors = new ArrayList<>();
         for (ValidationResult result : results) {
@@ -100,6 +130,9 @@ public final class FormValidationHelper {
         return errors.isEmpty() ? ValidationResult.ok() : ValidationResult.errors(errors);
     }
 
+    /**
+     * Returns formatted display text for has text.
+     */
     private static boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }
@@ -107,18 +140,30 @@ public final class FormValidationHelper {
     public static class ValidationResult {
         private final List<String> errors;
 
+        /**
+         * Creates a validation result from the supplied record values.
+         */
         private ValidationResult(List<String> errors) {
             this.errors = errors;
         }
 
+        /**
+         * Creates a validation result representing ok.
+         */
         public static ValidationResult ok() {
             return new ValidationResult(List.of());
         }
 
+        /**
+         * Displays a error dialog using the shared ClinicPulse styling.
+         */
         public static ValidationResult error(String error) {
             return new ValidationResult(List.of(error));
         }
 
+        /**
+         * Creates a validation result representing errors.
+         */
         public static ValidationResult errors(List<String> errors) {
             return new ValidationResult(List.copyOf(errors));
         }

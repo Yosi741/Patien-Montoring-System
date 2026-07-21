@@ -2,12 +2,18 @@ package pages.user;
 
 import java.util.Locale;
 
+/**
+ * Defines the supported ClinicPulse roles and converts stored role values to presentation labels.
+ */
 public enum UserRole {
     ADMIN,
     DOCTOR,
     NURSE,
     SECRETARY;
 
+    /**
+     * Parses the stored value into the corresponding enum constant.
+     */
     public static UserRole fromValue(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Role is required");
@@ -24,6 +30,9 @@ public enum UserRole {
         return UserRole.valueOf(normalized);
     }
 
+    /**
+     * Formats name for display in the JavaFX UI.
+     */
     public String displayName() {
         return switch (this) {
             case ADMIN -> "Admin";
@@ -33,6 +42,9 @@ public enum UserRole {
         };
     }
 
+    /**
+     * Returns the stable value stored in SQLite.
+     */
     public String databaseValue() {
         return name();
     }

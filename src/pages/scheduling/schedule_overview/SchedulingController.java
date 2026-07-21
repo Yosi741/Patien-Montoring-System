@@ -27,7 +27,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import app.core.AppShell;
 import app.contracts.AppController;
-import app.helpers.DialogHelper;
 import app.helpers.DialogThemeHelper;
 import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
@@ -40,6 +39,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
+/**
+ * Controls SchedulingView.fxml, including appointment filters, details, creation, editing, and status actions.
+ */
 public class SchedulingController implements AppController {
 
     private static final DateTimeFormatter TIME_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("h:mm a");
@@ -75,6 +77,9 @@ public class SchedulingController implements AppController {
     @FXML private TableColumn<SqliteAppointmentDao.AppointmentRow, SqliteAppointmentDao.AppointmentRow> appointmentActionsColumn;
     @FXML private Label statusLabel;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -87,6 +92,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Opens for patient for the selected record.
+     */
     public void openForPatient(String patientId) {
         patientIdFilter = patientId == null ? "" : patientId;
         updatePatientFilterChip();
@@ -95,6 +103,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Handles the load scheduling UI action.
+     */
     @FXML
     private void loadScheduling() {
         if (!isAuthorized()) {
@@ -121,6 +132,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Handles the create appointment UI action.
+     */
     @FXML
     private void createAppointment() {
         if (!PermissionHelper.canCreateAppointment(Session.getCurrentUser())) {
@@ -137,6 +151,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Handles the edit appointment UI action.
+     */
     @FXML
     private void editAppointment() {
         if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
@@ -157,47 +174,9 @@ public class SchedulingController implements AppController {
         }
     }
 
-    @FXML
-    private void completeAppointment() {
-        SqliteAppointmentDao.AppointmentRow selected = selectedAppointment();
-        if (selected == null) {
-            return;
-        }
-        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
-            return;
-        }
-        try {
-            schedulingService.markAppointmentCompleted(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment marked completed.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    @FXML
-    private void cancelAppointment() {
-        SqliteAppointmentDao.AppointmentRow selected = selectedAppointment();
-        if (selected == null) {
-            return;
-        }
-        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
-            return;
-        }
-        if (!DialogHelper.confirm("Cancel Appointment", "Cancel appointment " + selected.getTitle() + "?")) {
-            return;
-        }
-        try {
-            schedulingService.cancelAppointment(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment cancelled.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
+    /**
+     * Handles the clear filters UI action.
+     */
     @FXML
     private void clearFilters() {
         searchField.clear();
@@ -206,6 +185,9 @@ public class SchedulingController implements AppController {
         loadScheduling();
     }
 
+    /**
+     * Handles the clear patient filter UI action.
+     */
     @FXML
     private void clearPatientFilter() {
         patientIdFilter = "";
@@ -213,6 +195,9 @@ public class SchedulingController implements AppController {
         loadScheduling();
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean authorized = isAuthorized();
         accessDeniedPane.setVisible(!authorized);
@@ -221,6 +206,9 @@ public class SchedulingController implements AppController {
         contentPane.setManaged(authorized);
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         appointmentTypeFilter.setItems(FXCollections.observableArrayList("All", "VISIT", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY"));
         appointmentStatusFilter.setItems(FXCollections.observableArrayList("All", "SCHEDULED", "COMPLETED", "CANCELLED", "MISSED"));
@@ -231,6 +219,9 @@ public class SchedulingController implements AppController {
         appointmentStatusFilter.valueProperty().addListener((observable, oldValue, newValue) -> loadScheduling());
     }
 
+    /**
+     * Configures tables.
+     */
     private void configureTables() {
         if (appointmentTable != null) {
             appointmentTable.setFixedCellSize(52);
@@ -244,6 +235,9 @@ public class SchedulingController implements AppController {
         appointmentActionsColumn.setMaxWidth(170);
         appointmentPatientNameColumn.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         appointmentPatientNameColumn.setCellFactory(column -> new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -262,6 +256,9 @@ public class SchedulingController implements AppController {
         });
         appointmentTypeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         appointmentTypeColumn.setCellFactory(column -> new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
                 super.updateItem(row, empty);
@@ -278,6 +275,9 @@ public class SchedulingController implements AppController {
         });
         appointmentDateTimeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         appointmentDateTimeColumn.setCellFactory(column -> new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
                 super.updateItem(row, empty);
@@ -294,6 +294,9 @@ public class SchedulingController implements AppController {
         });
         appointmentStatusColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         appointmentStatusColumn.setCellFactory(column -> new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
                 super.updateItem(row, empty);
@@ -310,6 +313,9 @@ public class SchedulingController implements AppController {
         });
         appointmentActionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
         appointmentActionsColumn.setCellFactory(column -> new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(SqliteAppointmentDao.AppointmentRow row, boolean empty) {
                 super.updateItem(row, empty);
@@ -349,6 +355,9 @@ public class SchedulingController implements AppController {
         });
     }
 
+    /**
+     * Configures write buttons.
+     */
     private void configureWriteButtons() {
         boolean canCreateAppointments = PermissionHelper.canCreateAppointment(Session.getCurrentUser());
         newAppointmentButton.setVisible(canCreateAppointments);
@@ -356,6 +365,9 @@ public class SchedulingController implements AppController {
         updatePatientFilterChip();
     }
 
+    /**
+     * Updates patient filter chip.
+     */
     private void updatePatientFilterChip() {
         boolean filtered = patientIdFilter != null && !patientIdFilter.isBlank();
         patientFilterChip.setVisible(filtered);
@@ -365,6 +377,9 @@ public class SchedulingController implements AppController {
         patientFilterChip.setText(filtered ? "Patient ID = " + patientIdFilter : "");
     }
 
+    /**
+     * Selects selected appointment without using an invalid index.
+     */
     private SqliteAppointmentDao.AppointmentRow selectedAppointment() {
         SqliteAppointmentDao.AppointmentRow selected = appointmentTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -378,6 +393,9 @@ public class SchedulingController implements AppController {
         return PermissionHelper.canViewScheduling(Session.getCurrentUser());
     }
 
+    /**
+     * Opens the read-only details for appointment.
+     */
     private void viewAppointment(SqliteAppointmentDao.AppointmentRow appointment) {
         if (appointment == null || appointmentTable == null || appointmentTable.getScene() == null) {
             return;
@@ -428,10 +446,16 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Converts a null value to null to for display.
+     */
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Opens the edit form for appointment.
+     */
     private void editAppointment(SqliteAppointmentDao.AppointmentRow selected) {
         if (selected == null) {
             return;
@@ -450,42 +474,9 @@ public class SchedulingController implements AppController {
         }
     }
 
-    private void completeAppointment(SqliteAppointmentDao.AppointmentRow selected) {
-        if (selected == null) {
-            return;
-        }
-        try {
-            schedulingService.markAppointmentCompleted(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment marked completed.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
-    private void cancelAppointment(SqliteAppointmentDao.AppointmentRow selected) {
-        if (selected == null) {
-            return;
-        }
-        if (!PermissionHelper.canEditAppointment(Session.getCurrentUser())) {
-            NotificationHelper.showError(statusLabel, "Access denied. Only Admin or Staff users can update appointments.");
-            return;
-        }
-        String patientName = blankTo(selected.getPatientName(), "Unknown patient");
-        String appointmentTime = formatAppointmentStart(selected);
-        String message = "Cancel appointment?\n\nPatient: " + patientName + "\nTime: " + appointmentTime;
-        if (!DialogHelper.confirm("Cancel appointment?", message)) {
-            return;
-        }
-        try {
-            schedulingService.cancelAppointment(Session.getCurrentUser(), selected.getId());
-            loadScheduling();
-            NotificationHelper.showSuccess(statusLabel, "Appointment cancelled.");
-        } catch (Exception e) {
-            NotificationHelper.showError(statusLabel, e.getMessage());
-        }
-    }
-
+    /**
+     * Deletes appointment after the required checks.
+     */
     private void deleteAppointment(SqliteAppointmentDao.AppointmentRow selected) {
         if (selected == null) {
             return;
@@ -506,6 +497,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Displays delete confirmation to the user.
+     */
     private boolean showDeleteConfirmation() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Appointment");
@@ -519,6 +513,9 @@ public class SchedulingController implements AppController {
         return result.isPresent() && result.get() == deleteType;
     }
 
+    /**
+     * Builds a styled table action button with its handler and tooltip.
+     */
     private Button actionButton(String text, String styleClass, javafx.event.EventHandler<javafx.event.ActionEvent> handler) {
         Button button = new Button(text);
         for (String token : styleClass.split(" ")) {
@@ -530,6 +527,9 @@ public class SchedulingController implements AppController {
         return button;
     }
 
+    /**
+     * Builds the JavaFX control used for create badge label.
+     */
     private Label createBadgeLabel(String text, String styleClass) {
         Label label = new Label(text);
         label.getStyleClass().addAll("badge-pill");
@@ -541,6 +541,9 @@ public class SchedulingController implements AppController {
         return label;
     }
 
+    /**
+     * Builds one labeled line in the appointment details dialog.
+     */
     private VBox detailLine(String name, String value) {
         Label title = new Label(name);
         title.getStyleClass().add("detail-field-name");
@@ -552,10 +555,16 @@ public class SchedulingController implements AppController {
         return box;
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Formats enum value for display.
+     */
     private String formatEnumValue(String value) {
         if (value == null || value.isBlank()) {
             return "-";
@@ -575,6 +584,9 @@ public class SchedulingController implements AppController {
         return builder.toString();
     }
 
+    /**
+     * Builds the JavaFX control used for create appointment time cell.
+     */
     private VBox createAppointmentTimeCell(SqliteAppointmentDao.AppointmentRow row) {
         Label timeLabel = new Label(formatAppointmentStart(row));
         timeLabel.getStyleClass().addAll("appointments-primary-text", "appointment-time-primary");
@@ -589,6 +601,9 @@ public class SchedulingController implements AppController {
         return box;
     }
 
+    /**
+     * Formats appointment start for display.
+     */
     private String formatAppointmentStart(SqliteAppointmentDao.AppointmentRow row) {
         if (row == null) {
             return "-";
@@ -601,6 +616,9 @@ public class SchedulingController implements AppController {
         return fallback.isBlank() ? "-" : fallback;
     }
 
+    /**
+     * Formats appointment duration for display.
+     */
     private String formatAppointmentDuration(SqliteAppointmentDao.AppointmentRow row) {
         if (row == null) {
             return "\u2014";
@@ -617,6 +635,9 @@ public class SchedulingController implements AppController {
         return minutes + " min";
     }
 
+    /**
+     * Parses date time without exposing format failures to the caller.
+     */
     private LocalDateTime parseDateTime(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -636,6 +657,9 @@ public class SchedulingController implements AppController {
         }
     }
 
+    /**
+     * Returns the badge CSS class for type.
+     */
     private String badgeStyleForType(String type) {
         if (type == null) {
             return "appointment-type-badge appointment-type-neutral";
@@ -650,10 +674,16 @@ public class SchedulingController implements AppController {
         };
     }
 
+    /**
+     * Maps the visible appointment type filter to its stored query value.
+     */
     private String appointmentTypeFilterValue() {
         return appointmentTypeFilter == null ? "All" : appointmentTypeFilter.getValue();
     }
 
+    /**
+     * Returns the badge CSS class for appointment status.
+     */
     private String badgeStyleForAppointmentStatus(String status) {
         if (status == null) {
             return "appointment-status-badge appointment-status-neutral";
@@ -667,6 +697,9 @@ public class SchedulingController implements AppController {
         };
     }
 
+    /**
+     * Counts appointments by status.
+     */
     private int countAppointmentsByStatus(SchedulingService.SchedulingOverview overview, String status) {
         if (overview == null || overview.getAppointments() == null || status == null) {
             return 0;

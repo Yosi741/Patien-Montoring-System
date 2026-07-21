@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Controls NotificationCenterView.fxml, including alert filters, details, acknowledgement, and navigation.
+ */
 public class NotificationCenterController implements AppController {
 
     private final NotificationCenterService notificationService = new NotificationCenterService();
@@ -57,6 +60,9 @@ public class NotificationCenterController implements AppController {
     @FXML private Label systemCountLabel;
     @FXML private Label statusLabel;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -67,6 +73,9 @@ public class NotificationCenterController implements AppController {
         startAutoRefresh();
     }
 
+    /**
+     * Handles the load notifications UI action.
+     */
     @FXML
     private void loadNotifications() {
         if (!PermissionHelper.canViewNotifications(Session.getCurrentUser())) {
@@ -95,30 +104,45 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Handles the show all UI action.
+     */
     @FXML
     private void showAll() {
         quickFilter = "All";
         loadNotifications();
     }
 
+    /**
+     * Handles the show unread UI action.
+     */
     @FXML
     private void showUnread() {
         quickFilter = "Unread";
         loadNotifications();
     }
 
+    /**
+     * Handles the show critical UI action.
+     */
     @FXML
     private void showCritical() {
         quickFilter = "Critical";
         loadNotifications();
     }
 
+    /**
+     * Handles the show system UI action.
+     */
     @FXML
     private void showSystem() {
         quickFilter = "System";
         loadNotifications();
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean allowed = PermissionHelper.canViewNotifications(Session.getCurrentUser());
         accessDeniedPane.setVisible(!allowed);
@@ -127,6 +151,9 @@ public class NotificationCenterController implements AppController {
         contentPane.setManaged(allowed);
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         severityFilter.setItems(FXCollections.observableArrayList("All", "INFO", "WARNING", "CRITICAL"));
         statusFilter.setItems(FXCollections.observableArrayList("All", "UNREAD", "READ", "DISMISSED"));
@@ -140,11 +167,17 @@ public class NotificationCenterController implements AppController {
         patientSearchField.textProperty().addListener((obs, old, value) -> reloadCustom());
     }
 
+    /**
+     * Configures list.
+     */
     private void configureList() {
         notificationList.setItems(rows);
         notificationList.setCellFactory(list -> new AlertRowCell());
     }
 
+    /**
+     * Reloads custom from SQLite.
+     */
     private void reloadCustom() {
         if (!suppressFilterEvents) {
             quickFilter = "Custom";
@@ -152,6 +185,9 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Restricts alert rows to the current user's permitted scope.
+     */
     private List<SqliteNotificationDao.NotificationRow> filterAlertScope(List<SqliteNotificationDao.NotificationRow> loaded) {
         ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
         for (SqliteNotificationDao.NotificationRow row : loaded) {
@@ -162,6 +198,9 @@ public class NotificationCenterController implements AppController {
         return filtered;
     }
 
+    /**
+     * Applies quick filter to the current control or record.
+     */
     private List<SqliteNotificationDao.NotificationRow> applyQuickFilter(List<SqliteNotificationDao.NotificationRow> loaded) {
         ArrayList<SqliteNotificationDao.NotificationRow> filtered = new ArrayList<>();
         for (SqliteNotificationDao.NotificationRow row : loaded) {
@@ -172,6 +211,9 @@ public class NotificationCenterController implements AppController {
         return filtered;
     }
 
+    /**
+     * Determines whether the current value matches quick filter.
+     */
     private boolean matchesQuickFilter(SqliteNotificationDao.NotificationRow row) {
         if ("Unread".equals(quickFilter)) {
             return isUnread(row);
@@ -185,6 +227,9 @@ public class NotificationCenterController implements AppController {
         return true;
     }
 
+    /**
+     * Opens alert details for the selected record.
+     */
     private void openAlertDetails(SqliteNotificationDao.NotificationRow row) {
         if (row == null) {
             return;
@@ -270,6 +315,9 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Builds the JavaFX control used for build detail block.
+     */
     private VBox buildDetailBlock(String label, String value) {
         Label labelNode = new Label(label);
         labelNode.getStyleClass().add("notification-detail-label");
@@ -283,6 +331,9 @@ public class NotificationCenterController implements AppController {
         return box;
     }
 
+    /**
+     * Builds the JavaFX control used for style dialog button.
+     */
     private void styleDialogButton(Dialog<ButtonType> dialog, ButtonType buttonType, String styleClass) {
         Button button = (Button) dialog.getDialogPane().lookupButton(buttonType);
         if (button != null) {
@@ -291,6 +342,9 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Marks read with its new workflow state.
+     */
     private void markRead(SqliteNotificationDao.NotificationRow row, boolean showFeedback) {
         if (row == null || !isUnread(row)) {
             return;
@@ -306,6 +360,9 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Renders counters in the current JavaFX view.
+     */
     private void renderCounters(List<SqliteNotificationDao.NotificationRow> notifications) {
         int unread = 0;
         int critical = 0;
@@ -331,6 +388,9 @@ public class NotificationCenterController implements AppController {
         systemCountLabel.setText(String.valueOf(systemUpdates));
     }
 
+    /**
+     * Builds the JavaFX control used for update status label.
+     */
     private void updateStatusLabel(int count) {
         if (statusLabel == null) {
             return;
@@ -353,6 +413,9 @@ public class NotificationCenterController implements AppController {
         statusLabel.setText("Showing " + count + " " + suffix + ".");
     }
 
+    /**
+     * Selects by ID without using an invalid index.
+     */
     private boolean selectById(long id) {
         for (int i = 0; i < rows.size(); i++) {
             if (rows.get(i).getId() == id) {
@@ -362,10 +425,16 @@ public class NotificationCenterController implements AppController {
         return false;
     }
 
+    /**
+     * Builds the JavaFX row used to display current selected row.
+     */
     private SqliteNotificationDao.NotificationRow currentSelectedRow() {
         return notificationList == null ? null : notificationList.getSelectionModel().getSelectedItem();
     }
 
+    /**
+     * Starts auto refresh.
+     */
     private void startAutoRefresh() {
         if (refreshTimeline != null) {
             refreshTimeline.stop();
@@ -375,6 +444,9 @@ public class NotificationCenterController implements AppController {
         refreshTimeline.play();
     }
 
+    /**
+     * Releases timers or other page resources when the current view is replaced.
+     */
     @Override
     public void dispose() {
         if (refreshTimeline != null) {
@@ -383,6 +455,9 @@ public class NotificationCenterController implements AppController {
         }
     }
 
+    /**
+     * Reads of safely from the current SQLite row.
+     */
     private String valueOf(ComboBox<String> comboBox) {
         return comboBox == null || comboBox.getValue() == null ? "All" : comboBox.getValue();
     }
@@ -399,6 +474,9 @@ public class NotificationCenterController implements AppController {
         return sourceContains(row, "ALERT");
     }
 
+    /**
+     * Builds the JavaFX row used to display is system row.
+     */
     private boolean isSystemRow(SqliteNotificationDao.NotificationRow row) {
         String source = nullTo(row == null ? null : row.getSourceType(), "").toUpperCase(Locale.ROOT);
         return row != null
@@ -410,16 +488,25 @@ public class NotificationCenterController implements AppController {
                 || source.contains("NOTIFICATION"));
     }
 
+    /**
+     * Checks whether an alert source contains the normalized search value.
+     */
     private boolean sourceContains(SqliteNotificationDao.NotificationRow row, String token) {
         String source = nullTo(row == null ? null : row.getSourceType(), "").toUpperCase(Locale.ROOT);
         String title = nullTo(row == null ? null : row.getTitle(), "").toUpperCase(Locale.ROOT);
         return source.contains(token) || title.contains(token);
     }
 
+    /**
+     * Returns formatted display text for alert type text.
+     */
     private String alertTypeText(SqliteNotificationDao.NotificationRow row) {
         return isSystemRow(row) ? "SYSTEM" : "ALERT";
     }
 
+    /**
+     * Resolves severity style class for alert display.
+     */
     private String severityStyleClass(String severity) {
         if ("CRITICAL".equalsIgnoreCase(severity)) {
             return "alert-severity-critical";
@@ -430,10 +517,16 @@ public class NotificationCenterController implements AppController {
         return "alert-severity-info";
     }
 
+    /**
+     * Converts a null value to null to for display.
+     */
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Formats a timestamp as the date heading used to group alerts.
+     */
     private String groupedDate(SqliteNotificationDao.NotificationRow row) {
         LocalDate date = parseDate(row == null ? null : row.getCreatedAt());
         if (date == null) {
@@ -449,6 +542,9 @@ public class NotificationCenterController implements AppController {
         return "Earlier";
     }
 
+    /**
+     * Parses date without exposing format failures to the caller.
+     */
     private LocalDate parseDate(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -469,6 +565,9 @@ public class NotificationCenterController implements AppController {
     }
 
     private class AlertRowCell extends ListCell<SqliteNotificationDao.NotificationRow> {
+        /**
+         * Updates item.
+         */
         @Override
         protected void updateItem(SqliteNotificationDao.NotificationRow row, boolean empty) {
             super.updateItem(row, empty);
@@ -481,6 +580,9 @@ public class NotificationCenterController implements AppController {
             setGraphic(createRow(row));
         }
 
+        /**
+         * Builds the JavaFX row used to display create row.
+         */
         private VBox createRow(SqliteNotificationDao.NotificationRow row) {
             VBox wrapper = new VBox(8.0);
             String group = groupedDate(row);

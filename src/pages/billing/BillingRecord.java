@@ -1,5 +1,8 @@
 package pages.billing;
 
+/**
+ * Represents a clinic billing record displayed and edited by the billing module.
+ */
 public class BillingRecord {
 
     private final long id;
@@ -16,6 +19,9 @@ public class BillingRecord {
     private final String paidAt;
     private final String createdBy;
 
+    /**
+     * Creates a billing record from the supplied record values.
+     */
     public BillingRecord(long id, String invoiceNo, String patientId, String patientName,
                          String serviceName, String visitType, double amount,
                          String paymentStatus, String paymentMethod, String notes,

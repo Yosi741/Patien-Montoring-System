@@ -10,11 +10,21 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Creates and migrates the active ClinicPulse SQLite tables and indexes at startup.
+ * It preserves existing data while ensuring the current schema is available.
+ */
 public class SchemaInitializer {
 
+    /**
+     * Creates a schema initializer from the supplied record values.
+     */
     private SchemaInitializer() {
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     public static void initialize() throws SQLException {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement()) {
@@ -38,6 +48,9 @@ public class SchemaInitializer {
         }
     }
 
+    /**
+     * Creates users for the application workflow.
+     */
     private static void createUsers(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS users ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -52,6 +65,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates users to the current SQLite schema shape.
+     */
     private static void migrateUsers(Connection connection, Statement statement) throws SQLException {
         addColumnIfMissing(statement, "users", "staff_id", "TEXT");
         addColumnIfMissing(statement, "users", "email", "TEXT");
@@ -59,6 +75,9 @@ public class SchemaInitializer {
         statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_staff_id_unique ON users(staff_id)");
     }
 
+    /**
+     * Backfills user staff IDs for existing SQLite records.
+     */
     private static void backfillUserStaffIds(Connection connection) throws SQLException {
         ArrayList<UserStaffIdUpdate> updates = new ArrayList<>();
         Set<String> usedStaffIds = new HashSet<>();
@@ -91,6 +110,9 @@ public class SchemaInitializer {
         }
     }
 
+    /**
+     * Normalizes staff ID to the stored application format.
+     */
     private static String normalizeStaffId(String value) {
         if (value == null) {
             return "";
@@ -99,6 +121,9 @@ public class SchemaInitializer {
         return trimmed.matches("U\\d{4,}") ? trimmed : "";
     }
 
+    /**
+     * Generates a unique staff ID for an existing users-table row.
+     */
     private static String uniqueStaffIdForId(long id, Set<String> usedStaffIds) {
         long candidate = Math.max(1L, id);
         String staffId = formatStaffId(candidate);
@@ -109,6 +134,9 @@ public class SchemaInitializer {
         return staffId;
     }
 
+    /**
+     * Formats staff ID for display.
+     */
     private static String formatStaffId(long number) {
         return String.format(Locale.ROOT, "U%04d", Math.max(1L, number));
     }
@@ -116,6 +144,9 @@ public class SchemaInitializer {
     private record UserStaffIdUpdate(long id, String staffId) {
     }
 
+    /**
+     * Creates user profiles for the application workflow.
+     */
     private static void createUserProfiles(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS user_profiles ("
                 + "username TEXT PRIMARY KEY,"
@@ -130,6 +161,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates user profiles to the current SQLite schema shape.
+     */
     private static void migrateUserProfiles(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "user_profiles", "full_name", "TEXT");
         addColumnIfMissing(statement, "user_profiles", "address", "TEXT");
@@ -138,6 +172,9 @@ public class SchemaInitializer {
         statement.execute("UPDATE user_profiles SET duty_status = 'On Duty' WHERE duty_status IS NULL OR TRIM(duty_status) = ''");
     }
 
+    /**
+     * Creates patients for the application workflow.
+     */
     private static void createPatients(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS patients ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -165,6 +202,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates patients to the current SQLite schema shape.
+     */
     private static void migratePatients(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "patients", "assigned_doctor_username", "TEXT");
         addColumnIfMissing(statement, "patients", "assigned_staff_username", "TEXT");
@@ -179,6 +219,9 @@ public class SchemaInitializer {
         statement.execute("UPDATE patients SET allergies = 'Unknown' WHERE allergies IS NULL OR TRIM(allergies) = ''");
     }
 
+    /**
+     * Creates vital readings for the application workflow.
+     */
     private static void createVitalReadings(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS vital_readings ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -194,6 +237,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Creates alerts for the application workflow.
+     */
     private static void createAlerts(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS alerts ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -209,10 +255,16 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates alerts to the current SQLite schema shape.
+     */
     private static void migrateAlerts(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "alerts", "updated_at", "TEXT");
     }
 
+    /**
+     * Adds column if missing to the current application workflow.
+     */
     private static void addColumnIfMissing(Statement statement, String table, String column, String definition) throws SQLException {
         try {
             statement.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
@@ -224,6 +276,9 @@ public class SchemaInitializer {
         }
     }
 
+    /**
+     * Creates appointments for the application workflow.
+     */
     private static void createAppointments(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS appointments ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -243,6 +298,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Creates patient visits for the application workflow.
+     */
     private static void createPatientVisits(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS patient_visits ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -256,6 +314,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Creates medical files for the application workflow.
+     */
     private static void createMedicalFiles(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS medical_files ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -271,6 +332,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Creates billing records for the application workflow.
+     */
     private static void createBillingRecords(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS billing_records ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -289,11 +353,17 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates medical files to the current SQLite schema shape.
+     */
     private static void migrateMedicalFiles(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "medical_files", "file_size", "INTEGER NOT NULL DEFAULT 0");
         addColumnIfMissing(statement, "medical_files", "notes", "TEXT");
     }
 
+    /**
+     * Creates notifications for the application workflow.
+     */
     private static void createNotifications(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS notifications ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -305,6 +375,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Creates messages for the application workflow.
+     */
     private static void createMessages(Statement statement) throws SQLException {
         statement.execute("CREATE TABLE IF NOT EXISTS messages ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -322,6 +395,9 @@ public class SchemaInitializer {
                 + ")");
     }
 
+    /**
+     * Migrates notifications to the current SQLite schema shape.
+     */
     private static void migrateNotifications(Statement statement) throws SQLException {
         addColumnIfMissing(statement, "notifications", "role", "TEXT");
         addColumnIfMissing(statement, "notifications", "section", "TEXT");

@@ -1,6 +1,6 @@
 package pages.messages;
 
-import pages.patient.patient_detail.SqlitePatientDao;
+import pages.patient.Add_Edit_Patient_Dao;
 import pages.user.profile_settings.SqliteUserDao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
@@ -13,22 +13,34 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Validates message recipients and linked patients before saving clinic messages.
+ */
 public class MessagingService {
 
     private final SqliteMessageDao messageDao;
     private final SqliteUserDao userDao;
-    private final SqlitePatientDao patientDao;
+    private final Add_Edit_Patient_Dao patientDao;
 
+    /**
+     * Creates the service with the dependencies used by the messaging workflow.
+     */
     public MessagingService() {
-        this(new SqliteMessageDao(), new SqliteUserDao(), new SqlitePatientDao());
+        this(new SqliteMessageDao(), new SqliteUserDao(), new Add_Edit_Patient_Dao());
     }
 
-    public MessagingService(SqliteMessageDao messageDao, SqliteUserDao userDao, SqlitePatientDao patientDao) {
+    /**
+     * Creates the service with the dependencies used by the messaging workflow.
+     */
+    public MessagingService(SqliteMessageDao messageDao, SqliteUserDao userDao, Add_Edit_Patient_Dao patientDao) {
         this.messageDao = messageDao;
         this.userDao = userDao;
         this.patientDao = patientDao;
     }
 
+    /**
+     * Sends message to the selected recipient through SQLite messaging.
+     */
     public long sendMessage(User sender, SqliteMessageDao.MessageWriteRecord record) throws SQLException {
         require(PermissionHelper.canComposeMessage(sender), "Login is required to send internal messages.");
         if (record != null && !record.getRecipientUsername().isBlank()
@@ -40,6 +52,9 @@ public class MessagingService {
         return messageDao.insert(record);
     }
 
+    /**
+     * Returns received messages visible to the current user.
+     */
     public List<SqliteMessageDao.MessageRow> inbox(User currentUser, String search, String status) throws SQLException {
         return messageDao.findInbox(username(currentUser), PermissionHelper.roleGroup(currentUser), section(currentUser), search, status)
                 .stream()
@@ -47,6 +62,9 @@ public class MessagingService {
                 .toList();
     }
 
+    /**
+     * Returns messages sent by the current user.
+     */
     public List<SqliteMessageDao.MessageRow> sent(User currentUser, String search, String status) throws SQLException {
         return messageDao.findSent(username(currentUser), search, status)
                 .stream()
@@ -54,6 +72,9 @@ public class MessagingService {
                 .toList();
     }
 
+    /**
+     * Validates and submits requests.
+     */
     public List<SqliteMessageDao.MessageRow> requests(User currentUser, String search, String requestFilter) throws SQLException {
         Map<Long, SqliteMessageDao.MessageRow> byId = new LinkedHashMap<>();
         for (SqliteMessageDao.MessageRow row : messageDao.findInbox(username(currentUser),
@@ -70,6 +91,9 @@ public class MessagingService {
         return new ArrayList<>(byId.values());
     }
 
+    /**
+     * Validates and submits type.
+     */
     public String requestType(SqliteMessageDao.MessageRow row) {
         String text = messageText(row);
         if (containsVisitRequestText(text)) {
@@ -84,6 +108,9 @@ public class MessagingService {
         return "INTERNAL_REQUEST";
     }
 
+    /**
+     * Determines whether is request message for the current record or user.
+     */
     public boolean isRequestMessage(SqliteMessageDao.MessageRow row) {
         String text = messageText(row);
         return text.contains("request")
@@ -91,14 +118,23 @@ public class MessagingService {
                 || text.contains("treatment review");
     }
 
+    /**
+     * Marks read with its new workflow state.
+     */
     public void markRead(User currentUser, long messageId) throws SQLException {
         messageDao.markRead(messageId, username(currentUser));
     }
 
+    /**
+     * Archives archive while preserving its stored history.
+     */
     public void archive(User currentUser, long messageId) throws SQLException {
         messageDao.archive(messageId, username(currentUser));
     }
 
+    /**
+     * Validates validate against the active business rules.
+     */
     private void validate(SqliteMessageDao.MessageWriteRecord record) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Subject", record.getSubject()),
@@ -121,10 +157,16 @@ public class MessagingService {
         }
     }
 
+    /**
+     * Validates target permission against the active business rules.
+     */
     private void validateTargetPermission(User sender, SqliteMessageDao.MessageWriteRecord record) {
         require(PermissionHelper.canComposeMessage(sender), "Login is required to send internal messages.");
     }
 
+    /**
+     * Determines whether the current value matches request filter.
+     */
     private boolean matchesRequestFilter(SqliteMessageDao.MessageRow row, String requestFilter) {
         String filter = requestFilter == null || requestFilter.isBlank() ? "All Requests" : requestFilter;
         if ("All Requests".equalsIgnoreCase(filter)) {
@@ -145,6 +187,9 @@ public class MessagingService {
         return true;
     }
 
+    /**
+     * Returns formatted display text for message text.
+     */
     private String messageText(SqliteMessageDao.MessageRow row) {
         if (row == null) {
             return "";
@@ -154,6 +199,9 @@ public class MessagingService {
                 + (row.getPriority() == null ? "" : row.getPriority())).toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Determines whether the normalized content contains visit request text.
+     */
     private boolean containsVisitRequestText(String text) {
         return text.contains("visit request")
                 || text.contains("schedule visit")
@@ -163,6 +211,9 @@ public class MessagingService {
                 || text.contains("check-up");
     }
 
+    /**
+     * Validates priority against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validatePriority(String priority) {
         String value = priority == null ? "" : priority.trim().toUpperCase(Locale.ROOT);
         return value.equals("NORMAL") || value.equals("HIGH") || value.equals("URGENT")
@@ -170,6 +221,9 @@ public class MessagingService {
                 : FormValidationHelper.ValidationResult.error("Priority must be NORMAL, HIGH, or URGENT.");
     }
 
+    /**
+     * Counts targets.
+     */
     private int countTargets(SqliteMessageDao.MessageWriteRecord record) {
         int count = 0;
         if (!record.getRecipientUsername().isBlank()) count++;
@@ -179,22 +233,34 @@ public class MessagingService {
     }
 
 
+    /**
+     * Enforces valid before the protected operation continues.
+     */
     private void requireValid(FormValidationHelper.ValidationResult validation) {
         if (!validation.isValid()) {
             throw new IllegalArgumentException(validation.getMessage());
         }
     }
 
+    /**
+     * Enforces require before the protected operation continues.
+     */
     private void require(boolean condition, String message) {
         if (!condition) {
             throw new SecurityException(message);
         }
     }
 
+    /**
+     * Returns the username associated with the current session or workflow record.
+     */
     private String username(User user) {
         return user == null || user.getUsername() == null || user.getUsername().isBlank() ? "Unknown" : user.getUsername();
     }
 
+    /**
+     * Returns the clinic section associated with the current session or message.
+     */
     private String section(User user) {
         return user == null || user.getSection() == null || user.getSection().isBlank() ? "All" : user.getSection();
     }

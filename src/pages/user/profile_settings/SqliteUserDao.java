@@ -15,17 +15,29 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+/**
+ * Provides SQLite account, role, contact, activation, and credential operations for the users table.
+ */
 public class SqliteUserDao implements UserDao {
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteUserDao() {
         ensureSchema();
     }
 
+    /**
+     * Finds by ID in SQLite.
+     */
     @Override
     public Optional<User> findById(String username) throws SQLException {
         return findByUsername(username);
     }
 
+    /**
+     * Finds by username in SQLite.
+     */
     @Override
     public Optional<User> findByUsername(String username) throws SQLException {
         String sql = "SELECT username, password, role, section, staff_id FROM users WHERE LOWER(username) = LOWER(?) AND active = 1";
@@ -41,6 +53,9 @@ public class SqliteUserDao implements UserDao {
         return Optional.empty();
     }
 
+    /**
+     * Checks SQLite for username exists.
+     */
     @Override
     public boolean usernameExists(String username) throws SQLException {
         String sql = "SELECT 1 FROM users WHERE LOWER(username) = LOWER(?)";
@@ -53,26 +68,19 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    public boolean usernameExistsExcept(String username, String excludedUsername) throws SQLException {
-        String sql = "SELECT 1 FROM users WHERE LOWER(username) = LOWER(?) AND LOWER(username) <> LOWER(?)";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            statement.setString(2, excludedUsername);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
-            }
-        }
-    }
 
-
-
+    /**
+     * Validates and saves save.
+     */
     @Override
     public void save(User user) throws SQLException {
         String storedPassword = user.getPassword() == null ? "" : user.getPassword();
         saveCredentials(user.getUsername(), storedPassword, user.getRole(), user.getSection());
     }
 
+    /**
+     * Validates and saves credentials.
+     */
     public void saveCredentials(String username, String password, String role, String section) throws SQLException {
         String sql = "INSERT INTO users(username, password, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, 1) "
                 + "ON CONFLICT(username) DO UPDATE SET "
@@ -106,10 +114,16 @@ public class SqliteUserDao implements UserDao {
 
 
 
+    /**
+     * Verifies password and reports whether it is valid.
+     */
     public boolean verifyPassword(String username, char[] password) throws SQLException {
         return verifyPassword(username, password == null ? "" : new String(password));
     }
 
+    /**
+     * Verifies password and reports whether it is valid.
+     */
     public boolean verifyPassword(String username, String password) throws SQLException {
         String cleanUsername = username == null ? "" : username.trim();
         String inputPassword = password == null ? "" : password;
@@ -124,15 +138,9 @@ public class SqliteUserDao implements UserDao {
                 .orElse(false);
     }
 
-    public int count() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM users";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            return resultSet.next() ? resultSet.getInt(1) : 0;
-        }
-    }
-
+    /**
+     * Finds directory rows in SQLite.
+     */
     public List<UserDirectoryRow> findDirectoryRows(UserDirectoryFilter filter) throws SQLException {
         ArrayList<UserDirectoryRow> rows = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT u.id, u.staff_id, u.username, u.role, u.section, "
@@ -202,23 +210,9 @@ public class SqliteUserDao implements UserDao {
         return rows;
     }
 
-    public List<String> findDistinctSections() throws SQLException {
-        ArrayList<String> sections = new ArrayList<>();
-        String sql = "SELECT DISTINCT section FROM users WHERE section IS NOT NULL AND TRIM(section) <> '' ORDER BY section COLLATE NOCASE";
-        try (Connection connection = DatabaseManager.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                sections.add(resultSet.getString("section"));
-            }
-        }
-        return sections;
-    }
-
-    public List<UserTarget> findMessageTargets() throws SQLException {
-        return findMessageTargetsExcept("");
-    }
-
+    /**
+     * Finds message targets except in SQLite.
+     */
     public List<UserTarget> findMessageTargetsExcept(String excludedUsername) throws SQLException {
         ArrayList<UserTarget> targets = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT u.username, u.role, u.section, "
@@ -252,32 +246,9 @@ public class SqliteUserDao implements UserDao {
         return targets;
     }
 
-    public List<String> findActiveUsernamesByRoleGroupAndSection(String roleGroup, String section) throws SQLException {
-        ArrayList<String> usernames = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT username FROM users WHERE active = 1 ");
-        ArrayList<String> params = new ArrayList<>();
-        if (roleGroup != null && !roleGroup.isBlank() && !"All".equalsIgnoreCase(roleGroup)) {
-            appendRoleGroupFilter(sql, params, roleGroup);
-        }
-        if (section != null && !section.isBlank() && !"All".equalsIgnoreCase(section)) {
-            sql.append("AND section = ? ");
-            params.add(section);
-        }
-        sql.append("ORDER BY username COLLATE NOCASE");
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                statement.setString(i + 1, params.get(i));
-            }
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    usernames.add(resultSet.getString("username"));
-                }
-            }
-        }
-        return usernames;
-    }
-
+    /**
+     * Finds directory row by username in SQLite.
+     */
     public Optional<UserDirectoryRow> findDirectoryRowByUsername(String username) throws SQLException {
         String sql = "SELECT u.id, u.staff_id, u.username, u.role, u.section, "
                 + "COALESCE(NULLIF(p.full_name, ''), u.username) AS full_name, "
@@ -314,10 +285,9 @@ public class SqliteUserDao implements UserDao {
         return Optional.empty();
     }
 
-    public Optional<PasswordResetContact> findPasswordResetContact(String username) throws SQLException {
-        return findPasswordResetContact(username, null);
-    }
-
+    /**
+     * Finds active user by username and staff ID in SQLite.
+     */
     public Optional<User> findActiveUserByUsernameAndStaffId(String username, String staffId) throws SQLException {
         String cleanUsername = username == null ? "" : username.trim();
         String cleanStaffId = staffId == null ? "" : staffId.trim();
@@ -340,30 +310,9 @@ public class SqliteUserDao implements UserDao {
         return Optional.empty();
     }
 
-    public Optional<PasswordResetContact> findPasswordResetContact(String username, String staffId) throws SQLException {
-        String sql = "SELECT u.username, COALESCE(NULLIF(p.email, ''), NULLIF(u.email, ''), '') AS email "
-                + "FROM users u LEFT JOIN user_profiles p ON p.username = u.username "
-                + "WHERE LOWER(u.username) = LOWER(?) "
-                + "AND (? IS NULL OR UPPER(COALESCE(u.staff_id, '')) = UPPER(?)) "
-                + "AND u.active = 1";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username == null ? "" : username.trim());
-            String normalizedStaffId = staffId == null || staffId.trim().isEmpty() ? null : staffId.trim();
-            statement.setString(2, normalizedStaffId);
-            statement.setString(3, normalizedStaffId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return Optional.of(new PasswordResetContact(
-                            resultSet.getString("username"),
-                            blank(resultSet.getString("email"))
-                    ));
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
+    /**
+     * Inserts user into SQLite.
+     */
     public void insertUser(UserWriteRecord record, String password) throws SQLException {
         String sql = "INSERT INTO users(username, password, role, section, staff_id, active) VALUES(?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseManager.getConnection();
@@ -378,10 +327,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    public void updateUser(UserWriteRecord record) throws SQLException {
-        updateUser(record.getUsername(), record);
-    }
-
+    /**
+     * Updates user.
+     */
     public void updateUser(String originalUsername, UserWriteRecord record) throws SQLException {
         String oldUsername = originalUsername == null ? "" : originalUsername.trim();
         String sql = "UPDATE users SET role = ?, section = ?, active = ? WHERE LOWER(username) = LOWER(?)";
@@ -395,15 +343,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    public void deactivateUser(String username) throws SQLException {
-        String sql = "UPDATE users SET active = 0 WHERE username = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            statement.executeUpdate();
-        }
-    }
-
+    /**
+     * Counts active admins in SQLite.
+     */
     public int countActiveAdmins() throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE active = 1 AND UPPER(role) LIKE '%ADMIN%'";
         try (Connection connection = DatabaseManager.getConnection();
@@ -413,6 +355,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Deletes user account after the required checks.
+     */
     public void deleteUserAccount(String username) throws SQLException {
         String normalized = username == null ? "" : username.trim();
         try (Connection connection = DatabaseManager.getConnection()) {
@@ -439,10 +384,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
-    public void resetPassword(String username, String password) throws SQLException {
-        updatePassword(username, password);
-    }
-
+    /**
+     * Updates password.
+     */
     public void updatePassword(String username, String newPassword) throws SQLException {
         String sql = "UPDATE users SET password = ? WHERE username = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -453,6 +397,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Updates email.
+     */
     public void updateEmail(String username, String email) throws SQLException {
         String sql = "UPDATE users SET email = ? WHERE LOWER(username) = LOWER(?)";
         try (Connection connection = DatabaseManager.getConnection();
@@ -463,6 +410,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Maps user to the corresponding application model.
+     */
     private User mapUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getString("username"),
@@ -473,10 +423,16 @@ public class SqliteUserDao implements UserDao {
         );
     }
 
+    /**
+     * Checks SQLite for staff ID exists.
+     */
     public boolean staffIdExists(String staffId) throws SQLException {
         return staffIdExistsExcept(staffId, null);
     }
 
+    /**
+     * Checks SQLite for staff ID exists except.
+     */
     public boolean staffIdExistsExcept(String staffId, String excludedUsername) throws SQLException {
         String normalized = normalizeStaffId(staffId);
         if (normalized.isBlank()) {
@@ -499,6 +455,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Generates next staff ID without colliding with existing records.
+     */
     public String generateNextStaffId() throws SQLException {
         String sql = "SELECT COALESCE(MAX(CAST(SUBSTR(UPPER(TRIM(staff_id)), 2, 4) AS INTEGER)), 0) FROM users "
                 + "WHERE staff_id IS NOT NULL "
@@ -511,6 +470,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Finds the staff ID currently assigned to a users-table row.
+     */
     public Optional<String> existingStaffId(String username) throws SQLException {
         String sql = "SELECT staff_id FROM users WHERE LOWER(username) = LOWER(?)";
         try (Connection connection = DatabaseManager.getConnection();
@@ -528,6 +490,9 @@ public class SqliteUserDao implements UserDao {
         return Optional.empty();
     }
 
+    /**
+     * Normalizes staff ID to the stored application format.
+     */
     private String normalizeStaffId(String staffId) {
         if (staffId == null) {
             return "";
@@ -536,18 +501,30 @@ public class SqliteUserDao implements UserDao {
         return trimmed.matches("U\\d{4,}") ? trimmed : "";
     }
 
+    /**
+     * Formats staff ID for display.
+     */
     private String formatStaffId(long number) {
         return String.format(Locale.ROOT, "U%04d", Math.max(1L, number));
     }
 
+    /**
+     * Normalizes blank blank to the workflow fallback value.
+     */
     private String blank(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Normalizes blank to all to the workflow fallback value.
+     */
     private String blankToAll(String section) {
         return section == null || section.isBlank() ? "All" : section.trim();
     }
 
+    /**
+     * Normalizes duty status to the stored application format.
+     */
     private String normalizeDutyStatus(String dutyStatus) {
         if (dutyStatus == null || dutyStatus.isBlank()) {
             return "On Duty";
@@ -561,6 +538,9 @@ public class SqliteUserDao implements UserDao {
         return "On Duty";
     }
 
+    /**
+     * Appends role group filter to the current query or result.
+     */
     private void appendRoleGroupFilter(StringBuilder sql, ArrayList<String> params, String roleGroup) {
         String group = roleGroup.toUpperCase();
         if ("ADMIN".equals(group)) {
@@ -581,6 +561,9 @@ public class SqliteUserDao implements UserDao {
         }
     }
 
+    /**
+     * Builds the SQLite role ordering expression used by staff queries.
+     */
     private String roleSortExpression() {
         return "CASE "
                 + "WHEN UPPER(u.role) LIKE '%ADMIN%' THEN 1 "
@@ -591,6 +574,9 @@ public class SqliteUserDao implements UserDao {
                 + "ELSE 4 END";
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -605,6 +591,9 @@ public class SqliteUserDao implements UserDao {
         private final String section;
         private final String dutyStatus;
 
+        /**
+         * Creates a user directory filter from the supplied record values.
+         */
         public UserDirectoryFilter(String search, String roleGroup, String section, String dutyStatus) {
             this.search = search;
             this.roleGroup = roleGroup;
@@ -633,6 +622,9 @@ public class SqliteUserDao implements UserDao {
         private final boolean active;
         private final String createdAt;
 
+        /**
+         * Creates a user directory row from the supplied record values.
+         */
         public UserDirectoryRow(long id, String staffId, String username, String role, String section, String fullName,
                                 String email, String phone, String address, String profilePhotoPath, String dutyStatus,
                                 boolean active, String createdAt) {
@@ -678,6 +670,9 @@ public class SqliteUserDao implements UserDao {
         private final String section;
         private final boolean active;
 
+        /**
+         * Creates a user write record from the supplied record values.
+         */
         public UserWriteRecord(String staffId, String username, String role, String section, boolean active) {
             this.staffId = staffId == null ? "" : staffId.trim().toUpperCase(Locale.ROOT);
             this.username = username == null ? "" : username.trim();
@@ -700,6 +695,9 @@ public class SqliteUserDao implements UserDao {
         private final String section;
         private final String email;
 
+        /**
+         * Creates a user target from the supplied record values.
+         */
         public UserTarget(String username, String displayName, String role, String section, String email) {
             this.username = username == null ? "" : username;
             this.displayName = displayName == null || displayName.isBlank() ? this.username : displayName;
@@ -714,17 +712,21 @@ public class SqliteUserDao implements UserDao {
         public String getSection() { return section; }
         public String getEmail() { return email; }
 
+        /**
+         * Returns formatted display text for get display text.
+         */
         public String getDisplayText() {
             String mail = email.isBlank() ? "no email" : email;
             return displayName + " | " + role + " | " + mail;
         }
 
+        /**
+         * Returns the user-facing text representation of this value.
+         */
         @Override
         public String toString() {
             return getDisplayText();
         }
     }
 
-    public record PasswordResetContact(String username, String email) {
-    }
 }

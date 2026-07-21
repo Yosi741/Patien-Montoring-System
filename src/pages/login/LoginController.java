@@ -18,6 +18,9 @@ import pages.user.User;
 
 import java.net.URL;
 
+/**
+ * Controls LoginView.fxml, including authentication, form clearing, branding, and password recovery.
+ */
 public class LoginController implements AppController {
 
     private AppShell appShell;
@@ -36,6 +39,9 @@ public class LoginController implements AppController {
     @FXML
     private ImageView loginLogoImage;
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         loadLogoImage();
@@ -46,6 +52,9 @@ public class LoginController implements AppController {
         this.appShell = appShell;
     }
 
+    /**
+     * Handles the login UI action.
+     */
     @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
@@ -69,6 +78,9 @@ public class LoginController implements AppController {
         showStatus("Invalid username or password.");
     }
 
+    /**
+     * Handles the clear login form UI action.
+     */
     @FXML
     private void handleClearLoginForm() {
         usernameField.clear();
@@ -76,6 +88,9 @@ public class LoginController implements AppController {
         showStatus("");
     }
 
+    /**
+     * Handles the forgot password request UI action.
+     */
     @FXML
     private void handleForgotPasswordRequest() {
         Dialog<ButtonType> requestDialog = new Dialog<>();
@@ -115,6 +130,9 @@ public class LoginController implements AppController {
         }
     }
 
+    /**
+     * Displays forgot password result to the user.
+     */
     private void showForgotPasswordResult(ForgotPasswordService.ForgotPasswordResult result) {
         if (result == null) {
             showStatus("Could not process password reset request.");
@@ -127,6 +145,9 @@ public class LoginController implements AppController {
         }
     }
 
+    /**
+     * Displays password reset dialog to the user.
+     */
     private void showPasswordResetDialog(String username, String staffId) {
         Dialog<ButtonType> resetDialog = new Dialog<>();
         resetDialog.setTitle("Update Password");
@@ -173,6 +194,9 @@ public class LoginController implements AppController {
         }
     }
 
+    /**
+     * Displays status to the user.
+     */
     private void showStatus(String message) {
         if (statusLabel == null) {
             System.err.println("LoginController: statusLabel was not injected from FXML.");
@@ -185,6 +209,9 @@ public class LoginController implements AppController {
         statusLabel.setManaged(hasMessage);
     }
 
+    /**
+     * Loads logo image for the login workflow.
+     */
     private void loadLogoImage() {
         if (loginLogoImage == null) {
             return;
@@ -203,6 +230,9 @@ public class LoginController implements AppController {
         }
     }
 
+    /**
+     * Displays fallback logo to the user.
+     */
     private void showFallbackLogo() {
         if (loginLogoImage != null) {
             loginLogoImage.setVisible(false);

@@ -20,6 +20,9 @@ import pages.user.Session;
 import pages.user.User;
 import pages.user.UserRole;
 
+/**
+ * Controls UserProfileView.fxml for the current user's profile, contact fields, password, and permissions summary.
+ */
 public class UserProfileController implements AppController {
 
     private final UserProfileService profileService = new UserProfileService();
@@ -35,11 +38,17 @@ public class UserProfileController implements AppController {
     @FXML private Label profileStatusLabel;
     @FXML private VBox permissionListBox;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         renderProfile();
     }
 
+    /**
+     * Renders profile in the current JavaFX view.
+     */
     private void renderProfile() {
         User user = Session.getCurrentUser();
         setLabel(staffIdLabel, user == null ? "-" : user.getStaffId());
@@ -64,6 +73,9 @@ public class UserProfileController implements AppController {
         renderPermissions(user);
     }
 
+    /**
+     * Handles the save profile UI action.
+     */
     @FXML
     private void saveProfile() {
         try {
@@ -76,6 +88,9 @@ public class UserProfileController implements AppController {
         }
     }
 
+    /**
+     * Handles the change password UI action.
+     */
     @FXML
     private void changePassword() {
         Dialog<ButtonType> dialog = new Dialog<>();
@@ -124,6 +139,9 @@ public class UserProfileController implements AppController {
         dialog.showAndWait();
     }
 
+    /**
+     * Renders permissions in the current JavaFX view.
+     */
     private void renderPermissions(User user) {
         if (permissionListBox == null) {
             return;
@@ -134,6 +152,9 @@ public class UserProfileController implements AppController {
         }
     }
 
+    /**
+     * Builds the permission summary for the selected role.
+     */
     private List<String> permissionsForRole(User user) {
         String roleGroup = PermissionHelper.roleGroup(user);
         return switch (roleGroup) {
@@ -180,6 +201,9 @@ public class UserProfileController implements AppController {
         };
     }
 
+    /**
+     * Adds permission to the current staff workflow.
+     */
     private void addPermission(String label) {
         if (permissionListBox == null) {
             return;
@@ -192,16 +216,25 @@ public class UserProfileController implements AppController {
         permissionListBox.getChildren().add(row);
     }
 
+    /**
+     * Builds the JavaFX control used for set label.
+     */
     private void setLabel(Label label, String value) {
         if (label != null) {
             label.setText(safeText(value));
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for text.
+     */
     private String safeText(String value) {
         return value == null || value.trim().isEmpty() ? "-" : value;
     }
 
+    /**
+     * Formats role for display in the JavaFX UI.
+     */
     private String displayRole(String role) {
         try {
             return UserRole.fromValue(role).displayName();
@@ -210,12 +243,18 @@ public class UserProfileController implements AppController {
         }
     }
 
+    /**
+     * Displays success to the user.
+     */
     private void showSuccess(Label target, String message) {
         if (target != null) {
             NotificationHelper.showSuccess(target, message);
         }
     }
 
+    /**
+     * Displays error to the user.
+     */
     private void showError(Label target, String message) {
         if (target != null) {
             NotificationHelper.showError(target, message);

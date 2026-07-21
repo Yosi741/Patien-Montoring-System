@@ -14,14 +14,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+/**
+ * Stores and queries invoices in the SQLite billing_records table.
+ */
 public class SqliteBillingDao implements BillingDao {
 
     private static final DateTimeFormatter INVOICE_DATE = DateTimeFormatter.ofPattern("yyyyMMdd");
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteBillingDao() {
         ensureSchema();
     }
 
+    /**
+     * Creates invoice for the billing workflow.
+     */
     @Override
     public BillingRecord createInvoice(BillingWriteRecord record) throws SQLException {
         String sql = "INSERT INTO billing_records(invoice_no, patient_id, patient_name, service_name, visit_type, amount, "
@@ -49,6 +58,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Finds all in SQLite.
+     */
     @Override
     public List<BillingRecord> findAll(BillingQuery query) throws SQLException {
         ArrayList<BillingRecord> records = new ArrayList<>();
@@ -70,6 +82,9 @@ public class SqliteBillingDao implements BillingDao {
         return records;
     }
 
+    /**
+     * Finds by ID in SQLite.
+     */
     @Override
     public Optional<BillingRecord> findById(long invoiceId) throws SQLException {
         String sql = "SELECT id, invoice_no, patient_id, patient_name, service_name, visit_type, amount, payment_status, "
@@ -86,6 +101,9 @@ public class SqliteBillingDao implements BillingDao {
         return Optional.empty();
     }
 
+    /**
+     * Marks paid with its new workflow state.
+     */
     @Override
     public boolean markPaid(long invoiceId, String paymentMethod, String paidAt) throws SQLException {
         String sql = "UPDATE billing_records SET payment_status = 'PAID', payment_method = ?, paid_at = ? "
@@ -99,6 +117,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Determines whether cancel invoice for the current record or user.
+     */
     @Override
     public boolean cancelInvoice(long invoiceId) throws SQLException {
         String sql = "UPDATE billing_records SET payment_status = 'CANCELLED' "
@@ -110,6 +131,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Deletes invoice after the required checks.
+     */
     @Override
     public boolean deleteInvoice(long invoiceId) throws SQLException {
         String sql = "DELETE FROM billing_records WHERE id = ?";
@@ -120,6 +144,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Returns dashboard metrics used by the billing workflow.
+     */
     @Override
     public BillingMetrics getDashboardMetrics(BillingQuery query) throws SQLException {
         QueryParts parts = buildFilterQuery(query, true);
@@ -147,6 +174,9 @@ public class SqliteBillingDao implements BillingDao {
         return new BillingMetrics(0, 0, 0, 0);
     }
 
+    /**
+     * Finds by invoice number in SQLite.
+     */
     private Optional<BillingRecord> findByInvoiceNumber(Connection connection, String invoiceNo) throws SQLException {
         String sql = "SELECT id, invoice_no, patient_id, patient_name, service_name, visit_type, amount, payment_status, "
                 + "payment_method, notes, created_at, paid_at, created_by FROM billing_records WHERE invoice_no = ?";
@@ -161,6 +191,9 @@ public class SqliteBillingDao implements BillingDao {
         return Optional.empty();
     }
 
+    /**
+     * Maps record to the corresponding application model.
+     */
     private BillingRecord mapRecord(ResultSet resultSet) throws SQLException {
         return new BillingRecord(
                 resultSet.getLong("id"),
@@ -179,6 +212,9 @@ public class SqliteBillingDao implements BillingDao {
         );
     }
 
+    /**
+     * Builds filter query used by the billing view.
+     */
     private QueryParts buildFilterQuery(BillingQuery query, boolean includeAllTimeAlias) {
         String search = query == null || query.search() == null ? "" : query.search().trim();
         String status = query == null || query.paymentStatus() == null ? "All" : query.paymentStatus().trim();
@@ -208,12 +244,18 @@ public class SqliteBillingDao implements BillingDao {
         return new QueryParts(where.toString(), params);
     }
 
+    /**
+     * Binds params to a prepared SQLite statement.
+     */
     private void bindParams(PreparedStatement statement, List<String> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
             statement.setString(i + 1, params.get(i));
         }
     }
 
+    /**
+     * Generates invoice number without colliding with existing records.
+     */
     private String generateInvoiceNumber(Connection connection) throws SQLException {
         String prefix = "INV-" + LocalDate.now().format(INVOICE_DATE) + "-";
         String sql = "SELECT invoice_no FROM billing_records WHERE invoice_no LIKE ? ORDER BY invoice_no DESC LIMIT 1";
@@ -234,6 +276,9 @@ public class SqliteBillingDao implements BillingDao {
         return candidate;
     }
 
+    /**
+     * Checks SQLite for invoice number exists.
+     */
     private boolean invoiceNumberExists(Connection connection, String invoiceNo) throws SQLException {
         String sql = "SELECT 1 FROM billing_records WHERE invoice_no = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -244,6 +289,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Parses sequence without exposing format failures to the caller.
+     */
     private int parseSequence(String invoiceNo) {
         if (invoiceNo == null || !invoiceNo.contains("-")) {
             return 0;
@@ -259,6 +307,9 @@ public class SqliteBillingDao implements BillingDao {
         }
     }
 
+    /**
+     * Normalizes status to the stored application format.
+     */
     private String normalizeStatus(String status) {
         if (status == null || status.isBlank()) {
             return "UNPAID";
@@ -270,10 +321,16 @@ public class SqliteBillingDao implements BillingDao {
         return "UNPAID";
     }
 
+    /**
+     * Trims and normalizes clean before storage or comparison.
+     */
     private String clean(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();

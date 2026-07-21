@@ -19,6 +19,9 @@ import pages.user.user_form.UserFormController;
 
 import java.io.File;
 
+/**
+ * Controls the read-only staff profile dialog opened from Staff Management.
+ */
 public class StaffProfileDialogController {
 
     private User currentUser;
@@ -41,6 +44,9 @@ public class StaffProfileDialogController {
     @FXML private Label createdAtLabel;
     @FXML private VBox permissionListBox;
 
+    /**
+     * Displays dialog to the user.
+     */
     public static boolean showDialog(Window owner, User currentUser, SqliteUserDao.UserDirectoryRow row) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/user/user_directory/StaffProfileDialogView.fxml"));
@@ -60,6 +66,9 @@ public class StaffProfileDialogController {
         }
     }
 
+    /**
+     * Prepares the form with the selected staff record and mode.
+     */
     private void prepare(Dialog<ButtonType> dialog, User currentUser, SqliteUserDao.UserDirectoryRow row) {
         this.dialog = dialog;
         this.currentUser = currentUser;
@@ -67,6 +76,9 @@ public class StaffProfileDialogController {
         render();
     }
 
+    /**
+     * Renders render in the current JavaFX view.
+     */
     private void render() {
         setLabel(fullNameLabel, row == null ? "-" : row.getDisplayName());
         setLabel(staffIdLabel, row == null ? "-" : row.getStaffId());
@@ -83,6 +95,9 @@ public class StaffProfileDialogController {
         renderPermissions();
     }
 
+    /**
+     * Handles the close dialog UI action.
+     */
     @FXML
     private void closeDialog() {
         if (dialog != null) {
@@ -90,6 +105,9 @@ public class StaffProfileDialogController {
         }
     }
 
+    /**
+     * Handles the edit staff UI action.
+     */
     @FXML
     private void editStaff() {
         if (row == null || dialog == null) {
@@ -102,6 +120,9 @@ public class StaffProfileDialogController {
         }
     }
 
+    /**
+     * Renders role badge in the current JavaFX view.
+     */
     private void renderRoleBadge() {
         String group = PermissionHelper.roleGroup(row == null ? "" : row.getRole());
         roleBadgeLabel.setText(displayRole(row == null ? "" : row.getRole()));
@@ -109,6 +130,9 @@ public class StaffProfileDialogController {
         roleBadgeLabel.getStyleClass().add(roleStyle(group));
     }
 
+    /**
+     * Renders duty badge in the current JavaFX view.
+     */
     private void renderDutyBadge() {
         String duty = row == null ? "On Duty" : safeDuty(row.getDutyStatus());
         dutyStatusBadgeLabel.setText(duty);
@@ -122,6 +146,9 @@ public class StaffProfileDialogController {
         }
     }
 
+    /**
+     * Renders photo in the current JavaFX view.
+     */
     private void renderPhoto() {
         if (profileInitialsLabel != null) {
             profileInitialsLabel.setText(initials(row == null ? "" : row.getDisplayName(), row == null ? "" : row.getUsername()));
@@ -150,6 +177,9 @@ public class StaffProfileDialogController {
         }
     }
 
+    /**
+     * Renders permissions in the current JavaFX view.
+     */
     private void renderPermissions() {
         if (permissionListBox == null) {
             return;
@@ -162,6 +192,9 @@ public class StaffProfileDialogController {
         addPermission("Manage staff accounts", PermissionHelper.canViewUserDirectory(user));
     }
 
+    /**
+     * Adds permission to the current staff workflow.
+     */
     private void addPermission(String text, boolean allowed) {
         Label label = new Label((allowed ? "Allowed: " : "Restricted: ") + text);
         label.getStyleClass().addAll("badge-pill", allowed ? "permission-allowed" : "permission-future");
@@ -169,6 +202,9 @@ public class StaffProfileDialogController {
         permissionListBox.getChildren().add(label);
     }
 
+    /**
+     * Formats role for display in the JavaFX UI.
+     */
     private String displayRole(String role) {
         String group = PermissionHelper.roleGroup(role);
         return switch (group) {
@@ -180,6 +216,9 @@ public class StaffProfileDialogController {
         };
     }
 
+    /**
+     * Returns the CSS style class for role style.
+     */
     private String roleStyle(String group) {
         return switch (group) {
             case "ADMIN" -> "role-admin";
@@ -190,6 +229,9 @@ public class StaffProfileDialogController {
         };
     }
 
+    /**
+     * Builds initials from initials for an avatar fallback.
+     */
     private String initials(String displayName, String username) {
         String source = displayName == null || displayName.isBlank() ? username : displayName;
         if (source == null || source.isBlank()) {
@@ -202,16 +244,25 @@ public class StaffProfileDialogController {
         return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
     }
 
+    /**
+     * Builds the JavaFX control used for set label.
+     */
     private void setLabel(Label label, String value) {
         if (label != null) {
             label.setText(safe(value));
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for safe.
+     */
     private String safe(String value) {
         return value == null || value.isBlank() ? "-" : value;
     }
 
+    /**
+     * Returns a safe display or filesystem value for duty.
+     */
     private String safeDuty(String value) {
         if ("Off Duty".equalsIgnoreCase(value)) {
             return "Off Duty";

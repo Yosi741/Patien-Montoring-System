@@ -33,6 +33,9 @@ import pages.user.Session;
 import java.io.File;
 import java.util.Locale;
 
+/**
+ * Controls the Staff Management directory, filters, metrics, and authorized staff actions.
+ */
 public class UserDirectoryController implements AppController {
 
     private final SqliteUserDao userDao = new SqliteUserDao();
@@ -58,6 +61,9 @@ public class UserDirectoryController implements AppController {
     @FXML private TableColumn<SqliteUserDao.UserDirectoryRow, SqliteUserDao.UserDirectoryRow> actionsColumn;
     @FXML private Label statusLabel;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -69,6 +75,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Handles the load users UI action.
+     */
     @FXML
     private void loadUsers() {
         if (!isAdmin()) {
@@ -96,6 +105,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Handles the clear filters UI action.
+     */
     @FXML
     private void clearFilters() {
         if (searchField != null) {
@@ -110,6 +122,9 @@ public class UserDirectoryController implements AppController {
         loadUsers();
     }
 
+    /**
+     * Handles the add user UI action.
+     */
     @FXML
     private void addUser() {
         if (!PermissionHelper.canCreateUser(Session.getCurrentUser())) {
@@ -122,6 +137,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean admin = isAdmin();
         if (accessDeniedPane != null) {
@@ -138,6 +156,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         if (roleFilter != null) {
             roleFilter.setItems(FXCollections.observableArrayList("All", "Admin", "Doctor", "Nurse", "Secretary"));
@@ -162,6 +183,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Configures table.
+     */
     private void configureTable() {
         if (userTable != null) {
             userTable.setItems(rows);
@@ -173,6 +197,9 @@ public class UserDirectoryController implements AppController {
         if (usernameColumn != null) {
             usernameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             usernameColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
                     super.updateItem(item, empty);
@@ -190,6 +217,9 @@ public class UserDirectoryController implements AppController {
         if (roleColumn != null) {
             roleColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(visibleRole(cell.getValue().getRole())));
             roleColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -209,6 +239,9 @@ public class UserDirectoryController implements AppController {
         if (activeColumn != null) {
             activeColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(dutyStatus(cell.getValue())));
             activeColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -228,6 +261,9 @@ public class UserDirectoryController implements AppController {
         if (actionsColumn != null) {
             actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             actionsColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(SqliteUserDao.UserDirectoryRow item, boolean empty) {
                     super.updateItem(item, empty);
@@ -260,6 +296,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Builds the JavaFX control used for build staff cell.
+     */
     private HBox buildStaffCell(SqliteUserDao.UserDirectoryRow row) {
         StackPane avatar = new StackPane();
         avatar.getStyleClass().add("staff-avatar");
@@ -292,6 +331,9 @@ public class UserDirectoryController implements AppController {
         return wrapper;
     }
 
+    /**
+     * Builds avatar image used by the staff view.
+     */
     private ImageView buildAvatarImage(String pathValue) {
         if (pathValue == null || pathValue.isBlank()) {
             return null;
@@ -312,6 +354,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Opens profile for the selected record.
+     */
     private void openProfile(SqliteUserDao.UserDirectoryRow row) {
         boolean edited = StaffProfileDialogController.showDialog(
                 statusLabel.getScene().getWindow(),
@@ -323,6 +368,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Opens the edit form for staff.
+     */
     private void editStaff(SqliteUserDao.UserDirectoryRow row) {
         if (!PermissionHelper.canUpdateUser(Session.getCurrentUser())) {
             NotificationHelper.showError(statusLabel, "Only administrators can edit staff.");
@@ -334,6 +382,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Deletes staff after the required checks.
+     */
     private void deleteStaff(SqliteUserDao.UserDirectoryRow row) {
         if (row == null) {
             return;
@@ -359,6 +410,9 @@ public class UserDirectoryController implements AppController {
         }
     }
 
+    /**
+     * Updates metrics.
+     */
     private void updateMetrics() {
         int total = rows.size();
         int onDuty = 0;
@@ -392,6 +446,9 @@ public class UserDirectoryController implements AppController {
         return PermissionHelper.canViewUserDirectory(Session.getCurrentUser());
     }
 
+    /**
+     * Maps the visible role label to the internal role value.
+     */
     private String internalRoleFilter(String visibleRole) {
         if (visibleRole == null || visibleRole.isBlank() || "All".equalsIgnoreCase(visibleRole)) {
             return "All";
@@ -399,10 +456,16 @@ public class UserDirectoryController implements AppController {
         return UserRole.fromValue(visibleRole).databaseValue();
     }
 
+    /**
+     * Maps the stored role value to its visible clinic label.
+     */
     private String visibleRole(String internalRole) {
         return UserRole.fromValue(internalRole).displayName();
     }
 
+    /**
+     * Returns the CSS style class for role style.
+     */
     private String roleStyle(String visibleRole) {
         if ("Admin".equalsIgnoreCase(visibleRole)) {
             return "role-admin";
@@ -416,6 +479,9 @@ public class UserDirectoryController implements AppController {
         return "role-staff";
     }
 
+    /**
+     * Normalizes the staff duty status used by the profile and directory views.
+     */
     private String dutyStatus(SqliteUserDao.UserDirectoryRow row) {
         if (row == null) {
             return "On Duty";
@@ -430,6 +496,9 @@ public class UserDirectoryController implements AppController {
         return "On Duty";
     }
 
+    /**
+     * Returns the CSS style class for duty status style.
+     */
     private String dutyStatusStyle(String status) {
         if ("Off Duty".equalsIgnoreCase(status)) {
             return "staff-status-off-duty";
@@ -440,6 +509,9 @@ public class UserDirectoryController implements AppController {
         return "staff-status-on-duty";
     }
 
+    /**
+     * Formats name for display in the JavaFX UI.
+     */
     private String displayName(SqliteUserDao.UserDirectoryRow row) {
         if (row == null) {
             return "-";
@@ -451,6 +523,9 @@ public class UserDirectoryController implements AppController {
         return value;
     }
 
+    /**
+     * Builds initials from initials for an avatar fallback.
+     */
     private String initials(SqliteUserDao.UserDirectoryRow row) {
         String source = displayName(row);
         if (source == null || source.isBlank() || "-".equals(source)) {
@@ -466,10 +541,16 @@ public class UserDirectoryController implements AppController {
         return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Returns trimmed display text with a safe blank fallback.
+     */
     private String text(TextField field) {
         return field == null || field.getText() == null ? "" : field.getText().trim();
     }
 
+    /**
+     * Normalizes blank blank to the workflow fallback value.
+     */
     private String blank(String value) {
         return value == null || value.isBlank() ? "-" : value;
     }

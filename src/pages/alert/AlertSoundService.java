@@ -4,12 +4,18 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
+/**
+ * Coordinates JavaFX alarm playback for active critical alerts and safely stops prior audio.
+ */
 public final class AlertSoundService {
 
     private static final Object LOCK = new Object();
     private static Clip currentClip;
 
 
+    /**
+     * Plays alert sound through the JavaFX media system.
+     */
     public static void playAlertSound() {
         synchronized (LOCK) {
             if (currentClip != null && currentClip.isRunning()) {
@@ -32,6 +38,9 @@ public final class AlertSoundService {
         }
     }
 
+    /**
+     * Stops alert sound and releases its resources.
+     */
     public static void stopAlertSound() {
         synchronized (LOCK) {
             try {

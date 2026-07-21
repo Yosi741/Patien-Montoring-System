@@ -1,7 +1,7 @@
 package pages.patient.vitals_entry;
 
 import pages.alert.SqliteAlertDao;
-import pages.patient.patient_detail.SqlitePatientDao;
+import pages.patient.Add_Edit_Patient_Dao;
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
 import pages.alert.AlertPersistenceService;
@@ -16,6 +16,9 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Validates and saves vital readings, evaluates thresholds, persists alerts, and synchronizes patient priority.
+ */
 public class VitalsWriteService {
 
     private static final DateTimeFormatter DISPLAY_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -23,19 +26,28 @@ public class VitalsWriteService {
     private static final int STABLE_MINUTES_REQUIRED = 30;
 
     private final SqliteVitalReadingDao vitalReadingDao;
-    private final SqlitePatientDao patientDao;
+    private final Add_Edit_Patient_Dao patientDao;
     private final SqliteAlertDao alertDao;
     private final VitalThresholdService thresholdService;
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public VitalsWriteService() {
-        this(new SqliteVitalReadingDao(), new SqlitePatientDao(), new SqliteAlertDao(), new VitalThresholdService());
+        this(new SqliteVitalReadingDao(), new Add_Edit_Patient_Dao(), new SqliteAlertDao(), new VitalThresholdService());
     }
 
-    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, SqlitePatientDao patientDao, VitalThresholdService thresholdService) {
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
+    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, Add_Edit_Patient_Dao patientDao, VitalThresholdService thresholdService) {
         this(vitalReadingDao, patientDao, new SqliteAlertDao(), thresholdService);
     }
 
-    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, SqlitePatientDao patientDao,
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
+    public VitalsWriteService(SqliteVitalReadingDao vitalReadingDao, Add_Edit_Patient_Dao patientDao,
                               SqliteAlertDao alertDao, VitalThresholdService thresholdService) {
         this.vitalReadingDao = vitalReadingDao;
         this.patientDao = patientDao;
@@ -43,6 +55,9 @@ public class VitalsWriteService {
         this.thresholdService = thresholdService;
     }
 
+    /**
+     * Validates and records vital reading using the shared vitals workflow.
+     */
     public VitalsWriteResult enterVitalReading(User currentUser, VitalsEntryRequest request) throws SQLException {
         if (!PermissionHelper.canEnterVitals(currentUser)) {
             throw new SecurityException("Only Admin, Doctor, and Nurse users can enter vitals.");
@@ -54,7 +69,7 @@ public class VitalsWriteService {
         String recordedAtText = recordedAt.format(DISPLAY_DATE_TIME);
         String normalizedType = VitalTypeCatalog.normalize(request.vitalType);
         String unit = VitalTypeCatalog.expectedUnit(normalizedType);
-        SqlitePatientDao.PatientDetail patient = patientDao.findDetailById(request.patientId)
+        Add_Edit_Patient_Dao.PatientDetail patient = patientDao.findDetailById(request.patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + request.patientId));
         String birthDate = patient.getBirthDate();
 
@@ -97,6 +112,9 @@ public class VitalsWriteService {
         return new VitalsWriteResult(status, normalizedType, displayValue(request), unit, recordedAtText);
     }
 
+    /**
+     * Validates validate against the active business rules.
+     */
     private void validate(VitalsEntryRequest request) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validatePatientId(request.patientId),
@@ -151,6 +169,9 @@ public class VitalsWriteService {
         }
     }
 
+    /**
+     * Validates range against the active business rules.
+     */
     private void validateRange(String label, String value, double min, double max) {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.validateNumeric(label, value, min, max);
         if (!validation.isValid()) {
@@ -158,6 +179,9 @@ public class VitalsWriteService {
         }
     }
 
+    /**
+     * Validates unit against the active business rules.
+     */
     private void validateUnit(String vitalType, String unit) {
         String expected = VitalTypeCatalog.expectedUnit(vitalType);
         if (unit == null || unit.isBlank()) {
@@ -168,10 +192,16 @@ public class VitalsWriteService {
         }
     }
 
+    /**
+     * Records record in SQLite.
+     */
     private VitalRecord record(String patientId, String vitalType, String value, String unit, String recordedAt, String staffUser) {
-        return new VitalRecord("", patientId.trim(), vitalType, value.trim(), unit, recordedAt, "Manual", staffUser, "", "", "", "");
+        return new VitalRecord("", patientId.trim(), vitalType, value.trim(), unit, recordedAt, "Manual", staffUser);
     }
 
+    /**
+     * Parses date time without exposing format failures to the caller.
+     */
     private LocalDateTime parseDateTime(String value) {
         try {
             return LocalDateTime.parse(value.trim(), DISPLAY_DATE_TIME);
@@ -180,10 +210,16 @@ public class VitalsWriteService {
         }
     }
 
+    /**
+     * Parses number without exposing format failures to the caller.
+     */
     private double parseNumber(String value) {
         return Double.parseDouble(value.trim());
     }
 
+    /**
+     * Returns the more severe of the two clinical evaluations.
+     */
     private VitalThresholdService.VitalStatus worse(VitalThresholdService.VitalStatus first, VitalThresholdService.VitalStatus second) {
         return statusRank(first) >= statusRank(second) ? first : second;
     }
@@ -192,6 +228,9 @@ public class VitalsWriteService {
         return status != VitalThresholdService.VitalStatus.NORMAL;
     }
 
+    /**
+     * Resolves status rank for workflow display or ordering.
+     */
     private int statusRank(VitalThresholdService.VitalStatus status) {
         if (status == VitalThresholdService.VitalStatus.EMERGENCY) {
             return 3;
@@ -205,11 +244,17 @@ public class VitalsWriteService {
         return 0;
     }
 
+    /**
+     * Synchronizes patient priority with the latest stored clinical state.
+     */
     private void syncPatientPriority(String staffUser, String patientId, String severity, String vitalType, String value, String unit) throws SQLException {
         String priority = priorityForSeverity(severity);
         patientDao.updatePriorityIfHigher(patientId, priority);
     }
 
+    /**
+     * Resolves priority for severity for the current clinical state.
+     */
     private String priorityForSeverity(String severity) {
         if ("EMERGENCY".equalsIgnoreCase(severity)) {
             return "EMERGENCY";
@@ -223,7 +268,10 @@ public class VitalsWriteService {
         return "NORMAL";
     }
 
-    private void attemptStablePriorityDowngrade(String staffUser, SqlitePatientDao.PatientDetail patient, String birthDate) throws SQLException {
+    /**
+     * Attempts stable priority downgrade only when the safety conditions are met.
+     */
+    private void attemptStablePriorityDowngrade(String staffUser, Add_Edit_Patient_Dao.PatientDetail patient, String birthDate) throws SQLException {
         if (patient == null || patient.getPatientId() == null || patient.getPatientId().isBlank()) {
             return;
         }
@@ -274,6 +322,9 @@ public class VitalsWriteService {
         patientDao.updatePriorityIfLower(patient.getPatientId(), nextPriority);
     }
 
+    /**
+     * Evaluates existing reading against the active clinical thresholds.
+     */
     private VitalThresholdService.VitalStatus evaluateExistingReading(VitalRecord reading, String birthDate) {
         try {
             return thresholdService.evaluate(reading.getVitalType(), parseNumber(reading.getValue()), birthDate);
@@ -282,6 +333,9 @@ public class VitalsWriteService {
         }
     }
 
+    /**
+     * Returns lower priority in the priority sequence.
+     */
     private String nextLowerPriority(String priority) {
         if ("EMERGENCY".equalsIgnoreCase(priority)) {
             return "CRITICAL";
@@ -295,6 +349,9 @@ public class VitalsWriteService {
         return "";
     }
 
+    /**
+     * Formats value for display in the JavaFX UI.
+     */
     private String displayValue(VitalsEntryRequest request) {
         if (VitalTypeCatalog.BLOOD_PRESSURE.equals(VitalTypeCatalog.normalize(request.vitalType))) {
             return request.value.trim() + "/" + request.secondValue.trim();
@@ -310,6 +367,9 @@ public class VitalsWriteService {
         private final String unit;
         private final String recordedAt;
 
+        /**
+         * Creates a vitals entry request from the supplied record values.
+         */
         public VitalsEntryRequest(String patientId, String vitalType, String value, String secondValue, String unit, String recordedAt) {
             this.patientId = patientId;
             this.vitalType = vitalType;
@@ -327,6 +387,9 @@ public class VitalsWriteService {
         private final String unit;
         private final String recordedAt;
 
+        /**
+         * Creates a vitals write result from the supplied record values.
+         */
         public VitalsWriteResult(VitalThresholdService.VitalStatus status, String vitalType, String value, String unit, String recordedAt) {
             this.status = status;
             this.vitalType = vitalType;

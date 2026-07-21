@@ -1,5 +1,8 @@
-package pages.patient.patient_detail;
+package pages.patient.model;
 
+/**
+ * Represents one clinic visit, including its dates, status, and visit report.
+ */
 public class PatientVisit {
 
     private final long id;
@@ -10,6 +13,9 @@ public class PatientVisit {
     private final String report;
     private final String createdAt;
 
+    /**
+     * Creates a patient visit from the supplied record values.
+     */
     public PatientVisit(long id, String patientId, String visitDate, String dischargeDate,
                         String status, String report, String createdAt) {
         this.id = id;
@@ -29,20 +35,8 @@ public class PatientVisit {
         return patientId;
     }
 
-    public String getVisitDate() {
-        return visitDate;
-    }
-
-    public String getDischargeDate() {
-        return dischargeDate;
-    }
-
     public String getStatus() {
         return status;
-    }
-
-    public String getReport() {
-        return report;
     }
 
     public String getCreatedAt() {

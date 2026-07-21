@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+/**
+ * Controls the BillingView.fxml page, including invoice filters, details, creation, payment, and cancellation actions.
+ */
 public class BillingController implements AppController {
 
     private static final String DEFAULT_VISIT_TYPE = "Clinic Visit";
@@ -88,6 +91,9 @@ public class BillingController implements AppController {
     @FXML private TableColumn<BillingRecord, BillingRecord> actionsColumn;
     @FXML private Label statusLabel;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -100,6 +106,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Handles the load billing UI action.
+     */
     @FXML
     private void loadBilling() {
         if (!isAuthorized()) {
@@ -124,6 +133,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Handles the clear filters UI action.
+     */
     @FXML
     private void clearFilters() {
         if (searchField != null) {
@@ -138,6 +150,9 @@ public class BillingController implements AppController {
         loadBilling();
     }
 
+    /**
+     * Handles the create invoice UI action.
+     */
     @FXML
     private void createInvoice() {
         if (!PermissionHelper.canManageBilling(Session.getCurrentUser())) {
@@ -156,6 +171,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Displays create invoice dialog to the user.
+     */
     private BillingRecord showCreateInvoiceDialog(Window owner) throws Exception {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("New Invoice");
@@ -336,6 +354,9 @@ public class BillingController implements AppController {
         return null;
     }
 
+    /**
+     * Refreshes patient lookup from the current application state.
+     */
     private void refreshPatientLookup(Label badge, Label patientNameLabel, Label patientMetaLabel, String patientId) {
         if (badge == null || patientNameLabel == null || patientMetaLabel == null) {
             return;
@@ -381,6 +402,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean authorized = isAuthorized();
         if (accessDeniedPane != null) {
@@ -393,6 +417,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         if (statusFilter != null) {
             statusFilter.setItems(FXCollections.observableArrayList("All", "Paid", "Unpaid", "Cancelled"));
@@ -409,6 +436,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Configures buttons.
+     */
     private void configureButtons() {
         boolean canManage = PermissionHelper.canManageBilling(Session.getCurrentUser());
         if (newInvoiceButton != null) {
@@ -417,6 +447,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Configures table.
+     */
     private void configureTable() {
         if (billingTable != null) {
             billingTable.setPlaceholder(new Label("No invoices found."));
@@ -431,6 +464,9 @@ public class BillingController implements AppController {
         if (patientColumn != null) {
             patientColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             patientColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -452,6 +488,9 @@ public class BillingController implements AppController {
         if (serviceColumn != null) {
             serviceColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             serviceColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -473,6 +512,9 @@ public class BillingController implements AppController {
         if (amountColumn != null) {
             amountColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             amountColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -489,6 +531,9 @@ public class BillingController implements AppController {
         if (statusColumn != null) {
             statusColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             statusColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -507,6 +552,9 @@ public class BillingController implements AppController {
         if (paymentColumn != null) {
             paymentColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             paymentColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -528,6 +576,9 @@ public class BillingController implements AppController {
         if (actionsColumn != null) {
             actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
             actionsColumn.setCellFactory(column -> new TableCell<>() {
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(BillingRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -563,6 +614,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Displays invoice details to the user.
+     */
     private void showInvoiceDetails(BillingRecord record) {
         if (record == null || billingTable == null || billingTable.getScene() == null) {
             return;
@@ -629,6 +683,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Handles the mark paid UI action.
+     */
     private void handleMarkPaid(BillingRecord record) {
         if (record == null || record.isPaid() || record.isCancelled()) {
             return;
@@ -653,6 +710,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Handles the cancel invoice UI action.
+     */
     private void handleCancelInvoice(BillingRecord record) {
         if (record == null || record.isCancelled()) {
             return;
@@ -673,6 +733,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Handles the delete invoice UI action.
+     */
     private void handleDeleteInvoice(BillingRecord record) {
         if (record == null) {
             return;
@@ -693,6 +756,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Requests confirmation before delete invoice.
+     */
     private boolean confirmDeleteInvoice() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Invoice");
@@ -706,6 +772,9 @@ public class BillingController implements AppController {
         return result.isPresent() && result.get() == deleteType;
     }
 
+    /**
+     * Lets the user choose payment method.
+     */
     private String choosePaymentMethod(BillingRecord record) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Select Payment Method");
@@ -737,6 +806,9 @@ public class BillingController implements AppController {
         return null;
     }
 
+    /**
+     * Builds the JavaFX control used for detail field.
+     */
     private VBox detailField(String label, javafx.scene.Node field) {
         Label name = new Label(label);
         name.getStyleClass().add("field-label");
@@ -745,6 +817,9 @@ public class BillingController implements AppController {
         return box;
     }
 
+    /**
+     * Builds the JavaFX control used for detail field.
+     */
     private VBox detailField(String label, javafx.scene.Node field, javafx.scene.Node helper) {
         Label name = new Label(label);
         name.getStyleClass().add("field-label");
@@ -753,12 +828,18 @@ public class BillingController implements AppController {
         return box;
     }
 
+    /**
+     * Builds a styled heading for a billing detail section.
+     */
     private Label sectionTitle(String text) {
         Label label = new Label(text);
         label.getStyleClass().add("invoice-section-title");
         return label;
     }
 
+    /**
+     * Builds the JavaFX control used for detail block.
+     */
     private VBox detailBlock(String title, String value) {
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("detail-field-name");
@@ -769,6 +850,9 @@ public class BillingController implements AppController {
         return box;
     }
 
+    /**
+     * Builds a styled table action button with its handler and tooltip.
+     */
     private Button actionButton(String text, javafx.event.EventHandler<javafx.event.ActionEvent> handler) {
         Button button = new Button(text);
         button.getStyleClass().add("billing-action-button");
@@ -780,6 +864,9 @@ public class BillingController implements AppController {
         return PermissionHelper.canViewBilling(Session.getCurrentUser());
     }
 
+    /**
+     * Returns the CSS style class for billing status style.
+     */
     private String billingStatusStyle(BillingRecord record) {
         if (record == null || record.getPaymentStatus() == null) {
             return "billing-status-unpaid";
@@ -791,6 +878,9 @@ public class BillingController implements AppController {
         };
     }
 
+    /**
+     * Returns formatted display text for payment text.
+     */
     private String paymentText(BillingRecord record) {
         if (record == null) {
             return "-";
@@ -804,10 +894,16 @@ public class BillingController implements AppController {
         return "Pending";
     }
 
+    /**
+     * Returns a safe display or filesystem value for text.
+     */
     private String safeText(TextField field) {
         return field == null || field.getText() == null ? "" : field.getText().trim();
     }
 
+    /**
+     * Parses amount without exposing format failures to the caller.
+     */
     private double parseAmount(String value) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("Amount is required.");
@@ -819,14 +915,23 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Formats amount for display.
+     */
     private String formatAmount(double amount) {
         return String.format(Locale.ROOT, "%.2f", amount);
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Builds the JavaFX control used for configure invoice field.
+     */
     private void configureInvoiceField(javafx.scene.Node field) {
         if (field == null) {
             return;
@@ -850,6 +955,9 @@ public class BillingController implements AppController {
         }
     }
 
+    /**
+     * Creates service selections for the billing workflow.
+     */
     private List<ServiceSelection> createServiceSelections() {
         List<ServiceSelection> selections = new ArrayList<>();
         for (ServiceOption option : CLINIC_SERVICES) {
@@ -860,6 +968,9 @@ public class BillingController implements AppController {
         return selections;
     }
 
+    /**
+     * Builds the JavaFX row used to display create service option row.
+     */
     private HBox createServiceOptionRow(ServiceSelection selection) {
         Label priceLabel = new Label(formatAmount(selection.option().price()));
         priceLabel.getStyleClass().add("invoice-helper-text");
@@ -871,6 +982,9 @@ public class BillingController implements AppController {
         return row;
     }
 
+    /**
+     * Refreshes selected services from the current application state.
+     */
     private void refreshSelectedServices(List<ServiceSelection> selections,
                                          VBox selectedServicesList,
                                          Label noServicesLabel,
@@ -904,6 +1018,9 @@ public class BillingController implements AppController {
         amountField.setText(hasSelection ? formatAmount(subtotal) : "");
     }
 
+    /**
+     * Selects selected service names without using an invalid index.
+     */
     private List<String> selectedServiceNames(List<ServiceSelection> selections) {
         List<String> selectedNames = new ArrayList<>();
         for (ServiceSelection selection : selections) {

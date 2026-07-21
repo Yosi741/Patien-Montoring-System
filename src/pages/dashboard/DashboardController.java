@@ -23,6 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controls DashboardView.fxml and renders clinic metrics, patient flow, alerts, and recent vitals.
+ */
 public class DashboardController implements AppController {
 
     private final DashboardMetricsService metricsService = new DashboardMetricsService();
@@ -45,6 +48,9 @@ public class DashboardController implements AppController {
     @FXML private VBox latestVitalsBox;
     @FXML private LineChart<String, Number> patientFlowChart;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -52,6 +58,9 @@ public class DashboardController implements AppController {
         startAutoRefresh();
     }
 
+    /**
+     * Handles the refresh UI action.
+     */
     @FXML
     private void refresh() {
         User user = Session.getCurrentUser();
@@ -77,6 +86,9 @@ public class DashboardController implements AppController {
         }
     }
 
+    /**
+     * Renders metrics in the current JavaFX view.
+     */
     private void renderMetrics(DashboardMetricsService.DashboardMetrics metrics) {
         totalPatientsLabel.setText(String.valueOf(metrics.getTotalPatients()));
         appointmentsTodayLabel.setText(String.valueOf(metrics.getAppointmentsToday()));
@@ -93,6 +105,9 @@ public class DashboardController implements AppController {
         renderLatestVitals(metrics);
     }
 
+    /**
+     * Renders patient flow chart in the current JavaFX view.
+     */
     private void renderPatientFlowChart(DashboardMetricsService.DashboardMetrics metrics) {
         if (patientFlowChart == null) {
             return;
@@ -114,6 +129,9 @@ public class DashboardController implements AppController {
         patientFlowChart.getData().add(appointmentSeries);
     }
 
+    /**
+     * Renders visit status distribution in the current JavaFX view.
+     */
     private void renderVisitStatusDistribution(DashboardMetricsService.DashboardMetrics metrics) {
         if (visitStatusDistributionBox == null) {
             return;
@@ -127,6 +145,9 @@ public class DashboardController implements AppController {
         visitStatusDistributionBox.getChildren().add(statusRow("Appointments", metrics.getAppointmentsToday(), "badge-pill info-pill"));
     }
 
+    /**
+     * Renders recent alerts in the current JavaFX view.
+     */
     private void renderRecentAlerts(DashboardMetricsService.DashboardMetrics metrics) {
         if (recentAlertsBox == null) {
             return;
@@ -152,6 +173,9 @@ public class DashboardController implements AppController {
         }
     }
 
+    /**
+     * Renders latest vitals in the current JavaFX view.
+     */
     private void renderLatestVitals(DashboardMetricsService.DashboardMetrics metrics) {
         if (latestVitalsBox == null) {
             return;
@@ -178,6 +202,9 @@ public class DashboardController implements AppController {
         }
     }
 
+    /**
+     * Resolves status row for workflow display or ordering.
+     */
     private HBox statusRow(String label, int value, String badgeClass) {
         Label statusLabel = new Label(label);
         statusLabel.getStyleClass().addAll("badge-pill");
@@ -195,6 +222,9 @@ public class DashboardController implements AppController {
         return row;
     }
 
+    /**
+     * Builds the JavaFX row used to display empty row.
+     */
     private HBox emptyRow(String text) {
         Label label = new Label(text);
         label.getStyleClass().add("muted-text");
@@ -203,12 +233,18 @@ public class DashboardController implements AppController {
         return row;
     }
 
+    /**
+     * Starts auto refresh.
+     */
     private void startAutoRefresh() {
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(20), event -> refresh()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
     }
 
+    /**
+     * Releases timers or other page resources when the current view is replaced.
+     */
     @Override
     public void dispose() {
         if (refreshTimeline != null) {
@@ -217,6 +253,9 @@ public class DashboardController implements AppController {
         }
     }
 
+    /**
+     * Builds the seven date labels used by the dashboard patient-flow chart.
+     */
     private List<String> lastSevenDayLabels() {
         ArrayList<String> labels = new ArrayList<>();
         for (int days = 6; days >= 0; days--) {
@@ -225,6 +264,9 @@ public class DashboardController implements AppController {
         return labels;
     }
 
+    /**
+     * Distributes a total across seven points for a stable fallback chart series.
+     */
     private List<Integer> distributedSeries(int currentValue, int baseline) {
         ArrayList<Integer> values = new ArrayList<>();
         int safeCurrent = Math.max(currentValue, baseline);
@@ -235,6 +277,9 @@ public class DashboardController implements AppController {
         return values;
     }
 
+    /**
+     * Resolves severity style for alert display.
+     */
     private String severityStyle(String severity) {
         if ("CRITICAL".equalsIgnoreCase(severity) || "EMERGENCY".equalsIgnoreCase(severity)) {
             return "danger-pill";

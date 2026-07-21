@@ -1,7 +1,7 @@
 package pages.patient.patient_detail;
 
 import app.database.DatabaseManager;
-import pages.patient.patient_board.PatientVisitDao;
+import pages.patient.model.PatientVisit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Stores and retrieves patient visit history from the SQLite patient_visits table.
+ */
 public class SqlitePatientVisitDao implements PatientVisitDao {
 
+    /**
+     * Finds by patient ID in SQLite.
+     */
     @Override
     public List<PatientVisit> findByPatientId(String patientId) throws SQLException {
         ArrayList<PatientVisit> visits = new ArrayList<>();
@@ -31,6 +37,9 @@ public class SqlitePatientVisitDao implements PatientVisitDao {
         return visits;
     }
 
+    /**
+     * Finds latest active visit in SQLite.
+     */
     @Override
     public Optional<PatientVisit> findLatestActiveVisit(String patientId) throws SQLException {
         String sql = "SELECT id, patient_id, visit_date, discharge_date, status, report, created_at "
@@ -50,6 +59,9 @@ public class SqlitePatientVisitDao implements PatientVisitDao {
         return Optional.empty();
     }
 
+    /**
+     * Creates visit for the patient workflow.
+     */
     @Override
     public void createVisit(String patientId, String visitDate, String status, String report) throws SQLException {
         String sql = "INSERT INTO patient_visits(patient_id, visit_date, discharge_date, status, report, created_at) "
@@ -64,6 +76,9 @@ public class SqlitePatientVisitDao implements PatientVisitDao {
         }
     }
 
+    /**
+     * Discharges active visit while preserving its visit history.
+     */
     @Override
     public boolean dischargeActiveVisit(String patientId, String dischargeDate, String report) throws SQLException {
         String sql = "UPDATE patient_visits "
@@ -84,6 +99,9 @@ public class SqlitePatientVisitDao implements PatientVisitDao {
         }
     }
 
+    /**
+     * Maps visit to the corresponding application model.
+     */
     private PatientVisit mapVisit(ResultSet resultSet) throws SQLException {
         return new PatientVisit(
                 resultSet.getLong("id"),

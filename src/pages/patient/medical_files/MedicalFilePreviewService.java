@@ -17,19 +17,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Builds safe text, PDF, and image previews for authorized local medical files.
+ */
 public class MedicalFilePreviewService {
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("txt", "csv", "pdf", "png", "jpg", "jpeg");
     private final SqliteMedicalFileDao medicalFileDao;
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public MedicalFilePreviewService() {
         this(new SqliteMedicalFileDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public MedicalFilePreviewService(SqliteMedicalFileDao medicalFileDao) {
         this.medicalFileDao = medicalFileDao;
     }
 
+    /**
+     * Loads preview for the patient workflow.
+     */
     public PreviewResult loadPreview(User currentUser, String fileId) throws SQLException, IOException {
         requireViewPermission(currentUser);
         SqliteMedicalFileDao.MedicalFileRecord file = loadFile(fileId);
@@ -51,6 +63,9 @@ public class MedicalFilePreviewService {
         }
     }
 
+    /**
+     * Opens file for the selected record.
+     */
     public String openFile(User currentUser, String fileId) throws SQLException, IOException {
         requireViewPermission(currentUser);
         SqliteMedicalFileDao.MedicalFileRecord file = loadFile(fileId);
@@ -59,6 +74,9 @@ public class MedicalFilePreviewService {
         return result;
     }
 
+    /**
+     * Loads file for the patient workflow.
+     */
     public SqliteMedicalFileDao.MedicalFileRecord loadFile(String fileId) throws SQLException {
         if (fileId == null || fileId.isBlank()) {
             throw new IllegalArgumentException("File ID is required.");
@@ -67,6 +85,9 @@ public class MedicalFilePreviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Medical file not found in SQLite: " + fileId));
     }
 
+    /**
+     * Validates stored path against the active business rules.
+     */
     public Path validateStoredPath(SqliteMedicalFileDao.MedicalFileRecord file) throws IOException {
         if (file == null) {
             throw new IllegalArgumentException("Medical file metadata is required.");
@@ -99,12 +120,18 @@ public class MedicalFilePreviewService {
         return realFile;
     }
 
+    /**
+     * Enforces view permission before the protected operation continues.
+     */
     private void requireViewPermission(User currentUser) {
         if (!PermissionHelper.canViewMedicalFiles(currentUser)) {
             throw new SecurityException("Only Admin, Doctor, and Nurse users can view medical records.");
         }
     }
 
+    /**
+     * Summarizes lines into concise display text.
+     */
     private String summarizeLines(List<String> lines, int maxLines) {
         ArrayList<String> preview = new ArrayList<>();
         for (String line : lines) {
@@ -118,6 +145,9 @@ public class MedicalFilePreviewService {
         return preview.isEmpty() ? "No readable text found." : String.join(System.lineSeparator(), preview);
     }
 
+    /**
+     * Builds a safe text preview from the selected CSV medical file.
+     */
     private String csvPreview(List<String> lines) {
         if (lines.isEmpty()) {
             return "CSV file is empty.";
@@ -132,6 +162,9 @@ public class MedicalFilePreviewService {
         return String.join(System.lineSeparator(), preview);
     }
 
+    /**
+     * Extracts a safe text preview from the selected PDF medical file.
+     */
     private String pdfPreview(File file) throws IOException {
         try (PDDocument document = PDDocument.load(file)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -145,6 +178,9 @@ public class MedicalFilePreviewService {
         }
     }
 
+    /**
+     * Returns the normalized file extension for the supplied path.
+     */
     private String extension(String name) {
         int dot = name == null ? -1 : name.lastIndexOf('.');
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
@@ -156,6 +192,9 @@ public class MedicalFilePreviewService {
         private final String previewText;
         private final String safePath;
 
+        /**
+         * Creates a preview result from the supplied record values.
+         */
         public PreviewResult(SqliteMedicalFileDao.MedicalFileRecord file, String previewType, String previewText, String safePath) {
             this.file = file;
             this.previewType = previewType;

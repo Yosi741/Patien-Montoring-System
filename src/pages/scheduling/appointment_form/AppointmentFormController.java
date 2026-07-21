@@ -30,6 +30,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
+/**
+ * Controls AppointmentFormView.fxml for creating and editing validated patient appointments.
+ */
 public class AppointmentFormController {
 
     private static final DateTimeFormatter STORAGE_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -56,14 +59,23 @@ public class AppointmentFormController {
     @FXML private TextArea notesArea;
     @FXML private Label statusLabel;
 
+    /**
+     * Displays create dialog to the user.
+     */
     public static boolean showCreateDialog(Window owner, User currentUser, String patientId) {
         return showDialog(owner, currentUser, patientId, null);
     }
 
+    /**
+     * Displays edit dialog to the user.
+     */
     public static boolean showEditDialog(Window owner, User currentUser, SqliteAppointmentDao.AppointmentRecord appointment) {
         return showDialog(owner, currentUser, "", appointment);
     }
 
+    /**
+     * Displays dialog to the user.
+     */
     private static boolean showDialog(Window owner, User currentUser, String patientId, SqliteAppointmentDao.AppointmentRecord appointment) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/scheduling/appointment_form/AppointmentFormView.fxml"));
@@ -90,6 +102,9 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         typeBox.getItems().setAll("VISIT", "FOLLOW_UP", "LAB_TEST", "OTHER", "SURGERY");
@@ -120,6 +135,9 @@ public class AppointmentFormController {
         });
     }
 
+    /**
+     * Prepares the form with the selected appointment record and mode.
+     */
     private void prepare(User currentUser, String patientId, SqliteAppointmentDao.AppointmentRecord appointment) {
         this.currentUser = currentUser;
         this.existingAppointment = appointment;
@@ -155,6 +173,9 @@ public class AppointmentFormController {
         refreshAvailableTimes();
     }
 
+    /**
+     * Validates and saves save.
+     */
     private boolean save() {
         try {
             String patientId = patientIdField.getText() == null ? "" : patientIdField.getText().trim();
@@ -207,6 +228,9 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Applies existing schedule to the current control or record.
+     */
     private void applyExistingSchedule(SqliteAppointmentDao.AppointmentRecord appointment) {
         try {
             LocalDateTime start = parseStoredDateTime(appointment.getStartTime());
@@ -221,10 +245,16 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Refreshes available times from the current application state.
+     */
     private void refreshAvailableTimes() {
         refreshAvailableTimes(startTimeBox == null ? null : startTimeBox.getValue(), true);
     }
 
+    /**
+     * Refreshes available times from the current application state.
+     */
     private void refreshAvailableTimes(String preferredValue, boolean notifyClosed) {
         if (startTimeBox == null) {
             return;
@@ -255,6 +285,9 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Installs nine digit filter on the relevant input control.
+     */
     private void installNineDigitFilter(TextField field) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             String clean = newValue == null ? "" : newValue.replaceAll("\\D", "");
@@ -267,11 +300,17 @@ public class AppointmentFormController {
         });
     }
 
+    /**
+     * Installs appointment date rules on the relevant input control.
+     */
     private void installAppointmentDateRules() {
         if (appointmentDatePicker == null) {
             return;
         }
         appointmentDatePicker.setDayCellFactory(picker -> new DateCell() {
+            /**
+             * Updates item.
+             */
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
@@ -282,6 +321,9 @@ public class AppointmentFormController {
         });
     }
 
+    /**
+     * Resolves resolved title for the current workflow.
+     */
     private String resolvedTitle() {
         String type = typeBox == null ? "" : typeBox.getValue();
         String generated = autoTitleForType(type);
@@ -291,10 +333,16 @@ public class AppointmentFormController {
         return preservedTitle == null || preservedTitle.isBlank() ? generated : preservedTitle.trim();
     }
 
+    /**
+     * Resolves resolved location for the current workflow.
+     */
     private String resolvedLocation() {
         return existingAppointment == null ? "" : blankTo(preservedLocation, "");
     }
 
+    /**
+     * Resolves resolved assigned staff for the current workflow.
+     */
     private String resolvedAssignedStaff() {
         if (existingAppointment == null) {
             return blankTo(preservedAssignedStaff, "");
@@ -302,6 +350,9 @@ public class AppointmentFormController {
         return blankTo(preservedAssignedStaff, "");
     }
 
+    /**
+     * Builds the automatic appointment title for the selected type.
+     */
     private String autoTitleForType(String type) {
         String normalized = toStorageAppointmentType(type);
         switch (normalized) {
@@ -319,10 +370,16 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
     }
 
+    /**
+     * Returns the default duration for type used by this workflow.
+     */
     private String defaultDurationForType(String type) {
         String normalized = toStorageAppointmentType(type);
         if ("SURGERY".equals(normalized)) {
@@ -331,6 +388,9 @@ public class AppointmentFormController {
         return DEFAULT_DURATION;
     }
 
+    /**
+     * Converts appointment type to its SQLite storage value.
+     */
     private String toStorageAppointmentType(String value) {
         if (value == null || value.isBlank()) {
             return "VISIT";
@@ -339,6 +399,9 @@ public class AppointmentFormController {
         return "CHECKUP".equals(normalized) ? "VISIT" : normalized;
     }
 
+    /**
+     * Converts appointment type to its user-facing value.
+     */
     private String toUiAppointmentType(String value) {
         if ("CHECKUP".equalsIgnoreCase(value)) {
             return "VISIT";
@@ -346,6 +409,9 @@ public class AppointmentFormController {
         return value == null || value.isBlank() ? "VISIT" : value.trim().toUpperCase(Locale.ENGLISH);
     }
 
+    /**
+     * Selects selected duration minutes without using an invalid index.
+     */
     private int selectedDurationMinutes() {
         String value = durationBox == null ? DEFAULT_DURATION : durationBox.getValue();
         if (value == null || value.isBlank()) {
@@ -360,6 +426,9 @@ public class AppointmentFormController {
         return 30;
     }
 
+    /**
+     * Returns the display or default duration for the selected appointment type.
+     */
     private String durationLabelFor(long minutes) {
         if (minutes >= 53) {
             return "60 min";
@@ -370,6 +439,9 @@ public class AppointmentFormController {
         return "30 min";
     }
 
+    /**
+     * Parses stored date time without exposing format failures to the caller.
+     */
     private LocalDateTime parseStoredDateTime(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Appointment time is unavailable.");
@@ -385,10 +457,16 @@ public class AppointmentFormController {
         }
     }
 
+    /**
+     * Parses ui time without exposing format failures to the caller.
+     */
     private LocalTime parseUiTime(String value) {
         return LocalTime.parse(value.trim().toUpperCase(Locale.ENGLISH), UI_TIME);
     }
 
+    /**
+     * Returns the default working date used by this workflow.
+     */
     private LocalDate defaultWorkingDate(LocalDate candidate) {
         LocalDate safe = candidate == null ? LocalDate.now() : candidate;
         while (workingHoursFor(safe).closed()) {
@@ -397,6 +475,9 @@ public class AppointmentFormController {
         return safe;
     }
 
+    /**
+     * Returns the clinic working hours for the selected date.
+     */
     private WorkingHours workingHoursFor(LocalDate date) {
         if (date == null) {
             return WorkingHours.closedHours();
@@ -412,10 +493,16 @@ public class AppointmentFormController {
     }
 
     private record WorkingHours(LocalTime openTime, LocalTime closeTime) {
+        /**
+         * Creates a closed-hours result for a non-working date.
+         */
         private static WorkingHours closedHours() {
             return new WorkingHours(null, null);
         }
 
+        /**
+         * Creates a closed-hours result for a non-working date.
+         */
         private boolean closed() {
             return openTime == null || closeTime == null;
         }

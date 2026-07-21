@@ -12,8 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Queries and updates notification records in the SQLite notifications table.
+ */
 public class SqliteNotificationDao {
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteNotificationDao() {
         try {
             SchemaInitializer.initialize();
@@ -22,6 +28,9 @@ public class SqliteNotificationDao {
         }
     }
 
+    /**
+     * Inserts insert into SQLite.
+     */
     public long insert(NotificationWriteRecord record) throws SQLException {
         String sql = "INSERT INTO notifications(username, role, section, patient_id, severity, title, message, status, source_type, source_id) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, 'UNREAD', ?, ?)";
@@ -43,6 +52,9 @@ public class SqliteNotificationDao {
         }
     }
 
+    /**
+     * Finds for user in SQLite.
+     */
     public List<NotificationRow> findForUser(String username, String roleGroup, String section,
                                              String severity, String status, String patientSearch, String dateRange) throws SQLException {
         ArrayList<NotificationRow> rows = new ArrayList<>();
@@ -58,6 +70,9 @@ public class SqliteNotificationDao {
         return rows;
     }
 
+    /**
+     * Finds by ID in SQLite.
+     */
     public Optional<NotificationRow> findById(long id) throws SQLException {
         ArrayList<NotificationRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
@@ -66,6 +81,9 @@ public class SqliteNotificationDao {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Counts unread records visible to the current user.
+     */
     public int unreadCountForUser(String username, String roleGroup, String section) throws SQLException {
         String sql = "SELECT COUNT(*) FROM notifications "
                 + "WHERE status = 'UNREAD' AND (username = ? OR role = ? OR section = ? OR COALESCE(username, '') = '')";
@@ -80,6 +98,9 @@ public class SqliteNotificationDao {
         }
     }
 
+    /**
+     * Marks read with its new workflow state.
+     */
     public boolean markRead(long id) throws SQLException {
         String sql = "UPDATE notifications SET status = 'READ', read = 1, read_at = CURRENT_TIMESTAMP WHERE id = ? AND status <> 'DISMISSED'";
         try (Connection connection = DatabaseManager.getConnection();
@@ -90,11 +111,17 @@ public class SqliteNotificationDao {
     }
 
 
+    /**
+     * Returns the shared SELECT clause used by this SQLite DAO.
+     */
     private StringBuilder baseSelect() {
         return new StringBuilder("SELECT id, username, role, section, patient_id, severity, title, message, status, "
                 + "source_type, source_id, created_at, read_at FROM notifications ");
     }
 
+    /**
+     * Appends filters to the current query or result.
+     */
     private void appendFilters(StringBuilder sql, ArrayList<String> params, String severity, String status, String patientSearch, String dateRange) {
         if (severity != null && !severity.isBlank() && !"All".equalsIgnoreCase(severity)) {
             sql.append("AND severity = ? ");
@@ -120,6 +147,9 @@ public class SqliteNotificationDao {
         }
     }
 
+    /**
+     * Queries rows from SQLite.
+     */
     private void queryRows(String sql, List<String> params, ArrayList<NotificationRow> rows) throws SQLException {
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -148,10 +178,16 @@ public class SqliteNotificationDao {
         }
     }
 
+    /**
+     * Normalizes blank to null to the workflow fallback value.
+     */
     private String blankToNull(String value) {
         return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
+    /**
+     * Normalizes blank to empty to the workflow fallback value.
+     */
     private String blankToEmpty(String value) {
         return value == null ? "" : value.trim();
     }
@@ -167,6 +203,9 @@ public class SqliteNotificationDao {
         private final String sourceType;
         private final String sourceId;
 
+        /**
+         * Creates a notification write record from the supplied record values.
+         */
         public NotificationWriteRecord(String username, String role, String section, String patientId, String severity,
                                        String title, String message, String sourceType, String sourceId) {
             this.username = trim(username);
@@ -190,6 +229,9 @@ public class SqliteNotificationDao {
         public String getSourceType() { return sourceType; }
         public String getSourceId() { return sourceId; }
 
+        /**
+         * Trims trim while preserving null handling.
+         */
         private static String trim(String value) {
             return value == null ? "" : value.trim();
         }
@@ -210,6 +252,9 @@ public class SqliteNotificationDao {
         private final String createdAt;
         private final String readAt;
 
+        /**
+         * Creates a notification row from the supplied record values.
+         */
         public NotificationRow(long id, String username, String role, String section, String patientId, String severity,
                                String title, String message, String status, String sourceType, String sourceId,
                                String createdAt, String readAt) {
@@ -241,6 +286,9 @@ public class SqliteNotificationDao {
         public String getSourceId() { return sourceId; }
         public String getCreatedAt() { return createdAt; }
         public String getReadAt() { return readAt; }
+        /**
+         * Returns target summary used by the alert workflow.
+         */
         public String getTargetSummary() {
             if (username != null && !username.isBlank()) {
                 return "User: " + username;

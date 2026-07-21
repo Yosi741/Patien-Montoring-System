@@ -5,14 +5,23 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Classifies vital values against the clinic's age-aware normal, warning, and critical thresholds.
+ */
 public class VitalThresholdService {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+    /**
+     * Evaluates evaluate against the active clinical thresholds.
+     */
     public VitalStatus evaluate(String vitalType, double value) {
         return evaluate(vitalType, value, "");
     }
 
+    /**
+     * Evaluates evaluate against the active clinical thresholds.
+     */
     public VitalStatus evaluate(String vitalType, double value, String patientBirthDate) {
         String type = VitalTypeCatalog.normalize(vitalType);
         AgeGroup ageGroup = ageGroup(patientBirthDate);
@@ -37,6 +46,9 @@ public class VitalThresholdService {
         return VitalStatus.NORMAL;
     }
 
+    /**
+     * Evaluates the supplied heart rate value against its clinical thresholds.
+     */
     private VitalStatus heartRate(double value, AgeGroup ageGroup) {
         switch (ageGroup) {
             case NEWBORN:
@@ -54,6 +66,9 @@ public class VitalThresholdService {
         }
     }
 
+    /**
+     * Evaluates the supplied systolic value against its clinical thresholds.
+     */
     private VitalStatus systolic(double value, AgeGroup ageGroup) {
         switch (ageGroup) {
             case NEWBORN:
@@ -71,6 +86,9 @@ public class VitalThresholdService {
         }
     }
 
+    /**
+     * Evaluates the supplied diastolic value against its clinical thresholds.
+     */
     private VitalStatus diastolic(double value, AgeGroup ageGroup) {
         switch (ageGroup) {
             case NEWBORN:
@@ -88,10 +106,16 @@ public class VitalThresholdService {
         }
     }
 
+    /**
+     * Evaluates the supplied temperature value against its clinical thresholds.
+     */
     private VitalStatus temperature(double value) {
         return range(value, 36.0, 37.5, 35.0, 39.0, 34.0, 41.0);
     }
 
+    /**
+     * Evaluates the supplied oxygen value against its clinical thresholds.
+     */
     private VitalStatus oxygen(double value) {
         if (value < 85) {
             return VitalStatus.EMERGENCY;
@@ -105,6 +129,9 @@ public class VitalThresholdService {
         return VitalStatus.NORMAL;
     }
 
+    /**
+     * Evaluates whether the supplied value falls outside the configured range.
+     */
     private VitalStatus range(double value, double normalLow, double normalHigh,
                               double criticalLow, double criticalHigh,
                               double emergencyLow, double emergencyHigh) {
@@ -120,6 +147,9 @@ public class VitalThresholdService {
         return VitalStatus.NORMAL;
     }
 
+    /**
+     * Maps the patient age to the threshold age group.
+     */
     private AgeGroup ageGroup(String birthDate) {
         LocalDate date = parseBirthDate(birthDate);
         if (date == null || date.isAfter(LocalDate.now())) {
@@ -144,6 +174,9 @@ public class VitalThresholdService {
         return AgeGroup.ADULT;
     }
 
+    /**
+     * Parses birth date without exposing format failures to the caller.
+     */
     private LocalDate parseBirthDate(String value) {
         if (value == null || value.isBlank()) {
             return null;

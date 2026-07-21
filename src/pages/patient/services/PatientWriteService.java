@@ -1,7 +1,8 @@
-package pages.patient.patient_detail;
+package pages.patient.services;
 
 import app.helpers.FormValidationHelper;
 import app.helpers.PermissionHelper;
+import pages.patient.Add_Edit_Patient_Dao;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -11,6 +12,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Validates permissions and patient data for create, update, archive, discharge, and delete workflows.
+ */
 public class PatientWriteService {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -18,30 +22,45 @@ public class PatientWriteService {
     private static final Set<String> VALID_PRIORITIES = Set.of("NORMAL", "HIGH", "CRITICAL", "EMERGENCY");
     private static final Set<String> VALID_BLOOD_TYPES = Set.of("UNKNOWN", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
-    private final SqlitePatientDao patientDao;
+    private final Add_Edit_Patient_Dao patientDao;
     private final PatientVisitService patientVisitService;
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public PatientWriteService() {
-        this(new SqlitePatientDao(), new PatientVisitService());
+        this(new Add_Edit_Patient_Dao(), new PatientVisitService());
     }
 
-    public PatientWriteService(SqlitePatientDao patientDao) {
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
+    public PatientWriteService(Add_Edit_Patient_Dao patientDao) {
         this(patientDao, new PatientVisitService());
     }
 
-    public PatientWriteService(SqlitePatientDao patientDao, PatientVisitService patientVisitService) {
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
+    public PatientWriteService(Add_Edit_Patient_Dao patientDao, PatientVisitService patientVisitService) {
         this.patientDao = patientDao;
         this.patientVisitService = patientVisitService;
     }
 
-    public void createPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
+    /**
+     * Creates patient for the patient workflow.
+     */
+    public void createPatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, true);
         patientDao.insertPatient(clean(patient));
         patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
-    public void updatePatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
+    /**
+     * Updates patient.
+     */
+    public void updatePatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);
         if (!patientDao.existsByPatientId(patient.getPatientId())) {
@@ -50,6 +69,9 @@ public class PatientWriteService {
         patientDao.updatePatient(clean(patient));
     }
 
+    /**
+     * Discharges patient while preserving its visit history.
+     */
     public void dischargePatient(User currentUser, String patientId, String dischargeSummary) throws SQLException {
         if (!PermissionHelper.canDeactivatePatient(currentUser)) {
             throw new SecurityException("Only Admin and Doctor users can discharge or deactivate patients.");
@@ -65,27 +87,10 @@ public class PatientWriteService {
         patientVisitService.dischargeVisit(patientId, dischargeSummary);
     }
 
-    public void archivePatient(User currentUser, String patientId, String archiveSummary) throws SQLException {
-        if (!PermissionHelper.canDeactivatePatient(currentUser)) {
-            throw new SecurityException("Only Admin and Doctor users can remove patients from the active list.");
-        }
-        FormValidationHelper.ValidationResult validation = FormValidationHelper.validatePatientId(patientId);
-        if (!validation.isValid()) {
-            throw new IllegalArgumentException(validation.getMessage());
-        }
-        SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
-                .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patientId));
-        if ("INACTIVE".equalsIgnoreCase(detail.getStatus())
-                || "DEACTIVATED".equalsIgnoreCase(detail.getStatus())) {
-            throw new IllegalArgumentException("This patient is already archived.");
-        }
-        patientDao.deactivatePatient(patientId, "INACTIVE");
-        patientVisitService.dischargeVisit(patientId, archiveSummary == null || archiveSummary.isBlank()
-                ? "Patient removed from the active clinic list."
-                : archiveSummary);
-    }
-
-    public SqlitePatientDao.RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
+    /**
+     * Returns related record counts used by the patient workflow.
+     */
+    public Add_Edit_Patient_Dao.RelatedRecordCounts getRelatedRecordCounts(User currentUser, String patientId) throws SQLException {
         if (!PermissionHelper.canDeletePatient(currentUser)) {
             throw new SecurityException("Only Admin users can delete patients.");
         }
@@ -99,6 +104,9 @@ public class PatientWriteService {
         return patientDao.countRelatedRecords(patientId);
     }
 
+    /**
+     * Deletes patient after the required checks.
+     */
     public void deletePatient(User currentUser, String patientId) throws SQLException {
         if (!PermissionHelper.canDeletePatient(currentUser)) {
             throw new SecurityException("Only Admin users can delete patients.");
@@ -116,20 +124,21 @@ public class PatientWriteService {
         }
     }
 
-    public void reactivateReturningPatient(User currentUser, SqlitePatientDao.PatientWriteRecord patient) throws SQLException {
+    /**
+     * Reactivates returning patient for a returning clinic visit.
+     */
+    public void reactivateReturningPatient(User currentUser, Add_Edit_Patient_Dao.PatientWriteRecord patient) throws SQLException {
         requireWritePermission(currentUser);
         validatePatient(patient, false);
         patientDao.findDetailById(patient.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient does not exist in SQLite: " + patient.getPatientId()));
 
-        SqlitePatientDao.PatientWriteRecord activeVisitRecord = new SqlitePatientDao.PatientWriteRecord(
+        Add_Edit_Patient_Dao.PatientWriteRecord activeVisitRecord = new Add_Edit_Patient_Dao.PatientWriteRecord(
                 patient.getPatientId(),
                 patient.getFirstName(),
                 patient.getLastName(),
                 patient.getBirthDate(),
                 patient.getGender(),
-                patient.getSection(),
-                patient.getRoom(),
                 "ACTIVE",
                 patient.getPriority(),
                 patient.getBloodType(),
@@ -139,21 +148,25 @@ public class PatientWriteService {
                 patient.getEmail(),
                 patient.getAddress(),
                 patient.getEmergencyContactName(),
-                patient.getEmergencyContactPhone(),
-                patient.getAssignedDoctorUsername(),
-                patient.getAssignedStaffUsername()
+                patient.getEmergencyContactPhone()
         );
         patientDao.updatePatient(clean(activeVisitRecord));
         patientVisitService.ensureActiveVisit(patient.getPatientId(), patient.getDiagnosis());
     }
 
+    /**
+     * Enforces write permission before the protected operation continues.
+     */
     private void requireWritePermission(User currentUser) {
         if (!PermissionHelper.canCreatePatient(currentUser) && !PermissionHelper.canUpdatePatient(currentUser)) {
             throw new SecurityException("Only Admin, Doctor, Nurse, or Secretary users can add or edit patients.");
         }
     }
 
-    private void validatePatient(SqlitePatientDao.PatientWriteRecord patient, boolean create) throws SQLException {
+    /**
+     * Validates patient against the active business rules.
+     */
+    private void validatePatient(Add_Edit_Patient_Dao.PatientWriteRecord patient, boolean create) throws SQLException {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Patient ID", patient.getPatientId()),
                 FormValidationHelper.validatePatientId(patient.getPatientId()),
@@ -166,10 +179,6 @@ public class PatientWriteService {
                 FormValidationHelper.validateMaxLength("Last name", patient.getLastName(), 60),
                 FormValidationHelper.validateMaxLength("Gender", patient.getGender(), 40),
                 FormValidationHelper.validateMaxLength("Blood type", patient.getBloodType(), 10),
-                FormValidationHelper.validateMaxLength("Section", patient.getSection(), 80),
-                FormValidationHelper.validateMaxLength("Room", patient.getRoom(), 30),
-                FormValidationHelper.validateMaxLength("Assigned doctor", patient.getAssignedDoctorUsername(), 64),
-                FormValidationHelper.validateMaxLength("Assigned nurse/staff", patient.getAssignedStaffUsername(), 64),
                 FormValidationHelper.validateMaxLength("Diagnosis", patient.getDiagnosis(), 500),
                 FormValidationHelper.validateMaxLength("Allergies", patient.getAllergies(), 500),
                 FormValidationHelper.validateMaxLength("Phone", patient.getPhone(), 30),
@@ -191,6 +200,9 @@ public class PatientWriteService {
         }
     }
 
+    /**
+     * Validates birth date against the active business rules.
+     */
     private void validateBirthDate(String value) {
         if (value == null || value.isBlank()) {
             return;
@@ -207,21 +219,25 @@ public class PatientWriteService {
         }
     }
 
+    /**
+     * Validates choice against the active business rules.
+     */
     private void validateChoice(String label, String value, Set<String> validValues) {
         if (!validValues.contains(value)) {
             throw new IllegalArgumentException(label + " must be one of: " + String.join(", ", validValues));
         }
     }
 
-    private SqlitePatientDao.PatientWriteRecord clean(SqlitePatientDao.PatientWriteRecord patient) {
-        return new SqlitePatientDao.PatientWriteRecord(
+    /**
+     * Trims and normalizes clean before storage or comparison.
+     */
+    private Add_Edit_Patient_Dao.PatientWriteRecord clean(Add_Edit_Patient_Dao.PatientWriteRecord patient) {
+        return new Add_Edit_Patient_Dao.PatientWriteRecord(
                 trim(patient.getPatientId()),
                 trim(patient.getFirstName()),
                 trim(patient.getLastName()),
                 trim(patient.getBirthDate()),
                 trim(patient.getGender()),
-                trim(patient.getSection()),
-                trim(patient.getRoom()),
                 normalize(patient.getStatus()),
                 normalize(patient.getPriority()),
                 normalizeBloodType(patient.getBloodType()),
@@ -231,12 +247,13 @@ public class PatientWriteService {
                 trim(patient.getEmail()),
                 trim(patient.getAddress()),
                 trim(patient.getEmergencyContactName()),
-                trim(patient.getEmergencyContactPhone()),
-                trim(patient.getAssignedDoctorUsername()),
-                trim(patient.getAssignedStaffUsername())
+                trim(patient.getEmergencyContactPhone())
         );
     }
 
+    /**
+     * Parses birth date without exposing format failures to the caller.
+     */
     private LocalDate parseBirthDate(String value) {
         String trimmed = value.trim();
         try {
@@ -250,23 +267,38 @@ public class PatientWriteService {
         }
     }
 
+    /**
+     * Normalizes normalize to the stored application format.
+     */
     private String normalize(String value) {
         return value == null || value.isBlank() ? "ACTIVE" : value.trim().toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Normalizes blood type to the stored application format.
+     */
     private String normalizeBloodType(String value) {
         String normalized = value == null || value.isBlank() ? "Unknown" : value.trim();
         return "UNKNOWN".equalsIgnoreCase(normalized) ? "Unknown" : normalized.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Trims trim while preserving null handling.
+     */
     private String trim(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Normalizes allergies to the stored application format.
+     */
     private String normalizeAllergies(String value) {
         return value == null || value.isBlank() ? "Unknown" : value.trim();
     }
 
+    /**
+     * Validates optional email against the active business rules.
+     */
     private void validateOptionalEmail(String value) {
         if (value == null || value.isBlank()) {
             return;

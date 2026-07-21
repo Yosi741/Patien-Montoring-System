@@ -40,6 +40,9 @@ import pages.user.Session;
 import java.io.File;
 import java.util.Locale;
 
+/**
+ * Controls MedicalFilesView.fxml, including record filters, upload, preview, open, and delete actions.
+ */
 public class MedicalFilesController implements AppController {
 
     private final SqliteMedicalFileDao fileDao = new SqliteMedicalFileDao();
@@ -69,6 +72,9 @@ public class MedicalFilesController implements AppController {
     @FXML private TableColumn<SqliteMedicalFileDao.MedicalFileRecord, SqliteMedicalFileDao.MedicalFileRecord> actionsColumn;
     @FXML private Label statusLabel;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -81,6 +87,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Opens for patient for the selected record.
+     */
     public void openForPatient(String patientId) {
         patientIdFilter = patientId == null ? "" : patientId;
         updatePatientFilterChip();
@@ -91,6 +100,9 @@ public class MedicalFilesController implements AppController {
 
 
 
+    /**
+     * Handles the load files UI action.
+     */
     @FXML
     private void loadFiles() {
         if (!isAuthorized()) {
@@ -114,6 +126,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Handles the upload file UI action.
+     */
     @FXML
     private void uploadFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
@@ -134,6 +149,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Handles the clear filters UI action.
+     */
     @FXML
     private void clearFilters() {
         if (searchField != null) {
@@ -148,6 +166,9 @@ public class MedicalFilesController implements AppController {
         loadFiles();
     }
 
+    /**
+     * Handles the clear patient filter UI action.
+     */
     @FXML
     private void clearPatientFilter() {
         patientIdFilter = "";
@@ -155,6 +176,9 @@ public class MedicalFilesController implements AppController {
         loadFiles();
     }
 
+    /**
+     * Configures access.
+     */
     private void configureAccess() {
         boolean authorized = isAuthorized();
         if (accessDeniedPane != null) {
@@ -167,6 +191,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Configures filters.
+     */
     private void configureFilters() {
         if (dateRangeFilter != null) {
             dateRangeFilter.setItems(javafx.collections.FXCollections.observableArrayList(
@@ -182,6 +209,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Configures table.
+     */
     private void configureTable() {
         if (filesTable != null) {
             filesTable.setItems(files);
@@ -210,6 +240,9 @@ public class MedicalFilesController implements AppController {
                     badge.getStyleClass().addAll("badge-pill", "record-type-badge");
                 }
 
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -279,6 +312,9 @@ public class MedicalFilesController implements AppController {
                     });
                 }
 
+                /**
+                 * Updates item.
+                 */
                 @Override
                 protected void updateItem(SqliteMedicalFileDao.MedicalFileRecord item, boolean empty) {
                     super.updateItem(item, empty);
@@ -319,8 +355,14 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Builds the JavaFX control used for centered text cell.
+     */
     private TableCell<SqliteMedicalFileDao.MedicalFileRecord, String> centeredTextCell(String styleClass) {
         return new TableCell<>() {
+            /**
+             * Updates item.
+             */
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -338,6 +380,9 @@ public class MedicalFilesController implements AppController {
         };
     }
 
+    /**
+     * Configures buttons.
+     */
     private void configureButtons() {
         boolean canUpload = PermissionHelper.canUploadMedicalFile(Session.getCurrentUser());
         if (uploadButton != null) {
@@ -347,6 +392,9 @@ public class MedicalFilesController implements AppController {
         updatePatientFilterChip();
     }
 
+    /**
+     * Displays record details to the user.
+     */
     private void showRecordDetails(SqliteMedicalFileDao.MedicalFileRecord file) {
         if (file == null || filesTable == null || filesTable.getScene() == null) {
             return;
@@ -463,6 +511,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Opens record file for the selected record.
+     */
     private void openRecordFile(SqliteMedicalFileDao.MedicalFileRecord file) {
         try {
             String message = previewService.openFile(Session.getCurrentUser(), file.getFileId());
@@ -472,6 +523,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Deletes record after the required checks.
+     */
     private void deleteRecord(SqliteMedicalFileDao.MedicalFileRecord file) {
         if (file == null) {
             return;
@@ -496,6 +550,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Copies summary to clipboard to the requested destination.
+     */
     private void copySummaryToClipboard(SqliteMedicalFileDao.MedicalFileRecord file, String previewText) {
         String summary = file == null ? "" : file.getExtractedSummary();
         if (summary == null || summary.isBlank()) {
@@ -511,6 +568,9 @@ public class MedicalFilesController implements AppController {
         NotificationHelper.showSuccess(statusLabel, "Copied file summary/preview to clipboard.");
     }
 
+    /**
+     * Builds the JavaFX control used for detail label.
+     */
     private Label detailLabel(String name, String value) {
         Label label = new Label(name + ": " + blankTo(value, "-"));
         label.getStyleClass().add("body-text");
@@ -518,12 +578,18 @@ public class MedicalFilesController implements AppController {
         return label;
     }
 
+    /**
+     * Builds the JavaFX control used for section label.
+     */
     private Label sectionLabel(String title) {
         Label label = new Label(title);
         label.getStyleClass().add("field-label");
         return label;
     }
 
+    /**
+     * Builds the read-only text area used for long medical-record details.
+     */
     private TextArea detailArea(String text, int rows) {
         TextArea area = new TextArea(blankTo(text, ""));
         area.setEditable(false);
@@ -533,6 +599,9 @@ public class MedicalFilesController implements AppController {
         return area;
     }
 
+    /**
+     * Updates patient filter chip.
+     */
     private void updatePatientFilterChip() {
         boolean filtered = patientIdFilter != null && !patientIdFilter.isBlank();
         if (patientFilterBar != null) {
@@ -550,6 +619,9 @@ public class MedicalFilesController implements AppController {
         }
     }
 
+    /**
+     * Selects pending file without using an invalid index.
+     */
     private void selectPendingFile() {
         if (pendingFileId == null || pendingFileId.isBlank() || filesTable == null) {
             return;
@@ -568,19 +640,31 @@ public class MedicalFilesController implements AppController {
         return PermissionHelper.canViewMedicalFiles(Session.getCurrentUser());
     }
 
+    /**
+     * Returns a safe display or filesystem value for text.
+     */
     private String safeText(TextField field) {
         return field == null || field.getText() == null ? "" : field.getText().trim();
     }
 
+    /**
+     * Normalizes normalized category to the stored application format.
+     */
     private String normalizedCategory() {
         return "All";
     }
 
+    /**
+     * Normalizes normalized date range to the stored application format.
+     */
     private String normalizedDateRange() {
         String value = dateRangeFilter == null ? "" : dateRangeFilter.getValue();
         return value == null || value.isBlank() ? "Last 30 days" : value;
     }
 
+    /**
+     * Formats type for display.
+     */
     private String formatType(String value) {
         if (value == null || value.isBlank()) {
             return "Other";
@@ -599,10 +683,16 @@ public class MedicalFilesController implements AppController {
         return builder.isEmpty() ? value : builder.toString();
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Builds the JavaFX control used for create action button.
+     */
     private Button createActionButton(String variantClass, String svgPath, String accessibleText) {
         Button button = new Button();
         button.getStyleClass().addAll("record-action-button", variantClass);

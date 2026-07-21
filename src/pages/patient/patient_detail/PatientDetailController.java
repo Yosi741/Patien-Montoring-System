@@ -29,16 +29,23 @@ import pages.notification.NotificationHelper;
 import app.helpers.PermissionHelper;
 import pages.scheduling.appointment_form.AppointmentFormController;
 import pages.patient.medical_files.MedicalFileUploadController;
+import pages.patient.Add_Edit_Patient_Dao;
+import pages.patient.model.PatientVisit;
 import pages.patient.patient_form.PatientFormController;
+import pages.patient.services.PatientVisitService;
+import pages.patient.services.PatientWriteService;
 import pages.user.Session;
 import javafx.scene.control.Alert;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Controls PatientDetailView.fxml and presents the patient file, visits, vitals, alerts, and patient actions.
+ */
 public class PatientDetailController implements AppController {
 
-    private final SqlitePatientDao patientDao = new SqlitePatientDao();
+    private final Add_Edit_Patient_Dao patientDao = new Add_Edit_Patient_Dao();
     private final SqliteVitalReadingDao vitalReadingDao = new SqliteVitalReadingDao();
     private final SqliteAlertDao alertDao = new SqliteAlertDao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
@@ -98,6 +105,9 @@ public class PatientDetailController implements AppController {
     @FXML private Button uploadMedicalFileButton;
     @FXML private Button dischargePatientButton;
 
+    /**
+     * Supplies the application shell used by this controller for navigation.
+     */
     @Override
     public void setAppShell(AppShell appShell) {
         this.appShell = appShell;
@@ -110,10 +120,13 @@ public class PatientDetailController implements AppController {
         configureTrendControls();
     }
 
+    /**
+     * Loads patient for the patient workflow.
+     */
     public void loadPatient(String patientId) {
         this.patientId = patientId;
         try {
-            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
+            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId)
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + patientId));
             nameLabel.setText(detail.getName());
             patientIdLabel.setText(detail.getPatientId());
@@ -147,6 +160,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the view patient alerts UI action.
+     */
     @FXML
     private void viewPatientAlerts() {
         if (patientId == null || patientId.isBlank()) {
@@ -156,6 +172,9 @@ public class PatientDetailController implements AppController {
         appShell.showNotificationCenter();
     }
 
+    /**
+     * Handles the view patient medical files UI action.
+     */
     @FXML
     private void viewPatientMedicalFiles() {
         if (patientId == null || patientId.isBlank()) {
@@ -165,6 +184,9 @@ public class PatientDetailController implements AppController {
         appShell.showMedicalFilesForPatient(patientId);
     }
 
+    /**
+     * Handles the upload patient medical file UI action.
+     */
     @FXML
     private void uploadPatientMedicalFile() {
         if (!PermissionHelper.canUploadMedicalFile(Session.getCurrentUser())) {
@@ -185,6 +207,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the view patient scheduling UI action.
+     */
     @FXML
     private void viewPatientScheduling() {
         if (patientId == null || patientId.isBlank()) {
@@ -194,6 +219,9 @@ public class PatientDetailController implements AppController {
         appShell.showSchedulingForPatient(patientId);
     }
 
+    /**
+     * Handles the create patient appointment UI action.
+     */
     @FXML
     private void createPatientAppointment() {
         if (!PermissionHelper.canCreateAppointment(Session.getCurrentUser())) {
@@ -217,6 +245,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the discharge patient UI action.
+     */
     @FXML
     private void dischargePatient() {
         if (!PermissionHelper.canDeactivatePatient(Session.getCurrentUser())) {
@@ -247,6 +278,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the edit patient UI action.
+     */
     @FXML
     private void editPatient() {
         if (!PermissionHelper.canUpdatePatient(Session.getCurrentUser())) {
@@ -258,7 +292,7 @@ public class PatientDetailController implements AppController {
             return;
         }
         try {
-            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId)
+            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId)
                     .orElseThrow(() -> new IllegalArgumentException("Patient not found in SQLite: " + patientId));
             boolean saved = PatientFormController.showEditDialog(nameLabel.getScene().getWindow(), Session.getCurrentUser(), detail);
             if (saved) {
@@ -270,6 +304,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the enter vitals UI action.
+     */
     @FXML
     private void enterVitals() {
         if (!PermissionHelper.canEnterVitals(Session.getCurrentUser())) {
@@ -308,6 +345,9 @@ public class PatientDetailController implements AppController {
     }
 
 
+    /**
+     * Handles the load vitals UI action.
+     */
     @FXML
     private void loadVitals() {
         if (patientId == null || patientId.isBlank()) {
@@ -322,6 +362,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Handles the load trend chart UI action.
+     */
     @FXML
     private void loadTrendChart() {
         if (patientId == null || patientId.isBlank()) {
@@ -339,6 +382,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Loads alert summary for the patient workflow.
+     */
     private void loadAlertSummary() {
         if (patientId == null || patientId.isBlank()) {
             return;
@@ -363,6 +409,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Configures table.
+     */
     private void configureTable() {
         vitalsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("vitalType"));
@@ -372,6 +421,9 @@ public class PatientDetailController implements AppController {
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("staffName"));
     }
 
+    /**
+     * Configures visit table.
+     */
     private void configureVisitTable() {
         if (pastVisitsTable == null) {
             return;
@@ -384,6 +436,9 @@ public class PatientDetailController implements AppController {
         pastVisitsTable.setPlaceholder(new Label("No previous visits yet."));
     }
 
+    /**
+     * Configures trend controls.
+     */
     private void configureTrendControls() {
         trendVitalTypeFilter.setItems(FXCollections.observableArrayList(
                 VitalTypeCatalog.javaFxEntryTypes()));
@@ -400,6 +455,9 @@ public class PatientDetailController implements AppController {
         trendYAxis.setForceZeroInRange(false);
     }
 
+    /**
+     * Configures write permissions.
+     */
     private void configureWritePermissions() {
         boolean canEdit = PermissionHelper.canUpdatePatient(Session.getCurrentUser());
         setButtonVisible(editPatientButton, canEdit);
@@ -413,6 +471,9 @@ public class PatientDetailController implements AppController {
         setButtonVisible(dischargePatientButton, canDischarge);
     }
 
+    /**
+     * Updates clinical action blocks.
+     */
     private void updateClinicalActionBlocks() {
         if (!inactivePatient && !dischargedPatient) {
             return;
@@ -422,6 +483,9 @@ public class PatientDetailController implements AppController {
         setButtonVisible(dischargePatientButton, false);
     }
 
+    /**
+     * Updates button visible for the current object.
+     */
     private void setButtonVisible(Button button, boolean visible) {
         if (button != null) {
             button.setVisible(visible);
@@ -429,6 +493,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Renders trend in the current JavaFX view.
+     */
     private void renderTrend(VitalsTrendService.TrendResult result) {
         vitalsTrendChart.getData().clear();
         latestValueLabel.getStyleClass().removeAll("trend-normal", "trend-warning", "trend-critical");
@@ -459,8 +526,7 @@ public class PatientDetailController implements AppController {
         latestValueLabel.getStyleClass().add(trendStyle(latest.getStatus()));
         latestMetaLabel.setText(latest.getRecordedAt()
                 + " | Source: " + fallback(latest.getSourceType(), "Manual")
-                + " | Staff: " + fallback(latest.getStaffUser(), "Not recorded")
-                + (latest.getDeviceId().isBlank() ? "" : " | Device: " + latest.getDeviceId()));
+                + " | Staff: " + fallback(latest.getStaffUser(), "Not recorded"));
         trendStatsLabel.setText(String.format("Min: %.1f | Max: %.1f | Avg: %.1f",
                 result.getMin(), result.getMax(), result.getAverage()));
         trendCountsLabel.setText("Normal: " + result.getNormalCount()
@@ -469,6 +535,9 @@ public class PatientDetailController implements AppController {
         trendStatusLabel.setText("Read-only local database trend loaded: " + result.getReadings().size() + " readings.");
     }
 
+    /**
+     * Blocks clinical actions when the selected patient is inactive.
+     */
     private boolean blockIfInactive() {
         if (!inactivePatient && !dischargedPatient) {
             return false;
@@ -477,6 +546,9 @@ public class PatientDetailController implements AppController {
         return true;
     }
 
+    /**
+     * Loads visit history for the patient workflow.
+     */
     private void loadVisitHistory() {
         if (patientId == null || patientId.isBlank() || pastVisitsTable == null) {
             return;
@@ -488,6 +560,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Resolves priority style for the current clinical state.
+     */
     private String priorityStyle(String priority) {
         if (priority == null) {
             return "priority-normal";
@@ -505,6 +580,9 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Returns the CSS style class for trend style.
+     */
     private String trendStyle(VitalThresholdService.VitalStatus status) {
         if (status == VitalThresholdService.VitalStatus.CRITICAL) {
             return "trend-critical";
@@ -515,6 +593,9 @@ public class PatientDetailController implements AppController {
         return "trend-normal";
     }
 
+    /**
+     * Resolves severity style for alert display.
+     */
     private String severityStyle(String severity) {
         if ("EMERGENCY".equalsIgnoreCase(severity)) {
             return "severity-emergency";
@@ -525,6 +606,9 @@ public class PatientDetailController implements AppController {
         return "severity-warning";
     }
 
+    /**
+     * Displays vital alert popup if needed to the user.
+     */
     private void showVitalAlertPopupIfNeeded(VitalsWriteService.VitalsWriteResult result) {
         if (result.getStatus() == VitalThresholdService.VitalStatus.NORMAL) {
             return;
@@ -554,14 +638,23 @@ public class PatientDetailController implements AppController {
         }
     }
 
+    /**
+     * Returns fallback display text when the preferred value is blank.
+     */
     private String fallback(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Formats value for display in the JavaFX UI.
+     */
     private String displayValue(String value) {
         return value == null || value.isBlank() ? "\u2014" : value.trim();
     }
 
+    /**
+     * Prompts for the visit report used when completing a patient visit.
+     */
     private String promptVisitReport(Window owner, String title, String prompt) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle(title);

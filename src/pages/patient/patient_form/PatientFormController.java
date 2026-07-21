@@ -1,6 +1,6 @@
 package pages.patient.patient_form;
 
-import pages.patient.patient_detail.SqlitePatientDao;
+import pages.patient.Add_Edit_Patient_Dao;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import pages.patient.patient_detail.PatientWriteService;
+import pages.patient.services.PatientWriteService;
 import app.navigation.AppNavigator;
 import app.helpers.DatePickerHelper;
 import app.helpers.DialogHelper;
@@ -28,6 +28,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Controls PatientFormView.fxml for Add Patient, Edit Patient, and returning-patient validation workflows.
+ */
 public class PatientFormController {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -35,10 +38,10 @@ public class PatientFormController {
     private static final String ALLERGY_STATUS_HAS = "Has allergies";
     private static final String ALLERGY_STATUS_UNKNOWN = "Unknown";
 
-    private final SqlitePatientDao patientDao = new SqlitePatientDao();
+    private final Add_Edit_Patient_Dao patientDao = new Add_Edit_Patient_Dao();
     private final PatientWriteService patientWriteService = new PatientWriteService();
     private User currentUser;
-    private SqlitePatientDao.PatientDetail existingPatient;
+    private Add_Edit_Patient_Dao.PatientDetail existingPatient;
     private boolean returningPatientMode;
     private boolean saved;
 
@@ -64,15 +67,24 @@ public class PatientFormController {
     @FXML private TextArea diagnosisArea;
     @FXML private Label statusLabel;
 
+    /**
+     * Displays create dialog to the user.
+     */
     public static boolean showCreateDialog(Window owner, User currentUser) {
         return showDialog(owner, currentUser, null);
     }
 
-    public static boolean showEditDialog(Window owner, User currentUser, SqlitePatientDao.PatientDetail patient) {
+    /**
+     * Displays edit dialog to the user.
+     */
+    public static boolean showEditDialog(Window owner, User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
         return showDialog(owner, currentUser, patient);
     }
 
-    private static boolean showDialog(Window owner, User currentUser, SqlitePatientDao.PatientDetail patient) {
+    /**
+     * Displays dialog to the user.
+     */
+    private static boolean showDialog(Window owner, User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
         try {
             FXMLLoader loader = new FXMLLoader(AppNavigator.resolve("/pages/patient/patient_form/PatientFormView.fxml"));
             Parent root = loader.load();
@@ -112,6 +124,9 @@ public class PatientFormController {
         dialog.getDialogPane().setMinHeight(420);
     }
 
+    /**
+     * Initializes the FXML controls after the JavaFX view has been loaded.
+     */
     @FXML
     private void initialize() {
         genderBox.getItems().setAll("Female", "Male", "Other", "Unknown");
@@ -131,7 +146,10 @@ public class PatientFormController {
         NotificationHelper.showInfo(statusLabel, "Patient file form. System data is stored in the local clinic database.");
     }
 
-    private void prepare(User currentUser, SqlitePatientDao.PatientDetail patient) {
+    /**
+     * Prepares the form with the selected patient record and mode.
+     */
+    private void prepare(User currentUser, Add_Edit_Patient_Dao.PatientDetail patient) {
         this.currentUser = currentUser;
         this.existingPatient = patient;
         this.returningPatientMode = false;
@@ -149,10 +167,13 @@ public class PatientFormController {
         setCheckIdVisible(false);
     }
 
+    /**
+     * Validates and saves save.
+     */
     private boolean save() {
         try {
             DatePickerHelper.commitEditorText(birthDatePicker);
-            SqlitePatientDao.PatientWriteRecord record = buildRecord();
+            Add_Edit_Patient_Dao.PatientWriteRecord record = buildRecord();
             if (returningPatientMode) {
                 patientWriteService.reactivateReturningPatient(currentUser, record);
             } else if (existingPatient == null) {
@@ -168,15 +189,16 @@ public class PatientFormController {
         }
     }
 
-    private SqlitePatientDao.PatientWriteRecord buildRecord() {
-        return new SqlitePatientDao.PatientWriteRecord(
+    /**
+     * Builds record used by the patient view.
+     */
+    private Add_Edit_Patient_Dao.PatientWriteRecord buildRecord() {
+        return new Add_Edit_Patient_Dao.PatientWriteRecord(
                 patientIdField.getText(),
                 firstNameField.getText(),
                 lastNameField.getText(),
                 birthDatePicker.getValue() == null ? "" : birthDatePicker.getValue().format(DISPLAY_DATE),
                 genderBox.getValue(),
-                resolvedSection(),
-                resolvedRoom(),
                 statusBox.getValue(),
                 priorityBox.getValue(),
                 bloodTypeBox.getValue(),
@@ -186,12 +208,13 @@ public class PatientFormController {
                 emailField.getText(),
                 addressArea.getText(),
                 emergencyContactNameField.getText(),
-                emergencyContactPhoneField.getText(),
-                resolvedAssignedDoctor(),
-                resolvedAssignedStaff()
+                emergencyContactPhoneField.getText()
         );
     }
 
+    /**
+     * Configures input filters.
+     */
     private void configureInputFilters() {
         patientIdField.textProperty().addListener((observable, oldValue, newValue) -> {
             String clean = digitsOnly(newValue);
@@ -207,6 +230,9 @@ public class PatientFormController {
         installNameFilter(emergencyContactNameField);
     }
 
+    /**
+     * Handles the check existing patient ID UI action.
+     */
     @FXML
     private void checkExistingPatientId() {
         if (existingPatient != null && !returningPatientMode) {
@@ -222,7 +248,7 @@ public class PatientFormController {
             return;
         }
         try {
-            SqlitePatientDao.PatientDetail detail = patientDao.findDetailById(patientId).orElse(null);
+            Add_Edit_Patient_Dao.PatientDetail detail = patientDao.findDetailById(patientId).orElse(null);
             if (detail == null) {
                 NotificationHelper.showInfo(statusLabel, "No existing patient file was found for this ID.");
                 return;
@@ -247,6 +273,9 @@ public class PatientFormController {
         }
     }
 
+    /**
+     * Installs name filter on the relevant input control.
+     */
     private void installNameFilter(TextField field) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             String clean = cleanName(newValue);
@@ -256,10 +285,16 @@ public class PatientFormController {
         });
     }
 
+    /**
+     * Filters a text field so it accepts only the permitted number of digits.
+     */
     private String digitsOnly(String value) {
         return value == null ? "" : value.replaceAll("\\D", "");
     }
 
+    /**
+     * Trims and normalizes name before storage or comparison.
+     */
     private String cleanName(String value) {
         if (value == null) {
             return "";
@@ -274,7 +309,10 @@ public class PatientFormController {
         return builder.toString();
     }
 
-    private void populateFromPatientDetail(SqlitePatientDao.PatientDetail patient, boolean returningVisit) {
+    /**
+     * Populates from patient detail from the selected record.
+     */
+    private void populateFromPatientDetail(Add_Edit_Patient_Dao.PatientDetail patient, boolean returningVisit) {
         patientIdField.setText(patient.getPatientId());
         patientIdField.setDisable(true);
         firstNameField.setText(patient.getFirstName());
@@ -294,6 +332,9 @@ public class PatientFormController {
         setCheckIdVisible(!returningVisit);
     }
 
+    /**
+     * Updates check ID visible for the current object.
+     */
     private void setCheckIdVisible(boolean visible) {
         if (checkPatientIdButton != null) {
             checkPatientIdButton.setVisible(visible);
@@ -301,22 +342,9 @@ public class PatientFormController {
         }
     }
 
-    private String resolvedSection() {
-        return existingPatient == null ? "" : blankTo(existingPatient.getSection(), "");
-    }
-
-    private String resolvedRoom() {
-        return existingPatient == null ? "" : blankTo(existingPatient.getRoom(), "");
-    }
-
-    private String resolvedAssignedDoctor() {
-        return existingPatient == null ? "" : blankTo(existingPatient.getAssignedDoctorUsername(), "");
-    }
-
-    private String resolvedAssignedStaff() {
-        return existingPatient == null ? "" : blankTo(existingPatient.getAssignedStaffUsername(), "");
-    }
-
+    /**
+     * Populates allergy fields from the selected record.
+     */
     private void populateAllergyFields(String allergies) {
         String normalized = allergies == null ? "" : allergies.trim();
         if (normalized.isBlank() || ALLERGY_STATUS_UNKNOWN.equalsIgnoreCase(normalized)) {
@@ -332,6 +360,9 @@ public class PatientFormController {
         updateAllergyDetailsVisibility(false);
     }
 
+    /**
+     * Updates allergy details visibility.
+     */
     private void updateAllergyDetailsVisibility(boolean clearWhenHidden) {
         boolean hasAllergies = ALLERGY_STATUS_HAS.equals(allergyStatusBox.getValue());
         allergyDetailsContainer.setManaged(hasAllergies);
@@ -342,6 +373,9 @@ public class PatientFormController {
         }
     }
 
+    /**
+     * Resolves allergies for the current workflow.
+     */
     private String resolveAllergies() {
         String allergyStatus = blankTo(allergyStatusBox.getValue(), ALLERGY_STATUS_UNKNOWN);
         if (ALLERGY_STATUS_HAS.equals(allergyStatus)) {
@@ -354,6 +388,9 @@ public class PatientFormController {
         return ALLERGY_STATUS_NONE.equals(allergyStatus) ? ALLERGY_STATUS_NONE : ALLERGY_STATUS_UNKNOWN;
     }
 
+    /**
+     * Parses birth date without exposing format failures to the caller.
+     */
     private LocalDate parseBirthDate(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -369,10 +406,16 @@ public class PatientFormController {
         }
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }
 
+    /**
+     * Normalizes status to the stored application format.
+     */
     private String normalizeStatus(String status) {
         if (status == null || status.isBlank()) {
             return "ACTIVE";
@@ -380,6 +423,9 @@ public class PatientFormController {
         return "Active".equalsIgnoreCase(status) ? "ACTIVE" : status.toUpperCase();
     }
 
+    /**
+     * Normalizes priority to the stored application format.
+     */
     private String normalizePriority(String priority) {
         if (priority == null || priority.isBlank()) {
             return "NORMAL";
@@ -387,6 +433,9 @@ public class PatientFormController {
         return "WARNING".equalsIgnoreCase(priority) ? "HIGH" : priority.toUpperCase();
     }
 
+    /**
+     * Normalizes blood type to the stored application format.
+     */
     private String normalizeBloodType(String bloodType) {
         if (bloodType == null || bloodType.isBlank()) {
             return "Unknown";

@@ -273,10 +273,7 @@
 
 .severity-warning,
 .severity-critical,
-.severity-emergency,
-.alert-active,
-.alert-acknowledged,
-.alert-resolved {
+.severity-emergency {
     -fx-background-radius: 999;
     -fx-padding: 5 11;
     -fx-font-size: 12px;
@@ -299,121 +296,12 @@
     -fx-text-fill: #ffffff;
 }
 
-.alert-active {
-    -fx-background-color: #7f1d1d;
-    -fx-text-fill: #fee2e2;
-}
-
-.alert-acknowledged {
-    -fx-background-color: #1e3a8a;
-    -fx-text-fill: #dbeafe;
-}
-
-.alert-resolved {
-    -fx-background-color: #14532d;
-    -fx-text-fill: #dcfce7;
-}
-
-.active-alert-row {
-    -fx-background-color: #3b1d1d;
-}
-
 .work-queue-overdue-row {
     -fx-background-color: #3b1d1d;
 }
 
 .work-queue-alert-row {
     -fx-background-color: #332311;
-}
-
-.timeline-list {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.timeline-list .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 6 2;
-}
-
-.timeline-list .list-cell:selected .timeline-card {
-    -fx-border-color: #60a5fa;
-    -fx-border-width: 2;
-}
-
-.timeline-card {
-    -fx-background-color: #1f2937;
-    -fx-background-radius: 10;
-    -fx-border-color: #374151;
-    -fx-border-radius: 10;
-}
-
-.timeline-critical {
-    -fx-border-color: #fb923c;
-    -fx-border-width: 0 0 0 5;
-}
-
-.timeline-emergency {
-    -fx-border-color: #dc2626;
-    -fx-border-width: 0 0 0 5;
-}
-
-.timeline-warning {
-    -fx-border-color: #fbbf24;
-    -fx-border-width: 0 0 0 5;
-}
-
-.timeline-title {
-    -fx-text-fill: #f9fafb;
-    -fx-font-size: 15px;
-    -fx-font-weight: 800;
-}
-
-.timeline-description {
-    -fx-text-fill: #d1d5db;
-    -fx-font-size: 13px;
-}
-
-.timeline-time,
-.timeline-source {
-    -fx-text-fill: #cbd5e1;
-    -fx-font-size: 12px;
-}
-
-.timeline-type-badge {
-    -fx-background-radius: 999;
-    -fx-padding: 5 10;
-    -fx-font-size: 11px;
-    -fx-font-weight: 900;
-}
-
-.timeline-type-vital {
-    -fx-background-color: #1e3a8a;
-    -fx-text-fill: #dbeafe;
-}
-
-.timeline-type-alert {
-    -fx-background-color: #7f1d1d;
-    -fx-text-fill: #fee2e2;
-}
-
-.timeline-type-file {
-    -fx-background-color: #0c4a6e;
-    -fx-text-fill: #e0f2fe;
-}
-
-.timeline-type-history {
-    -fx-background-color: #78350f;
-    -fx-text-fill: #fde68a;
-}
-
-.timeline-type-handover {
-    -fx-background-color: #334155;
-    -fx-text-fill: #f8fafc;
-}
-
-.timeline-detail-panel {
-    -fx-background-color: #1f2937;
 }
 
 .detail-scroll-pane,
@@ -716,56 +604,12 @@
     -fx-padding: 2 0 0 0;
 }
 
-.login-brand-badge {
-    -fx-background-color: rgba(255, 255, 255, 0.10);
-    -fx-border-color: rgba(191, 219, 254, 0.28);
-    -fx-background-radius: 999;
-    -fx-border-radius: 999;
-    -fx-padding: 7 14;
-    -fx-text-fill: #dbeafe;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-letter-spacing: 0.4px;
-}
-
 .login-logo-zone {
     -fx-alignment: center;
 }
 
-.login-logo-aura {
-    -fx-min-width: 270;
-    -fx-min-height: 270;
-    -fx-max-width: 270;
-    -fx-max-height: 270;
-    -fx-background-color: radial-gradient(center 50% 50%, radius 62%, rgba(34, 211, 238, 0.26), rgba(47, 111, 237, 0.10) 60%, transparent 78%);
-    -fx-background-radius: 999;
-}
-
-.login-logo-frame {
-    -fx-alignment: center;
-    -fx-min-width: 300;
-    -fx-min-height: 300;
-    -fx-background-color: rgba(11, 18, 32, 0.30);
-    -fx-border-color: rgba(148, 163, 184, 0.20);
-    -fx-border-radius: 32;
-    -fx-background-radius: 32;
-    -fx-padding: 24;
-}
-
 .login-logo-image {
     -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.24), 28, 0.18, 0, 0);
-}
-
-.login-logo-mark {
-    -fx-min-width: 136;
-    -fx-min-height: 136;
-    -fx-max-width: 136;
-    -fx-max-height: 136;
-    -fx-background-color: linear-gradient(to bottom right, #2f6fed, #14b8c4);
-    -fx-border-color: rgba(248, 250, 252, 0.18);
-    -fx-border-radius: 28;
-    -fx-background-radius: 28;
-    -fx-effect: dropshadow(gaussian, rgba(34, 211, 238, 0.28), 24, 0.2, 0, 10);
 }
 
 .login-logo-cross {
@@ -823,7 +667,6 @@
     -fx-font-weight: 800;
 }
 
-.login-security-icon,
 .login-footer-icon {
     -fx-background-color: rgba(34, 211, 238, 0.14);
     -fx-background-radius: 999;
@@ -1941,10 +1784,6 @@
     -fx-border-color: transparent transparent #25364d transparent;
 }
 
-.alert-table .table-row-cell:filled.active-alert-row {
-    -fx-background-color: #332311;
-}
-
 .alert-table .table-row-cell:hover {
     -fx-background-color: #0f3455;
 }
@@ -2354,9 +2193,7 @@
     -fx-border-radius: 999;
 }
 
-.alert-active,
 .notification-card-critical,
-.active-alert-row,
 .work-queue-alert-row {
     -fx-background-color: #33261e;
     -fx-border-color: #8d6749;
@@ -2827,7 +2664,6 @@
 .dashboard-list-row,
 .detail-field-row,
 .notification-card-row,
-.timeline-card,
 .shell-status-card,
 .shell-user-block {
     -fx-background-color: #16243A;
@@ -2847,7 +2683,6 @@
 .notification-counter-value,
 .notification-detail-value,
 .notification-card-title,
-.timeline-title,
 .shell-brand-title,
 .shell-user-name,
 .shell-status-title {
@@ -2861,9 +2696,6 @@
 .notification-muted,
 .notification-card-preview,
 .notification-card-meta,
-.timeline-time,
-.timeline-source,
-.timeline-description,
 .shell-brand-subtitle,
 .shell-user-meta,
 .shell-status-text {
@@ -3200,77 +3032,6 @@
 .dialog-subtitle,
 .page-subtitle {
     -fx-text-fill: #B6C2D1;
-}
-
-/* Sections / Rooms presentation layout */
-.sections-rooms-root,
-.sections-rooms-page {
-    -fx-background-color: #0B1220;
-}
-
-.page-header-card,
-.management-panel,
-.summary-card,
-.actions-card,
-.filter-toolbar,
-.table-section {
-    -fx-background-color: #111C2E;
-    -fx-border-color: #26384F;
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-}
-
-.page-header-card {
-    -fx-padding: 22 24;
-}
-
-.management-panel {
-    -fx-padding: 18;
-}
-
-.summary-card {
-    -fx-padding: 18;
-    -fx-min-height: 105;
-}
-
-.panel-header {
-    -fx-padding: 0 0 4 0;
-}
-
-.action-toolbar,
-.button-group {
-    -fx-spacing: 10;
-}
-
-.filter-toolbar,
-.actions-card,
-.table-section {
-    -fx-padding: 14;
-}
-
-.compact-actions-card {
-    -fx-padding: 10 12;
-}
-
-.panel-footer {
-    -fx-padding: 10 12;
-    -fx-background-color: #16243A;
-    -fx-border-color: #26384F;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-}
-
-.sections-table,
-.rooms-table {
-    -fx-background-color: #16243A;
-    -fx-border-color: #26384F;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-}
-
-.sections-table .table-row-cell,
-.rooms-table .table-row-cell {
-    -fx-cell-size: 38;
 }
 
 /* Urgent Care Clinic presentation shell */
@@ -4863,10 +4624,6 @@
     -fx-text-fill: #f8fafc;
     -fx-font-size: 19px;
     -fx-font-weight: 900;
-}
-
-.patient-detail-section {
-    -fx-text-fill: #f8fafc;
 }
 
 .past-visits-card .patient-file-table {

@@ -1,5 +1,8 @@
 package pages.user;
 
+/**
+ * Stores the currently authenticated user for the active ClinicPulse desktop session.
+ */
 public class Session {
 
     private static User currentUser;
@@ -12,6 +15,9 @@ public class Session {
         return currentUser;
     }
 
+    /**
+     * Returns username used by the staff workflow.
+     */
     public static String getUsername() {
         if (currentUser == null) {
             return "Unknown";
@@ -20,6 +26,9 @@ public class Session {
         return currentUser.getUsername();
     }
 
+    /**
+     * Returns role used by the staff workflow.
+     */
     public static String getRole() {
         if (currentUser == null) {
             return "Unknown";

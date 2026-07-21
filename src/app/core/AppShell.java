@@ -18,6 +18,10 @@ import pages.scheduling.schedule_overview.SchedulingController;
 import pages.user.User;
 import pages.user.Session;
 
+/**
+ * Owns the ClinicPulse JavaFX stage, theme, session transitions, and page routing.
+ * It loads the login screen and hosts authenticated pages inside the main layout.
+ */
 public class AppShell extends Application {
 
     public static final String PRESENTATION_THEME = "/app/styles/dark-theme.css";
@@ -31,10 +35,16 @@ public class AppShell extends Application {
     private AppController currentContentController;
     private String databaseStatus = "Local clinic database not initialized";
 
+    /**
+     * Launches app and displays its initial JavaFX stage.
+     */
     public static void launchApp(String[] args) {
         launch(args);
     }
 
+    /**
+     * Starts start.
+     */
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
@@ -47,15 +57,24 @@ public class AppShell extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Displays login to the user.
+     */
     public void showLogin() {
         setView("/pages/login/LoginView.fxml", "ClinicPulse - Login");
         configureLoginWindow();
     }
 
+    /**
+     * Displays dashboard to the user.
+     */
     public void showDashboard(User user) {
         showDashboard(user, SessionContext.authSource());
     }
 
+    /**
+     * Displays dashboard to the user.
+     */
     public void showDashboard(User user, String authSource) {
         Session.setCurrentUser(user);
         if (user != null && (SessionContext.getCurrent() == null || !user.getUsername().equals(SessionContext.username()))) {
@@ -66,10 +85,16 @@ public class AppShell extends Application {
         primaryStage.setMaximized(true);
     }
 
+    /**
+     * Displays patient list to the user.
+     */
     public void showPatientList() {
         showPatientList("Patients", "Home / Patients", "patients", null);
     }
 
+    /**
+     * Displays patient detail to the user.
+     */
     public void showPatientDetail(String patientId) {
         if (!PermissionHelper.canViewPatientFile(Session.getCurrentUser())) {
             showPlaceholder(
@@ -89,11 +114,17 @@ public class AppShell extends Application {
         primaryStage.setTitle(windowTitle("Patient File"));
     }
 
+    /**
+     * Displays messaging to the user.
+     */
     public void showMessaging() {
         setShellContent("/pages/messages/MessagingView.fxml", windowTitle("Messages"));
         updateShellContext("messages", "Messages", "Home / Messages");
     }
 
+    /**
+     * Displays notification center to the user.
+     */
     public void showNotificationCenter() {
         if (!PermissionHelper.canViewNotifications(Session.getCurrentUser())) {
             showPlaceholder(
@@ -107,11 +138,17 @@ public class AppShell extends Application {
         updateShellContext("alerts", "Alerts", "Home / Alerts");
     }
 
+    /**
+     * Displays scheduling to the user.
+     */
     public void showScheduling() {
         setShellContent("/pages/scheduling/schedule_overview/SchedulingView.fxml", windowTitle("Appointments"));
         updateShellContext("appointments", "Appointments", "Home / Appointments");
     }
 
+    /**
+     * Displays scheduling for patient to the user.
+     */
     public void showSchedulingForPatient(String patientId) {
         ensureShell(windowTitle("Patient Appointments"));
         AppNavigator.LoadedView scheduling = navigator.loadView("/pages/scheduling/schedule_overview/SchedulingView.fxml");
@@ -123,6 +160,9 @@ public class AppShell extends Application {
         primaryStage.setTitle(windowTitle("Patient Appointments"));
     }
 
+    /**
+     * Displays medical files to the user.
+     */
     public void showMedicalFiles() {
         if (!PermissionHelper.canViewMedicalFiles(Session.getCurrentUser())) {
             showPlaceholder(
@@ -136,6 +176,9 @@ public class AppShell extends Application {
         updateShellContext("medical-files", "Medical Files", "Home / Medical Files");
     }
 
+    /**
+     * Displays medical files for patient to the user.
+     */
     public void showMedicalFilesForPatient(String patientId) {
         if (!PermissionHelper.canViewMedicalFiles(Session.getCurrentUser())) {
             showPlaceholder(
@@ -155,11 +198,17 @@ public class AppShell extends Application {
         primaryStage.setTitle(windowTitle("Patient Medical Files"));
     }
 
+    /**
+     * Displays user profile to the user.
+     */
     public void showUserProfile() {
         setShellContent("/pages/user/profile_settings/UserProfileView.fxml", windowTitle("Profile / Settings"));
         updateShellContext("profile", "Profile / Settings", "Home / Profile / Settings");
     }
 
+    /**
+     * Displays user directory to the user.
+     */
     public void showUserDirectory() {
         if (!PermissionHelper.canViewUserDirectory(Session.getCurrentUser())) {
             showPlaceholder(
@@ -173,6 +222,9 @@ public class AppShell extends Application {
         updateShellContext("staff", "Staff Management", "Home / Staff Management");
     }
 
+    /**
+     * Displays billing to the user.
+     */
     public void showBilling() {
         if (!PermissionHelper.canViewBilling(Session.getCurrentUser())) {
             showPlaceholder(
@@ -186,10 +238,16 @@ public class AppShell extends Application {
         updateShellContext("billing", "Billing / Payments", "Home / Billing");
     }
 
+    /**
+     * Displays patients with notice to the user.
+     */
     public void showPatientsWithNotice(String notice) {
         showPatientList("Patients", "Home / Patients", "patients", notice);
     }
 
+    /**
+     * Displays patients with search to the user.
+     */
     public void showPatientsWithSearch(String query) {
         ensureShell(windowTitle("Patients"));
         AppNavigator.LoadedView patientList = navigator.loadView("/pages/patient/patient_board/PatientListView.fxml");
@@ -201,6 +259,9 @@ public class AppShell extends Application {
         primaryStage.setTitle(windowTitle("Patients"));
     }
 
+    /**
+     * Displays placeholder to the user.
+     */
     public void showPlaceholder(String title, String subtitle, String body) {
         ensureShell(windowTitle(title));
         AppNavigator.LoadedView placeholder = navigator.loadView("/app/placeholder/ComingSoonView.fxml");
@@ -211,12 +272,18 @@ public class AppShell extends Application {
         primaryStage.setTitle(windowTitle(title));
     }
 
+    /**
+     * Refreshes notification count from the current application state.
+     */
     public void refreshNotificationCount() {
         if (layoutController != null) {
             layoutController.refreshNotificationCount();
         }
     }
 
+    /**
+     * Ends the current session and returns the application to the login view.
+     */
     public void logout() {
         disposeCurrentContent();
         disposeLayout();
@@ -229,6 +296,9 @@ public class AppShell extends Application {
         return databaseStatus;
     }
 
+    /**
+     * Applies theme to to the current control or record.
+     */
     public void applyThemeTo(Parent parent) {
         if (parent == null) {
             return;
@@ -241,6 +311,9 @@ public class AppShell extends Application {
         return PRESENTATION_THEME.equals(activeThemePath);
     }
 
+    /**
+     * Toggles theme in the active view.
+     */
     public void toggleTheme() {
         activeThemePath = isDarkTheme() ? LIGHT_THEME : PRESENTATION_THEME;
         if (primaryStage.getScene() != null) {
@@ -257,6 +330,9 @@ public class AppShell extends Application {
         return activeThemePath;
     }
 
+    /**
+     * Initializes database required by the application.
+     */
     private void initializeDatabase() {
         try {
             SchemaInitializer.initialize();
@@ -269,6 +345,9 @@ public class AppShell extends Application {
         }
     }
 
+    /**
+     * Updates view for the current object.
+     */
     private void setView(String fxmlPath, String title) {
         disposeCurrentContent();
         disposeLayout();
@@ -281,6 +360,9 @@ public class AppShell extends Application {
         primaryStage.setScene(scene);
     }
 
+    /**
+     * Configures login window.
+     */
     private void configureLoginWindow() {
         primaryStage.setMaximized(false);
         primaryStage.setMinWidth(1100);
@@ -290,6 +372,9 @@ public class AppShell extends Application {
         primaryStage.centerOnScreen();
     }
 
+    /**
+     * Updates shell content for the current object.
+     */
     private void setShellContent(String fxmlPath, String title) {
         ensureShell(title);
         AppNavigator.LoadedView loaded = navigator.loadView(fxmlPath);
@@ -297,6 +382,9 @@ public class AppShell extends Application {
         primaryStage.setTitle(title);
     }
 
+    /**
+     * Ensures shell exists before continuing.
+     */
     private void ensureShell(String title) {
         if (layoutController != null && primaryStage.getScene() != null) {
             return;
@@ -312,6 +400,9 @@ public class AppShell extends Application {
         primaryStage.setScene(scene);
     }
 
+    /**
+     * Updates shell loaded content for the current object.
+     */
     private void setShellLoadedContent(AppNavigator.LoadedView loaded) {
         disposeCurrentContent();
         if (loaded.getController() instanceof AppController) {
@@ -325,6 +416,9 @@ public class AppShell extends Application {
         layoutController.setContent(loaded.getParent());
     }
 
+    /**
+     * Disposes current content and releases its active resources.
+     */
     private void disposeCurrentContent() {
         if (currentContentController != null) {
             try {
@@ -336,6 +430,9 @@ public class AppShell extends Application {
         }
     }
 
+    /**
+     * Disposes layout and releases its active resources.
+     */
     private void disposeLayout() {
         if (layoutController != null) {
             try {
@@ -347,6 +444,9 @@ public class AppShell extends Application {
         }
     }
 
+    /**
+     * Applies theme to the current control or record.
+     */
     private void applyTheme(Scene scene) {
         if (scene == null) {
             return;
@@ -355,6 +455,9 @@ public class AppShell extends Application {
         scene.getStylesheets().add(AppNavigator.resolve(activeThemePath).toExternalForm());
     }
 
+    /**
+     * Displays patient list to the user.
+     */
     private void showPatientList(String pageTitle, String breadcrumb, String routeKey, String notice) {
         setShellContent("/pages/patient/patient_board/PatientListView.fxml", windowTitle(pageTitle));
         updateShellContext(routeKey, pageTitle, breadcrumb);
@@ -363,6 +466,9 @@ public class AppShell extends Application {
         }
     }
 
+    /**
+     * Returns the title shown on the ClinicPulse application window.
+     */
     private String windowTitle(String pageTitle) {
         if (pageTitle == null || pageTitle.isBlank()) {
             return APP_NAME;
@@ -370,6 +476,9 @@ public class AppShell extends Application {
         return APP_NAME + " - " + pageTitle;
     }
 
+    /**
+     * Updates shell context.
+     */
     private void updateShellContext(String routeKey, String pageTitle, String breadcrumb) {
         if (layoutController != null) {
             layoutController.setCurrentRoute(routeKey, pageTitle, breadcrumb);

@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Manual utility that backs up and reseeds the local SQLite database with presentation demo data.
+ */
 public class DemoDatabaseReset {
 
     private static final DateTimeFormatter SQL_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -22,6 +25,9 @@ public class DemoDatabaseReset {
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final DateTimeFormatter BACKUP_STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
+    /**
+     * Runs this manual ClinicPulse verification or demo utility.
+     */
     public static void main(String[] args) throws Exception {
         SchemaInitializer.initialize();
         Path backupPath = backupDatabase();
@@ -55,6 +61,9 @@ public class DemoDatabaseReset {
         System.out.println("Demo users: admin/admin123, doctor/doctor123, nurse/nurse123, secretary/staff123");
     }
 
+    /**
+     * Creates database before modifying demo data.
+     */
     private static Path backupDatabase() throws SQLException, IOException {
         Path database = Path.of(DatabaseManager.getDatabasePath());
         Files.createDirectories(Path.of("data", "backups"));
@@ -70,6 +79,9 @@ public class DemoDatabaseReset {
         return backup;
     }
 
+    /**
+     * Clears active tables and restores its default state.
+     */
     private static void clearActiveTables(Connection connection) throws SQLException {
         List<String> tables = List.of(
                 "messages",
@@ -91,6 +103,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Resets SQLite sequences for the controlled demo state.
+     */
     private static void resetSqliteSequences(Connection connection) throws SQLException {
         String sql = "DELETE FROM sqlite_sequence WHERE name IN ("
                 + "'messages','notifications','alerts','billing_records','medical_files','appointments',"
@@ -100,6 +115,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds staff users for the presentation database.
+     */
     private static void seedStaffUsers(Connection connection) throws SQLException {
         insertUser(connection, "U0001", "admin", "admin123", "ADMIN", "Administration",
                 "admin@smartcare.local", true);
@@ -122,6 +140,9 @@ public class DemoDatabaseReset {
                 "SmartCare reception", "On Duty");
     }
 
+    /**
+     * Inserts user into SQLite.
+     */
     private static void insertUser(Connection connection, String staffId, String username, String password,
                                    String role, String section, String email, boolean active) throws SQLException {
         String sql = "INSERT INTO users(staff_id, username, password, role, section, email, active, created_at) "
@@ -139,6 +160,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Inserts user profile into SQLite.
+     */
     private static void insertUserProfile(Connection connection, String username, String fullName, String email,
                                           String phone, String address, String dutyStatus) throws SQLException {
         String sql = "INSERT INTO user_profiles(username, full_name, email, phone, address, duty_status, profile_photo_path, updated_at) "
@@ -155,6 +179,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds patients for the presentation database.
+     */
     private static void seedPatients(Connection connection) throws SQLException {
         insertPatient(connection, "215070632", "Arial", "Shmohan", "14-04-2001", "Male",
                 "Clinic", "", "ACTIVE", "CRITICAL", "O+", "Rapid heart rate and dizziness",
@@ -190,6 +217,9 @@ public class DemoDatabaseReset {
                 "6 Garden Street, Tulkarem", "Samir Mansour", "0598881217", "doctor", "nurse");
     }
 
+    /**
+     * Inserts patient into SQLite.
+     */
     private static void insertPatient(Connection connection, String patientId, String firstName, String lastName,
                                       String birthDate, String gender, String section, String room, String status,
                                       String priority, String bloodType, String diagnosis, String allergies,
@@ -226,6 +256,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds patient visits for the presentation database.
+     */
     private static void seedPatientVisits(Connection connection) throws SQLException {
         LocalDate today = LocalDate.now();
         insertVisit(connection, "215070632", today.atTime(8, 15), null, "ACTIVE",
@@ -246,6 +279,9 @@ public class DemoDatabaseReset {
                 "Migraine and nausea improved after clinic visit.");
     }
 
+    /**
+     * Inserts visit into SQLite.
+     */
     private static void insertVisit(Connection connection, String patientId, LocalDateTime visitDate,
                                     LocalDateTime dischargeDate, String status, String report) throws SQLException {
         String sql = "INSERT INTO patient_visits(patient_id, visit_date, discharge_date, status, report, created_at) "
@@ -261,6 +297,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds vitals for the presentation database.
+     */
     private static void seedVitals(Connection connection) throws SQLException {
         LocalDateTime base = LocalDateTime.now().minusHours(3).withSecond(0).withNano(0);
         insertVitalSet(connection, "215070632", base, "90", "36.9", "120", "78", "98", "96");
@@ -275,6 +314,9 @@ public class DemoDatabaseReset {
         insertVitalSet(connection, "100000002", base.plusMinutes(50), "84", "36.9", "118", "74", "99", "95");
     }
 
+    /**
+     * Inserts vital set into SQLite.
+     */
     private static void insertVitalSet(Connection connection, String patientId, LocalDateTime recordedAt,
                                        String heartRate, String temperature, String systolic, String diastolic,
                                        String oxygen, String sugar) throws SQLException {
@@ -286,10 +328,13 @@ public class DemoDatabaseReset {
         insertVital(connection, patientId, "Sugar Level", sugar, "mg/dL", recordedAt.plusMinutes(5), "nurse");
     }
 
+    /**
+     * Inserts vital into SQLite.
+     */
     private static void insertVital(Connection connection, String patientId, String type, String value, String unit,
                                     LocalDateTime recordedAt, String staffUser) throws SQLException {
-        String sql = "INSERT INTO vital_readings(patient_id, vital_type, value, unit, recorded_at, source_type, staff_user, device_id) "
-                + "VALUES(?, ?, ?, ?, ?, 'Manual', ?, '')";
+        String sql = "INSERT INTO vital_readings(patient_id, vital_type, value, unit, recorded_at, source_type, staff_user) "
+                + "VALUES(?, ?, ?, ?, ?, 'Manual', ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, patientId);
             statement.setString(2, type);
@@ -301,6 +346,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds alerts for the presentation database.
+     */
     private static void seedAlerts(Connection connection) throws SQLException {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
         insertAlert(connection, "215070632", "CRITICAL", "Critical heart rate for Arial Shmohan: 120 bpm.", "ACTIVE",
@@ -315,6 +363,9 @@ public class DemoDatabaseReset {
                 now.minusDays(1), "doctor", now.minusHours(4).format(SQL_DATE_TIME));
     }
 
+    /**
+     * Inserts alert into SQLite.
+     */
     private static void insertAlert(Connection connection, String patientId, String severity, String message,
                                     String status, LocalDateTime createdAt, String acknowledgedBy,
                                     String acknowledgedAt) throws SQLException {
@@ -333,6 +384,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds notifications for the presentation database.
+     */
     private static void seedNotifications(Connection connection) throws SQLException {
         insertNotification(connection, "doctor", "DOCTOR", "Clinic", "215070632", "CRITICAL",
                 "Critical heart rate", "Arial Shmohan has a critical heart rate reading.", "UNREAD", "ALERT", "215070632");
@@ -346,6 +400,9 @@ public class DemoDatabaseReset {
                 "Billing review", "One unpaid invoice is waiting for review.", "READ", "BILLING", "");
     }
 
+    /**
+     * Inserts notification into SQLite.
+     */
     private static void insertNotification(Connection connection, String username, String role, String section,
                                            String patientId, String severity, String title, String message,
                                            String status, String sourceType, String sourceId) throws SQLException {
@@ -370,6 +427,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds appointments for the presentation database.
+     */
     private static void seedAppointments(Connection connection) throws SQLException {
         LocalDate today = LocalDate.now();
         insertAppointment(connection, "215070632", "Arial urgent care review", "VISIT",
@@ -392,6 +452,9 @@ public class DemoDatabaseReset {
                 "Cancelled after results were reviewed by phone.");
     }
 
+    /**
+     * Inserts appointment into SQLite.
+     */
     private static void insertAppointment(Connection connection, String patientId, String title, String type,
                                           LocalDateTime start, LocalDateTime end, String location, String assignedStaff,
                                           String status, String notes) throws SQLException {
@@ -413,6 +476,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds billing records for the presentation database.
+     */
     private static void seedBillingRecords(Connection connection) throws SQLException {
         LocalDateTime now = LocalDateTime.now();
         insertBilling(connection, "INV-DEMO-0001", "215070632", "Arial Shmohan",
@@ -429,6 +495,9 @@ public class DemoDatabaseReset {
                 "CANCELLED", "Cancelled", "Cancelled duplicate invoice.", now.minusDays(2), null, "secretary");
     }
 
+    /**
+     * Inserts billing into SQLite.
+     */
     private static void insertBilling(Connection connection, String invoiceNo, String patientId, String patientName,
                                       String serviceName, String visitType, double amount, String status,
                                       String paymentMethod, String notes, LocalDateTime createdAt,
@@ -452,6 +521,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds medical files for the presentation database.
+     */
     private static void seedMedicalFiles(Connection connection) throws SQLException, IOException {
         insertMedicalFile(connection, "MF-DEMO-0001", "215070632", "arial-lab-result.txt", "Lab Result",
                 "admin", "Heart rate and basic lab review for presentation demo.",
@@ -470,6 +542,9 @@ public class DemoDatabaseReset {
                 "Lina Mansour visit note\nMigraine improved after clinic care.\n");
     }
 
+    /**
+     * Inserts medical file into SQLite.
+     */
     private static void insertMedicalFile(Connection connection, String fileId, String patientId, String originalName,
                                           String fileType, String uploadedBy, String summary, String fileContent)
             throws SQLException, IOException {
@@ -496,6 +571,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Seeds messages for the presentation database.
+     */
     private static void seedMessages(Connection connection) throws SQLException {
         insertMessage(connection, "admin", "doctor", "DOCTOR", "Clinic", "215070632",
                 "Review critical patient", "Please review Arial Shmohan's recent heart rate readings.", "HIGH", "SENT");
@@ -507,6 +585,9 @@ public class DemoDatabaseReset {
                 "Vitals follow-up", "Please repeat vitals for Arial Shmohan in 30 minutes.", "NORMAL", "SENT");
     }
 
+    /**
+     * Inserts message into SQLite.
+     */
     private static void insertMessage(Connection connection, String sender, String recipientUsername,
                                       String recipientRole, String recipientSection, String patientId,
                                       String subject, String body, String priority, String status) throws SQLException {
@@ -527,6 +608,9 @@ public class DemoDatabaseReset {
         }
     }
 
+    /**
+     * Returns the current timestamp in the SQLite storage format.
+     */
     private static String sqlNow() {
         return LocalDateTime.now().format(SQL_DATE_TIME);
     }

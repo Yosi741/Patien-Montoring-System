@@ -1,7 +1,7 @@
 package pages.billing;
 
 import app.helpers.PermissionHelper;
-import pages.patient.patient_detail.SqlitePatientDao;
+import pages.patient.Add_Edit_Patient_Dao;
 import pages.user.User;
 
 import java.sql.SQLException;
@@ -11,22 +11,34 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+/**
+ * Validates billing permissions and invoice data before delegating persistence to the billing DAO.
+ */
 public class BillingService {
 
     private static final DateTimeFormatter SQL_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final BillingDao billingDao;
-    private final SqlitePatientDao patientDao;
+    private final Add_Edit_Patient_Dao patientDao;
 
+    /**
+     * Creates the service with the dependencies used by the billing workflow.
+     */
     public BillingService() {
-        this(new SqliteBillingDao(), new SqlitePatientDao());
+        this(new SqliteBillingDao(), new Add_Edit_Patient_Dao());
     }
 
-    public BillingService(BillingDao billingDao, SqlitePatientDao patientDao) {
+    /**
+     * Creates the service with the dependencies used by the billing workflow.
+     */
+    public BillingService(BillingDao billingDao, Add_Edit_Patient_Dao patientDao) {
         this.billingDao = billingDao;
         this.patientDao = patientDao;
     }
 
+    /**
+     * Loads overview for the billing workflow.
+     */
     public BillingOverview loadOverview(String search, String status, String dateRange) throws SQLException {
         BillingDao.BillingQuery query = new BillingDao.BillingQuery(normalizeSearch(search), normalizeStatusFilter(status), normalizeDateRange(dateRange));
         List<BillingRecord> records = billingDao.findAll(query);
@@ -34,10 +46,13 @@ public class BillingService {
         return new BillingOverview(records, metrics);
     }
 
+    /**
+     * Creates invoice for the billing workflow.
+     */
     public BillingRecord createInvoice(User actor, InvoiceDraft draft) throws SQLException {
         require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
         validateDraft(draft);
-        SqlitePatientDao.PatientDetail patient = patientDao.findDetailById(draft.patientId().trim())
+        Add_Edit_Patient_Dao.PatientDetail patient = patientDao.findDetailById(draft.patientId().trim())
                 .orElseThrow(() -> new IllegalArgumentException("Patient file was not found for this ID."));
         String status = normalizeInvoiceStatus(draft.paymentStatus());
         String paymentMethod = normalizePaymentMethod(draft.paymentMethod());
@@ -62,10 +77,16 @@ public class BillingService {
         ));
     }
 
+    /**
+     * Finds invoice.
+     */
     public Optional<BillingRecord> findInvoice(long invoiceId) throws SQLException {
         return billingDao.findById(invoiceId);
     }
 
+    /**
+     * Marks paid with its new workflow state.
+     */
     public void markPaid(User actor, long invoiceId, String paymentMethod) throws SQLException {
         require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
         String method = normalizePaymentMethod(paymentMethod);
@@ -78,6 +99,9 @@ public class BillingService {
         }
     }
 
+    /**
+     * Determines whether cancel invoice for the current record or user.
+     */
     public void cancelInvoice(User actor, long invoiceId) throws SQLException {
         require(PermissionHelper.canManageBilling(actor), "Billing access is not available for this user.");
         boolean updated = billingDao.cancelInvoice(invoiceId);
@@ -86,6 +110,9 @@ public class BillingService {
         }
     }
 
+    /**
+     * Deletes invoice after the required checks.
+     */
     public void deleteInvoice(User actor, long invoiceId) throws SQLException {
         require(PermissionHelper.canDeleteInvoice(actor), "Only Admin users can delete invoices.");
         findInvoice(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found in the local clinic database: " + invoiceId));
@@ -95,13 +122,19 @@ public class BillingService {
         }
     }
 
+    /**
+     * Finds patient name.
+     */
     public Optional<String> findPatientName(String patientId) throws SQLException {
         if (patientId == null || patientId.isBlank()) {
             return Optional.empty();
         }
-        return patientDao.findDetailById(patientId.trim()).map(SqlitePatientDao.PatientDetail::getName);
+        return patientDao.findDetailById(patientId.trim()).map(Add_Edit_Patient_Dao.PatientDetail::getName);
     }
 
+    /**
+     * Validates draft against the active business rules.
+     */
     private void validateDraft(InvoiceDraft draft) {
         if (draft == null) {
             throw new IllegalArgumentException("Invoice details are required.");
@@ -121,16 +154,25 @@ public class BillingService {
         }
     }
 
+    /**
+     * Enforces require before the protected operation continues.
+     */
     private void require(boolean allowed, String message) {
         if (!allowed) {
             throw new SecurityException(message);
         }
     }
 
+    /**
+     * Normalizes search to the stored application format.
+     */
     private String normalizeSearch(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Normalizes status filter to the stored application format.
+     */
     private String normalizeStatusFilter(String value) {
         if (value == null || value.isBlank()) {
             return "All";
@@ -148,6 +190,9 @@ public class BillingService {
         return "All";
     }
 
+    /**
+     * Normalizes date range to the stored application format.
+     */
     private String normalizeDateRange(String value) {
         if (value == null || value.isBlank()) {
             return "All Time";
@@ -165,6 +210,9 @@ public class BillingService {
         return "All Time";
     }
 
+    /**
+     * Normalizes invoice status to the stored application format.
+     */
     private String normalizeInvoiceStatus(String value) {
         if (value == null || value.isBlank()) {
             return "UNPAID";
@@ -176,6 +224,9 @@ public class BillingService {
         return "UNPAID";
     }
 
+    /**
+     * Normalizes payment method to the stored application format.
+     */
     private String normalizePaymentMethod(String value) {
         if (value == null) {
             return "";
@@ -192,16 +243,25 @@ public class BillingService {
         return trimmed;
     }
 
+    /**
+     * Normalizes blank to to the workflow fallback value.
+     */
     private String blankTo(String value, String fallback) {
         return value == null || value.trim().isEmpty() ? fallback : value.trim();
     }
 
+    /**
+     * Returns the username associated with the current session or workflow record.
+     */
     private String username(User actor) {
         return actor == null || actor.getUsername() == null || actor.getUsername().isBlank()
                 ? "Unknown"
                 : actor.getUsername().trim();
     }
 
+    /**
+     * Returns the current timestamp in the SQLite storage format.
+     */
     private String now() {
         return LocalDateTime.now().format(SQL_DATE_TIME);
     }

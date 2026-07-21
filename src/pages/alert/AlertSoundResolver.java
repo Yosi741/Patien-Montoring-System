@@ -5,6 +5,9 @@ import javax.sound.sampled.AudioSystem;
 import java.io.File;
 import java.net.URL;
 
+/**
+ * Locates the packaged alarm WAV resource and safe filesystem fallbacks for alert playback.
+ */
 final class AlertSoundResolver {
 
     private static final String CLASSPATH_SOUND = "/sound/alarm.wav";
@@ -13,9 +16,15 @@ final class AlertSoundResolver {
     private static final String LEGACY_SOUND = "resources/sounds/alarm.wav";
     private static final String EXTRA_FALLBACK_SOUND = "sound/alarm.wav";
 
+    /**
+     * Creates a alert sound resolver from the supplied record values.
+     */
     private AlertSoundResolver() {
     }
 
+    /**
+     * Opens audio stream for the selected record.
+     */
     static AudioInputStream openAudioStream(Class<?> owner, String logPrefix) {
         URL classpathUrl = owner.getResource(CLASSPATH_SOUND);
         if (classpathUrl != null) {
@@ -50,6 +59,9 @@ final class AlertSoundResolver {
         return null;
     }
 
+    /**
+     * Attempts file and returns the usable result when available.
+     */
     private static AudioInputStream tryFile(String logPrefix, String candidate) {
         File file = new File(candidate);
         if (!file.exists()) {
@@ -63,6 +75,9 @@ final class AlertSoundResolver {
         }
     }
 
+    /**
+     * Logs missing for resource diagnostics.
+     */
     private static void logMissing(String logPrefix, URL classpathUrl) {
         System.out.println(logPrefix + " file not found in classpath or filesystem fallbacks.");
         System.out.println(logPrefix + " user.dir=" + System.getProperty("user.dir"));
@@ -73,6 +88,9 @@ final class AlertSoundResolver {
         logAttempt(logPrefix, EXTRA_FALLBACK_SOUND);
     }
 
+    /**
+     * Logs attempt for resource diagnostics.
+     */
     private static void logAttempt(String logPrefix, String candidate) {
         File file = new File(candidate);
         System.out.println(logPrefix + " attempt " + candidate + " -> " + file.getAbsolutePath() + " exists=" + file.exists());

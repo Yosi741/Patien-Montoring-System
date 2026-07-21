@@ -15,29 +15,47 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Applies notification permissions and creates or updates clinic alert notifications.
+ */
 public class NotificationCenterService {
 
     private final SqliteNotificationDao notificationDao;
     private final SqliteMessageDao messageDao;
 
+    /**
+     * Creates the service with the dependencies used by the alert workflow.
+     */
     public NotificationCenterService() {
         this(new SqliteNotificationDao(), new SqliteMessageDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the alert workflow.
+     */
     public NotificationCenterService(SqliteNotificationDao notificationDao) {
         this(notificationDao, new SqliteMessageDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the alert workflow.
+     */
     public NotificationCenterService(SqliteNotificationDao notificationDao, SqliteMessageDao messageDao) {
         this.notificationDao = notificationDao;
         this.messageDao = messageDao;
     }
 
+    /**
+     * Creates notification for the alert workflow.
+     */
     public long createNotification(SqliteNotificationDao.NotificationWriteRecord record) throws SQLException {
         validate(record);
         return notificationDao.insert(record);
     }
 
+    /**
+     * Finds for current user.
+     */
     public List<SqliteNotificationDao.NotificationRow> findForCurrentUser(User user, String severity, String status,
                                                                           String patientSearch, String dateRange) throws SQLException {
         require(PermissionHelper.canViewNotifications(user), "Login is required to view notifications.");
@@ -53,11 +71,17 @@ public class NotificationCenterService {
 
 
 
+    /**
+     * Marks read with its new workflow state.
+     */
     public void markRead(User user, long id) throws SQLException {
         require(PermissionHelper.canAcknowledgeAlerts(user), "Only Admin, Doctor, or Nurse users can acknowledge alerts.");
         notificationDao.markRead(id);
     }
 
+    /**
+     * Marks read with its new workflow state.
+     */
     public void markRead(User user, SqliteNotificationDao.NotificationRow row) throws SQLException {
         require(PermissionHelper.canAcknowledgeAlerts(user), "Only Admin, Doctor, or Nurse users can acknowledge alerts.");
         if (isMessageRow(row)) {
@@ -68,6 +92,9 @@ public class NotificationCenterService {
         markRead(user, row.getId());
     }
 
+    /**
+     * Creates critical alert for the intended recipient.
+     */
     public void notifyCriticalAlert(String patientId, String severity, String message, String sourceId) {
         try {
             createNotification(new SqliteNotificationDao.NotificationWriteRecord(
@@ -108,6 +135,9 @@ public class NotificationCenterService {
         }
     }
 
+    /**
+     * Validates validate against the active business rules.
+     */
     private void validate(SqliteNotificationDao.NotificationWriteRecord record) {
         FormValidationHelper.ValidationResult validation = FormValidationHelper.combine(
                 FormValidationHelper.validateRequired("Severity", record.getSeverity()),
@@ -122,6 +152,9 @@ public class NotificationCenterService {
         }
     }
 
+    /**
+     * Finds message rows.
+     */
     private List<SqliteNotificationDao.NotificationRow> findMessageRows(User user, String severity, String status,
                                                                         String patientSearch, String dateRange) throws SQLException {
         ArrayList<SqliteNotificationDao.NotificationRow> rows = new ArrayList<>();
@@ -141,6 +174,9 @@ public class NotificationCenterService {
         return rows;
     }
 
+    /**
+     * Builds the JavaFX row used to display to message notification row.
+     */
     private SqliteNotificationDao.NotificationRow toMessageNotificationRow(User user, SqliteMessageDao.MessageRow message) {
         return new SqliteNotificationDao.NotificationRow(
                 -message.getId(),
@@ -159,6 +195,9 @@ public class NotificationCenterService {
         );
     }
 
+    /**
+     * Determines whether the current value matches filters.
+     */
     private boolean matchesFilters(SqliteNotificationDao.NotificationRow row, String severity, String status,
                                    String patientSearch, String dateRange) {
         if (severity != null && !severity.isBlank() && !"All".equalsIgnoreCase(severity)
@@ -192,6 +231,9 @@ public class NotificationCenterService {
         return true;
     }
 
+    /**
+     * Resolves priority severity for the current clinical state.
+     */
     private String prioritySeverity(String priority) {
         String value = priority == null ? "" : priority.trim().toUpperCase(Locale.ROOT);
         if ("URGENT".equals(value) || "HIGH".equals(value)) {
@@ -200,6 +242,9 @@ public class NotificationCenterService {
         return "INFO";
     }
 
+    /**
+     * Maps message read and archive flags to the notification-center status.
+     */
     private String messageStatus(String status) {
         if ("READ".equalsIgnoreCase(status)) {
             return "READ";
@@ -214,6 +259,9 @@ public class NotificationCenterService {
         return row != null && "MESSAGE".equalsIgnoreCase(row.getSourceType());
     }
 
+    /**
+     * Parses source ID without exposing format failures to the caller.
+     */
     private long parseSourceId(SqliteNotificationDao.NotificationRow row) {
         try {
             return Long.parseLong(row.getSourceId());
@@ -222,11 +270,17 @@ public class NotificationCenterService {
         }
     }
 
+    /**
+     * Parses date without exposing format failures to the caller.
+     */
     private LocalDate parseDate(String value) {
         LocalDateTime dateTime = parseDateTime(value);
         return dateTime == null ? null : dateTime.toLocalDate();
     }
 
+    /**
+     * Parses date time without exposing format failures to the caller.
+     */
     private LocalDateTime parseDateTime(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -247,6 +301,9 @@ public class NotificationCenterService {
         }
     }
 
+    /**
+     * Validates severity against the active business rules.
+     */
     private FormValidationHelper.ValidationResult validateSeverity(String severity) {
         String value = severity == null ? "" : severity.trim().toUpperCase(Locale.ROOT);
         return value.equals("INFO") || value.equals("WARNING") || value.equals("CRITICAL")
@@ -254,20 +311,32 @@ public class NotificationCenterService {
                 : FormValidationHelper.ValidationResult.error("Severity must be INFO, WARNING, or CRITICAL.");
     }
 
+    /**
+     * Enforces require before the protected operation continues.
+     */
     private void require(boolean condition, String message) {
         if (!condition) {
             throw new SecurityException(message);
         }
     }
 
+    /**
+     * Returns the username associated with the current session or workflow record.
+     */
     private String username(User user) {
         return user == null || user.getUsername() == null || user.getUsername().isBlank() ? "Unknown" : user.getUsername();
     }
 
+    /**
+     * Returns the clinic section associated with the current session or message.
+     */
     private String section(User user) {
         return user == null || user.getSection() == null || user.getSection().isBlank() ? "All" : user.getSection();
     }
 
+    /**
+     * Converts a null value to null to for display.
+     */
     private String nullTo(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
     }

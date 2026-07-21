@@ -8,6 +8,9 @@ import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Manual verification utility that checks required demo-table counts, accounts, patients, and appointments.
+ */
 public class DemoDatabaseVerify {
 
     private static final Map<String, Integer> MIN_COUNTS = new LinkedHashMap<>();
@@ -26,6 +29,9 @@ public class DemoDatabaseVerify {
         MIN_COUNTS.put("messages", 4);
     }
 
+    /**
+     * Runs this manual ClinicPulse verification or demo utility.
+     */
     public static void main(String[] args) throws Exception {
         SchemaInitializer.initialize();
         boolean ok = true;
@@ -46,6 +52,9 @@ public class DemoDatabaseVerify {
         System.out.println("Demo database verification passed.");
     }
 
+    /**
+     * Counts count.
+     */
     private static int count(Connection connection, String table) throws SQLException {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + table)) {
@@ -53,6 +62,9 @@ public class DemoDatabaseVerify {
         }
     }
 
+    /**
+     * Verifies critical patients and reports whether it is valid.
+     */
     private static boolean verifyCriticalPatients(Connection connection) throws SQLException {
         String sql = "SELECT COUNT(*) FROM patients WHERE patient_id IN ('215070632', '100000003') "
                 + "AND UPPER(priority) = 'CRITICAL'";
@@ -64,6 +76,9 @@ public class DemoDatabaseVerify {
         }
     }
 
+    /**
+     * Verifies demo users and reports whether it is valid.
+     */
     private static boolean verifyDemoUsers(Connection connection) throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE active = 1 AND "
                 + "((username = 'admin' AND password = 'admin123' AND role = 'ADMIN' AND staff_id = 'U0001') "
@@ -78,6 +93,9 @@ public class DemoDatabaseVerify {
         }
     }
 
+    /**
+     * Verifies current appointments and reports whether it is valid.
+     */
     private static boolean verifyCurrentAppointments(Connection connection) throws SQLException {
         String sql = "SELECT COUNT(*) FROM appointments WHERE substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')";
         try (Statement statement = connection.createStatement();

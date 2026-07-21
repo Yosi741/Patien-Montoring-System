@@ -12,8 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Reads and writes internal clinic messages in the SQLite messages table.
+ */
 public class SqliteMessageDao {
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteMessageDao() {
         try {
             SchemaInitializer.initialize();
@@ -22,6 +28,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Inserts insert into SQLite.
+     */
     public long insert(MessageWriteRecord record) throws SQLException {
         String sql = "INSERT INTO messages(sender_username, recipient_username, recipient_role, recipient_section, patient_id, subject, body, priority, status) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, 'SENT')";
@@ -42,6 +51,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Finds inbox in SQLite.
+     */
     public List<MessageRow> findInbox(String username, String roleGroup, String section, String search, String status) throws SQLException {
         ArrayList<MessageRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
@@ -56,6 +68,9 @@ public class SqliteMessageDao {
         return rows;
     }
 
+    /**
+     * Finds sent in SQLite.
+     */
     public List<MessageRow> findSent(String senderUsername, String search, String status) throws SQLException {
         ArrayList<MessageRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
@@ -68,6 +83,9 @@ public class SqliteMessageDao {
         return rows;
     }
 
+    /**
+     * Finds by ID in SQLite.
+     */
     public Optional<MessageRow> findById(long id) throws SQLException {
         ArrayList<MessageRow> rows = new ArrayList<>();
         StringBuilder sql = baseSelect();
@@ -76,6 +94,9 @@ public class SqliteMessageDao {
         return rows.stream().findFirst();
     }
 
+    /**
+     * Marks read with its new workflow state.
+     */
     public boolean markRead(long id, String username) throws SQLException {
         String sql = "UPDATE messages SET status = 'READ', read_at = CURRENT_TIMESTAMP "
                 + "WHERE id = ? AND status <> 'ARCHIVED' AND (LOWER(recipient_username) = LOWER(?) OR recipient_username IS NULL)";
@@ -87,6 +108,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Archives archive while preserving its stored history.
+     */
     public boolean archive(long id, String username) throws SQLException {
         String sql = "UPDATE messages SET status = 'ARCHIVED' "
                 + "WHERE id = ? AND (LOWER(sender_username) = LOWER(?) OR LOWER(recipient_username) = LOWER(?) OR recipient_username IS NULL)";
@@ -99,11 +123,17 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Returns the shared SELECT clause used by this SQLite DAO.
+     */
     private StringBuilder baseSelect() {
         return new StringBuilder("SELECT id, sender_username, recipient_username, recipient_role, recipient_section, patient_id, "
                 + "subject, body, priority, status, created_at, read_at FROM messages ");
     }
 
+    /**
+     * Counts unread records visible to the current user.
+     */
     public int unreadInboxCount(String username, String roleGroup, String section) throws SQLException {
         String sql = "SELECT COUNT(*) FROM messages WHERE status = 'SENT' "
                 + "AND (LOWER(recipient_username) = LOWER(?) OR LOWER(recipient_role) = LOWER(?) OR LOWER(recipient_section) = LOWER(?))";
@@ -118,6 +148,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Appends filters to the current query or result.
+     */
     private void appendFilters(StringBuilder sql, ArrayList<String> params, String search, String status) {
         if (search != null && !search.trim().isEmpty()) {
             sql.append("AND (subject LIKE ? OR body LIKE ? OR sender_username LIKE ? OR COALESCE(patient_id, '') LIKE ?) ");
@@ -133,6 +166,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Queries rows from SQLite.
+     */
     private void queryRows(String sql, List<String> params, ArrayList<MessageRow> rows) throws SQLException {
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -147,6 +183,9 @@ public class SqliteMessageDao {
         }
     }
 
+    /**
+     * Builds the JavaFX row used to display map row.
+     */
     private MessageRow mapRow(ResultSet resultSet) throws SQLException {
         return new MessageRow(
                 resultSet.getLong("id"),
@@ -164,6 +203,9 @@ public class SqliteMessageDao {
         );
     }
 
+    /**
+     * Normalizes blank to null to the workflow fallback value.
+     */
     private String blankToNull(String value) {
         return value == null || value.trim().isEmpty() ? null : value.trim();
     }
@@ -178,6 +220,9 @@ public class SqliteMessageDao {
         private final String body;
         private final String priority;
 
+        /**
+         * Creates a message write record from the supplied record values.
+         */
         public MessageWriteRecord(String senderUsername, String recipientUsername, String recipientRole, String recipientSection,
                                   String patientId, String subject, String body, String priority) {
             this.senderUsername = trim(senderUsername);
@@ -199,6 +244,9 @@ public class SqliteMessageDao {
         public String getBody() { return body; }
         public String getPriority() { return priority; }
 
+        /**
+         * Trims trim while preserving null handling.
+         */
         private static String trim(String value) {
             return value == null ? "" : value.trim();
         }
@@ -218,6 +266,9 @@ public class SqliteMessageDao {
         private final String createdAt;
         private final String readAt;
 
+        /**
+         * Creates a message row from the supplied record values.
+         */
         public MessageRow(long id, String senderUsername, String recipientUsername, String recipientRole,
                           String recipientSection, String patientId, String subject, String body,
                           String priority, String status, String createdAt, String readAt) {
@@ -244,6 +295,9 @@ public class SqliteMessageDao {
         public String getStatus() { return status; }
         public String getCreatedAt() { return createdAt; }
         public String getReadAt() { return readAt; }
+        /**
+         * Returns target summary used by the messaging workflow.
+         */
         public String getTargetSummary() {
             if (recipientUsername != null && !recipientUsername.isBlank()) {
                 return "User: " + recipientUsername;

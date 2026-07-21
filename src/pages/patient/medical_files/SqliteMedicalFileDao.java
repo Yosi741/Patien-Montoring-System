@@ -2,6 +2,7 @@ package pages.patient.medical_files;
 
 import app.database.DatabaseManager;
 import app.database.SchemaInitializer;
+import pages.patient.medical_files.Upload.MedicalFile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,15 +15,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Stores and queries uploaded-file metadata in the SQLite medical_files table.
+ */
 public class SqliteMedicalFileDao implements MedicalFileDao {
 
     private static final DateTimeFormatter DISPLAY_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteMedicalFileDao() {
         ensureSchema();
     }
 
+    /**
+     * Validates and saves save.
+     */
     @Override
     public boolean save(MedicalFile medicalFile, String extractedSummary) throws SQLException {
         String sql = "INSERT INTO medical_files(file_id, patient_id, original_name, stored_path, file_type, uploaded_by, uploaded_at, extracted_summary, file_size, notes) "
@@ -51,6 +61,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Inserts uploaded file into SQLite.
+     */
     public boolean insertUploadedFile(MedicalFileRecord file) throws SQLException {
         String sql = "INSERT INTO medical_files(file_id, patient_id, original_name, stored_path, file_type, uploaded_by, uploaded_at, extracted_summary, file_size, notes) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -70,6 +83,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Determines whether has recent duplicate for the current record or user.
+     */
     public boolean hasRecentDuplicate(String patientId, String originalName, long fileSize, String uploadedAt) throws SQLException {
         String datePrefix = uploadedAt == null || uploadedAt.length() < 10 ? "" : uploadedAt.substring(0, 10);
         String sql = "SELECT 1 FROM medical_files WHERE patient_id = ? AND original_name = ? AND file_size = ? "
@@ -86,6 +102,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Finds files in SQLite.
+     */
     public List<MedicalFileRecord> findFiles(String search, String category, String dateRange, String uploadedBy, String patientIdFilter) throws SQLException {
         ArrayList<MedicalFileRecord> files = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT mf.id, mf.file_id, mf.patient_id, "
@@ -135,6 +154,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
 
 
 
+    /**
+     * Finds by file ID in SQLite.
+     */
     public Optional<MedicalFileRecord> findByFileId(String fileId) throws SQLException {
         String sql = "SELECT mf.id, mf.file_id, mf.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
                 + "mf.original_name, mf.stored_path, mf.file_type, mf.uploaded_by, mf.uploaded_at, mf.extracted_summary, mf.file_size, mf.notes "
@@ -151,6 +173,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         return Optional.empty();
     }
 
+    /**
+     * Deletes by file ID after the required checks.
+     */
     public boolean deleteByFileId(String fileId) throws SQLException {
         String sql = "DELETE FROM medical_files WHERE file_id = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -160,6 +185,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Counts count in SQLite.
+     */
     @Override
     public int count() throws SQLException {
         String sql = "SELECT COUNT(*) FROM medical_files";
@@ -170,6 +198,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -178,6 +209,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Adds date range to the current patient workflow.
+     */
     private void addDateRange(StringBuilder sql, String dateRange) {
         if (dateRange == null || dateRange.isBlank() || "All".equalsIgnoreCase(dateRange)) {
             return;
@@ -202,6 +236,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         }
     }
 
+    /**
+     * Uploads uploaded at sql expression and stores its metadata in SQLite.
+     */
     private String uploadedAtSqlExpression() {
         return "CASE "
                 + "WHEN length(mf.uploaded_at) >= 10 AND substr(mf.uploaded_at, 3, 1) = '-' "
@@ -209,6 +246,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
                 + "ELSE mf.uploaded_at END";
     }
 
+    /**
+     * Maps record to the corresponding application model.
+     */
     private MedicalFileRecord mapRecord(ResultSet resultSet) throws SQLException {
         return new MedicalFileRecord(
                 resultSet.getLong("id"),
@@ -226,6 +266,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         );
     }
 
+    /**
+     * Reads value safely from the current SQLite row.
+     */
     private String value(String value) {
         return value == null ? "" : value;
     }
@@ -244,6 +287,9 @@ public class SqliteMedicalFileDao implements MedicalFileDao {
         private final long fileSize;
         private final String notes;
 
+        /**
+         * Creates a medical file record from the supplied record values.
+         */
         public MedicalFileRecord(long id, String fileId, String patientId, String patientName, String originalName,
                                  String storedPath, String fileType, String uploadedBy, String uploadedAt,
                                  String extractedSummary, long fileSize, String notes) {

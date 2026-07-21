@@ -1,5 +1,8 @@
 package pages.patient.vitals_entry;
 
+/**
+ * Represents one recorded vital value with its unit, timestamp, and recording staff member.
+ */
 public class VitalRecord {
 
     private String recordId;
@@ -10,14 +13,12 @@ public class VitalRecord {
     private String dateTime;
     private String sourceType;
     private String staffName;
-    private String deviceId;
-    private String deviceSerial;
-    private String deviceName;
-    private String deviceType;
 
+    /**
+     * Creates a vital record from the supplied record values.
+     */
     public VitalRecord(String recordId, String patientId, String vitalType, String value, String unit,
-                       String dateTime, String sourceType, String staffName, String deviceId,
-                       String deviceSerial, String deviceName, String deviceType) {
+                       String dateTime, String sourceType, String staffName) {
         this.recordId = recordId;
         this.patientId = patientId;
         this.vitalType = vitalType;
@@ -26,10 +27,6 @@ public class VitalRecord {
         this.dateTime = dateTime;
         this.sourceType = sourceType;
         this.staffName = staffName;
-        this.deviceId = deviceId;
-        this.deviceSerial = deviceSerial;
-        this.deviceName = deviceName;
-        this.deviceType = deviceType;
     }
 
     public String getRecordId() { return recordId; }
@@ -40,8 +37,4 @@ public class VitalRecord {
     public String getDateTime() { return dateTime; }
     public String getSourceType() { return sourceType; }
     public String getStaffName() { return staffName; }
-    public String getDeviceId() { return deviceId; }
-    public String getDeviceSerial() { return deviceSerial; }
-    public String getDeviceName() { return deviceName; }
-    public String getDeviceType() { return deviceType; }
 }

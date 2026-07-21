@@ -5,20 +5,32 @@ import pages.user.profile_settings.SqliteUserDao;
 
 import java.sql.SQLException;
 
+/**
+ * Validates username and staff ID recovery requests and updates local account passwords.
+ */
 public class ForgotPasswordService {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
 
     private final SqliteUserDao userDao;
 
+    /**
+     * Creates the service with the dependencies used by the login workflow.
+     */
     public ForgotPasswordService() {
         this(new SqliteUserDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the login workflow.
+     */
     public ForgotPasswordService(SqliteUserDao userDao) {
         this.userDao = userDao;
     }
 
+    /**
+     * Validates and submits reset.
+     */
     public ForgotPasswordResult requestReset(String username, String staffId) throws SQLException {
         String cleanUsername = clean(username);
         String cleanStaffId = clean(staffId);
@@ -33,6 +45,9 @@ public class ForgotPasswordService {
         return ForgotPasswordResult.readyForReset(matchedUser.getUsername(), matchedUser.getStaffId());
     }
 
+    /**
+     * Updates password.
+     */
     public void updatePassword(String username, String staffId, String newPassword, String confirmPassword) throws SQLException {
         ForgotPasswordResult identityResult = requestReset(username, staffId);
         if (identityResult.status() == Status.EMPTY_CREDENTIALS) {
@@ -57,6 +72,9 @@ public class ForgotPasswordService {
         userDao.updatePassword(identityResult.username(), cleanPassword);
     }
 
+    /**
+     * Trims and normalizes clean before storage or comparison.
+     */
     private String clean(String value) {
         return value == null ? "" : value.trim();
     }
@@ -68,14 +86,23 @@ public class ForgotPasswordService {
     }
 
     public record ForgotPasswordResult(Status status, String username, String staffId) {
+        /**
+         * Creates the forgot-password result used when required credentials are blank.
+         */
         public static ForgotPasswordResult emptyCredentials() {
             return new ForgotPasswordResult(Status.EMPTY_CREDENTIALS, "", "");
         }
 
+        /**
+         * Creates the forgot-password result used when username and email do not match.
+         */
         public static ForgotPasswordResult credentialsMismatch() {
             return new ForgotPasswordResult(Status.CREDENTIALS_MISMATCH, "", "");
         }
 
+        /**
+         * Creates the successful forgot-password result that permits a password reset.
+         */
         public static ForgotPasswordResult readyForReset(String username, String staffId) {
             return new ForgotPasswordResult(Status.READY_FOR_RESET, username, staffId);
         }

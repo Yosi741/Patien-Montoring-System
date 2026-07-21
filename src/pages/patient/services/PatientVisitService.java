@@ -1,6 +1,8 @@
-package pages.patient.patient_detail;
+package pages.patient.services;
 
-import pages.patient.patient_board.PatientVisitDao;
+import pages.patient.patient_detail.PatientVisitDao;
+import pages.patient.patient_detail.SqlitePatientVisitDao;
+import pages.patient.model.PatientVisit;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -8,16 +10,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Maintains active visits, visit history, and discharge summaries through the patient-visit DAO.
+ */
 public class PatientVisitService {
 
     private static final DateTimeFormatter SQLITE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final PatientVisitDao patientVisitDao;
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public PatientVisitService() {
         this(new SqlitePatientVisitDao());
     }
 
+    /**
+     * Creates the service with the dependencies used by the patient workflow.
+     */
     public PatientVisitService(PatientVisitDao patientVisitDao) {
         this.patientVisitDao = patientVisitDao;
     }
@@ -26,6 +37,9 @@ public class PatientVisitService {
         return patientVisitDao.findByPatientId(patientId);
     }
 
+    /**
+     * Ensures active visit exists before continuing.
+     */
     public void ensureActiveVisit(String patientId, String openingReport) throws SQLException {
         Optional<PatientVisit> existingVisit = patientVisitDao.findLatestActiveVisit(patientId);
         if (existingVisit.isPresent()) {
@@ -34,6 +48,9 @@ public class PatientVisitService {
         patientVisitDao.createVisit(patientId, now(), "ACTIVE", blank(openingReport));
     }
 
+    /**
+     * Discharges visit while preserving its visit history.
+     */
     public void dischargeVisit(String patientId, String dischargeSummary) throws SQLException {
         String summary = defaultDischargeSummary(dischargeSummary);
         boolean updated = patientVisitDao.dischargeActiveVisit(patientId, now(), summary);
@@ -43,14 +60,23 @@ public class PatientVisitService {
         }
     }
 
+    /**
+     * Returns the current timestamp in the SQLite storage format.
+     */
     private String now() {
         return LocalDateTime.now().format(SQLITE_DATE_TIME);
     }
 
+    /**
+     * Normalizes blank blank to the workflow fallback value.
+     */
     private String blank(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Returns the default discharge summary used by this workflow.
+     */
     private String defaultDischargeSummary(String value) {
         String trimmed = blank(value);
         return trimmed.isEmpty() ? "Visit closed without a summary." : trimmed;

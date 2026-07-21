@@ -12,12 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Stores and queries appointment records in the SQLite appointments table.
+ */
 public class SqliteAppointmentDao {
 
+    /**
+     * Creates the SQLite DAO and initializes any schema support it requires.
+     */
     public SqliteAppointmentDao() {
         ensureSchema();
     }
 
+    /**
+     * Inserts appointment into SQLite.
+     */
     public long insertAppointment(AppointmentRecord appointment) throws SQLException {
         String sql = "INSERT INTO appointments(patient_id, title, appointment_type, start_time, end_time, location, "
                 + "assigned_staff, status, notes, created_by, updated_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
@@ -35,6 +44,9 @@ public class SqliteAppointmentDao {
         return -1L;
     }
 
+    /**
+     * Updates appointment.
+     */
     public void updateAppointment(AppointmentRecord appointment) throws SQLException {
         String sql = "UPDATE appointments SET patient_id = ?, title = ?, appointment_type = ?, start_time = ?, end_time = ?, "
                 + "location = ?, assigned_staff = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
@@ -46,16 +58,9 @@ public class SqliteAppointmentDao {
         }
     }
 
-    public void updateStatus(long appointmentId, String status) throws SQLException {
-        String sql = "UPDATE appointments SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, status);
-            statement.setLong(2, appointmentId);
-            statement.executeUpdate();
-        }
-    }
-
+    /**
+     * Deletes appointment after the required checks.
+     */
     public boolean deleteAppointment(long appointmentId) throws SQLException {
         String sql = "DELETE FROM appointments WHERE id = ?";
         try (Connection connection = DatabaseManager.getConnection();
@@ -65,6 +70,9 @@ public class SqliteAppointmentDao {
         }
     }
 
+    /**
+     * Finds by ID in SQLite.
+     */
     public Optional<AppointmentRecord> findById(long appointmentId) throws SQLException {
         String sql = "SELECT id, patient_id, title, appointment_type, start_time, end_time, location, assigned_staff, "
                 + "status, notes, created_by, created_at, updated_at FROM appointments WHERE id = ?";
@@ -80,6 +88,9 @@ public class SqliteAppointmentDao {
         return Optional.empty();
     }
 
+    /**
+     * Finds appointments in SQLite.
+     */
     public List<AppointmentRow> findAppointments(String search, String type, String status, String patientId) throws SQLException {
         ArrayList<AppointmentRow> appointments = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT a.id, a.patient_id, COALESCE(TRIM(p.first_name || ' ' || p.last_name), '') AS patient_name, "
@@ -101,6 +112,9 @@ public class SqliteAppointmentDao {
         return appointments;
     }
 
+    /**
+     * Finds appointments for patient in SQLite.
+     */
     public List<AppointmentRecord> findAppointmentsForPatient(String patientId) throws SQLException {
         ArrayList<AppointmentRecord> appointments = new ArrayList<>();
         String sql = "SELECT id, patient_id, title, appointment_type, start_time, end_time, location, assigned_staff, "
@@ -118,20 +132,24 @@ public class SqliteAppointmentDao {
         return appointments;
     }
 
+    /**
+     * Counts today in SQLite.
+     */
     public int countToday() throws SQLException {
         return count("SELECT COUNT(*) FROM appointments WHERE date(start_time) = date('now') "
                 + "OR substr(start_time, 1, 10) = strftime('%d-%m-%Y', 'now')");
     }
 
-    public int countUpcomingSurgeries() throws SQLException {
-        return count("SELECT COUNT(*) FROM appointments WHERE UPPER(appointment_type) = 'SURGERY' "
-                + "AND UPPER(status) = 'SCHEDULED' AND datetime(start_time) >= datetime('now')");
-    }
-
+    /**
+     * Counts cancelled or missed in SQLite.
+     */
     public int countCancelledOrMissed() throws SQLException {
         return count("SELECT COUNT(*) FROM appointments WHERE UPPER(status) IN ('CANCELLED', 'MISSED')");
     }
 
+    /**
+     * Adds filters to the current appointment workflow.
+     */
     private void addFilters(StringBuilder sql, List<String> params, String search, String type, String status, String patientId) {
         if (hasText(patientId)) {
             sql.append("AND a.patient_id = ? ");
@@ -162,6 +180,9 @@ public class SqliteAppointmentDao {
         }
     }
 
+    /**
+     * Binds mutable fields to a prepared SQLite statement.
+     */
     private void bindMutableFields(PreparedStatement statement, AppointmentRecord appointment) throws SQLException {
         statement.setString(1, appointment.getPatientId());
         statement.setString(2, value(appointment.getTitle()));
@@ -174,12 +195,18 @@ public class SqliteAppointmentDao {
         statement.setString(9, value(appointment.getNotes()));
     }
 
+    /**
+     * Binds params to a prepared SQLite statement.
+     */
     private void bindParams(PreparedStatement statement, List<String> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
             statement.setString(i + 1, params.get(i));
         }
     }
 
+    /**
+     * Maps record to the corresponding application model.
+     */
     private AppointmentRecord mapRecord(ResultSet resultSet) throws SQLException {
         return new AppointmentRecord(
                 resultSet.getLong("id"),
@@ -198,6 +225,9 @@ public class SqliteAppointmentDao {
         );
     }
 
+    /**
+     * Builds the JavaFX row used to display map row.
+     */
     private AppointmentRow mapRow(ResultSet resultSet) throws SQLException {
         return new AppointmentRow(
                 resultSet.getLong("id"),
@@ -217,6 +247,9 @@ public class SqliteAppointmentDao {
         );
     }
 
+    /**
+     * Counts count in SQLite.
+     */
     private int count(String sql) throws SQLException {
         try (Connection connection = DatabaseManager.getConnection();
              Statement statement = connection.createStatement();
@@ -225,6 +258,9 @@ public class SqliteAppointmentDao {
         }
     }
 
+    /**
+     * Ensures schema exists before continuing.
+     */
     private void ensureSchema() {
         try {
             SchemaInitializer.initialize();
@@ -233,10 +269,16 @@ public class SqliteAppointmentDao {
         }
     }
 
+    /**
+     * Returns formatted display text for has text.
+     */
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
 
+    /**
+     * Normalizes appointment type to the stored application format.
+     */
     private String normalizeAppointmentType(String value) {
         if (value == null || value.isBlank()) {
             return "VISIT";
@@ -245,6 +287,9 @@ public class SqliteAppointmentDao {
         return "CHECKUP".equals(normalized) ? "VISIT" : normalized;
     }
 
+    /**
+     * Reads value safely from the current SQLite row.
+     */
     private String value(String value) {
         return value == null ? "" : value.trim();
     }
@@ -264,6 +309,9 @@ public class SqliteAppointmentDao {
         private final String createdAt;
         private final String updatedAt;
 
+        /**
+         * Creates a appointment record from the supplied record values.
+         */
         public AppointmentRecord(long id, String patientId, String title, String appointmentType, String startTime,
                                  String endTime, String location, String assignedStaff, String status, String notes,
                                  String createdBy, String createdAt, String updatedAt) {
@@ -300,6 +348,9 @@ public class SqliteAppointmentDao {
     public static class AppointmentRow extends AppointmentRecord {
         private final String patientName;
 
+        /**
+         * Creates a appointment row from the supplied record values.
+         */
         public AppointmentRow(long id, String patientId, String patientName, String title, String appointmentType,
                               String startTime, String endTime, String location, String assignedStaff, String status,
                               String notes, String createdBy, String createdAt, String updatedAt) {

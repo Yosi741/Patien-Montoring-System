@@ -8,9 +8,15 @@ import javafx.scene.control.TableView;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Updates JavaFX table and list selections without selecting invalid or stale indexes.
+ */
 public final class SelectionHelper {
 
 
+    /**
+     * Returns a safe display or filesystem value for clear selection.
+     */
     public static void safeClearSelection(TableView<?> table) {
         if (table != null && table.getSelectionModel() != null) {
             table.getSelectionModel().clearSelection();
@@ -21,6 +27,9 @@ public final class SelectionHelper {
     }
 
 
+    /**
+     * Returns a safe display or filesystem value for clear selection.
+     */
     public static void safeClearSelection(ListView<?> list) {
         if (list != null && list.getSelectionModel() != null) {
             list.getSelectionModel().clearSelection();
@@ -30,6 +39,9 @@ public final class SelectionHelper {
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for select index.
+     */
     public static boolean safeSelectIndex(TableView<?> table, int index) {
         if (table == null || table.getSelectionModel() == null || table.getItems() == null
                 || index < 0 || index >= table.getItems().size()) {
@@ -40,6 +52,9 @@ public final class SelectionHelper {
         return true;
     }
 
+    /**
+     * Runs when table stable and records its verification result.
+     */
     public static void runWhenTableStable(TableView<?> table, Runnable action) {
         if (action == null) {
             return;
@@ -51,6 +66,9 @@ public final class SelectionHelper {
         action.run();
     }
 
+    /**
+     * Runs when tables stable and records its verification result.
+     */
     public static void runWhenTablesStable(Runnable action, TableView<?>... tables) {
         if (action == null) {
             return;
@@ -66,6 +84,9 @@ public final class SelectionHelper {
         action.run();
     }
 
+    /**
+     * Returns a safe display or filesystem value for replace items.
+     */
     public static <T> void safeReplaceItems(TableView<T> table, ObservableList<T> backingList,
                                             Collection<? extends T> newItems) {
         safeClearSelection(table);
@@ -77,6 +98,9 @@ public final class SelectionHelper {
         }
     }
 
+    /**
+     * Returns a safe display or filesystem value for select index.
+     */
     public static boolean safeSelectIndex(ListView<?> list, int index) {
         if (list == null || list.getSelectionModel() == null || list.getItems() == null
                 || index < 0 || index >= list.getItems().size()) {
